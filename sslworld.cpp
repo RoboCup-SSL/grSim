@@ -219,7 +219,7 @@ p->createSurface(robots[k]->chassis,robots[j]->chassis); //seams ode doesn't und
 #ifdef Q_OS_WIN32
           m_parent,
 #endif
-          10005,"224.5.23.2");
+          10002,"127.0.0.1");//"224.5.23.2");
 
   visionServer->open();
 
