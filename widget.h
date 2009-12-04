@@ -3,6 +3,7 @@
 
 #include <QGLWidget>
 #include <QTime>
+#include <QMenu>
 #include "sslworld.h"
 
 #define _RENDER_INTERVAL 10
@@ -15,11 +16,21 @@ public:
     ~Widget();
     QString getFPS();
     SSLWorld* ssl;
+    QMenu* robpopup,*ballpopup;
+    QAction* moveRobotAct;
+    QAction* selectRobotAct;
+    QAction* resetRobotAct;
+    QAction* moveBallAct;
     int Current_robot,Current_team,cammode;
-//public slots:
-
+    void update3DCursur(int mouse_x,int mouse_y);
+public slots:
+    void moveRobot();
+    void selectRobot();
+    void resetRobot();
+    void moveBall();
 signals:
     void clicked();
+    void selectedRobot();
 protected:
     void paintGL ();
     void initializeGL ();
@@ -29,8 +40,11 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);    
     void wheelEvent(QWheelEvent *event);
 private:
+    int state;
+    int moving_robot_id,clicked_robot;
     int frames;
-    QTime time;
+    bool first_time;
+    QTime time,rendertimer;
     QString m_fps;
     QPoint lastPos;
 };

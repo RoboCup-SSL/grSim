@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     proto/messages_robocup_ssl_wrapper.pb.cc \
     proto/messages_robocup_ssl_refbox_log.pb.cc \
     proto/messages_robocup_ssl_geometry.pb.cc \
-    proto/messages_robocup_ssl_detection.pb.cc
+    proto/messages_robocup_ssl_detection.pb.cc \
+    Physics/pray.cpp
 HEADERS += mainwindow.h \
     widget.h \
     Graphics/graphics.h \
@@ -42,7 +43,8 @@ HEADERS += mainwindow.h \
     proto/messages_robocup_ssl_refbox_log.pb.h \
     proto/messages_robocup_ssl_geometry.pb.h \
     proto/messages_robocup_ssl_detection.pb.h \
-    proto/messages_robocup_ssl_wrapper.pb.h
+    proto/messages_robocup_ssl_wrapper.pb.h \
+    Physics/pray.h
 win32:LIBS += -L$$PWD/libs/win32 \
     -lode-0.11.1 \
     -lprotobuf-2.1.0 \

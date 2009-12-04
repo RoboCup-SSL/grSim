@@ -42,8 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     QObject::connect(exit, SIGNAL(triggered(bool)), this, SLOT(close()));
-
-    //QObject::connect(
+    QObject::connect(widget, SIGNAL(selectedRobot()), this, SLOT(updateRobotLabel()));
 
 
     timer->start();
@@ -66,6 +65,14 @@ void MainWindow::update()
 {
     widget->updateGL();
     fpslabel->setText(QString("%1 fps").arg(widget->getFPS()));
+}
+
+void MainWindow::updateRobotLabel()
+{
+    if (widget->Current_team==0)
+        robotlabel->setText(QString("Current robot: [Blue:%1]").arg(widget->Current_robot));
+    else
+        robotlabel->setText(QString("Current robot: [Yellow:%1]").arg(widget->Current_robot));
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -100,12 +107,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                   widget->ssl->g->getViewpoint(xyz,hpr);
               }
               break;
-  case '0': widget->ssl->ball->setBodyPosition(0,0,0.3);dBodySetLinearVel(widget->ssl->ball->body,0,0,0);break;
-  case '1': RR = 0;flag=true;widget->Current_robot = RR;break;
-  case '2': RR = 1;flag=true;widget->Current_robot = RR;break;
-  case '3': RR = 2;flag=true;widget->Current_robot = RR;break;
-  case '4': RR = 3;flag=true;widget->Current_robot = RR;break;
-  case '5': RR = 4;flag=true;widget->Current_robot = RR;break;
+  case '-': widget->ssl->ball->setBodyPosition(0,0,0.3);dBodySetLinearVel(widget->ssl->ball->body,0,0,0);dBodySetAngularVel(widget->ssl->ball->body,0,0,0);break;
+  case '0': RR = 0;flag=true;widget->Current_robot = RR;break;
+  case '1': RR = 1;flag=true;widget->Current_robot = RR;break;
+  case '2': RR = 2;flag=true;widget->Current_robot = RR;break;
+  case '3': RR = 3;flag=true;widget->Current_robot = RR;break;
+  case '4': RR = 4;flag=true;widget->Current_robot = RR;break;
   case 'y': case 'Y': T=1;flag=true;widget->Current_team = T; break;
   case 'b': case 'B': T=0;flag=true;widget->Current_team = T; break;
   case 'r':case 'R': widget->ssl->robots[R]->resetRobot();break;
@@ -123,9 +130,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
   }
   if (flag)
   {
-      if (T==0)
-        robotlabel->setText(QString("Current robot: [Blue:%1]").arg(RR+1));
-      else
-        robotlabel->setText(QString("Current robot: [Yellow:%1]").arg(RR+1));
+      updateRobotLabel();
   }
 }

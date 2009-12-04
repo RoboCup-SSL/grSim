@@ -2,6 +2,7 @@
 #include <QImage>
 #include <math.h>
 
+
 // light vector. LIGHTZ is implicitly 1
 #define LIGHTX (1.0f)
 #define LIGHTY (0.4f)
@@ -48,21 +49,41 @@ int CGraphics::loadTexture(QImage* img)
     return tex_ids.size()-1;
 }
 
-/*int CGraphics::loadSkyboxTexture(QImage* img)
+int CGraphics::loadTextureSkyBox(QImage* img)
 {
     GLuint id;
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &id);
-    id = owner->bindTexture(*img);
+    glBindTexture(GL_TEXTURE_2D,id);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    char* buffer=new char[img->width()*img->height()*4];
+    int ofs = img->width()*4;
+    for (int j=0;j<img->height();j++)
+    {
+        memcpy(buffer+j*ofs,img->scanLine(img->height()-1-j),ofs);
+    }
+    for (int j=0;j<img->height();j++)
+    {
+        for (int i=0;i<img->width();i++)
+        {
+            int p=j*ofs+i*4;
+            char temp = buffer[p+2];
+            buffer[p+2]=buffer[p];
+            buffer[p]=temp;
+        }
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width(), img->height(), 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, buffer);
+    delete img;
     tex_ids.append(id);
     return tex_ids.size()-1;
 }
-*/
+
+
 void CGraphics::getViewpoint (float* xyz, float* hpr)
 {
     xyz[0] = view_xyz[0];
@@ -71,6 +92,13 @@ void CGraphics::getViewpoint (float* xyz, float* hpr)
     hpr[0] = view_hpr[0];
     hpr[1] = view_hpr[1];
     hpr[2] = view_hpr[2];
+}
+
+void CGraphics::getFrustum(float& right,float& bottom,float& vnear)
+{
+    right = frustum_right;
+    bottom= frustum_bottom;
+    vnear = frustum_vnear;
 }
 
 void CGraphics::setViewpoint (float xyz[3], float hpr[3])
@@ -141,7 +169,7 @@ void CGraphics::getCameraForward(float& x,float& y,float& z)
   float h = view_hpr[0]*M_PI/180.0f;
   float p = view_hpr[1]*M_PI/180.0f;
   float r = view_hpr[2]*M_PI/180.0f;
-  x=1; y=0; z=0;
+  x=-1; y=0; z=0;
   rotxy(y,z,r);
   rotxy(z,x,-p);
   rotxy(x,y,h);
@@ -231,11 +259,6 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
 
     // neg_x
     glBindTexture(GL_TEXTURE_2D, tex_ids[t1]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     glBegin(GL_QUADS);        
         glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
@@ -254,11 +277,6 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
     glEnd();
     //pos_x
     glBindTexture(GL_TEXTURE_2D, tex_ids[t2]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     glBegin(GL_QUADS);
         glTexCoord2f(0, 0); glVertex3f(  0.5f,  0.5f, -0.5f );
@@ -268,11 +286,7 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
     glEnd();
     // neg_y
     glBindTexture(GL_TEXTURE_2D, tex_ids[t3]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
     glBegin(GL_QUADS);
         glTexCoord2f(0, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
         glTexCoord2f(1, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
@@ -281,11 +295,7 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
     glEnd();
     // neg_z
     glBindTexture(GL_TEXTURE_2D, tex_ids[t5]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
     glBegin(GL_QUADS);
         glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
         glTexCoord2f(1, 0); glVertex3f( -0.5f,  0.5f, -0.5f );
@@ -294,64 +304,14 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
     glEnd();
     // pos_z
     glBindTexture(GL_TEXTURE_2D, tex_ids[t6]);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
     glBegin(GL_QUADS);
         glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f,  0.5f );
         glTexCoord2f(1, 0); glVertex3f( -0.5f,  0.5f,  0.5f );
         glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
         glTexCoord2f(0, 1); glVertex3f(  0.5f, -0.5f,  0.5f );
     glEnd();
-    /*
-    // Render the left quad
-    glBindTexture(GL_TEXTURE_2D, tex_ids[t2]);
-    glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f(  0.5f, -0.5f,  0.5f );
-        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
-        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f, -0.5f );
-        glTexCoord2f(0, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
-    glEnd();
 
-    // Render the back quad
-    glBindTexture(GL_TEXTURE_2D, tex_ids[t3]);
-    glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f,  0.5f );
-        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f,  0.5f );
-        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
-        glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f,  0.5f );
-
-    glEnd();
-
-    // Render the right quad
-    glBindTexture(GL_TEXTURE_2D, tex_ids[t4]);
-    glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
-        glTexCoord2f(1, 0); glVertex3f( -0.5f, -0.5f,  0.5f );
-        glTexCoord2f(1, 1); glVertex3f( -0.5f,  0.5f,  0.5f );
-        glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f, -0.5f );
-    glEnd();
-
-    // Render the top quad
-    glBindTexture(GL_TEXTURE_2D, tex_ids[t5]);
-    glBegin(GL_QUADS);
-        glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f, -0.5f );
-        glTexCoord2f(0, 0); glVertex3f( -0.5f,  0.5f,  0.5f );
-        glTexCoord2f(1, 0); glVertex3f(  0.5f,  0.5f,  0.5f );
-        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f, -0.5f );
-    glEnd();
-
-    // Render the bottom quad
-    glBindTexture(GL_TEXTURE_2D, tex_ids[t6]);
-    glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
-        glTexCoord2f(0, 1); glVertex3f( -0.5f, -0.5f,  0.5f );
-        glTexCoord2f(1, 1); glVertex3f(  0.5f, -0.5f,  0.5f );
-        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
-    glEnd();
-*/
     // Restore enable bits and matrix
     glPopAttrib();
     glPopMatrix();
@@ -440,14 +400,18 @@ void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool f
   const float vnear = 0.1f;
   const float vfar = 100.0f;
   const float k = 0.8f;     // view scale, 1 = +/- 45 degrees
+  frustum_vnear = vnear;
   if (width >= height) {
     float k2 = float(height)/float(width);
-    glFrustum (-vnear*k,vnear*k,-vnear*k*k2,vnear*k*k2,vnear,vfar);
+    frustum_right  = vnear*k;
+    frustum_bottom = vnear*k*k2;
   }
   else {
     float k2 = float(width)/float(height);
-    glFrustum (-vnear*k*k2,vnear*k*k2,-vnear*k,vnear*k,vnear,vfar);
+    frustum_right  = vnear*k*k2;
+    frustum_bottom = vnear*k;
   }
+  glFrustum (-frustum_right,frustum_right,-frustum_bottom,frustum_bottom,vnear,vfar);
 
   // setup lights. it makes a difference whether this is done in the
   // GL_PROJECTION matrix mode (lights are scene relative) or the
@@ -554,7 +518,7 @@ void CGraphics::drawGround()
   glEnable (GL_DEPTH_TEST);
   glDepthFunc (GL_LESS);
 
-  const float gsize = 100.0f;
+  const float gsize = 10.0f;
   const float offset = 0;
 
   glBegin (GL_QUADS);

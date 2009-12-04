@@ -185,10 +185,18 @@ Robot::Robot(PWorld* world,PBall *ball,float x,float y,float z,float r,float g,f
   //space = dSimpleSpaceCreate (w->space);
   //dSpaceSetCleanup (space,0);
 
-  chassis = new PCylinder(x,y,z,CHASSISWIDTH*0.5,CHASSISHEIGHT,CHASSISMASS,r,g,b,true,rob_id);
+  chassis = new PCylinder(x,y,z,CHASSISWIDTH*0.5f,CHASSISHEIGHT,CHASSISMASS*0.5f,r,g,b,rob_id);
   chassis->space = space;
   w->addObject(chassis);
 
+  dummy   = new PBall(x,y,z,CHASSISWIDTH*0.5f,CHASSISMASS*0.5f,0,0,0);
+  dummy->setVisibility(false);
+  dummy->space = space;
+  w->addObject(dummy);
+
+  dummy_to_chassis = dJointCreateFixed(world->world,0);
+  dJointAttach (dummy_to_chassis,chassis->body,dummy->body);
+  //dJointSetFixedParam(
 
   kicker = new Kicker(this);
 
@@ -269,7 +277,17 @@ float Robot::getDir()
 
 void Robot::setXY(float x,float y)
 {
+    float xx,yy,zz,kx,ky,kz;
+    chassis->getBodyPosition(xx,yy,zz);
     chassis->setBodyPosition(x,y,0.4);
+    dummy->setBodyPosition(x,y,0.4);
+    kicker->box->getBodyPosition(kx,ky,kz);
+    kicker->box->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+0.4);
+    for (int i=0;i<4;i++)
+    {
+        wheels[i]->cyl->getBodyPosition(kx,ky,kz);
+        wheels[i]->cyl->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+0.4);
+    }
 }
 
 void Robot::setSpeed(int i,dReal s)

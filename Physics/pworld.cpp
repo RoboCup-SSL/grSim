@@ -46,6 +46,11 @@ PWorld::~PWorld()
   dCloseODE();
 }
 
+void PWorld::setGravity(float gravity)
+{
+    dWorldSetGravity (world,0,0,-gravity);
+}
+
 void PWorld::handleCollisions(dGeomID o1, dGeomID o2)
 {
 //  if (dGeomGetSpace(o1)==dGeomGetSpace(o2)) return;
@@ -53,12 +58,20 @@ void PWorld::handleCollisions(dGeomID o1, dGeomID o2)
   for (int j=0;j<surfaces.count();j++)
     if (surfaces[j]->isIt(o1,o2))
     {
-        sur = surfaces[j];
-        if (sur->callback!=NULL) sur->callback(o1,o2,sur);
         const int N = 10;
         dContact contact[N];
         int n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
         if (n > 0) {
+          sur = surfaces[j];
+          sur->contactPos   [0] = contact[0].geom.pos[0];
+          sur->contactPos   [1] = contact[0].geom.pos[1];
+          sur->contactPos   [2] = contact[0].geom.pos[2];
+          sur->contactNormal[0] = contact[0].geom.normal[0];
+          sur->contactNormal[1] = contact[0].geom.normal[1];
+          sur->contactNormal[2] = contact[0].geom.normal[2];
+          bool flag=true;
+          if (sur->callback!=NULL) flag = sur->callback(o1,o2,sur);
+          if (flag)
           for (int i=0; i<n; i++) {
               contact[i].surface = sur->surface;
               if (sur->usefdir1)
@@ -103,10 +116,10 @@ PSurface* PWorld::createSurface(PObject* o1,PObject* o2)
     return s;
 }
 
-void PWorld::step()
+void PWorld::step(float dt)
 {
     dSpaceCollide (space,this,&nearCallback);
-    dWorldStep (world,delta_time);
+    dWorldStep (world,(dt<0) ? delta_time : dt);
     dJointGroupEmpty (contactgroup);
 }
 

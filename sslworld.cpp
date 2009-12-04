@@ -3,8 +3,13 @@
 #include <QtGlobal>
 #include <QtNetwork>
 
-SSLWorld* ww;
-void wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
+#include <QDebug>
+
+
+#define ROBOT_GRAY 0.4
+
+SSLWorld* _w;
+bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
 {
     //s->id2 is ground
     const dReal* r; //wheels rotation matrix
@@ -70,13 +75,50 @@ void wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
     glEnd();
 */
     s->usefdir1 = true;
+    return true;
+}
 
+bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
+{
+    dGeomID obj;
+    if (o1==_w->ray->geom) obj = o2;
+    else obj = o1;
+    for (int i=0;i<10;i++)
+    {
+        if (_w->robots[i]->chassis->geom==obj || _w->robots[i]->dummy->geom==obj)
+        {
+             _w->robots[i]->selected = true;
+             _w->robots[i]->select_x = s->contactPos[0];
+             _w->robots[i]->select_y = s->contactPos[1];
+             _w->robots[i]->select_z = s->contactPos[2];
+        }
+    }
+    if (_w->ball->geom==obj)
+    {
+        _w->selected = -2;
+    }
+    if (_w->show3DCursur && obj==_w->ground->geom)
+    {
+        dMatrix3 R;
+        dRFromAxisAndAngle(R,s->contactNormal[0],s->contactNormal[1],s->contactNormal[2],0);
+        _w->g->setColor(1,0.9,0.2,0.5);
+        _w->g->drawCylinder(s->contactPos,R,0.1,0.02);
+        _w->cursur_x = s->contactPos[0];
+        _w->cursur_y = s->contactPos[1];
+        _w->cursur_z = s->contactPos[2];
+    }
+    //if ((s->id1==o1) && (s->id2==o2))
+    /*{
+    }*/
+    return false;
 }
 
 SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
 {
-    ww = this;
+    _w = this;
+    show3DCursur = false;
     framenum = 0;
+    last_dt = -1;
     m_parent = parent;
     g = new CGraphics(parent);
     g->setSphereQuality(1);
@@ -84,7 +126,7 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
     ball = new PBall (0,0,0.5,BALLRADIUS,BALLMASS, 1,0.7,0);
 
     ground = new PGround(_SSL_FIELD_RAD,_SSL_FIELD_LENGTH,_SSL_FIELD_WIDTH,0);
-
+    ray = new PRay(50);
     walls[0] = new PFixedBox(0.0,((_SSL_FIELD_WIDTH + _SSL_FIELD_MARGIN) / 2000.0) + (_SSL_WALL_THICKNESS / 2000.0),0.0
                              ,(_SSL_FIELD_LENGTH + _SSL_FIELD_MARGIN) / 1000.0, _SSL_WALL_THICKNESS / 1000.0, 0.4,
                              0.7, 0.7, 0.7);
@@ -110,7 +152,7 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
 
     p->addObject(ground);
     p->addObject(ball);
-
+    p->addObject(ray);
     for (int i=0;i<6;i++)
         p->addObject(walls[i]);
 
@@ -135,7 +177,7 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
 */
         for (int k=0;k<5;k++)
         {
-                robots[k] = new Robot(p,ball,OurTeamPosX[k],OurTeamPosY[k],STARTZ,0.4,0.4,0.4,k+1);
+                robots[k] = new Robot(p,ball,OurTeamPosX[k],OurTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1);
         }
         //Defend
 //	dReal OppTeamPosX[5] = {2.8, 2.5, 2.5, 0.8, 0.8};
@@ -152,7 +194,7 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
         //dReal OppTeamPosY[5] = {0.35, 0.0, -0.35, -0.50, 0.50};
         for (int k=0;k<5;k++)
         {
-                robots[k+5] = new Robot(p,ball,OppTeamPosX[k],OppTeamPosY[k],STARTZ,0.4,0.4,0.4,k+6);
+                robots[k+5] = new Robot(p,ball,OppTeamPosX[k],OppTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6);
                // robots[k+5]->chassis->setBodyRotation(0,0,1,M_PI);
                 //robots[k+5]->kicker->box->setBodyRotation(0,0,1,M_PI);
         }
@@ -165,7 +207,13 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
     dBodySetAngularDamping(ball->body,0.004);
 
 
-
+    p->createSurface(ray,ground)->callback = rayCallback;
+    p->createSurface(ray,ball)->callback = rayCallback;
+    for (int k=0;k<10;k++)
+    {
+       p->createSurface(ray,robots[k]->chassis)->callback = rayCallback;
+       p->createSurface(ray,robots[k]->dummy)->callback = rayCallback;
+    }
     PSurface ballwithwall;
     ballwithwall.surface.mode = dContactBounce | dContactApprox1 | dContactSlip1;
     ballwithwall.surface.mu = 1;
@@ -203,7 +251,7 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
         {            
             if (k!=j)
             {
-p->createSurface(robots[k]->chassis,robots[j]->chassis); //seams ode doesn't understand cylinder-cylinder contacts
+p->createSurface(robots[k]->dummy,robots[j]->dummy); //seams ode doesn't understand cylinder-cylinder contacts, so I used spheres
                 p->createSurface(robots[k]->chassis,robots[j]->kicker->box);
 /*                p->createSurface(robots[k]->chassis,robots[j]->boxes[0]);
                 p->createSurface(robots[k]->chassis,robots[j]->boxes[1]);
@@ -219,7 +267,11 @@ p->createSurface(robots[k]->chassis,robots[j]->chassis); //seams ode doesn't und
 #ifdef Q_OS_WIN32
           m_parent,
 #endif
+<<<<<<< .mine
+          10004,"127.0.0.1");//"224.5.23.2");
+=======
           10002,"127.0.0.1");//"224.5.23.2");
+>>>>>>> .r168
 
   visionServer->open();
 
@@ -241,8 +293,10 @@ SSLWorld::~SSLWorld()
     delete commandSocket;
 }
 
-void SSLWorld::step()
+void SSLWorld::step(float dt)
 {    
+    if (dt==0) dt=last_dt;
+    else last_dt = dt;
     g->initScene(m_parent->width(),m_parent->height(),0,0.7,1);//true,0.7,0.7,0.7,0.8);
 
     if (initing)
@@ -269,10 +323,46 @@ void SSLWorld::step()
             }
         }
     }
-    for (int k=0;k<10;k++)
-        robots[k]->step();
 
-    p->step();
+    selected = -1;
+    for (int k=0;k<10;k++)
+    {
+        robots[k]->step();
+        robots[k]->selected = false;
+    }
+
+    p->step(dt);
+
+    int best_k=-1;
+    float best_dist = 1e8;
+    float xyz[3],hpr[3];
+    if (selected==-2) {
+        best_k=-2;
+        float bx,by,bz;
+        ball->getBodyPosition(bx,by,bz);
+        g->getViewpoint(xyz,hpr);
+        best_dist  =(bx-xyz[0])*(bx-xyz[0])
+                   +(by-xyz[1])*(by-xyz[1])
+                   +(bz-xyz[2])*(bz-xyz[2]);
+    }
+    for (int k=0;k<10;k++)
+    {
+        if (robots[k]->selected)
+        {
+            g->getViewpoint(xyz,hpr);
+            float dist= (robots[k]->select_x-xyz[0])*(robots[k]->select_x-xyz[0])
+                       +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
+                       +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
+            if (dist<best_dist) {
+                best_dist = dist;
+                best_k = k;
+            }
+        }
+        robots[k]->chassis->setColor(ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY);
+    }
+    if (best_k!=-1) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
+    selected = best_k;
+
     p->draw();
 
 

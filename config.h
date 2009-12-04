@@ -22,7 +22,7 @@
 
 #define CHASSISLENGTH 0.17	// chassis length
 #define CHASSISWIDTH 0.17	// chassis width
-#define CHASSISHEIGHT 0.17	// chassis height
+#define CHASSISHEIGHT 0.13	// chassis height
 #define BOTTOMHEIGHT 0.02 //ertefa 'e kaf
 #define KICKERHEIGHT 0.005 //ertefa 'e kicker
 #define KLENGTH 0.005	// kicker length

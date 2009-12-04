@@ -15,6 +15,7 @@ public:
     ~MainWindow();
 public slots:
     void update();
+    void updateRobotLabel();
 protected:
     void keyPressEvent(QKeyEvent *event);
 private:

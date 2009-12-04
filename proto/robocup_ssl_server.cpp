@@ -274,9 +274,7 @@ bool RoboCupSSLServer::send(const SSL_WrapperPacket & packet) {
   if (result==false) {
     qDebug() << "Sending UDP datagram failed (maybe too large?). Size was: " << buffer.length() << " byte(s)";
   }
-  else
-      qDebug() << "Sent.";
-  return(result);
+   return(result);
 }
 
 bool RoboCupSSLServer::send(const SSL_DetectionFrame & frame) {
