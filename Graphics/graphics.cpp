@@ -256,60 +256,60 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
     glDisable(GL_CULL_FACE);
     // Just in case we set all vertices to white.
     glColor4f(1,1,1,1);
-
+    const float r = 1.005f;  //to overcome borders problem
     // neg_x
     glBindTexture(GL_TEXTURE_2D, tex_ids[t1]);
 
     glBegin(GL_QUADS);        
-        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
-        glTexCoord2f(1, 0); glVertex3f( -0.5f,  0.5f, -0.5f );
-        glTexCoord2f(1, 1); glVertex3f( -0.5f,  0.5f,  0.5f );
-        glTexCoord2f(0, 1); glVertex3f( -0.5f, -0.5f,  0.5f );
+        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f*r, -0.5f*r );
+        glTexCoord2f(1, 0); glVertex3f( -0.5f,  0.5f*r, -0.5f*r );
+        glTexCoord2f(1, 1); glVertex3f( -0.5f,  0.5f*r,  0.5f*r );
+        glTexCoord2f(0, 1); glVertex3f( -0.5f, -0.5f*r,  0.5f*r );
     glEnd();
     // pos_y
     glBindTexture(GL_TEXTURE_2D, tex_ids[t4]);
 
     glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f( -0.5f,  0.5f, -0.5f );
-        glTexCoord2f(1, 0); glVertex3f(  0.5f,  0.5f, -0.5f );
-        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
-        glTexCoord2f(0, 1); glVertex3f( -0.5f,  0.5f,  0.5f );
+        glTexCoord2f(0, 0); glVertex3f( -0.5f*r,  0.5f, -0.5f*r );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f*r,  0.5f, -0.5f*r );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f*r,  0.5f,  0.5f*r );
+        glTexCoord2f(0, 1); glVertex3f( -0.5f*r,  0.5f,  0.5f*r );
     glEnd();
     //pos_x
     glBindTexture(GL_TEXTURE_2D, tex_ids[t2]);
 
     glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f(  0.5f,  0.5f, -0.5f );
-        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
-        glTexCoord2f(1, 1); glVertex3f(  0.5f, -0.5f,  0.5f );
-        glTexCoord2f(0, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
+        glTexCoord2f(0, 0); glVertex3f(  0.5f,  0.5f*r, -0.5f*r );
+        glTexCoord2f(1, 0); glVertex3f(  0.5f, -0.5f*r, -0.5f*r );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f, -0.5f*r,  0.5f*r );
+        glTexCoord2f(0, 1); glVertex3f(  0.5f,  0.5f*r,  0.5f*r );
     glEnd();
     // neg_y
     glBindTexture(GL_TEXTURE_2D, tex_ids[t3]);
 
     glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f(  0.5f, -0.5f, -0.5f );
-        glTexCoord2f(1, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
-        glTexCoord2f(1, 1); glVertex3f( -0.5f, -0.5f,  0.5f );
-        glTexCoord2f(0, 1); glVertex3f(  0.5f, -0.5f,  0.5f );
+        glTexCoord2f(0, 0); glVertex3f(  0.5f*r, -0.5f, -0.5f*r );
+        glTexCoord2f(1, 0); glVertex3f( -0.5f*r, -0.5f, -0.5f*r );
+        glTexCoord2f(1, 1); glVertex3f( -0.5f*r, -0.5f,  0.5f*r );
+        glTexCoord2f(0, 1); glVertex3f(  0.5f*r, -0.5f,  0.5f*r );
     glEnd();
     // neg_z
     glBindTexture(GL_TEXTURE_2D, tex_ids[t5]);
 
     glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f, -0.5f );
-        glTexCoord2f(1, 0); glVertex3f( -0.5f,  0.5f, -0.5f );
-        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f, -0.5f );
-        glTexCoord2f(0, 1); glVertex3f(  0.5f, -0.5f, -0.5f );
+        glTexCoord2f(0, 0); glVertex3f( -0.5f*r, -0.5f*r, -0.5f );
+        glTexCoord2f(1, 0); glVertex3f( -0.5f*r,  0.5f*r, -0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f*r,  0.5f*r, -0.5f );
+        glTexCoord2f(0, 1); glVertex3f(  0.5f*r, -0.5f*r, -0.5f );
     glEnd();
     // pos_z
     glBindTexture(GL_TEXTURE_2D, tex_ids[t6]);
 
     glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f,  0.5f );
-        glTexCoord2f(1, 0); glVertex3f( -0.5f,  0.5f,  0.5f );
-        glTexCoord2f(1, 1); glVertex3f(  0.5f,  0.5f,  0.5f );
-        glTexCoord2f(0, 1); glVertex3f(  0.5f, -0.5f,  0.5f );
+        glTexCoord2f(0, 0); glVertex3f( -0.5f*r, -0.5f*r,  0.5f );
+        glTexCoord2f(1, 0); glVertex3f( -0.5f*r,  0.5f*r,  0.5f );
+        glTexCoord2f(1, 1); glVertex3f(  0.5f*r,  0.5f*r,  0.5f );
+        glTexCoord2f(0, 1); glVertex3f(  0.5f*r, -0.5f*r,  0.5f );
     glEnd();
 
     // Restore enable bits and matrix
