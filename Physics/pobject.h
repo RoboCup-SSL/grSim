@@ -10,13 +10,14 @@ private:
     bool isQSet;
 protected:
     float m_x,m_y,m_z,m_red,m_green,m_blue;
+    float m_mass;
     dQuaternion q;
     void initPosBody();
     void initPosGeom();
     bool visible;
 public:
-    PObject(float x,float y,float z,float red,float green,float blue);
-    ~PObject();
+    PObject(float x,float y,float z,float red,float green,float blue,float mass);
+    virtual ~PObject();
     void setRotation(float x_axis,float y_axis,float z_axis,float ang); //Must be called before init()
     void setBodyPosition(float x,float y,float z);
     void setBodyRotation(float x_axis,float y_axis,float z_axis,float ang);
@@ -26,6 +27,7 @@ public:
     void setColor(float r,float g,float b);
     void getColor(float& r,float& g,float& b);
     bool getVisibility();
+    virtual void setMass(float mass);
     virtual void init()=0;
     virtual void glinit();
     virtual void draw();

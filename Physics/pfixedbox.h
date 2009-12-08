@@ -9,6 +9,7 @@ private:
     float m_w,m_h,m_l;
 public:
     PFixedBox(float x,float y,float z,float w,float h,float l,float r,float g,float b);
+    virtual ~PFixedBox();
     virtual void init();
     virtual void draw();
 };

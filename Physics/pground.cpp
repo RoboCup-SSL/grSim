@@ -1,7 +1,7 @@
 #include "pground.h"
 
 PGround::PGround(float field_radius,float field_length,float field_width,int tex_id)
-        : PObject(0,0,0,0,1,0)
+        : PObject(0,0,0,0,1,0,0)
 {
     rad = field_radius;
     len = field_length;
@@ -21,4 +21,8 @@ void PGround::draw()
     g->drawGround();
     g->noTexture();
     g->drawSSLGround(rad,len,wid,0.001);
+}
+
+PGround::~PGround()
+{
 }

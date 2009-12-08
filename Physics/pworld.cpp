@@ -32,7 +32,6 @@ PWorld::PWorld(float dt,float gravity,CGraphics* graphics)
     contactgroup = dJointGroupCreate (0);
     dWorldSetGravity (world,0,0,-gravity);
 
-
     dAllocateODEDataForThread(dAllocateMaskAll);
     delta_time = dt;
     g = graphics;
@@ -114,6 +113,15 @@ PSurface* PWorld::createSurface(PObject* o1,PObject* o2)
     s->id2 = o2->geom;
     surfaces.append(s);
     return s;
+}
+
+PSurface* PWorld::findSurface(PObject* o1,PObject* o2)
+{
+    for (int i=0;i<surfaces.count();i++)
+    {
+        if (surfaces[i]->isIt(o1->geom,o2->geom)) return (surfaces[i]);
+    }
+    return NULL;
 }
 
 void PWorld::step(float dt)

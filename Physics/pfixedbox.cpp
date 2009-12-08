@@ -1,11 +1,15 @@
 #include "pfixedbox.h"
 
 PFixedBox::PFixedBox(float x,float y,float z,float w,float h,float l,float r,float g,float b)
-       : PObject(x,y,z,r,g,b)
+       : PObject(x,y,z,r,g,b,0)
 {
     m_w = w;
     m_h = h;
     m_l = l;
+}
+
+PFixedBox::~PFixedBox()
+{
 }
 
 void PFixedBox::init()

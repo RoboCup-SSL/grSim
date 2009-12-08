@@ -19,6 +19,7 @@ public:
     void setGravity(float gravity);
     void addObject(PObject* o);
     PSurface* createSurface(PObject* o1,PObject* o2);
+    PSurface* findSurface(PObject* o1,PObject* o2);
     void step(float dt=-1);
     void glinit();
     void draw();

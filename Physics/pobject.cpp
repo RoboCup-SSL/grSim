@@ -1,6 +1,6 @@
 #include "pobject.h"
 
-PObject::PObject(float x,float y,float z,float red,float green,float blue)
+PObject::PObject(float x,float y,float z,float red,float green,float blue,float mass)
 {
     geom = NULL;
     body = NULL;
@@ -12,6 +12,7 @@ PObject::PObject(float x,float y,float z,float red,float green,float blue)
     m_red = red;
     m_green = green;
     m_blue = blue;
+    m_mass = mass;
     visible = true;
     isQSet = false;
 }
@@ -93,6 +94,12 @@ void PObject::initPosGeom()
 {
     dGeomSetPosition(geom,m_x,m_y,m_z);
     if (isQSet) dGeomSetQuaternion(geom,q);
+}
+
+
+void PObject::setMass(float mass)
+{
+    m_mass = mass;
 }
 
 void PObject::glinit()

@@ -1,7 +1,7 @@
 #include "pray.h"
 
 PRay::PRay(float length)
-         : PObject(0,0,0,0,0,0)
+         : PObject(0,0,0,0,0,0,0)
 {
     _length = length;
 }
