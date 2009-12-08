@@ -7,7 +7,7 @@ TARGET = Simulator
 TEMPLATE = app
 SOURCES += main.cpp \
     mainwindow.cpp \
-    widget.cpp \
+    glwidget.cpp \
     Graphics/graphics.cpp \
     Physics/pworld.cpp \
     Physics/pobject.cpp \
@@ -24,9 +24,12 @@ SOURCES += main.cpp \
     proto/messages_robocup_ssl_refbox_log.pb.cc \
     proto/messages_robocup_ssl_geometry.pb.cc \
     proto/messages_robocup_ssl_detection.pb.cc \
-    Physics/pray.cpp
+    Physics/pray.cpp \
+    configwidget.cpp \
+    statuswidget.cpp \
+    logger.cpp
 HEADERS += mainwindow.h \
-    widget.h \
+    glwidget.h \
     Graphics/graphics.h \
     Physics/pworld.h \
     Physics/pobject.h \
@@ -37,21 +40,27 @@ HEADERS += mainwindow.h \
     Physics/pcylinder.h \
     robot.h \
     Physics/pbox.h \
-    config.h \
     proto/netraw.h \
     proto/robocup_ssl_server.h \
     proto/messages_robocup_ssl_refbox_log.pb.h \
     proto/messages_robocup_ssl_geometry.pb.h \
     proto/messages_robocup_ssl_detection.pb.h \
     proto/messages_robocup_ssl_wrapper.pb.h \
-    Physics/pray.h
+    Physics/pray.h \
+    configwidget.h \
+    statuswidget.h \
+    logger.h
 win32:LIBS += -L$$PWD/libs/win32 \
     -lode-0.11.1 \
     -lprotobuf-2.1.0 \
-    -lws2_32
+    -lws2_32 \
+    -lVarTypes
 unix:LIBS += -L$$PWD/libs/unix \
     -lode-0.11.1 \
-    -lprotobuf-2.1.0
+    -lprotobuf-2.1.0 \
+    -lVarTypes
 unix:OBJECTS_DIR = $$PWD/objs
+unix:DESTDIR = $$PWD/objs
 INCLUDEPATH += $$PWD/include
+INCLUDEPATH += $$PWD/include/VarTypes
 RESOURCES += textures.qrc

@@ -14,6 +14,9 @@
 #include "proto/robocup_ssl_server.h"
 
 #include "robot.h"
+
+#include "configwidget.h"
+
 #include <QObject>
 
 #include <QUdpSocket>
@@ -28,8 +31,10 @@ private:
     bool initing;
     float last_dt;
 public:
-    SSLWorld(QGLWidget* parent = 0);
+
+    SSLWorld(QGLWidget* parent,ConfigWidget* _cfg);
     virtual ~SSLWorld();
+    void glinit();
     void step(float dt=-1);
     void sendVisionBuffer();
     struct cmdBuffer {
@@ -39,6 +44,7 @@ public:
         bool spin;
         bool chip;
     } commands[5];
+    ConfigWidget* cfg;
     CGraphics* g;
     PWorld* p;
     PBall* ball;
@@ -46,8 +52,8 @@ public:
     PRay* ray;
     PFixedBox* walls[6];
     int selected;
-    bool show3DCursur;
-    float cursur_x,cursur_y,cursur_z;
+    bool show3DCursor;
+    float cursor_x,cursor_y,cursor_z;
 //    QUdpSocket* visionSocket, *commandSocket;
 //    CCommThread *commThread;
     //Socket *visionSocket;
@@ -57,6 +63,8 @@ public:
     Robot* robots[10];
 public slots:
     void recvActions();
+    void reconnectCommandSocket();
+    void reconnectVisionSocket();
 };
 
 #endif // SSLWORLD_H

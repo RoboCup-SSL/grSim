@@ -1,20 +1,23 @@
-#ifndef WIDGET_H
-#define WIDGET_H
+#ifndef GLWIDGET_H
+#define GLWIDGET_H
 
 #include <QGLWidget>
 #include <QTime>
 #include <QMenu>
 #include "sslworld.h"
 
+#include "configwidget.h"
+
 #define _RENDER_INTERVAL 10
 
-class Widget : public QGLWidget {
+class GLWidget : public QGLWidget {
 
     Q_OBJECT
 public:
-    Widget(QWidget *parent = 0);
-    ~Widget();
+    GLWidget(QWidget *parent,ConfigWidget* _cfg);
+    ~GLWidget();
     QString getFPS();
+    ConfigWidget* cfg;
     SSLWorld* ssl;
     QMenu* robpopup,*ballpopup;
     QAction* moveRobotAct;
@@ -22,7 +25,7 @@ public:
     QAction* resetRobotAct;
     QAction* moveBallAct;
     int Current_robot,Current_team,cammode;
-    void update3DCursur(int mouse_x,int mouse_y);
+    void update3DCursor(int mouse_x,int mouse_y);
 public slots:
     void moveRobot();
     void selectRobot();
@@ -31,14 +34,17 @@ public slots:
 signals:
     void clicked();
     void selectedRobot();
+    void closeSignal(bool);
 protected:
     void paintGL ();
-    void initializeGL ();
+    void initializeGL ();    
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);    
     void wheelEvent(QWheelEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void closeEvent(QCloseEvent *event);
 private:
     int state;
     int moving_robot_id,clicked_robot;

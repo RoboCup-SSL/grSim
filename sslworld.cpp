@@ -5,8 +5,10 @@
 
 #include <QDebug>
 
+#include "logger.h"
 
 #define ROBOT_GRAY 0.4
+#define STARTZ     0.3	// starting height of robot
 
 SSLWorld* _w;
 bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
@@ -30,23 +32,9 @@ bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
     }
     //s->surface.mode = dContactFDir1 | dContactSlip1 | dContactSlip2 | dContactApprox1 | dContactSoftCFM;//dContactMu2 | dContactFDir1;
     s->surface.mode = dContactFDir1 | dContactMu2 | dContactApprox1 | dContactSoftCFM;
-/*    s->surface.mu = 5;
-    s->surface.mu2 = 10;*/
 
-    /* Ideal Wheel + Carpet */
-    s->surface.mu = 0.01;  //perpendicular
-    s->surface.mu2 = 0.8;
-
-    /* Bad Wheel - 1 */
-
-    //s->surface.mu = 0.5;  //perpendicular
-    //s->surface.mu2 = 0.8;
-
-    /* Bad Wheel - 2 */
-
-//    s->surface.mu = 0.1;  //perpendicular
-//    s->surface.mu2 = 0.1;
-
+    s->surface.mu = _w->cfg->wheelperpendicularfriction();
+    s->surface.mu2 = _w->cfg->wheeltangentfriction();
 
     s->surface.slip1 = 0.0;
     s->surface.slip2 = 0.0;
@@ -97,15 +85,18 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
     {
         _w->selected = -2;
     }
-    if (_w->show3DCursur && obj==_w->ground->geom)
+    if (obj==_w->ground->geom)
     {
         dMatrix3 R;
-        dRFromAxisAndAngle(R,s->contactNormal[0],s->contactNormal[1],s->contactNormal[2],0);
-        _w->g->setColor(1,0.9,0.2,0.5);
-        _w->g->drawCylinder(s->contactPos,R,0.1,0.02);
-        _w->cursur_x = s->contactPos[0];
-        _w->cursur_y = s->contactPos[1];
-        _w->cursur_z = s->contactPos[2];
+        if (_w->show3DCursor)
+        {
+            dRFromAxisAndAngle(R,s->contactNormal[0],s->contactNormal[1],s->contactNormal[2],0);
+            _w->g->setColor(1,0.9,0.2,0.5);
+            _w->g->drawCylinder(s->contactPos,R,0.1,0.02);
+        }
+        _w->cursor_x = s->contactPos[0];
+        _w->cursor_y = s->contactPos[1];
+        _w->cursor_z = s->contactPos[2];
     }
     //if ((s->id1==o1) && (s->id2==o2))
     /*{
@@ -113,39 +104,40 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
     return false;
 }
 
-SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
+SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
 {
     _w = this;
-    show3DCursur = false;
-    framenum = 0;
-    last_dt = -1;
+    cfg = _cfg;
     m_parent = parent;
+    show3DCursor = false;
+    framenum = 0;
+    last_dt = -1;    
     g = new CGraphics(parent);
     g->setSphereQuality(1);
     p = new PWorld(0.05,9.8,g);
-    ball = new PBall (0,0,0.5,BALLRADIUS,BALLMASS, 1,0.7,0);
+    ball = new PBall (0,0,0.5,cfg->BALLRADIUS(),cfg->BALLMASS(), 1,0.7,0);
 
-    ground = new PGround(_SSL_FIELD_RAD,_SSL_FIELD_LENGTH,_SSL_FIELD_WIDTH,0);
+    ground = new PGround(cfg->_SSL_FIELD_RAD(),cfg->_SSL_FIELD_LENGTH(),cfg->_SSL_FIELD_WIDTH(),0);
     ray = new PRay(50);
-    walls[0] = new PFixedBox(0.0,((_SSL_FIELD_WIDTH + _SSL_FIELD_MARGIN) / 2000.0) + (_SSL_WALL_THICKNESS / 2000.0),0.0
-                             ,(_SSL_FIELD_LENGTH + _SSL_FIELD_MARGIN) / 1000.0, _SSL_WALL_THICKNESS / 1000.0, 0.4,
+    walls[0] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0
+                             ,(cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
                              0.7, 0.7, 0.7);
-    walls[1] = new PFixedBox(0.0,((_SSL_FIELD_WIDTH + _SSL_FIELD_MARGIN) / -2000.0) - (_SSL_WALL_THICKNESS / 2000.0),0.0,
-            (_SSL_FIELD_LENGTH + _SSL_FIELD_MARGIN) / 1000.0, _SSL_WALL_THICKNESS / 1000.0, 0.4,
+    walls[1] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0,
+            (cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
             0.7, 0.7, 0.7);
 
-    walls[2] = new PFixedBox(((_SSL_FIELD_LENGTH + _SSL_FIELD_MARGIN) / 2000.0) + (_SSL_WALL_THICKNESS / 2000.0),0.0 ,0.0,
-        _SSL_WALL_THICKNESS / 1000.0 ,(_SSL_FIELD_WIDTH + _SSL_FIELD_MARGIN) / 1000.0, 0.4,
+    walls[2] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0 ,0.0,
+        cfg->_SSL_WALL_THICKNESS() / 1000.0 ,(cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, 0.4,
         0.7, 0.7, 0.7);
 
-    walls[3] = new PFixedBox(((_SSL_FIELD_LENGTH + _SSL_FIELD_MARGIN) / -2000.0) - (_SSL_WALL_THICKNESS / 2000.0),0.0 ,0.0,
-        _SSL_WALL_THICKNESS / 1000.0 , (_SSL_FIELD_WIDTH + _SSL_FIELD_MARGIN) / 1000.0, 0.4,
+    walls[3] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0 ,0.0,
+        cfg->_SSL_WALL_THICKNESS() / 1000.0 , (cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, 0.4,
         0.7, 0.7, 0.7);
 
-    walls[4] = new PFixedBox(( (_SSL_FIELD_LENGTH / -2000.0)) - 0.025 ,0.0, 0.0,
+    walls[4] = new PFixedBox(( (cfg->_SSL_FIELD_LENGTH() / -2000.0)) - 0.025 ,0.0, 0.0,
         0.05, 0.7, 0.4,
         0.1, 0.9, 0.4);
-    walls[5] = new PFixedBox(( (_SSL_FIELD_LENGTH / 2000.0)) + 0.025 ,0.0, 0.0,
+    walls[5] = new PFixedBox(( (cfg->_SSL_FIELD_LENGTH() / 2000.0)) + 0.025 ,0.0, 0.0,
         0.05, 0.7, 0.4,
         0.1, 0.9, 0.4);
 
@@ -177,7 +169,7 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
 */
         for (int k=0;k<5;k++)
         {
-                robots[k] = new Robot(p,ball,OurTeamPosX[k],OurTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1);
+                robots[k] = new Robot(p,ball,cfg,OurTeamPosX[k],OurTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1);
         }
         //Defend
 //	dReal OppTeamPosX[5] = {2.8, 2.5, 2.5, 0.8, 0.8};
@@ -194,7 +186,7 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
         //dReal OppTeamPosY[5] = {0.35, 0.0, -0.35, -0.50, 0.50};
         for (int k=0;k<5;k++)
         {
-                robots[k+5] = new Robot(p,ball,OppTeamPosX[k],OppTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6);
+                robots[k+5] = new Robot(p,ball,cfg,OppTeamPosX[k],OppTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6);
                // robots[k+5]->chassis->setBodyRotation(0,0,1,M_PI);
                 //robots[k+5]->kicker->box->setBodyRotation(0,0,1,M_PI);
         }
@@ -202,9 +194,9 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
 
 
     dBodySetLinearDampingThreshold(ball->body,0.001);
-    dBodySetLinearDamping(ball->body,0.004);
+    dBodySetLinearDamping(ball->body,cfg->balllineardamp());
     dBodySetAngularDampingThreshold(ball->body,0.001);
-    dBodySetAngularDamping(ball->body,0.004);
+    dBodySetAngularDamping(ball->body,cfg->ballangulardamp());
 
 
     p->createSurface(ray,ground)->callback = rayCallback;
@@ -216,10 +208,10 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
     }
     PSurface ballwithwall;
     ballwithwall.surface.mode = dContactBounce | dContactApprox1 | dContactSlip1;
-    ballwithwall.surface.mu = 1;
-    ballwithwall.surface.bounce = 0.7;
-    ballwithwall.surface.bounce_vel = 0.1;
-    ballwithwall.surface.slip1 = 1;    
+    ballwithwall.surface.mu = cfg->ballfriction();
+    ballwithwall.surface.bounce = cfg->ballbounce();
+    ballwithwall.surface.bounce_vel = cfg->ballbouncevel();
+    ballwithwall.surface.slip1 = cfg->ballslip();
 
     PSurface wheelswithground;
     p->createSurface(ball,ground)->surface = ballwithwall.surface;
@@ -251,37 +243,43 @@ SSLWorld::SSLWorld(QGLWidget* parent) : QObject(parent)
         {            
             if (k!=j)
             {
-p->createSurface(robots[k]->dummy,robots[j]->dummy); //seams ode doesn't understand cylinder-cylinder contacts, so I used spheres
+                p->createSurface(robots[k]->dummy,robots[j]->dummy); //seams ode doesn't understand cylinder-cylinder contacts, so I used spheres
                 p->createSurface(robots[k]->chassis,robots[j]->kicker->box);
-/*                p->createSurface(robots[k]->chassis,robots[j]->boxes[0]);
-                p->createSurface(robots[k]->chassis,robots[j]->boxes[1]);
-                p->createSurface(robots[k]->chassis,robots[j]->boxes[2]);*/
             }
         }
     }
 
-//    visionSocket = new QUdpSocket(m_parent);
+  visionServer = NULL;
+  reconnectVisionSocket();
+  commandSocket = NULL;
+  reconnectCommandSocket();  
+}
 
+void SSLWorld::reconnectCommandSocket()
+{
+  if (commandSocket!=NULL)
+  {
+      QObject::disconnect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
+      delete commandSocket;
+  }
+  commandSocket = new QUdpSocket(this);    
+  if (commandSocket->bind(QHostAddress::Any,cfg->CommandListenPort()))
+    logStatus(QString("Command listen port binded on: %1").arg(cfg->CommandListenPort()),QColor("green"));
+  QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
+}
 
+void SSLWorld::reconnectVisionSocket()
+{
+  if (visionServer!=NULL)
+      delete visionServer;
   visionServer = new RoboCupSSLServer(
 #ifdef Q_OS_WIN32
           m_parent,
 #endif
-<<<<<<< .mine
-          10004,"127.0.0.1");//"224.5.23.2");
-=======
-          10002,"127.0.0.1");//"224.5.23.2");
->>>>>>> .r168
-
+          cfg->VisionMulticastPort(),cfg->VisionMulticastAddr());
   visionServer->open();
-
-
-  commandSocket = new QUdpSocket(this);
-  if (commandSocket->bind(QHostAddress::Any,20011))
-      qDebug() << "binded on port:" << 20011;
-
-  connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
 }
+
 
 SSLWorld::~SSLWorld()
 {
@@ -291,6 +289,51 @@ SSLWorld::~SSLWorld()
     delete visionServer;
     commandSocket->close();
     delete commandSocket;
+}
+
+QImage* createBlob(char yb,int i)
+{
+    QImage* img = new QImage(QString(":/Graphics/%1%2").arg(yb).arg(i+1)+QString(".bmp"));
+    QPainter *p = new QPainter();
+    p->begin(img);
+    QPen pen;
+    pen.setStyle(Qt::DashDotLine);
+    pen.setWidth(3);
+    pen.setBrush(Qt::gray);
+    pen.setCapStyle(Qt::RoundCap);
+    pen.setJoinStyle(Qt::RoundJoin);
+    p->setPen(pen);
+    QFont f;
+    f.setPointSize(35);
+    p->setFont(f);
+    p->drawText(img->width()/2-15,img->height()/2-15,30,30,Qt::AlignCenter,QString("%1").arg(i));
+    p->end();
+    delete p;
+    return img;
+}
+
+
+void SSLWorld::glinit()
+{
+    g->loadTexture(new QImage(":/Graphics/grass001.bmp"));
+    g->loadTexture(createBlob('b',0));
+    g->loadTexture(createBlob('b',1));
+    g->loadTexture(createBlob('b',2));
+    g->loadTexture(createBlob('b',3));
+    g->loadTexture(createBlob('b',4));
+    g->loadTexture(createBlob('y',0));
+    g->loadTexture(createBlob('y',1));
+    g->loadTexture(createBlob('y',2));
+    g->loadTexture(createBlob('y',3));
+    g->loadTexture(createBlob('y',4));
+    g->loadTexture(new QImage("../Graphics/sky/neg_x.bmp"));
+    g->loadTexture(new QImage("../Graphics/sky/pos_x.bmp"));
+    g->loadTexture(new QImage("../Graphics/sky/neg_y.bmp"));
+    g->loadTexture(new QImage("../Graphics/sky/pos_y.bmp"));
+    g->loadTexture(new QImage("../Graphics/sky/neg_z.bmp"));
+    g->loadTexture(new QImage("../Graphics/sky/pos_z.bmp"));
+    //pos_y neg_x neg_y pos_x pos_z neg_z
+    p->glinit();
 }
 
 void SSLWorld::step(float dt)
@@ -360,7 +403,7 @@ void SSLWorld::step(float dt)
         }
         robots[k]->chassis->setColor(ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY);
     }
-    if (best_k!=-1) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
+    if (best_k>=0) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
     selected = best_k;
 
     p->draw();
@@ -376,22 +419,13 @@ void SSLWorld::step(float dt)
     framenum ++;
 }
 
-
-#define _VISION_BUF_LEN 512
-#define _IMG_FPS_DELAY 0.01667 //100 fps
-#define _WHEEL_NUM 4
-const float motorfactor = 8;
-const float shootfactor = 1;
 void SSLWorld::recvActions()
 {
-        char ch,  m1, m2, m3;
         unsigned char action;
-        int nID, shootPower;
-        bool spin;
+        int nID;
         // Data received from Comm Thread
         QHostAddress sender;
-        quint16 port;
-        qDebug() << "Recieved";
+        quint16 port;        
         while (commandSocket->hasPendingDatagrams())
             {
                 char *c = new char [5];
@@ -401,7 +435,6 @@ void SSLWorld::recvActions()
 
                 action = c[1];
                 nID = action & 0x07;
-                qDebug() << "Recieved: " << nID;
                 commands[nID].isNew = true;
                 commands[nID].shootPower = (action & 0x70) >> 4;
                 commands[nID].chip = (action & 0x80);
@@ -414,11 +447,6 @@ void SSLWorld::recvActions()
 
         for (int nID = 0; nID < 5; nID++)
                 if (commands[nID].isNew) {
-                        if (_WHEEL_NUM == 3) {
-                                //vel[nID][0] = commands[nID].m1 * MOTOR_TO_FORCE;
-                                //vel[nID][1] = commands[nID].m2 * MOTOR_TO_FORCE;
-                                //vel[nID][2] = commands[nID].m3 * MOTOR_TO_FORCE;
-                        } else if (_WHEEL_NUM == 4) {
                         char sm1, sm2, sm3, sm4;
 
                         sm1 =  ( (commands[nID].m1 >> 2) & 0x3F);
@@ -435,20 +463,20 @@ void SSLWorld::recvActions()
                         double dw3 = ((double) sm3 / 31.0) * 1.73;
                         double dw4 = ((double) sm4 / 31.0) * 1.73;
 
-                        robots[nID]->setSpeed(0,dw1*motorfactor);// 3 1
-                        robots[nID]->setSpeed(1,dw2*motorfactor);// 1 3
-                        robots[nID]->setSpeed(2,dw3*motorfactor);// 4 2
-                        robots[nID]->setSpeed(3,dw4*motorfactor);// 2 4
+                        robots[nID]->setSpeed(0,dw1*cfg->motorfactor());
+                        robots[nID]->setSpeed(1,dw2*cfg->motorfactor());
+                        robots[nID]->setSpeed(2,dw3*cfg->motorfactor());
+                        robots[nID]->setSpeed(3,dw4*cfg->motorfactor());
                         commands[nID].isNew = false;
                         }
-                }
+
 
                 // Applying Shoot and spinner
                 for(int nID = 0; nID < 5; nID++) {
                        if ((commands[nID].shootPower > 0))
-                           robots[nID]->kicker->kick(((double) commands[nID].shootPower*shootfactor));
+                           robots[nID]->kicker->kick(((double) commands[nID].shootPower*cfg->shootfactor()));
                        else if ((commands[nID].chip == true))
-                           robots[nID]->kicker->kick(((double) commands[nID].shootPower*shootfactor),true);
+                           robots[nID]->kicker->kick(((double) commands[nID].shootPower*cfg->shootfactor()),true);
                        robots[nID]->kicker->setRoller(commands[nID].spin);
                 }
 
@@ -496,67 +524,4 @@ void SSLWorld::sendVisionBuffer()
         rob->set_orientation(dir*M_PI/180.0f);
    }
     visionServer->send(packet);
-#if 0
-                // Simulating Vision Frame Rate
-                char buf[1000];
-                int nID;
-/*                float dt = getElapsedTime(false);
-                if (dt > _IMG_FPS_DELAY) { // is XXX fps? send via UDP
-*/
-
-                        // constructing vision buf
-                        sprintf(buf,"[VISION],");
-                        // Our team data
-                        for(nID = 0; nID < 5; nID++){
-                                float x,y,dir;
-                                robots[nID]->getXY(x,y);
-                                dir = robots[nID]->getDir();
-                                sprintf(buf,"%s%d %d %d %d,",buf,
-                                        (int) (x*1000.0f),
-                                        (int) (y*1000.0f),
-                                        (int) dir,
-                                        1);
-
-                        }
-
-                        //opp Team data
-                        for(nID = 5; nID < 10; nID++){
-                                float x,y,dir;
-                                robots[nID]->getXY(x,y);
-                                dir = robots[nID]->getDir();
-                                sprintf(buf,"%s%d %d %d %d,",buf,
-                                        (int) (x*1000.0f),
-                                        (int) (y*1000.0f),
-                                        (int) dir,
-                                        1);
-
-                        }
-
-                        //Ball
-                        float x,y,z;
-                        ball->getBodyPosition(x,y,z);
-                        sprintf(buf,"%s%d %d %d,",buf,
-                                (int) (x*1000.0f),
-                                (int) (y*1000.0f),
-                                1);
-//                        QByteArray a(buf);
-                        //udpSocket->writeDatagram(a,QHostAddress::Any, VISION_PORT);
-/*    udpSocket->writeDatagram(datagram.data(), datagram.size(),
-                             QHostAddress::Broadcast, 45454);                                */
-//printf("%s\n",buf);
-                        visionSocket->send(buf,strlen(buf)+1);
-
-
-                        //getElapsedTime(true);
-/*
-                        try {
-                                char visionBuffer[_VISION_BUF_LEN];
-                                sock->sendTo(buf,_VISION_BUF_LEN,_UDP_BRDCAST,_OUR_PORT_VISION);
-                        }
-                        catch (SocketException &e) {
-                                cout << e.what() << endl;
-                                exit(1);
-                        } */
-
-#endif
 }

@@ -6,8 +6,7 @@
 #include "Physics/pbox.h"
 #include "Physics/pball.h"
 
-#include "config.h"
-
+#include "configwidget.h"
 
 class Robot
 {
@@ -15,7 +14,8 @@ class Robot
     PBall* m_ball;
     float m_x,m_y,m_z;
     float m_r,m_g,m_b;
-public:
+public:    
+    ConfigWidget* cfg;
     dSpaceID space;
     PCylinder* chassis;
     PBall* dummy;
@@ -52,7 +52,7 @@ public:
         Robot* rob;
     } *kicker;
 
-    Robot(PWorld* world,PBall* ball,float x,float y,float z,float r,float g,float b,int rob_id);
+    Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id);
     ~Robot();
     void step();
     void setSpeed(int i,float s); //i = 0,1,2,3
