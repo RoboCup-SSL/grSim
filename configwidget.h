@@ -34,8 +34,7 @@ class ConfigWidget : public VarTreeView
 
 protected:
   vector<VarType *> world;
-  VarTreeModel * tmodel;  
-  void closeEvent(QCloseEvent* event);
+  VarTreeModel * tmodel;    
 public:
   VarList * geo_vars;
   ConfigWidget();

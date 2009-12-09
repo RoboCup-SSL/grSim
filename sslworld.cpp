@@ -141,7 +141,6 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
         0.05, 0.7, 0.4,
         0.1, 0.9, 0.4);
 
-
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);

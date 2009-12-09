@@ -222,6 +222,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     char cmd = event->key();
     static float xyz[3],hpr[3];
   const float S = 0.3;
+  const float BallForce = 0.2;
   const dReal* v;
   int RR = this->Current_robot;
   int T  = this->Current_team;
@@ -235,10 +236,10 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   case 'e': case 'E':this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(2,S);break;
   case 'q': case 'Q':this->ssl->robots[R]->incSpeed(1,-S);this->ssl->robots[R]->incSpeed(3,S);break;
   case 'n': case 'N':this->ssl->g->setViewpoint(0,0,2,0,-90,180);break;
-  case 't': case 'T':dBodyAddForce(this->ssl->ball->body,0, 0.05,0);break;
-  case 'g': case 'G':dBodyAddForce(this->ssl->ball->body,0,-0.05,0);break;
-  case 'h': case 'H':dBodyAddForce(this->ssl->ball->body, 0.05,0,0);break;
-  case 'f': case 'F':dBodyAddForce(this->ssl->ball->body,-0.05,0,0);break;
+  case 't': case 'T':dBodyAddForce(this->ssl->ball->body,0, BallForce,0);break;
+  case 'g': case 'G':dBodyAddForce(this->ssl->ball->body,0,-BallForce,0);break;
+  case 'h': case 'H':dBodyAddForce(this->ssl->ball->body, BallForce,0,0);break;
+  case 'f': case 'F':dBodyAddForce(this->ssl->ball->body,-BallForce,0,0);break;
   case 'c': case 'C':
               this->cammode ++;
               this->cammode %= 2;
@@ -267,6 +268,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   case ' ':
     this->ssl->robots[R]->resetSpeeds();
     dBodySetLinearVel(this->ssl->ball->body,0,0,0);
+    dBodySetAngularVel(this->ssl->ball->body,0,0,0);
     break;
 
   }

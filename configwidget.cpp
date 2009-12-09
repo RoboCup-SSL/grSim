@@ -36,9 +36,9 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(ballg_vars,Double,BALLRADIUS,0.0215,"Radius")
   VarList * phys_vars = new VarList("Physics");
   world.push_back(phys_vars);
-    VarList * worldp_vars = new VarList("World");
-    phys_vars->addChild(worldp_vars);
-        ADD_VALUE(worldp_vars,Bool,SyncWithGL,true,"Synchronize ODE with OpenGL")
+    VarList * worldp_vars = new VarList("World");    
+    phys_vars->addChild(worldp_vars);  
+        ADD_VALUE(worldp_vars,Bool,SyncWithGL,false,"Synchronize ODE with OpenGL")
         ADD_VALUE(worldp_vars,Double,DeltaTime,0.01,"ODE time step")
         ADD_VALUE(worldp_vars,Double,Gravity,9.8,"Gravity")
     VarList * robotp_vars = new VarList("Robot");
@@ -53,7 +53,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(robotp_vars,Double,wheelperpendicularfriction,0.01f,"Wheel perpendicular friction")
     VarList * ballp_vars = new VarList("Ball");
     phys_vars->addChild(ballp_vars);
-        ADD_VALUE(ballp_vars,Double,BALLMASS,0.1,"Ball mass");
+        ADD_VALUE(ballp_vars,Double,BALLMASS,0.043,"Ball mass");
         ADD_VALUE(ballp_vars,Double,ballfriction,1,"Ball-ground friction")
         ADD_VALUE(ballp_vars,Double,ballslip,1,"Ball-ground slip")
         ADD_VALUE(ballp_vars,Double,ballbounce,0.7,"Ball-ground bounce factor")
@@ -62,10 +62,10 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(ballp_vars,Double,ballangulardamp,0.004,"Ball angular damping")
   VarList * comm_vars = new VarList("Communication");
   world.push_back(comm_vars);
-    ADD_VALUE(comm_vars,String,VisionMulticastAddr,"127.0.0.1","Vision multicast address")  //SSL Vision: "224.5.23.2"
+    ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10002,"Vision multicast port")
     ADD_VALUE(comm_vars,Int,CommandListenPort,20011,"Command listen port")
-    ADD_VALUE(comm_vars,Double,motorfactor,8,"Motor factor")
+    ADD_VALUE(comm_vars,Double,motorfactor,22,"Motor factor")
     ADD_VALUE(comm_vars,Double,shootfactor,1,"Shoot factor")
   world=VarXML::read(world,"../settings.xml");
 
@@ -85,8 +85,4 @@ ConfigWidget::~ConfigWidget() {
    VarXML::write(world,"../settings.xml");
 }
 
-
-void ConfigWidget::closeEvent(QCloseEvent *event)
-{
-}
 
