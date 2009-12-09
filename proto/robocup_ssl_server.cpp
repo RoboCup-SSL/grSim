@@ -1,4 +1,6 @@
 #include <QtGlobal>
+#include "logger.h"
+
 #ifdef Q_OS_UNIX
 
 //========================================================================
@@ -46,8 +48,7 @@ bool RoboCupSSLServer::open() {
   close();
   
   if(!mc.open(_port,true,true)) {
-    fprintf(stderr,"Unable to open UDP network port: %d\n",_port);
-    fflush(stderr);
+    logStatus(QString("Unable to open UDP network port: %1").arg(_port),QColor("red"));    
     return(false);
   }
 
@@ -60,11 +61,9 @@ bool RoboCupSSLServer::open() {
   }
 
   if(!mc.addMulticast(multiaddr,interface)) {
-    fprintf(stderr,"Unable to setup UDP multicast\n");
-    fflush(stderr);
-    return(false);
+    logStatus(QString("Unable to setup UDP multicast."),QColor("orange"));    
   }
-
+  logStatus(QString("Vision UDP network successfully configured. (Multicast address: %1:%2)").arg(_net_address.c_str()).arg(_port),QColor("green"));
   return(true);
 }
 
@@ -78,7 +77,7 @@ bool RoboCupSSLServer::send(const SSL_WrapperPacket & packet) {
   result=mc.send(buffer.c_str(),buffer.length(),multiaddr);
   mutex.unlock();
   if (result==false) {
-    fprintf(stderr,"Sending UDP datagram failed (maybe too large?). Size was: %zu byte(s)\n",buffer.length());
+    logStatus(QString("Sending UDP datagram failed (maybe too large?). Size was: %1 byte(s)").arg(buffer.length()),QColor("red"));
   }
   return(result);
 }
@@ -148,17 +147,18 @@ bool RoboCupSSLServer::open() {
 
         //Make this a member of the Multicast Group
         if(setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char far *)&mreq,sizeof(mreq)) < 0)
-        {
-            qDebug() << "Multicast Init: Membership Error!";
+        {            
+            logStatus(QString("Multicast Init: Membership Error!"),QColor("orange"));
         }
         // set TTL (Time To Live)
         unsigned int ttl = 38;
         if (setsockopt(sd, IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&ttl, sizeof(ttl) ) < 0)
         {
-            qDebug() << "Multicast Init: Time To Live Error!";
+            logStatus(QString("Multicast Init: Time To Live Error!"),QColor("orange"));
         }
 
     }
+    else logStatus(QString("Unable to open UDP network port: %1").arg(_port),QColor("red"));
     //Set up a socket for sending multicast data
     sd = socket(AF_INET, SOCK_DGRAM, 0);
     sinStruct.sin_family = AF_INET;
@@ -272,7 +272,7 @@ bool RoboCupSSLServer::send(const SSL_WrapperPacket & packet) {
 //      result = false;
   mutex.unlock();
   if (result==false) {
-    qDebug() << "Sending UDP datagram failed (maybe too large?). Size was: " << buffer.length() << " byte(s)";
+    logStatus(QString("Sending UDP datagram failed (maybe too large?). Size was: %1 byte(s)").arg(buffer.length()),QColor("red"));
   }
    return(result);
 }
