@@ -14,8 +14,13 @@ Robot::Wheel::Wheel(Robot* robot,float ang,float ang2)
     float x = rob->m_x;
     float y = rob->m_y;
     float z = rob->m_z;
-    cyl = new PCylinder(x+rad*cos(ang2),y+rad*sin(ang2),z-rob->cfg->CHASSISHEIGHT()*0.5+rob->cfg->WHEELRADIUS()-rob->cfg->BOTTOMHEIGHT(),rob->cfg->WHEELRADIUS(),rob->cfg->WHEELLENGTH(),rob->cfg->WHEELMASS(),0.9,0.9,0.9);
+    float centerx = x+rad*cos(ang2);
+    float centery = y+rad*sin(ang2);
+    float centerz = z-rob->cfg->CHASSISHEIGHT()*0.5+rob->cfg->WHEELRADIUS()-rob->cfg->BOTTOMHEIGHT();
+    cyl = new PCylinder(centerx,centery,centerz,rob->cfg->WHEELRADIUS(),rob->cfg->WHEELLENGTH(),rob->cfg->WHEELMASS(),0.9,0.9,0.9);
     cyl->setRotation(-sin(ang),cos(ang),0,M_PI*0.5);
+    cyl->setBodyRotation(-sin(ang),cos(ang),0,M_PI*0.5,true); //set local rotation matrix
+    cyl->setBodyPosition(centerx-x,centery-y,centerz-z,true);       //set local position vector
     cyl->space = rob->space;
 
     rob->w->addObject(cyl);
@@ -41,8 +46,11 @@ Robot::Kicker::Kicker(Robot* robot)
   float x = rob->m_x;
   float y = rob->m_y;
   float z = rob->m_z;
-  box = new PBox(x+(rob->cfg->CHASSISLENGTH()*0.5+rob->cfg->KLENGTH()*0.5),y,z-(rob->cfg->CHASSISHEIGHT())*0.5f+rob->cfg->WHEELRADIUS()-rob->cfg->BOTTOMHEIGHT()+rob->cfg->KICKERHEIGHT()
-                ,rob->cfg->KLENGTH(),rob->cfg->KWIDTH(),rob->cfg->KHEIGHT(),rob->cfg->KICKERMASS(),0.9,0.9,0.9);
+  float centerx = x+(rob->cfg->CHASSISLENGTH()*0.5+rob->cfg->KLENGTH()*0.5);
+  float centery = y;
+  float centerz = z-(rob->cfg->CHASSISHEIGHT())*0.5f+rob->cfg->WHEELRADIUS()-rob->cfg->BOTTOMHEIGHT()+rob->cfg->KICKERHEIGHT();
+  box = new PBox(centerx,centery,centerz,rob->cfg->KLENGTH(),rob->cfg->KWIDTH(),rob->cfg->KHEIGHT(),rob->cfg->KICKERMASS(),0.9,0.9,0.9);
+  box->setBodyPosition(centerx-x,centery-y,centerz-z,true);
   box->space = rob->space;
 
   rob->w->addObject(box);
@@ -137,7 +145,7 @@ void Robot::Kicker::kick(float kickspeed,bool chip)
   }
 }
 
-Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id)
+Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id,int dir)
 {      
   m_r = r;
   m_g = g;
@@ -147,6 +155,7 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
   m_z = z;
   w = world;
   m_ball = ball;
+  m_dir = dir;
   cfg = _cfg;
 
   //resetSpeeds();
@@ -174,6 +183,7 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
   wheels[1] = new Wheel(this,135,135);
   wheels[2] = new Wheel(this,225,225);
   wheels[3] = new Wheel(this,300,300);
+  firsttime=true;
 }
 
 Robot::~Robot()
@@ -188,6 +198,11 @@ PBall* Robot::getBall()
 
 void Robot::step()
 {
+    if (firsttime)
+    {
+        if (m_dir==-1) setDir(180);
+        firsttime = false;
+    }
     wheels[0]->step();
     wheels[1]->step();
     wheels[2]->step();
@@ -205,12 +220,22 @@ void Robot::resetSpeeds()
 void Robot::resetRobot()
 {
   resetSpeeds();
+  dBodySetLinearVel(chassis->body,0,0,0);
+  dBodySetAngularVel(chassis->body,0,0,0);
+  dBodySetLinearVel(dummy->body,0,0,0);
+  dBodySetAngularVel(dummy->body,0,0,0);
+  dBodySetLinearVel(kicker->box->body,0,0,0);
+  dBodySetAngularVel(kicker->box->body,0,0,0);
+  for (int i=0;i<4;i++)
+  {
+    dBodySetLinearVel(wheels[i]->cyl->body,0,0,0);
+    dBodySetAngularVel(wheels[i]->cyl->body,0,0,0);
+  }
   float x,y;
   getXY(x,y);
   setXY(x,y);
-
-  chassis->setBodyRotation(0,0,0,M_PI*0.5);
-  kicker->box->setBodyRotation(0,0,0,M_PI*0.5);
+  if (m_dir==-1) setDir(180);
+  else setDir(0);
 }
 
 void Robot::getXY(float& x,float &y)
@@ -233,16 +258,42 @@ float Robot::getDir()
 void Robot::setXY(float x,float y)
 {
     float xx,yy,zz,kx,ky,kz;
+    float height = cfg->CHASSISHEIGHT()+cfg->WHEELRADIUS();
     chassis->getBodyPosition(xx,yy,zz);
-    chassis->setBodyPosition(x,y,0.4);
-    dummy->setBodyPosition(x,y,0.4);
+    chassis->setBodyPosition(x,y,height);
+    dummy->setBodyPosition(x,y,height);
     kicker->box->getBodyPosition(kx,ky,kz);
-    kicker->box->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+0.4);
+    kicker->box->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+height);
     for (int i=0;i<4;i++)
     {
         wheels[i]->cyl->getBodyPosition(kx,ky,kz);
-        wheels[i]->cyl->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+0.4);
+        wheels[i]->cyl->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+height);
     }
+}
+
+void Robot::setDir(float ang)
+{
+  ang*=M_PI/180.0f;
+  chassis->setBodyRotation(0,0,1,ang);
+  kicker->box->setBodyRotation(0,0,1,ang);      
+  dummy->setBodyRotation(0,0,1,ang);
+  dMatrix3 wLocalRot,wRot,cRot;
+  dVector3 localPos,finalPos,cPos;
+  chassis->getBodyPosition(cPos[0],cPos[1],cPos[2],false);
+  chassis->getBodyRotation(cRot,false);  
+  //cRot*
+  kicker->box->getBodyPosition(localPos[0],localPos[1],localPos[2],true);
+  dMultiply0(finalPos,cRot,localPos,4,3,1);finalPos[0]+=cPos[0];finalPos[1]+=cPos[1];finalPos[2]+=cPos[2];
+  kicker->box->setBodyPosition(finalPos[0],finalPos[1],finalPos[2],false);
+  for (int i=0;i<4;i++)
+  {
+    wheels[i]->cyl->getBodyRotation(wLocalRot,true);
+    dMultiply0(wRot,cRot,wLocalRot,3,3,3);
+    dBodySetRotation(wheels[i]->cyl->body,wRot);
+    wheels[i]->cyl->getBodyPosition(localPos[0],localPos[1],localPos[2],true);
+    dMultiply0(finalPos,cRot,localPos,4,3,1);finalPos[0]+=cPos[0];finalPos[1]+=cPos[1];finalPos[2]+=cPos[2];
+    wheels[i]->cyl->setBodyPosition(finalPos[0],finalPos[1],finalPos[2],false);
+  }
 }
 
 void Robot::setSpeed(int i,dReal s)

@@ -86,3 +86,12 @@ ConfigWidget::~ConfigWidget() {
 }
 
 
+ConfigDockWidget::ConfigDockWidget(QWidget* _parent,ConfigWidget* _conf){
+    parent=_parent;conf=_conf;
+    setWidget(conf);
+    conf->move(0,20);
+}  
+void ConfigDockWidget::closeEvent(QCloseEvent* event)
+{
+    emit closeSignal(false);
+}

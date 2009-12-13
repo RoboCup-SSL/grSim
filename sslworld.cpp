@@ -8,7 +8,7 @@
 #include "logger.h"
 
 #define ROBOT_GRAY 0.4
-#define STARTZ     0.3	// starting height of robot
+#define STARTZ     (cfg->CHASSISHEIGHT()+cfg->WHEELRADIUS())
 
 SSLWorld* _w;
 bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
@@ -105,7 +105,7 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
 }
 
 SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
-{
+{    
     _w = this;
     cfg = _cfg;
     m_parent = parent;
@@ -168,7 +168,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
 */
         for (int k=0;k<5;k++)
         {
-                robots[k] = new Robot(p,ball,cfg,OurTeamPosX[k],OurTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1);
+                robots[k] = new Robot(p,ball,cfg,OurTeamPosX[k],OurTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,1);
         }
         //Defend
 //	dReal OppTeamPosX[5] = {2.8, 2.5, 2.5, 0.8, 0.8};
@@ -185,11 +185,8 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
         //dReal OppTeamPosY[5] = {0.35, 0.0, -0.35, -0.50, 0.50};
         for (int k=0;k<5;k++)
         {
-                robots[k+5] = new Robot(p,ball,cfg,OppTeamPosX[k],OppTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6);
-               // robots[k+5]->chassis->setBodyRotation(0,0,1,M_PI);
-                //robots[k+5]->kicker->box->setBodyRotation(0,0,1,M_PI);
-        }
-        initing = true;
+            robots[k+5] = new Robot(p,ball,cfg,OppTeamPosX[k],OppTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,-1);
+        }        
 
 
     dBodySetLinearDampingThreshold(ball->body,0.001);
@@ -282,9 +279,6 @@ void SSLWorld::reconnectVisionSocket()
 
 SSLWorld::~SSLWorld()
 {
-    //visionSocket->close();
-    //delete visionSocket;
-    //delete commThread;
     delete visionServer;
     commandSocket->close();
     delete commandSocket;
@@ -340,31 +334,6 @@ void SSLWorld::step(float dt)
     if (dt==0) dt=last_dt;
     else last_dt = dt;
     g->initScene(m_parent->width(),m_parent->height(),0,0.7,1);//true,0.7,0.7,0.7,0.8);
-
-    if (initing)
-    {
-        if (robots[5]->getDir()>=179)
-        {
-            initing = false;
-            for (int k=0;k<5;k++)
-            {
-                robots[k+5]->setSpeed(0,0);
-                robots[k+5]->setSpeed(1,0);
-                robots[k+5]->setSpeed(2,0);
-                robots[k+5]->setSpeed(3,0);
-            }
-        }
-        else
-        {
-            for (int k=0;k<5;k++)
-            {
-                robots[k+5]->setSpeed(0,1);
-                robots[k+5]->setSpeed(1,1);
-                robots[k+5]->setSpeed(2,1);
-                robots[k+5]->setSpeed(3,1);
-            }
-        }
-    }
 
     selected = -1;
     for (int k=0;k<10;k++)

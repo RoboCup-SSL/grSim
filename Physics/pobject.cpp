@@ -54,19 +54,32 @@ void PObject::setRotation(float x_axis,float y_axis,float z_axis,float ang)
     isQSet = true;
 }
 
-void PObject::setBodyPosition(float x,float y,float z)
+void PObject::setBodyPosition(float x,float y,float z,bool local)
 {
-    dBodySetPosition(body,x,y,z);
+    if (!local) dBodySetPosition(body,x,y,z);
+    else {local_Pos[0]=x;local_Pos[1]=y;local_Pos[2]=z;}
 }
 
-void PObject::setBodyRotation(float x_axis,float y_axis,float z_axis,float ang)
+void PObject::setBodyRotation(float x_axis,float y_axis,float z_axis,float ang,bool local)
 {
-    dQFromAxisAndAngle (q,x_axis,y_axis,z_axis,ang);
-    dBodySetQuaternion(body,q);
+    if (!local)
+    {
+        dQFromAxisAndAngle (q,x_axis,y_axis,z_axis,ang);
+        dBodySetQuaternion(body,q);
+    }
+    else {
+        dRFromAxisAndAngle(local_Rot,x_axis,y_axis,z_axis,ang);
+    }
 }
 
-void PObject::getBodyPosition(float &x,float &y,float &z)
+void PObject::getBodyPosition(float &x,float &y,float &z,bool local)
 {
+    if (local) {
+        x = local_Pos[0];
+        y = local_Pos[1];
+        z = local_Pos[2];
+        return;
+    }
     const dReal *r=dBodyGetPosition(body);
     x = r[0];
     y = r[1];
@@ -82,6 +95,18 @@ void PObject::getBodyDirection(float &x,float &y,float &z)
   x = axis[0];
   y = axis[1];
   z = axis[2];
+}
+
+void PObject::getBodyRotation(dMatrix3 r,bool local)
+{
+    if (local)
+    {
+        for (int k=0;k<12;k++) r[k] = local_Rot[k];
+    }
+    else {
+        const dReal* rr = dBodyGetRotation(body);
+        for (int k=0;k<12;k++) r[k] = rr[k];
+    }
 }
 
 void PObject::initPosBody()

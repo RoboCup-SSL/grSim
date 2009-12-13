@@ -26,10 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     /* Widgets */
 
     configwidget = new ConfigWidget();
-
-    dockconfig = new QDockWidget(this);
-    dockconfig->setWidget(configwidget);    
-    configwidget->move(0,20);
+    dockconfig = new ConfigDockWidget(this,configwidget);
     addDockWidget(Qt::LeftDockWidgetArea,dockconfig);
 
     fpslabel = new QLabel(this);
@@ -38,21 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->addWidget(fpslabel);
     statusBar()->addWidget(cursorlabel);
     statusBar()->addWidget(selectinglabel);
-/*    QGroupBox * groupBox = new QGroupBox(this);
-    setCentralWidget(groupBox);
-    groupBox->setTitle("Simulator");
 
-    fpslabel->setAlignment(Qt::AlignCenter);
-    robotlabel->setAlignment(Qt::AlignLeft);
-
-    QGridLayout *layout = new QGridLayout(groupBox);
-
-    layout->addWidget(widget,0,0,15,1);
-    layout->addWidget(fpslabel,15,0);
-    layout->addWidget(robotlabel,15,0);
-
-    groupBox->setLayout(layout);
-*/
     QMenu *fileMenu = new QMenu("&File");
     menuBar()->addMenu(fileMenu);
     QAction *exit = new QAction("E&xit", fileMenu);
@@ -103,7 +86,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(showsimulator, SIGNAL(triggered(bool)), this, SLOT(showHideSimulator(bool)));
     QObject::connect(showconfig, SIGNAL(triggered(bool)), this, SLOT(showHideConfig(bool)));
     QObject::connect(glwidget, SIGNAL(closeSignal(bool)), this, SLOT(showHideSimulator(bool)));    
-    QObject::connect(dockconfig, SIGNAL(visibilityChanged(bool)), this, SLOT(showHideConfig(bool)));    
+    QObject::connect(dockconfig, SIGNAL(closeSignal(bool)), this, SLOT(showHideConfig(bool)));
     QObject::connect(glwidget, SIGNAL(selectedRobot()), this, SLOT(updateRobotLabel()));
     QObject::connect(robotCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentRobot()));
     QObject::connect(teamCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentTeam()));

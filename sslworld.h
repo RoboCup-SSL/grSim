@@ -28,7 +28,6 @@ class SSLWorld : public QObject
 private:
     QGLWidget* m_parent;
     int framenum;
-    bool initing;
     float last_dt;
 public:
 
