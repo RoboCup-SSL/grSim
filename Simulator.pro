@@ -50,17 +50,12 @@ HEADERS += mainwindow.h \
     configwidget.h \
     statuswidget.h \
     logger.h
-win32:LIBS += -L$$PWD/libs/win32 \
-    -lode-0.11.1 \
-    -lprotobuf-2.1.0 \
-    -lws2_32 \
-    -lVarTypes
-unix:LIBS += -L$$PWD/libs/unix \
+LIBS += -L$$PWD/libs/ \
     -lode-0.11.1 \
     -lprotobuf-2.1.0 \
     -lVarTypes
-unix:OBJECTS_DIR = $$PWD/objs
-unix:DESTDIR = $$PWD/objs
+OBJECTS_DIR = $$PWD/objs
+DESTDIR = $$PWD/objs
 INCLUDEPATH += $$PWD/include
 INCLUDEPATH += $$PWD/include/VarTypes
 RESOURCES += textures.qrc

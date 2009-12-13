@@ -28,7 +28,7 @@ public:
     class Wheel
     {
       public:
-        Wheel(Robot* robot,float ang,float ang2);
+        Wheel(Robot* robot,float ang,float ang2,int wheeltexid);
         void step();
         dJointID joint;
         PCylinder* cyl;
@@ -54,7 +54,7 @@ public:
         Robot* rob;
     } *kicker;
 
-    Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id,int dir);
+    Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id,int wheeltexid,int dir);
     ~Robot();
     void step();
     void setSpeed(int i,float s); //i = 0,1,2,3
@@ -68,5 +68,8 @@ public:
     void setDir(float ang);
     PBall* getBall();
 };
+
+
+#define ROBOT_START_Z(cfg)  (cfg->CHASSISHEIGHT()*0.5+cfg->WHEELRADIUS()*1.1-cfg->BOTTOMHEIGHT())
 
 #endif // ROBOT_H

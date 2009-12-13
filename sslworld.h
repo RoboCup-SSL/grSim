@@ -49,7 +49,7 @@ public:
     PBall* ball;
     PGround* ground;
     PRay* ray;
-    PFixedBox* walls[6];
+    PFixedBox* walls[12];
     int selected;
     bool show3DCursor;
     float cursor_x,cursor_y,cursor_z;

@@ -5,7 +5,7 @@
 
 // ang2 = position angle
 // ang  = rotation angle
-Robot::Wheel::Wheel(Robot* robot,float ang,float ang2)
+Robot::Wheel::Wheel(Robot* robot,float ang,float ang2,int wheeltexid)
 {
     rob = robot;
     float rad = rob->cfg->CHASSISWIDTH()*0.5 + rob->cfg->WHEELLENGTH();
@@ -17,7 +17,7 @@ Robot::Wheel::Wheel(Robot* robot,float ang,float ang2)
     float centerx = x+rad*cos(ang2);
     float centery = y+rad*sin(ang2);
     float centerz = z-rob->cfg->CHASSISHEIGHT()*0.5+rob->cfg->WHEELRADIUS()-rob->cfg->BOTTOMHEIGHT();
-    cyl = new PCylinder(centerx,centery,centerz,rob->cfg->WHEELRADIUS(),rob->cfg->WHEELLENGTH(),rob->cfg->WHEELMASS(),0.9,0.9,0.9);
+    cyl = new PCylinder(centerx,centery,centerz,rob->cfg->WHEELRADIUS(),rob->cfg->WHEELLENGTH(),rob->cfg->WHEELMASS(),0.9,0.9,0.9,wheeltexid);
     cyl->setRotation(-sin(ang),cos(ang),0,M_PI*0.5);
     cyl->setBodyRotation(-sin(ang),cos(ang),0,M_PI*0.5,true); //set local rotation matrix
     cyl->setBodyPosition(centerx-x,centery-y,centerz-z,true);       //set local position vector
@@ -145,7 +145,7 @@ void Robot::Kicker::kick(float kickspeed,bool chip)
   }
 }
 
-Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id,int dir)
+Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id,int wheeltexid,int dir)
 {      
   m_r = r;
   m_g = g;
@@ -179,10 +179,10 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
 
   kicker = new Kicker(this);
 
-  wheels[0] = new Wheel(this,60,60);
-  wheels[1] = new Wheel(this,135,135);
-  wheels[2] = new Wheel(this,225,225);
-  wheels[3] = new Wheel(this,300,300);
+  wheels[0] = new Wheel(this,cfg->Wheel1Angle(),cfg->Wheel1Angle(),wheeltexid);
+  wheels[1] = new Wheel(this,cfg->Wheel2Angle(),cfg->Wheel2Angle(),wheeltexid);
+  wheels[2] = new Wheel(this,cfg->Wheel3Angle(),cfg->Wheel3Angle(),wheeltexid);
+  wheels[3] = new Wheel(this,cfg->Wheel4Angle(),cfg->Wheel4Angle(),wheeltexid);
   firsttime=true;
 }
 
@@ -258,7 +258,7 @@ float Robot::getDir()
 void Robot::setXY(float x,float y)
 {
     float xx,yy,zz,kx,ky,kz;
-    float height = cfg->CHASSISHEIGHT()+cfg->WHEELRADIUS();
+    float height = ROBOT_START_Z(cfg);
     chassis->getBodyPosition(xx,yy,zz);
     chassis->setBodyPosition(x,y,height);
     dummy->setBodyPosition(x,y,height);
