@@ -39,7 +39,7 @@ private:
     QWorkspace* workspace;
     GLWidget *glwidget;
     ConfigWidget *configwidget;
-    QDockWidget *dockconfig;
+    ConfigDockWidget *dockconfig;
 
     CStatusPrinter *printer;
     CStatusWidget *statusWidget;

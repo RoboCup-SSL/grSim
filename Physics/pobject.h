@@ -11,6 +11,8 @@ private:
 protected:
     float m_x,m_y,m_z,m_red,m_green,m_blue;
     float m_mass;
+    dMatrix3 local_Rot;
+    dVector3 local_Pos;
     dQuaternion q;
     void initPosBody();
     void initPosGeom();
@@ -19,10 +21,11 @@ public:
     PObject(float x,float y,float z,float red,float green,float blue,float mass);
     virtual ~PObject();
     void setRotation(float x_axis,float y_axis,float z_axis,float ang); //Must be called before init()
-    void setBodyPosition(float x,float y,float z);
-    void setBodyRotation(float x_axis,float y_axis,float z_axis,float ang);
-    void getBodyPosition(float &x,float &y,float &z);
+    void setBodyPosition(float x,float y,float z,bool local=false);
+    void setBodyRotation(float x_axis,float y_axis,float z_axis,float ang,bool local=false);
+    void getBodyPosition(float &x,float &y,float &z,bool local=false);
     void getBodyDirection(float &x,float &y,float &z);
+    void getBodyRotation(dMatrix3 r,bool local=false);
     void setVisibility(bool v);
     void setColor(float r,float g,float b);
     void getColor(float& r,float& g,float& b);

@@ -14,6 +14,8 @@ class Robot
     PBall* m_ball;
     float m_x,m_y,m_z;
     float m_r,m_g,m_b;
+    float m_dir;
+    bool firsttime;
 public:    
     ConfigWidget* cfg;
     dSpaceID space;
@@ -52,7 +54,7 @@ public:
         Robot* rob;
     } *kicker;
 
-    Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id);
+    Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id,int dir);
     ~Robot();
     void step();
     void setSpeed(int i,float s); //i = 0,1,2,3
@@ -63,6 +65,7 @@ public:
     void getXY(float& x,float& y);
     float getDir();
     void setXY(float x,float y);
+    void setDir(float ang);
     PBall* getBall();
 };
 
