@@ -48,7 +48,7 @@ public:
     void drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6);
     void drawSky ();
     void drawGround();
-    void drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float epsilon);
+    void drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float epsilon);
 
     void drawBox (const float pos[3], const float R[12],const float sides[3]);
     void drawSphere (const float pos[3], const float R[12],float radius);

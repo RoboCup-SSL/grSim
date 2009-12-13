@@ -8,7 +8,6 @@
 #include "logger.h"
 
 #define ROBOT_GRAY 0.4
-#define STARTZ     (cfg->CHASSISHEIGHT()+cfg->WHEELRADIUS())
 
 SSLWorld* _w;
 bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
@@ -117,7 +116,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
     p = new PWorld(0.05,9.8,g);
     ball = new PBall (0,0,0.5,cfg->BALLRADIUS(),cfg->BALLMASS(), 1,0.7,0);
 
-    ground = new PGround(cfg->_SSL_FIELD_RAD(),cfg->_SSL_FIELD_LENGTH(),cfg->_SSL_FIELD_WIDTH(),0);
+    ground = new PGround(cfg->_SSL_FIELD_RAD(),cfg->_SSL_FIELD_LENGTH(),cfg->_SSL_FIELD_WIDTH(),cfg->_SSL_FIELD_PENALTY_RADIUS(),cfg->_SSL_FIELD_PENALTY_LINE(),0);
     ray = new PRay(50);
     walls[0] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0
                              ,(cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
@@ -134,19 +133,42 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
         cfg->_SSL_WALL_THICKNESS() / 1000.0 , (cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, 0.4,
         0.7, 0.7, 0.7);
 
-    walls[4] = new PFixedBox(( (cfg->_SSL_FIELD_LENGTH() / -2000.0)) - 0.025 ,0.0, 0.0,
+    walls[4] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f ,0.0, 0.0
+        , cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+    walls[5] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f,-cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f - cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f,0.0
+        , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+    walls[6] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f,cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f+ cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f, 0.0
+        , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+    walls[7] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f+cfg->_SSL_GOAL_THICKNESS()*0.0005f,0.0, cfg->_SSL_GOAL_HEIGHT()*0.001f*0.5f
+        , cfg->_SSL_GOAL_DEPTH()*0.001f+cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f+cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f , 0.1, 0.9, 0.4);
+
+    walls[8] = new PFixedBox(- (( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f) ,0.0, 0.0
+        , cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+    walls[9] = new PFixedBox(- (( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f),-cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f - cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f,0.0
+        , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+    walls[10] = new PFixedBox( -(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f),cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f+ cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f, 0.0
+        , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+    walls[11] = new PFixedBox(- (( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f+cfg->_SSL_GOAL_THICKNESS()*0.0005f),0.0, cfg->_SSL_GOAL_HEIGHT()*0.001f*0.5f
+        , cfg->_SSL_GOAL_DEPTH()*0.001f+cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f+cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f , 0.1, 0.9, 0.4);
+/*    walls[5] = new PFixedBox(( (cfg->_SSL_FIELD_LENGTH() / -2000.0)) - 0.025 ,0.0, 0.0,
+        0.05, 0.7, 0.4,
+        0.1, 0.9, 0.4);
+    walls[6] = new PFixedBox(( (cfg->_SSL_FIELD_LENGTH() / -2000.0)) - 0.025 ,0.0, 0.0,
+        0.05, 0.7, 0.4,
+        0.1, 0.9, 0.4);
+    walls[7] = new PFixedBox(( (cfg->_SSL_FIELD_LENGTH() / -2000.0)) - 0.025 ,0.0, 0.0,
         0.05, 0.7, 0.4,
         0.1, 0.9, 0.4);
     walls[5] = new PFixedBox(( (cfg->_SSL_FIELD_LENGTH() / 2000.0)) + 0.025 ,0.0, 0.0,
         0.05, 0.7, 0.4,
         0.1, 0.9, 0.4);
-
+*/
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
-    for (int i=0;i<6;i++)
+    for (int i=0;i<12;i++)
         p->addObject(walls[i]);
-
+    const int wheeltexid = 17;
 
 
         // Best Start
@@ -168,7 +190,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
 */
         for (int k=0;k<5;k++)
         {
-                robots[k] = new Robot(p,ball,cfg,OurTeamPosX[k],OurTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,1);
+                robots[k] = new Robot(p,ball,cfg,OurTeamPosX[k],OurTeamPosY[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,wheeltexid,1);
         }
         //Defend
 //	dReal OppTeamPosX[5] = {2.8, 2.5, 2.5, 0.8, 0.8};
@@ -185,7 +207,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
         //dReal OppTeamPosY[5] = {0.35, 0.0, -0.35, -0.50, 0.50};
         for (int k=0;k<5;k++)
         {
-            robots[k+5] = new Robot(p,ball,cfg,OppTeamPosX[k],OppTeamPosY[k],STARTZ,ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,-1);
+            robots[k+5] = new Robot(p,ball,cfg,OppTeamPosX[k],OppTeamPosY[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
         }        
 
 
@@ -219,12 +241,12 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg) : QObject(parent)
 //    ballwithkicker.surface.bounce = 0.2;
 //    ballwithkicker.surface.bounce_vel = 0.1;
     ballwithkicker.surface.slip1 = 5;
-    for (int i=0;i<6;i++)
+    for (int i=0;i<12;i++)
         p->createSurface(ball,walls[i])->surface = ballwithwall.surface;
     for (int k=0;k<10;k++)
     {
         p->createSurface(robots[k]->chassis,ground);
-        for (int j=0;j<6;j++)
+        for (int j=0;j<12;j++)
             p->createSurface(robots[k]->chassis,walls[j]);
         p->createSurface(robots[k]->chassis,ball);
         p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
@@ -325,6 +347,7 @@ void SSLWorld::glinit()
     g->loadTexture(new QImage("../Graphics/sky/pos_y.bmp"));
     g->loadTexture(new QImage("../Graphics/sky/neg_z.bmp"));
     g->loadTexture(new QImage("../Graphics/sky/pos_z.bmp"));
+    g->loadTexture(new QImage("../Graphics/Wheel.png"));
     //pos_y neg_x neg_y pos_x pos_z neg_z
     p->glinit();
 }

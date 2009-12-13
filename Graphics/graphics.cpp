@@ -540,11 +540,11 @@ void CGraphics::drawGround()
   resetState();
 }
 
-void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float epsilon)
+void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float epsilon)
 {
     float angle,x,y,z;
-    float radx = (SSL_FIELD_RAD) / ( SSL_FIELD_LENGTH / 2.0);
-    float radz = (SSL_FIELD_RAD) / ( SSL_FIELD_WIDTH / 2.0);
+    float radx = (SSL_FIELD_PENALTY) / ( SSL_FIELD_LENGTH / 2.0);
+    float radz = (SSL_FIELD_PENALTY) / ( SSL_FIELD_WIDTH / 2.0);
     glPushMatrix();
             glScaled(SSL_FIELD_LENGTH / 2000.0 ,  SSL_FIELD_WIDTH / 2000.0,1);
 
@@ -573,7 +573,7 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
 
             glBegin(GL_LINE_LOOP);
                     z = epsilon;
-                    for(angle = 0.0f; angle <= 2.0 * 3.141596; angle += (3.141596/20.0f))
+                    for(angle = 0.0f; angle <= 2.0 * M_PI; angle += (M_PI/20.0f))
                       {
                               x = radx * sin(angle);
                               y = radz * cos(angle);
@@ -581,24 +581,40 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
                       }
             glEnd();
 
+            float h = SSL_FIELD_LINE_LENGTH / SSL_FIELD_WIDTH;
+
             glBegin(GL_LINE_LOOP);
-                    z = epsilon;
-                    for(angle = 0.0f; angle <=  3.141596; angle += (3.141596/20.0f))
+                    z = epsilon;                    
+                    for(angle = 0.0f; angle <=  M_PI*0.5; angle += (M_PI/20.0f))
                       {
                               x = -1.0 + (radx * sin(angle));
-                              y = radz * cos(angle);
+                              y = radz * cos(angle) + h*0.5f;
+                              glVertex3f(x, y, z);
+                      }                    
+                    for(angle = M_PI*0.5; angle >=  0.0f; angle -= (M_PI/20.0f))
+                      {
+                              x = -1.0 + (radx * sin(angle));
+                              y = -radz * cos(angle) - h*0.5f;
                               glVertex3f(x, y, z);
                       }
+                    glVertex3f(-1.0f,-h-radz,z);
             glEnd();
 
             glBegin(GL_LINE_LOOP);
                     z = epsilon;
-                    for(angle = 0.0f; angle <=  3.141596; angle += (3.141596/20.0f))
+                    for(angle = 0.0f; angle <=  M_PI*0.5; angle += (M_PI/20.0f))
                       {
                               x = 1.0 - (radx * sin(angle));
-                              y = radz * cos(angle);
+                              y = radz * cos(angle) + h*0.5f;
                               glVertex3f(x, y, z);
                       }
+                    for(angle = M_PI*0.5; angle >= 0.0 ; angle -= (M_PI/20.0f))
+                      {
+                              x = 1.0 - (radx * sin(angle));
+                              y = -radz * cos(angle) - h*0.5f;
+                              glVertex3f(x, y, z);
+                      }
+                    glVertex3f(1.0f,-h-radz,z);
             glEnd();
 
             glLineWidth(fCurrSize);

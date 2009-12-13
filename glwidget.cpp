@@ -21,7 +21,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     cammode = 0;
     setMouseTracking(true);
     robpopup = new QMenu(this);
-    moveRobotAct = new QAction(tr("&Move robot"),this);
+    moveRobotAct = new QAction(tr("&Locate robot"),this);
     selectRobotAct = new QAction(tr("&Select robot"),this);
     resetRobotAct = new QAction(tr("&Reset robot"),this);
     robpopup->addAction(moveRobotAct);
@@ -91,7 +91,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
         }
         if (state==2)
         {
-            ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,0.2);
+            ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS()*1.1);
             dBodySetAngularVel(ssl->ball->body,0,0,0);
             dBodySetLinearVel(ssl->ball->body,0,0,0);
             ssl->show3DCursor = false;
@@ -229,26 +229,20 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   int R = RR + T*5;
   bool flag=false;
   switch (cmd) {
-  case 's': case 'S':this->ssl->robots[R]->incSpeed(0,S);this->ssl->robots[R]->incSpeed(1,S);this->ssl->robots[R]->incSpeed(2,-S);this->ssl->robots[R]->incSpeed(3,-S);break;
-  case 'w': case 'W':this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(1,-S);this->ssl->robots[R]->incSpeed(2,S);this->ssl->robots[R]->incSpeed(3,S);break;
-  case 'a': case 'A':this->ssl->robots[R]->incSpeed(0,S);this->ssl->robots[R]->incSpeed(1,S);this->ssl->robots[R]->incSpeed(2,S);this->ssl->robots[R]->incSpeed(3,S);break;
-  case 'd': case 'D':this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(1,-S);this->ssl->robots[R]->incSpeed(2,-S);this->ssl->robots[R]->incSpeed(3,-S);break;
-  case 'e': case 'E':this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(2,S);break;
-  case 'q': case 'Q':this->ssl->robots[R]->incSpeed(1,-S);this->ssl->robots[R]->incSpeed(3,S);break;
-  case 'n': case 'N':this->ssl->g->setViewpoint(0,0,2,0,-90,180);break;
-  case 't': case 'T':dBodyAddForce(this->ssl->ball->body,0, BallForce,0);break;
-  case 'g': case 'G':dBodyAddForce(this->ssl->ball->body,0,-BallForce,0);break;
-  case 'h': case 'H':dBodyAddForce(this->ssl->ball->body, BallForce,0,0);break;
-  case 'f': case 'F':dBodyAddForce(this->ssl->ball->body,-BallForce,0,0);break;
+  case 'w': case 'W':dBodyAddForce(this->ssl->ball->body,0, BallForce,0);break;
+  case 's': case 'S':dBodyAddForce(this->ssl->ball->body,0,-BallForce,0);break;
+  case 'd': case 'D':dBodyAddForce(this->ssl->ball->body, BallForce,0,0);break;
+  case 'a': case 'A':dBodyAddForce(this->ssl->ball->body,-BallForce,0,0);break;
   case 'c': case 'C':
               this->cammode ++;
-              this->cammode %= 2;
+              this->cammode %= 3;
               if (this->cammode==0)
                 this->ssl->g->setViewpoint(xyz,hpr);
               else if (this->cammode==1)
               {
                   this->ssl->g->getViewpoint(xyz,hpr);
               }
+              else this->ssl->g->setViewpoint(0,0,5,0,-90,0);break;
               break;
   case '-': this->ssl->ball->setBodyPosition(0,0,0.3);dBodySetLinearVel(this->ssl->ball->body,0,0,0);dBodySetAngularVel(this->ssl->ball->body,0,0,0);break;
   case '0': RR = 0;flag=true;this->Current_robot = RR;break;

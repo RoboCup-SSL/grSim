@@ -117,7 +117,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_WHEELRADIUS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
     QObject::connect(configwidget->v__SSL_FIELD_LENGTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
     QObject::connect(configwidget->v__SSL_FIELD_MARGIN, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v__SSL_FIELD_PENALTY, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v__SSL_FIELD_PENALTY_LINE, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v__SSL_FIELD_PENALTY_RADIUS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
     QObject::connect(configwidget->v__SSL_FIELD_RAD, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
     QObject::connect(configwidget->v__SSL_FIELD_WIDTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
     QObject::connect(configwidget->v__SSL_WALL_THICKNESS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));

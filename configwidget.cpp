@@ -11,14 +11,19 @@ ConfigWidget::ConfigWidget()
 
   geo_vars = new VarList("Geometry");
   world.push_back(geo_vars);
-    VarList * field_vars = new VarList("Field");    
+    VarList * field_vars = new VarList("Field (in millimeters)");
     geo_vars->addChild(field_vars);
         ADD_VALUE(field_vars,Double,_SSL_FIELD_LENGTH,6050.0,"Length")
         ADD_VALUE(field_vars,Double,_SSL_FIELD_WIDTH,4050.0,"Width")
         ADD_VALUE(field_vars,Double,_SSL_FIELD_RAD,500.0,"Radius")
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY,450.0,"Penalty")
+        ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY_RADIUS,500.0,"Penalty radius")
+        ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY_LINE,350.0,"Penalty line length")
         ADD_VALUE(field_vars,Double,_SSL_FIELD_MARGIN,1000.0,"Margin")
-        ADD_VALUE(field_vars,Double,_SSL_WALL_THICKNESS,250.0,"Wall thickness")
+        ADD_VALUE(field_vars,Double,_SSL_WALL_THICKNESS,100.0,"Wall thickness")
+        ADD_VALUE(field_vars,Double,_SSL_GOAL_THICKNESS,20.0,"Goal thickness")
+        ADD_VALUE(field_vars,Double,_SSL_GOAL_DEPTH,200.0,"Goal depth")
+        ADD_VALUE(field_vars,Double,_SSL_GOAL_WIDTH,700.0,"Goal width")
+        ADD_VALUE(field_vars,Double,_SSL_GOAL_HEIGHT,400.0,"Goal height")
     VarList * robotg_vars = new VarList("Robot");
     geo_vars->addChild(robotg_vars);
         ADD_VALUE(robotg_vars,Double,CHASSISLENGTH,0.17,"Chassis length")
@@ -31,6 +36,10 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(robotg_vars,Double,KHEIGHT,0.04,"Kicker height")
         ADD_VALUE(robotg_vars,Double,WHEELRADIUS,0.035,"Wheel radius")
         ADD_VALUE(robotg_vars,Double,WHEELLENGTH,0.005,"Wheel thickness")
+        ADD_VALUE(robotg_vars,Double,Wheel1Angle,60.0f,"Wheel 1 angle")
+        ADD_VALUE(robotg_vars,Double,Wheel2Angle,135.0f,"Wheel 2 angle")
+        ADD_VALUE(robotg_vars,Double,Wheel3Angle,225.0f,"Wheel 3 angle")
+        ADD_VALUE(robotg_vars,Double,Wheel4Angle,300.0f,"Wheel 4 angle")
     VarList * ballg_vars = new VarList("Ball");
     geo_vars->addChild(ballg_vars);
         ADD_VALUE(ballg_vars,Double,BALLRADIUS,0.0215,"Radius")
