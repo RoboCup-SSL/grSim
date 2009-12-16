@@ -18,7 +18,7 @@ private:
     void _drawSphere();
     void _drawCapsule (float l, float r);
     void _drawCylinder (float l, float r, float zoffset);
-    void _drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id);
+    void _drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id);    
     void wrapCameraAngles();
     void setCamera (float x, float y, float z, float h, float p, float r);
 public:
@@ -48,7 +48,7 @@ public:
     void drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6);
     void drawSky ();
     void drawGround();
-    void drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float epsilon);
+    void drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float SSL_FIELD_PENALTY_POINT,float epsilon);
 
     void drawBox (const float pos[3], const float R[12],const float sides[3]);
     void drawSphere (const float pos[3], const float R[12],float radius);
@@ -56,6 +56,7 @@ public:
     void drawCylinder_TopTextured (const float pos[3], const float R[12],float length, float radius,int tex_id);
     void drawCapsule (const float pos[3], const float R[12],float length, float radius);
     void drawLine (const float pos1[3], const float pos2[3]);
+    void drawCircle(float x0,float y0,float z0,float r);
 
 };
 

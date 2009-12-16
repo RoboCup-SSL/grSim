@@ -31,6 +31,7 @@ public:
         Wheel(Robot* robot,float ang,float ang2,int wheeltexid);
         void step();
         dJointID joint;
+        dJointID motor;
         PCylinder* cyl;
         float speed;
         Robot* rob;

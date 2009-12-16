@@ -18,6 +18,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(field_vars,Double,_SSL_FIELD_RAD,500.0,"Radius")
         ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY_RADIUS,500.0,"Penalty radius")
         ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY_LINE,350.0,"Penalty line length")
+        ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY_POINT,450.0,"Penalty point")
         ADD_VALUE(field_vars,Double,_SSL_FIELD_MARGIN,1000.0,"Margin")
         ADD_VALUE(field_vars,Double,_SSL_WALL_THICKNESS,100.0,"Wall thickness")
         ADD_VALUE(field_vars,Double,_SSL_GOAL_THICKNESS,20.0,"Goal thickness")
@@ -60,6 +61,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(robotp_vars,Double,ROLLERTORQUEFACTOR,0.01f,"Roller torque factor")
         ADD_VALUE(robotp_vars,Double,wheeltangentfriction,0.7f,"Wheel tangent friction")
         ADD_VALUE(robotp_vars,Double,wheelperpendicularfriction,0.01f,"Wheel perpendicular friction")
+        ADD_VALUE(robotp_vars,Double,Wheel_Motor_FMax,0.2f,"Wheel motor maximum applying torque")
     VarList * ballp_vars = new VarList("Ball");
     phys_vars->addChild(ballp_vars);
         ADD_VALUE(ballp_vars,Double,BALLMASS,0.043,"Ball mass");
@@ -74,7 +76,8 @@ ConfigWidget::ConfigWidget()
     ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10002,"Vision multicast port")
     ADD_VALUE(comm_vars,Int,CommandListenPort,20011,"Command listen port")
-    ADD_VALUE(comm_vars,Double,motorfactor,22,"Motor factor")
+    ADD_VALUE(comm_vars,Double,motormaxoutput,22,"Motor max output (Round-per-second)")
+    ADD_VALUE(comm_vars,Double,motormaxinput,31,"Motor max input")
     ADD_VALUE(comm_vars,Double,shootfactor,1,"Shoot factor")
   world=VarXML::read(world,"../settings.xml");
 

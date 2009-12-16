@@ -1,7 +1,5 @@
 #include "robot.h"
 
-#define WHEEL_FMAX 5    // fmax value for the wheel
-
 
 // ang2 = position angle
 // ang  = rotation angle
@@ -31,12 +29,20 @@ Robot::Wheel::Wheel(Robot* robot,float ang,float ang2,int wheeltexid)
     const dReal *a = dBodyGetPosition (cyl->body);
     dJointSetHingeAxis (joint,cos(ang),sin(ang),0);
     dJointSetHingeAnchor (joint,a[0],a[1],a[2]);
+
+    motor = dJointCreateAMotor(rob->w->world,0);
+    dJointAttach(motor,rob->chassis->body,cyl->body);
+    dJointSetAMotorNumAxes(motor,1);
+    dJointSetAMotorAxis(motor,0,1,cos(ang),sin(ang),0);
+    dJointSetAMotorParam(motor,dParamFMax,rob->cfg->Wheel_Motor_FMax());
 }
 
 void Robot::Wheel::step()
 {
-    dJointSetHingeParam (joint,dParamVel,speed);
-    dJointSetHingeParam (joint,dParamFMax,WHEEL_FMAX);
+    dJointSetAMotorParam(motor,dParamVel,speed*rob->cfg->motormaxoutput()*2.0f*M_PI/rob->cfg->motormaxinput());
+    dJointSetAMotorParam(motor,dParamFMax,rob->cfg->Wheel_Motor_FMax());
+    //dJointSetHingeParam (joint,dParamVel,speed);
+    //dJointSetHingeParam (joint,dParamFMax,5);
 }
 
 Robot::Kicker::Kicker(Robot* robot)
@@ -164,11 +170,11 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
   //space = dSimpleSpaceCreate (w->space);
   //dSpaceSetCleanup (space,0);
 
-  chassis = new PCylinder(x,y,z,cfg->CHASSISWIDTH()*0.5f,cfg->CHASSISHEIGHT(),cfg->CHASSISMASS()*0.5f,r,g,b,rob_id);
+  chassis = new PCylinder(x,y,z,cfg->CHASSISWIDTH()*0.5f,cfg->CHASSISHEIGHT(),cfg->CHASSISMASS()*0.99f,r,g,b,rob_id);
   chassis->space = space;
   w->addObject(chassis);
 
-  dummy   = new PBall(x,y,z,cfg->CHASSISWIDTH()*0.5f,cfg->CHASSISMASS()*0.5f,0,0,0);
+  dummy   = new PBall(x,y,z,cfg->CHASSISWIDTH()*0.5f,cfg->CHASSISMASS()*0.01f,0,0,0);
   dummy->setVisibility(false);
   dummy->space = space;
   w->addObject(dummy);
