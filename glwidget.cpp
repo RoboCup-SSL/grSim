@@ -46,6 +46,7 @@ GLWidget::~GLWidget()
 void GLWidget::moveRobot()
 {
     ssl->show3DCursor = true;
+    ssl->cursor_radius = cfg->CHASSISWIDTH()*0.5f;
     state = 1;
     moving_robot_id = clicked_robot;
 }
@@ -71,6 +72,7 @@ void GLWidget::resetRobot()
 void GLWidget::moveBall()
 {
     ssl->show3DCursor = true;
+    ssl->cursor_radius = cfg->BALLRADIUS();
     state = 2;
 }
 
@@ -221,7 +223,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     char cmd = event->key();
     static float xyz[3],hpr[3];
-  const float S = 0.3;
+  const float S = 0.30;
   const float BallForce = 0.2;
   const dReal* v;
   int RR = this->Current_robot;
@@ -229,6 +231,16 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   int R = RR + T*5;
   bool flag=false;
   switch (cmd) {
+      case 't': case 'T': this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(1,S);this->ssl->robots[R]->incSpeed(2,-S);this->ssl->robots[R]->incSpeed(3,S);break;
+      case 'g': case 'G': this->ssl->robots[R]->incSpeed(0,S);this->ssl->robots[R]->incSpeed(1,-S);this->ssl->robots[R]->incSpeed(2,S);this->ssl->robots[R]->incSpeed(3,-S);break;
+      case 'f': case 'F': this->ssl->robots[R]->incSpeed(0,S);this->ssl->robots[R]->incSpeed(1,S);this->ssl->robots[R]->incSpeed(2,S);this->ssl->robots[R]->incSpeed(3,S);break;
+      case 'h': case 'H': this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(1,-S);this->ssl->robots[R]->incSpeed(2,-S);this->ssl->robots[R]->incSpeed(3,-S);break;
+/*
+      case 't': case 'T': this->ssl->robots[R]->setSpeed(0,-S);this->ssl->robots[R]->setSpeed(1,S);this->ssl->robots[R]->setSpeed(2,-S);this->ssl->robots[R]->setSpeed(3,S);break;
+      case 'g': case 'G': this->ssl->robots[R]->setSpeed(0,S);this->ssl->robots[R]->setSpeed(1,-S);this->ssl->robots[R]->setSpeed(2,S);this->ssl->robots[R]->setSpeed(3,-S);break;
+      case 'f': case 'F': this->ssl->robots[R]->setSpeed(0,S);this->ssl->robots[R]->setSpeed(1,S);this->ssl->robots[R]->setSpeed(2,S);this->ssl->robots[R]->setSpeed(3,S);break;
+      case 'h': case 'H': this->ssl->robots[R]->setSpeed(0,-S);this->ssl->robots[R]->setSpeed(1,-S);this->ssl->robots[R]->setSpeed(2,-S);this->ssl->robots[R]->setSpeed(3,-S);break;
+*/
   case 'w': case 'W':dBodyAddForce(this->ssl->ball->body,0, BallForce,0);break;
   case 's': case 'S':dBodyAddForce(this->ssl->ball->body,0,-BallForce,0);break;
   case 'd': case 'D':dBodyAddForce(this->ssl->ball->body, BallForce,0,0);break;

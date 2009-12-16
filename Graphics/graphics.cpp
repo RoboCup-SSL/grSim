@@ -155,7 +155,7 @@ void CGraphics::cameraMotion (int mode, int deltax, int deltay)
 }
 
 void rotxy(float &x,float &y,float a)
-{    
+{
     float ca = cos(a);
     float sa = sin(a);
     float xx = x*ca - y*sa;
@@ -260,7 +260,7 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
     // neg_x
     glBindTexture(GL_TEXTURE_2D, tex_ids[t1]);
 
-    glBegin(GL_QUADS);        
+    glBegin(GL_QUADS);
         glTexCoord2f(0, 0); glVertex3f( -0.5f, -0.5f*r, -0.5f*r );
         glTexCoord2f(1, 0); glVertex3f( -0.5f,  0.5f*r, -0.5f*r );
         glTexCoord2f(1, 1); glVertex3f( -0.5f,  0.5f*r,  0.5f*r );
@@ -378,7 +378,7 @@ void CGraphics::setTransformD (const double pos[3], const double R[12])
 }
 
 void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool fog,float fogr,float fogg,float fogb,float fogdensity)
-{  
+{
   // setup stuff
   glEnable (GL_LIGHTING);
   glEnable (GL_LIGHT0);
@@ -540,11 +540,12 @@ void CGraphics::drawGround()
   resetState();
 }
 
-void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float epsilon)
+void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float SSL_FIELD_PENALTY_POINT,float epsilon)
 {
     float angle,x,y,z;
     float radx = (SSL_FIELD_PENALTY) / ( SSL_FIELD_LENGTH / 2.0);
     float radz = (SSL_FIELD_PENALTY) / ( SSL_FIELD_WIDTH / 2.0);
+    float penaltyx = SSL_FIELD_PENALTY_POINT / (SSL_FIELD_LENGTH / 2.0);
     glPushMatrix();
             glScaled(SSL_FIELD_LENGTH / 2000.0 ,  SSL_FIELD_WIDTH / 2000.0,1);
 
@@ -584,13 +585,13 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
             float h = SSL_FIELD_LINE_LENGTH / SSL_FIELD_WIDTH;
 
             glBegin(GL_LINE_LOOP);
-                    z = epsilon;                    
+                    z = epsilon;
                     for(angle = 0.0f; angle <=  M_PI*0.5; angle += (M_PI/20.0f))
                       {
                               x = -1.0 + (radx * sin(angle));
                               y = radz * cos(angle) + h*0.5f;
                               glVertex3f(x, y, z);
-                      }                    
+                      }
                     for(angle = M_PI*0.5; angle >=  0.0f; angle -= (M_PI/20.0f))
                       {
                               x = -1.0 + (radx * sin(angle));
@@ -617,6 +618,8 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
                     glVertex3f(1.0f,-h-radz,z);
             glEnd();
 
+            drawCircle(-1+penaltyx,0,epsilon,0.005);
+            drawCircle(+1-penaltyx,0,epsilon,0.005);
             glLineWidth(fCurrSize);
     glPopMatrix();
 
@@ -756,9 +759,34 @@ void CGraphics::_drawSphere()
 }
 
 
-// draw a capped cylinder of length l and radius r, aligned along the x axis
-
 static int capped_cylinder_quality = 3;
+void CGraphics::drawCircle(float x0,float y0,float z0,float r)
+{
+  int i;
+  float tmp,ny,nz,a,ca,sa;
+  const int n = 24;	// number of sides to the cylinder (divisible by 4)
+
+  a = float(M_PI*2.0)/float(n);
+  sa = (float) sin(a);
+  ca = (float) cos(a);
+
+    // draw top cap
+  glShadeModel (GL_FLAT);
+  ny=1; nz=0;		  // normal vector = (0,ny,nz)
+  glBegin (GL_TRIANGLE_FAN);
+  glNormal3d (0,0,1);
+  for (i=0; i<=n; i++) {
+    glNormal3d (0,0,1);
+    glVertex3d (ny*r+x0,nz*r+y0,z0);
+    // rotate ny,nz
+    tmp = ca*ny - sa*nz;
+    nz = sa*ny + ca*nz;
+    ny = tmp;
+  }
+  glEnd();
+}
+
+// draw a capped cylinder of length l and radius r, aligned along the x axis
 
 void CGraphics::_drawCapsule (float l, float r)
 {
@@ -766,7 +794,7 @@ void CGraphics::_drawCapsule (float l, float r)
   float tmp,nx,ny,nz,start_nx,start_ny,a,ca,sa;
   // number of sides to the cylinder (divisible by 4):
   const int n = capped_cylinder_quality*4;
-
+;
   l *= 0.5;
   a = float(M_PI*2.0)/float(n);
   sa = (float) sin(a);
@@ -919,7 +947,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
   ca = (float) cos(a);
 
   // draw cylinder body
-  ny=1; nz=0;		  // normal vector = (0,ny,nz)  
+  ny=1; nz=0;		  // normal vector = (0,ny,nz)
   glBegin (GL_TRIANGLE_STRIP);
   for (i=0; i<=n; i++) {
     glNormal3d (ny,nz,0);
@@ -944,7 +972,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
 
   for (i=0; i<n; i++) {
     glNormal3d (0,0,1);
-    glTexCoord2f(-0.5*nz+0.5,0.5*ny+0.5);    
+    glTexCoord2f(-0.5*nz+0.5,0.5*ny+0.5);
     glVertex3d (ny*r,nz*r,l+zoffset);
     // rotate ny,nz
     tmp = ca*ny - sa*nz;

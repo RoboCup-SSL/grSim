@@ -6,10 +6,10 @@
 class PGround : public PObject
 {
 private:
-    float rad,len,wid,prad,plen;
+    float rad,len,wid,prad,plen,ppoint;
     int tex;
 public:
-    PGround(float field_radius,float field_length,float field_width,float field_penalty_rad,float field_penalty_line_length,int tex_id);
+    PGround(float field_radius,float field_length,float field_width,float field_penalty_rad,float field_penalty_line_length,float field_penalty_point,int tex_id);
     virtual ~PGround();
     virtual void init();
     virtual void draw();

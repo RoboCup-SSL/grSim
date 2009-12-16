@@ -211,8 +211,8 @@ void MainWindow::changeRobotMass()
 {    
     for (int i=0;i<10;i++)
     {
-        glwidget->ssl->robots[i]->chassis->setMass(configwidget->CHASSISMASS()*0.5f);
-        glwidget->ssl->robots[i]->dummy->setMass(configwidget->CHASSISMASS()*0.5f);
+        glwidget->ssl->robots[i]->chassis->setMass(configwidget->CHASSISMASS()*0.99f);
+        glwidget->ssl->robots[i]->dummy->setMass(configwidget->CHASSISMASS()*0.01f);
     }
 }
 

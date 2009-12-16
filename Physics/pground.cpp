@@ -1,6 +1,6 @@
 #include "pground.h"
 
-PGround::PGround(float field_radius,float field_length,float field_width,float field_penalty_rad,float field_penalty_line_length,int tex_id)
+PGround::PGround(float field_radius,float field_length,float field_width,float field_penalty_rad,float field_penalty_line_length,float field_penalty_point,int tex_id)
         : PObject(0,0,0,0,1,0,0)
 {
     rad = field_radius;
@@ -8,6 +8,7 @@ PGround::PGround(float field_radius,float field_length,float field_width,float f
     wid = field_width;
     prad = field_penalty_rad;
     plen = field_penalty_line_length;
+    ppoint = field_penalty_point;
     tex = tex_id;
 }
 
@@ -22,7 +23,7 @@ void PGround::draw()
     g->useTexture(tex);
     g->drawGround();
     g->noTexture();
-    g->drawSSLGround(rad,len,wid,prad,plen,0.001);
+    g->drawSSLGround(rad,len,wid,prad,plen,ppoint,0.001);
 }
 
 PGround::~PGround()

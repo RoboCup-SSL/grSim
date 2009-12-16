@@ -9,7 +9,6 @@ void initLogger(void* v)
 
 void logStatus(QString s,QColor c)
 {    
-    qDebug() << s;
     printer->textBuffer.enqueue(CStatusText(s,c));
 }
 
