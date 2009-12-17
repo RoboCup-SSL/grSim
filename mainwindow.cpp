@@ -15,9 +15,13 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-{    
+{
     QTimer *timer = new QTimer(this);
     timer->setInterval(_RENDER_INTERVAL);
+    /* Status Logger */
+    printer = new CStatusPrinter();
+    statusWidget = new CStatusWidget(printer);
+    initLogger((void*)printer);
 
     /* Init Workspace */
     workspace = new QWorkspace(this);
@@ -27,14 +31,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     configwidget = new ConfigWidget();
     dockconfig = new ConfigDockWidget(this,configwidget);
-    addDockWidget(Qt::LeftDockWidgetArea,dockconfig);
 
+    glwidget = new GLWidget(this,configwidget);
+    glwidget->setWindowTitle(tr("Simulator"));
+    glwidget->resize(512,512);
+
+    robotwidget = new RobotWidget(this);
+    /* Status Bar */
     fpslabel = new QLabel(this);
     cursorlabel = new QLabel(this);
     selectinglabel = new QLabel(this);
     statusBar()->addWidget(fpslabel);
     statusBar()->addWidget(cursorlabel);
     statusBar()->addWidget(selectinglabel);
+
+    /* Menus */
 
     QMenu *fileMenu = new QMenu("&File");
     menuBar()->addMenu(fileMenu);
@@ -52,34 +63,35 @@ MainWindow::MainWindow(QWidget *parent)
     showconfig->setChecked(true);
     viewMenu->addAction(showconfig);
 
+    QMenu *simulatorMenu = new QMenu("&Simulator");
+    menuBar()->addMenu(simulatorMenu);
+    QMenu *cameraMenu = new QMenu("&Camera");
+    QMenu *robotMenu = new QMenu("&Robot");
+    QMenu *ballMenu = new QMenu("&Ball");
+    simulatorMenu->addMenu(cameraMenu);
+    simulatorMenu->addMenu(robotMenu);
+    simulatorMenu->addMenu(ballMenu);    
+    QAction* changeCamMode=new QAction(tr("Change &mode"),cameraMenu);
+    changeCamMode->setShortcut(QKeySequence("C"));
+    cameraMenu->addAction(changeCamMode);
 
-    QToolBar* toolbar = new QToolBar(this);
-    toolbar->addWidget(new QLabel("Selected robot: "));
-    teamCombo = new QComboBox(this);
-    teamCombo->addItem("Blue");
-    teamCombo->addItem("Yellow");
-    toolbar->addWidget(teamCombo);
-    robotCombo = new QComboBox(this);
-    robotCombo->addItem("0");
-    robotCombo->addItem("1");
-    robotCombo->addItem("2");
-    robotCombo->addItem("3");
-    robotCombo->addItem("4");
-    toolbar->addWidget(robotCombo);
-    addToolBar(toolbar);
+    ballMenu->addAction(tr("Put on Center"))->setShortcut(QKeySequence("-"));
+    ballMenu->addAction(tr("Put on Corner 1"))->setShortcut(QKeySequence("Ctrl+1"));
+    ballMenu->addAction(tr("Put on Corner 2"))->setShortcut(QKeySequence("Ctrl+2"));
+    ballMenu->addAction(tr("Put on Corner 3"))->setShortcut(QKeySequence("Ctrl+3"));
+    ballMenu->addAction(tr("Put on Corner 4"))->setShortcut(QKeySequence("Ctrl+4"));
+    ballMenu->addAction(tr("Put on Penalty 1"))->setShortcut(QKeySequence("Alt+Ctrl+1"));
+    ballMenu->addAction(tr("Put on Penalty 2"))->setShortcut(QKeySequence("Alt+Ctrl+2"));
 
-    printer = new CStatusPrinter();
-    statusWidget = new CStatusWidget(printer);
-    this->addDockWidget(Qt::BottomDockWidgetArea, statusWidget);
-    initLogger((void*)printer);
+    robotMenu->addMenu(glwidget->blueRobotsMenu);
+    robotMenu->addMenu(glwidget->yellowRobotsMenu);
 
+    viewMenu->addAction(robotwidget->toggleViewAction());
 
-    glwidget = new GLWidget(this,configwidget);
-    glwidget->setWindowTitle(tr("Simulator"));
-    glwidget->resize(512,512);
+    addDockWidget(Qt::LeftDockWidgetArea,dockconfig);
+    addDockWidget(Qt::BottomDockWidgetArea, statusWidget);
+    addDockWidget(Qt::LeftDockWidgetArea, robotwidget);
     workspace->addWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
-
-
 
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     QObject::connect(exit, SIGNAL(triggered(bool)), this, SLOT(close()));
@@ -88,8 +100,12 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(glwidget, SIGNAL(closeSignal(bool)), this, SLOT(showHideSimulator(bool)));    
     QObject::connect(dockconfig, SIGNAL(closeSignal(bool)), this, SLOT(showHideConfig(bool)));
     QObject::connect(glwidget, SIGNAL(selectedRobot()), this, SLOT(updateRobotLabel()));
-    QObject::connect(robotCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentRobot()));
-    QObject::connect(teamCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentTeam()));
+    QObject::connect(robotwidget->robotCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentRobot()));
+    QObject::connect(robotwidget->teamCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentTeam()));
+    QObject::connect(robotwidget->resetBtn,SIGNAL(clicked()),glwidget,SLOT(resetCurrentRobot()));
+    QObject::connect(robotwidget->locateBtn,SIGNAL(clicked()),glwidget,SLOT(moveCurrentRobot()));
+    QObject::connect(changeCamMode,SIGNAL(triggered()),glwidget,SLOT(changeCameraMode()));
+    QObject::connect(ballMenu,SIGNAL(triggered(QAction*)),this,SLOT(ballMenuTriggered(QAction*)));
     //config related signals
     QObject::connect(configwidget->v_BALLMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallMass()));
     QObject::connect(configwidget->v_CHASSISMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeRobotMass()));
@@ -126,7 +142,8 @@ MainWindow::MainWindow(QWidget *parent)
     //network
     QObject::connect(configwidget->v_VisionMulticastAddr, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectVisionSocket()));
     QObject::connect(configwidget->v_VisionMulticastPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectVisionSocket()));
-    QObject::connect(configwidget->v_CommandListenPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectCommandSocket()));
+    QObject::connect(configwidget->v_BlueCommandListenPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectBlueCommandSocket()));
+    QObject::connect(configwidget->v_YellowCommandListenPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectYellowCommandSocket()));
 
     timer->start();
 
@@ -134,8 +151,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->showMaximized();
     this->setWindowTitle("Parsian Simulator");
 
-    teamCombo->setCurrentIndex(0);
-    robotCombo->setCurrentIndex(0);
+    robotwidget->teamCombo->setCurrentIndex(0);
+    robotwidget->robotCombo->setCurrentIndex(0);
+    robotwidget->setPicture(glwidget->ssl->robots[glwidget->Current_robot+glwidget->Current_team*5]->img);
 }
 
 MainWindow::~MainWindow()
@@ -157,12 +175,14 @@ void MainWindow::showHideSimulator(bool v)
 
 void MainWindow::changeCurrentRobot()
 {
-    glwidget->Current_robot=robotCombo->currentIndex();
+    glwidget->Current_robot=robotwidget->robotCombo->currentIndex();
+    robotwidget->setPicture(glwidget->ssl->robots[glwidget->Current_robot+glwidget->Current_team*5]->img);
 }
 
 void MainWindow::changeCurrentTeam()
 {
-    glwidget->Current_team=teamCombo->currentIndex();
+    glwidget->Current_team=robotwidget->teamCombo->currentIndex();
+    robotwidget->setPicture(glwidget->ssl->robots[glwidget->Current_robot+glwidget->Current_team*5]->img);
 }
 
 void MainWindow::changeGravity()
@@ -170,11 +190,33 @@ void MainWindow::changeGravity()
     dWorldSetGravity (glwidget->ssl->p->world,0,0,-configwidget->Gravity());
 }
 
+QString floatToStr(float a)
+{
+    QString s;
+    s.setNum(a,'f',3);
+    if (a>=0) return QString('+') + s;
+    return s;
+}
+
 void MainWindow::update()
 {
     glwidget->updateGL();
+
+    int R = robotIndex(glwidget->Current_robot,glwidget->Current_team);
+
+    const dReal* vv = dBodyGetLinearVel(glwidget->ssl->robots[R]->chassis->body);
+    static dVector3 lvv;
+    dVector3 aa;
+    aa[0]=(vv[0]-lvv[0])/configwidget->DeltaTime();
+    aa[1]=(vv[1]-lvv[1])/configwidget->DeltaTime();
+    aa[2]=(vv[2]-lvv[2])/configwidget->DeltaTime();
+    robotwidget->vellabel->setText(QString::number(sqrt(vv[0]*vv[0]+vv[1]*vv[1]+vv[2]*vv[2]),'f',3));
+    robotwidget->acclabel->setText(QString::number(sqrt(aa[0]*aa[0]+aa[1]*aa[1]+aa[2]*aa[2]),'f',3));
+    lvv[0]=vv[0];
+    lvv[1]=vv[1];
+    lvv[2]=vv[2];
+
     fpslabel->setText(QString("Frame rate: %1 fps").arg(glwidget->getFPS()));
-    QString n1,n2,n3;
     if (glwidget->ssl->selected!=-1)
     {
         selectinglabel->setVisible(true);
@@ -191,14 +233,15 @@ void MainWindow::update()
         }
     }
     else selectinglabel->setVisible(false);
-    cursorlabel->setText(QString("Cursor: [X=%1;Y=%2;Z=%3]").arg(n1.setNum(glwidget->ssl->cursor_x,'f',3)).arg(n2.setNum(glwidget->ssl->cursor_y,'f',3)).arg(n3.setNum(glwidget->ssl->cursor_z,'f',3)));
+
+    cursorlabel->setText(QString("Cursor: [X=%1;Y=%2;Z=%3]").arg(floatToStr(glwidget->ssl->cursor_x)).arg(floatToStr(glwidget->ssl->cursor_y)).arg(floatToStr(glwidget->ssl->cursor_z)));
     statusWidget->update();
 }
 
 void MainWindow::updateRobotLabel()
 {
-    teamCombo->setCurrentIndex(glwidget->Current_team);
-    robotCombo->setCurrentIndex(glwidget->Current_robot);
+    robotwidget->teamCombo->setCurrentIndex(glwidget->Current_team);
+    robotwidget->robotCombo->setCurrentIndex(glwidget->Current_robot);
 }
 
 
@@ -239,7 +282,7 @@ void MainWindow::changeBallGroundSurface()
 {
     PSurface* ballwithwall = glwidget->ssl->p->findSurface(glwidget->ssl->ball,glwidget->ssl->ground);    
     ballwithwall->surface.mode = dContactBounce | dContactApprox1 | dContactSlip1;
-    ballwithwall->surface.mu = configwidget->ballfriction();
+    ballwithwall->surface.mu = fric(configwidget->ballfriction());
     ballwithwall->surface.bounce = configwidget->ballbounce();
     ballwithwall->surface.bounce_vel = configwidget->ballbouncevel();
     ballwithwall->surface.slip1 = configwidget->ballslip();
@@ -257,3 +300,18 @@ void MainWindow::alertStaticVars()
 {    
     logStatus("You must restart application to see the changes of geometry parameters",QColor("orange"));
 }
+
+void MainWindow::ballMenuTriggered(QAction* act)
+{
+    float l = configwidget->_SSL_FIELD_LENGTH()/2000.0f;
+    float w = configwidget->_SSL_FIELD_WIDTH()/2000.0f;
+    float p = l - configwidget->_SSL_FIELD_PENALTY_POINT()/1000.f;
+    if (act->text()==tr("Put on Center")) glwidget->putBall(0,0);
+    else if (act->text()==tr("Put on Corner 1")) glwidget->putBall(-l,-w);
+    else if (act->text()==tr("Put on Corner 2")) glwidget->putBall(-l, w);
+    else if (act->text()==tr("Put on Corner 3")) glwidget->putBall( l,-w);
+    else if (act->text()==tr("Put on Corner 4")) glwidget->putBall( l, w);
+    else if (act->text()==tr("Put on Penalty 1")) glwidget->putBall( p, 0);
+    else if (act->text()==tr("Put on Penalty 2")) glwidget->putBall(-p, 0);
+}
+

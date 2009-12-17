@@ -15,6 +15,7 @@ class Robot
     float m_x,m_y,m_z;
     float m_r,m_g,m_b;
     float m_dir;
+    int m_rob_id;
     bool firsttime;
 public:    
     ConfigWidget* cfg;
@@ -25,6 +26,7 @@ public:
     PBox* boxes[3];
     bool selected; //these values are not controled by this class
     float select_x,select_y,select_z;
+    QImage *img,*number;
     class Wheel
     {
       public:

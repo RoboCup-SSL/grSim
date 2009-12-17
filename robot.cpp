@@ -1,10 +1,9 @@
 #include "robot.h"
 
-
 // ang2 = position angle
 // ang  = rotation angle
 Robot::Wheel::Wheel(Robot* robot,float ang,float ang2,int wheeltexid)
-{
+{    
     rob = robot;
     float rad = rob->cfg->CHASSISWIDTH()*0.5 + rob->cfg->WHEELLENGTH();
     ang *= M_PI/180.0f;
@@ -35,11 +34,12 @@ Robot::Wheel::Wheel(Robot* robot,float ang,float ang2,int wheeltexid)
     dJointSetAMotorNumAxes(motor,1);
     dJointSetAMotorAxis(motor,0,1,cos(ang),sin(ang),0);
     dJointSetAMotorParam(motor,dParamFMax,rob->cfg->Wheel_Motor_FMax());
+    speed = 0;
 }
 
 void Robot::Wheel::step()
 {
-    dJointSetAMotorParam(motor,dParamVel,speed*rob->cfg->motormaxoutput()*2.0f*M_PI/rob->cfg->motormaxinput());
+    dJointSetAMotorParam(motor,dParamVel,speed*(rob->cfg->motormaxoutput()*2.0f*M_PI)/(60.0f*rob->cfg->motormaxinput()));
     dJointSetAMotorParam(motor,dParamFMax,rob->cfg->Wheel_Motor_FMax());
     //dJointSetHingeParam (joint,dParamVel,speed);
     //dJointSetHingeParam (joint,dParamFMax,5);
@@ -163,7 +163,7 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
   m_ball = ball;
   m_dir = dir;
   cfg = _cfg;
-
+  m_rob_id = rob_id;
   //resetSpeeds();
 
   space = w->space;
@@ -202,6 +202,12 @@ PBall* Robot::getBall()
     return m_ball;
 }
 
+void normalizeVector(float& x,float& y,float& z)
+{
+    float d = sqrt(x*x + y*y + z*z);
+    x /= d;y /= d;z /= d;
+}
+
 void Robot::step()
 {
     if (firsttime)
@@ -214,7 +220,48 @@ void Robot::step()
     wheels[2]->step();
     wheels[3]->step();
     kicker->step();
-
+    glPushMatrix();
+    dVector3 pos;
+    const float txtWidth = 0.06;
+    const float txtHeight = 0.12;
+    pos[0] = dBodyGetPosition(chassis->body)[0];
+    pos[1] = dBodyGetPosition(chassis->body)[1];
+    pos[2] = dBodyGetPosition(chassis->body)[2] + cfg->CHASSISHEIGHT()*0.5f + cfg->BOTTOMHEIGHT() + cfg->WHEELRADIUS() + txtHeight*0.5f;
+    dMatrix3 rot;
+    float xyz[3],hpr[3];
+    w->g->getViewpoint(xyz,hpr);
+    float fx = -pos[0]+xyz[0];
+    float fy = -pos[1]+xyz[1];
+    float fz = -pos[2]+xyz[2];
+    dRFromAxisAndAngle(rot,0,0,0,0);
+    //float fx,fy,fz;
+    float rx,ry,rz;
+    //w->g->getCameraForward(fx,fy,fz);
+    w->g->getCameraRight(rx,ry,rz);
+    normalizeVector(fx,fy,fz);
+    normalizeVector(rx,ry,rz);
+    float tx = fy*rz-ry*fz;
+    float ty = rx*fz-fx*rz;
+    float tz = fx*ry-fy*rx;
+    w->g->setTransform(pos,rot);//dBodyGetRotation(chassis->body)
+    w->g->useTexture((m_rob_id-1)%5 + 11);
+    glShadeModel (GL_FLAT);
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_COLOR);
+    glBegin(GL_QUADS);
+        glTexCoord2f(1,1);glVertex3f( txtWidth*rx, txtWidth*ry,  txtWidth*rz);
+        glTexCoord2f(0,1);glVertex3f(-txtWidth*rx,-txtWidth*ry, -txtWidth*rz);
+        glTexCoord2f(0,0);glVertex3f(-txtWidth*rx -txtHeight*tx,-txtWidth*ry -txtHeight*ty,-txtWidth*rz -txtHeight*tz);
+        glTexCoord2f(1,0);glVertex3f( txtWidth*rx -txtHeight*tx, txtWidth*ry -txtHeight*ty, txtWidth*rz -txtHeight*tz);
+/*        glVertex3f( txtWidth,0, 0.00);glTexCoord2f(0,1);
+        glVertex3f(-txtWidth,0, 0.00);glTexCoord2f(0,0);
+        glVertex3f(-txtWidth,0,-txtHeight);glTexCoord2f(1,0);
+        glVertex3f( txtWidth,0,-txtHeight);glTexCoord2f(1,1);*/
+    glEnd();
+    glDisable(GL_BLEND);
+    w->g->noTexture();
+    glPopMatrix();
 }
 
 void Robot::resetSpeeds()

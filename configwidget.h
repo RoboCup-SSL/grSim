@@ -91,7 +91,8 @@ public:
   DEF_VALUE(double,Double,Gravity)
   DEF_VALUE(std::string,String,VisionMulticastAddr)  
   DEF_VALUE(int,Int,VisionMulticastPort)  
-  DEF_VALUE(int,Int,CommandListenPort)
+  DEF_VALUE(int,Int,BlueCommandListenPort)
+  DEF_VALUE(int,Int,YellowCommandListenPort)
 };
 
 class ConfigDockWidget : public QDockWidget

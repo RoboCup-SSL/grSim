@@ -28,6 +28,7 @@ CGraphics::CGraphics(QGLWidget* _owner)
   float hpr[3] = {121.0000f,-27.5000f,0.0000f};
   setViewpoint (xyz,hpr);
   sphere_quality = 1;
+  m_renderDepth = 100;
 /*  view_xyz[0] = 2;
   view_xyz[1] = 0;
   view_xyz[2] = 1;
@@ -99,6 +100,16 @@ void CGraphics::getFrustum(float& right,float& bottom,float& vnear)
     right = frustum_right;
     bottom= frustum_bottom;
     vnear = frustum_vnear;
+}
+
+void CGraphics::setRenderDepth(float depth)
+{
+    m_renderDepth = depth;
+}
+
+float CGraphics::renderDepth()
+{
+    return m_renderDepth;
 }
 
 void CGraphics::setViewpoint (float xyz[3], float hpr[3])
@@ -398,7 +409,7 @@ void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool f
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity();
   const float vnear = 0.1f;
-  const float vfar = 100.0f;
+  const float vfar = m_renderDepth;
   const float k = 0.8f;     // view scale, 1 = +/- 45 degrees
   frustum_vnear = vnear;
   if (width >= height) {
