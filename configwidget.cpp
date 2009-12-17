@@ -59,8 +59,8 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(robotp_vars,Double,KICKFACTOR,0.2f,"Kick factor")
         ADD_VALUE(robotp_vars,Double,CHIPFACTOR,0.6f,"Chip kick factor")
         ADD_VALUE(robotp_vars,Double,ROLLERTORQUEFACTOR,0.01f,"Roller torque factor")
-        ADD_VALUE(robotp_vars,Double,wheeltangentfriction,0.7f,"Wheel tangent friction")
-        ADD_VALUE(robotp_vars,Double,wheelperpendicularfriction,0.01f,"Wheel perpendicular friction")
+        ADD_VALUE(robotp_vars,Double,wheeltangentfriction,0.9f,"Wheel tangent friction")
+        ADD_VALUE(robotp_vars,Double,wheelperpendicularfriction,0.1f,"Wheel perpendicular friction")
         ADD_VALUE(robotp_vars,Double,Wheel_Motor_FMax,0.2f,"Wheel motor maximum applying torque")
     VarList * ballp_vars = new VarList("Ball");
     phys_vars->addChild(ballp_vars);
@@ -75,8 +75,9 @@ ConfigWidget::ConfigWidget()
   world.push_back(comm_vars);
     ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10002,"Vision multicast port")
-    ADD_VALUE(comm_vars,Int,CommandListenPort,20011,"Command listen port")
-    ADD_VALUE(comm_vars,Double,motormaxoutput,22,"Motor max output (Round-per-second)")
+    ADD_VALUE(comm_vars,Int,BlueCommandListenPort,20011,"Blue Team command listen port")
+    ADD_VALUE(comm_vars,Int,YellowCommandListenPort,20012,"Yellow Team command listen port")
+    ADD_VALUE(comm_vars,Double,motormaxoutput,1200,"Motor max output (RPM)")
     ADD_VALUE(comm_vars,Double,motormaxinput,31,"Motor max input")
     ADD_VALUE(comm_vars,Double,shootfactor,1,"Shoot factor")
   world=VarXML::read(world,"../settings.xml");

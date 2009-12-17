@@ -19,18 +19,27 @@ public:
     QString getFPS();
     ConfigWidget* cfg;
     SSLWorld* ssl;
+    RobotsFomation* forms[3];
     QMenu* robpopup,*ballpopup;
+    QMenu *blueRobotsMenu,*yellowRobotsMenu;
     QAction* moveRobotAct;
     QAction* selectRobotAct;
     QAction* resetRobotAct;
-    QAction* moveBallAct;
+    QAction* moveBallAct;        
     int Current_robot,Current_team,cammode;
     void update3DCursor(int mouse_x,int mouse_y);
+    void putBall(float x,float y);
+    void reform(int team,const QString& act);
 public slots:
     void moveRobot();
-    void selectRobot();
     void resetRobot();
+    void selectRobot();
+    void moveCurrentRobot();
+    void resetCurrentRobot();
     void moveBall();
+    void changeCameraMode();
+    void yellowRobotsMenuTriggered(QAction* act);
+    void blueRobotsMenuTriggered(QAction* act);
 signals:
     void clicked();
     void selectedRobot();

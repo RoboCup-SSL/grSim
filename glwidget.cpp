@@ -15,25 +15,46 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     state = 0;
     first_time = true;
     cfg = _cfg;
-    ssl = new SSLWorld(this,cfg);
+    forms[0] = new RobotsFomation(-1);  //outside
+    forms[1] = new RobotsFomation(1);  //inside type 1
+    forms[2] = new RobotsFomation(2);  //inside type 2
+    ssl = new SSLWorld(this,cfg,forms[1],forms[1]);
     Current_robot = 0;
     Current_team = 0;
     cammode = 0;
     setMouseTracking(true);
+
+    blueRobotsMenu = new QMenu("&Blue Robots");
+    yellowRobotsMenu = new QMenu("&Yellow Robots");
+    blueRobotsMenu->addAction(tr("Put all inside with formation 1"));
+    blueRobotsMenu->addAction(tr("Put all inside with formation 2"));
+    blueRobotsMenu->addAction(tr("Put all outside"));
+    yellowRobotsMenu->addAction(tr("Put all inside with formation 1"));
+    yellowRobotsMenu->addAction(tr("Put all inside with formation 2"));
+    yellowRobotsMenu->addAction(tr("Put all outside"));
+
     robpopup = new QMenu(this);
     moveRobotAct = new QAction(tr("&Locate robot"),this);
     selectRobotAct = new QAction(tr("&Select robot"),this);
     resetRobotAct = new QAction(tr("&Reset robot"),this);
-    robpopup->addAction(moveRobotAct);
     robpopup->addAction(selectRobotAct);
+    robpopup->addAction(moveRobotAct);
     robpopup->addAction(resetRobotAct);
+    robpopup->addMenu(blueRobotsMenu);
+    robpopup->addMenu(yellowRobotsMenu);
+
     moveBallAct = new QAction(tr("&Move ball"),this);
     ballpopup = new QMenu(this);
     ballpopup->addAction(moveBallAct);
+
+
+
     connect(moveRobotAct, SIGNAL(triggered()), this, SLOT(moveRobot()));
     connect(selectRobotAct, SIGNAL(triggered()), this, SLOT(selectRobot()));
     connect(resetRobotAct, SIGNAL(triggered()), this, SLOT(resetRobot()));
     connect(moveBallAct, SIGNAL(triggered()), this, SLOT(moveBall()));
+    connect(yellowRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
+    connect(blueRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(blueRobotsMenuTriggered(QAction*)));
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -55,8 +76,8 @@ void GLWidget::selectRobot()
 {
     if (clicked_robot!=-1)
     {
-        Current_robot = ssl->selected%5;
-        Current_team = ssl->selected/5;
+        Current_robot = clicked_robot%5;
+        Current_team = clicked_robot/5;
         emit selectedRobot();
     }
 }
@@ -67,6 +88,19 @@ void GLWidget::resetRobot()
     {
         ssl->robots[clicked_robot]->resetRobot();
     }
+}
+
+void GLWidget::resetCurrentRobot()
+{       
+    ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
+}
+
+void GLWidget::moveCurrentRobot()
+{
+    ssl->show3DCursor = true;
+    ssl->cursor_radius = cfg->CHASSISWIDTH()*0.5f;
+    state = 1;
+    moving_robot_id = robotIndex(Current_robot,Current_team);
 }
 
 void GLWidget::moveBall()
@@ -219,16 +253,33 @@ void GLWidget::paintGL()
 */
 }
 
+void GLWidget::changeCameraMode()
+{
+    static float xyz[3],hpr[3];
+      this->cammode ++;
+      this->cammode %= 3;
+      if (this->cammode==0)
+        this->ssl->g->setViewpoint(xyz,hpr);
+      else if (this->cammode==1)
+      {
+          this->ssl->g->getViewpoint(xyz,hpr);
+      }
+      else this->ssl->g->setViewpoint(0,0,5,0,-90,0);
+}
+
+void GLWidget::putBall(float x,float y)
+{
+    ssl->ball->setBodyPosition(x,y,0.3);
+    dBodySetLinearVel(ssl->ball->body,0,0,0);
+    dBodySetAngularVel(ssl->ball->body,0,0,0);
+}
+
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
-    char cmd = event->key();
-    static float xyz[3],hpr[3];
+  char cmd = event->key();
   const float S = 0.30;
   const float BallForce = 0.2;
-  const dReal* v;
-  int RR = this->Current_robot;
-  int T  = this->Current_team;
-  int R = RR + T*5;
+  int R = robotIndex(Current_robot,Current_team);
   bool flag=false;
   switch (cmd) {
       case 't': case 'T': this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(1,S);this->ssl->robots[R]->incSpeed(2,-S);this->ssl->robots[R]->incSpeed(3,S);break;
@@ -245,46 +296,37 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   case 's': case 'S':dBodyAddForce(this->ssl->ball->body,0,-BallForce,0);break;
   case 'd': case 'D':dBodyAddForce(this->ssl->ball->body, BallForce,0,0);break;
   case 'a': case 'A':dBodyAddForce(this->ssl->ball->body,-BallForce,0,0);break;
-  case 'c': case 'C':
-              this->cammode ++;
-              this->cammode %= 3;
-              if (this->cammode==0)
-                this->ssl->g->setViewpoint(xyz,hpr);
-              else if (this->cammode==1)
-              {
-                  this->ssl->g->getViewpoint(xyz,hpr);
-              }
-              else this->ssl->g->setViewpoint(0,0,5,0,-90,0);break;
-              break;
-  case '-': this->ssl->ball->setBodyPosition(0,0,0.3);dBodySetLinearVel(this->ssl->ball->body,0,0,0);dBodySetAngularVel(this->ssl->ball->body,0,0,0);break;
-  case '0': RR = 0;flag=true;this->Current_robot = RR;break;
-  case '1': RR = 1;flag=true;this->Current_robot = RR;break;
-  case '2': RR = 2;flag=true;this->Current_robot = RR;break;
-  case '3': RR = 3;flag=true;this->Current_robot = RR;break;
-  case '4': RR = 4;flag=true;this->Current_robot = RR;break;
-  case 'y': case 'Y': T=1;flag=true;this->Current_team = T; break;
-  case 'b': case 'B': T=0;flag=true;this->Current_team = T; break;
-  case 'r':case 'R': this->ssl->robots[R]->resetRobot();break;
   case 'k':case 'K': this->ssl->robots[R]->kicker->kick(10);break;
   case 'l':case 'L': this->ssl->robots[R]->kicker->kick(10,true);break;
-  case 'j':case 'J': this->ssl->robots[R]->kicker->toggleRoller();break;
-  case '`':
-//         v = dBodyGetLinearVel(body[robots[R]->getBodyIndex()]);
-//         printf("Velocity of robot(%d) : %f\n",R,sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])/DT);break;
+  case 'j':case 'J': this->ssl->robots[R]->kicker->toggleRoller();break;  
   case ' ':
     this->ssl->robots[R]->resetSpeeds();
+    break;
+  case '`':
     dBodySetLinearVel(this->ssl->ball->body,0,0,0);
     dBodySetAngularVel(this->ssl->ball->body,0,0,0);
     break;
-
-  }
-  if (flag)
-  {
-      //updateRobotLabel();
   }
 }
 
 void GLWidget::closeEvent(QCloseEvent *event)
 {
     emit closeSignal(false);
+}
+
+void GLWidget::blueRobotsMenuTriggered(QAction *act)
+{
+    reform(0,act->text());
+}
+
+void GLWidget::yellowRobotsMenuTriggered(QAction *act)
+{
+    reform(1,act->text());
+}
+
+void GLWidget::reform(int team,const QString& act)
+{
+    if (act==tr("Put all inside with formation 1")) forms[1]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all inside with formation 2")) forms[2]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all outside")) forms[0]->resetRobots(ssl->robots,team);
 }

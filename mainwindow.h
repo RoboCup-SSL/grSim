@@ -4,12 +4,11 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QWorkspace>
 #include <QLabel>
-#include <QComboBox>
 
 #include "glwidget.h"
 #include "configwidget.h"
-
 #include "statuswidget.h"
+#include "robotwidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -17,7 +16,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    ~MainWindow();    
 public slots:
     void update();
     void updateRobotLabel();
@@ -35,11 +34,13 @@ public slots:
     void changeGravity();
 
     void alertStaticVars();
+    void ballMenuTriggered(QAction* act);
 private:
     QWorkspace* workspace;
     GLWidget *glwidget;
     ConfigWidget *configwidget;
     ConfigDockWidget *dockconfig;
+    RobotWidget *robotwidget;
 
     CStatusPrinter *printer;
     CStatusWidget *statusWidget;
@@ -47,7 +48,6 @@ private:
     QAction *showsimulator, *showconfig;
     QLabel *fpslabel,*cursorlabel,*selectinglabel;
 
-    QComboBox *teamCombo,*robotCombo;
 };
 
 #endif // MAINWINDOW_H

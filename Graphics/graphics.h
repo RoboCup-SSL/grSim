@@ -10,7 +10,7 @@ class CGraphics
 private:
     float view_xyz[3],view_hpr[3];
     QVector<GLuint> tex_ids;
-    float frustum_right,frustum_bottom,frustum_vnear;
+    float frustum_right,frustum_bottom,frustum_vnear,m_renderDepth;
     QGLWidget* owner;
     int sphere_quality;
     void _drawBox (const float sides[3]);
@@ -29,6 +29,8 @@ public:
     void setViewpoint (float xyz[3], float hpr[3]);
     void getViewpoint (float* xyz, float* hpr);
     void getFrustum(float& right,float& bottom,float& vnear);
+    float renderDepth();
+    void setRenderDepth(float depth);
     void setViewpoint (float x,float y,float z,float h,float p,float r);
     void cameraMotion (int mode, int deltax, int deltay);
     void getCameraForward(float& x,float& y,float& z);

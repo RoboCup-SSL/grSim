@@ -21,6 +21,9 @@
 
 #include <QUdpSocket>
 
+#define ROBOT_COUNT 5
+
+class RobotsFomation;
 
 class SSLWorld : public QObject
 {
@@ -31,7 +34,7 @@ private:
     float last_dt;
 public:
 
-    SSLWorld(QGLWidget* parent,ConfigWidget* _cfg);
+    SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2);
     virtual ~SSLWorld();
     void glinit();
     void step(float dt=-1);
@@ -42,7 +45,7 @@ public:
         int shootPower;
         bool spin;
         bool chip;
-    } commands[5];
+    } commands[ROBOT_COUNT*2];
     ConfigWidget* cfg;
     CGraphics* g;
     PWorld* p;
@@ -55,13 +58,29 @@ public:
     float cursor_x,cursor_y,cursor_z;
     float cursor_radius;
     RoboCupSSLServer *visionServer;
-    QUdpSocket* commandSocket;
+    QUdpSocket *blueSocket,*yellowSocket;
 
-    Robot* robots[10];
+    Robot* robots[ROBOT_COUNT*2];
+    void recvActions(QUdpSocket* commandSocket,int team);
 public slots:
-    void recvActions();
-    void reconnectCommandSocket();
+    void recvFromBlue();
+    void recvFromYellow();
+    void reconnectBlueCommandSocket();
+    void reconnectYellowCommandSocket();
     void reconnectVisionSocket();
 };
+
+class RobotsFomation {
+    public:
+        float x[ROBOT_COUNT];
+        float y[ROBOT_COUNT];
+        RobotsFomation(int type);
+        void setAll(float *xx,float *yy);
+        void loadFromFile(const QString& filename);
+        void resetRobots(Robot** r,int team);
+};
+
+dReal fric(float f);
+int robotIndex(int robot,int team);
 
 #endif // SSLWORLD_H

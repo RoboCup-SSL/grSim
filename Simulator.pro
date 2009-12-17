@@ -27,7 +27,8 @@ SOURCES += main.cpp \
     Physics/pray.cpp \
     configwidget.cpp \
     statuswidget.cpp \
-    logger.cpp
+    logger.cpp \
+    robotwidget.cpp
 HEADERS += mainwindow.h \
     glwidget.h \
     Graphics/graphics.h \
@@ -49,7 +50,8 @@ HEADERS += mainwindow.h \
     Physics/pray.h \
     configwidget.h \
     statuswidget.h \
-    logger.h
+    logger.h \
+    robotwidget.h
 LIBS += -L$$PWD/libs/ \
     -lode-0.11.1 \
     -lprotobuf-2.1.0 \

@@ -7,8 +7,9 @@ CStatusWidget::CStatusWidget(CStatusPrinter* _statusPrinter)
 
     this->setAllowedAreas(Qt::BottomDockWidgetArea);
     this->setFeatures(QDockWidget::NoDockWidgetFeatures);
+
     statusText = new QTextEdit(this);
-    //statusText->setReadOnly(true);
+    statusText->setReadOnly(true);
     titleLbl = new QLabel(tr("Messages"));
 
 
