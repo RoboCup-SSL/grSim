@@ -60,6 +60,7 @@ public:
     Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id,int wheeltexid,int dir);
     ~Robot();
     void step();
+    void drawLabel();
     void setSpeed(int i,float s); //i = 0,1,2,3
     float getSpeed(int i);
     void incSpeed(int i,float v);

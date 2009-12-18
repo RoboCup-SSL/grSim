@@ -390,6 +390,8 @@ void CGraphics::setTransformD (const double pos[3], const double R[12])
 
 void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool fog,float fogr,float fogg,float fogb,float fogdensity)
 {
+  _width = width;
+  _height = height;
   // setup stuff
   glEnable (GL_LIGHTING);
   glEnable (GL_LIGHT0);
@@ -467,6 +469,16 @@ void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool f
         //glHint (GL_FOG_HINT, GL_NICEST); // set the fog to look the nicest, may slow down on older cards
     }
 
+}
+
+int CGraphics::getWidth()
+{
+    return _width;
+}
+
+int CGraphics::getHeight()
+{
+    return _width;
 }
 
 void CGraphics::finalizeScene()

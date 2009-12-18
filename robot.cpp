@@ -220,44 +220,49 @@ void Robot::step()
     wheels[2]->step();
     wheels[3]->step();
     kicker->step();
+    drawLabel();
+}
+
+void Robot::drawLabel()
+{
     glPushMatrix();
     dVector3 pos;
-    const float txtWidth = 0.06;
-    const float txtHeight = 0.12;
+    float fr_r,fr_b,fr_n;w->g->getFrustum(fr_r,fr_b,fr_n);
+    const float txtWidth = 12.0f*fr_r/(float)w->g->getWidth();
+    const float txtHeight = 24.0f*fr_b/(float)w->g->getHeight();
     pos[0] = dBodyGetPosition(chassis->body)[0];
     pos[1] = dBodyGetPosition(chassis->body)[1];
-    pos[2] = dBodyGetPosition(chassis->body)[2] + cfg->CHASSISHEIGHT()*0.5f + cfg->BOTTOMHEIGHT() + cfg->WHEELRADIUS() + txtHeight*0.5f;
-    dMatrix3 rot;
+    pos[2] = dBodyGetPosition(chassis->body)[2];    
     float xyz[3],hpr[3];
     w->g->getViewpoint(xyz,hpr);
-    float fx = -pos[0]+xyz[0];
-    float fy = -pos[1]+xyz[1];
-    float fz = -pos[2]+xyz[2];
-    dRFromAxisAndAngle(rot,0,0,0,0);
-    //float fx,fy,fz;
+    float ax = -pos[0]+xyz[0];
+    float ay = -pos[1]+xyz[1];
+    float az = -pos[2]+xyz[2];
+    float fx,fy,fz;
     float rx,ry,rz;
-    //w->g->getCameraForward(fx,fy,fz);
+    w->g->getCameraForward(fx,fy,fz);
     w->g->getCameraRight(rx,ry,rz);
     normalizeVector(fx,fy,fz);
     normalizeVector(rx,ry,rz);
+    float zz = fx*ax + fy*ay + fz*az;
+    float zfact = zz/fr_n;
+    pos[2] += cfg->CHASSISHEIGHT()*0.5f + cfg->BOTTOMHEIGHT() + cfg->WHEELRADIUS() + txtHeight*zfact;
+    dMatrix3 rot;
+    dRFromAxisAndAngle(rot,0,0,0,0);
     float tx = fy*rz-ry*fz;
     float ty = rx*fz-fx*rz;
     float tz = fx*ry-fy*rx;
-    w->g->setTransform(pos,rot);//dBodyGetRotation(chassis->body)
+    w->g->setTransform(pos,rot);
     w->g->useTexture((m_rob_id-1)%5 + 11);
     glShadeModel (GL_FLAT);
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_COLOR);
     glBegin(GL_QUADS);
-        glTexCoord2f(1,1);glVertex3f( txtWidth*rx, txtWidth*ry,  txtWidth*rz);
-        glTexCoord2f(0,1);glVertex3f(-txtWidth*rx,-txtWidth*ry, -txtWidth*rz);
-        glTexCoord2f(0,0);glVertex3f(-txtWidth*rx -txtHeight*tx,-txtWidth*ry -txtHeight*ty,-txtWidth*rz -txtHeight*tz);
-        glTexCoord2f(1,0);glVertex3f( txtWidth*rx -txtHeight*tx, txtWidth*ry -txtHeight*ty, txtWidth*rz -txtHeight*tz);
-/*        glVertex3f( txtWidth,0, 0.00);glTexCoord2f(0,1);
-        glVertex3f(-txtWidth,0, 0.00);glTexCoord2f(0,0);
-        glVertex3f(-txtWidth,0,-txtHeight);glTexCoord2f(1,0);
-        glVertex3f( txtWidth,0,-txtHeight);glTexCoord2f(1,1);*/
+        glTexCoord2f(1,1);glVertex3f( txtWidth*rx*zfact +txtHeight*tx*zfact, txtWidth*ry*zfact +txtHeight*ty*zfact, txtWidth*rz*zfact +txtHeight*tz*zfact);
+        glTexCoord2f(0,1);glVertex3f(-txtWidth*rx*zfact +txtHeight*tx*zfact,-txtWidth*ry*zfact +txtHeight*ty*zfact,-txtWidth*rz*zfact +txtHeight*tz*zfact);
+        glTexCoord2f(0,0);glVertex3f(-txtWidth*rx*zfact -txtHeight*tx*zfact,-txtWidth*ry*zfact -txtHeight*ty*zfact,-txtWidth*rz*zfact -txtHeight*tz*zfact);
+        glTexCoord2f(1,0);glVertex3f( txtWidth*rx*zfact -txtHeight*tx*zfact, txtWidth*ry*zfact -txtHeight*ty*zfact, txtWidth*rz*zfact -txtHeight*tz*zfact);
     glEnd();
     glDisable(GL_BLEND);
     w->g->noTexture();
