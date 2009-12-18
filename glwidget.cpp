@@ -57,7 +57,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     connect(blueRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(blueRobotsMenuTriggered(QAction*)));
 
     setFocusPolicy(Qt::StrongFocus);
-
+    fullScreen = false;
 }
 
 GLWidget::~GLWidget()
@@ -277,6 +277,9 @@ void GLWidget::putBall(float x,float y)
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
   char cmd = event->key();
+  if (fullScreen) {
+      if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);
+  }
   const float S = 0.30;
   const float BallForce = 0.2;
   int R = robotIndex(Current_robot,Current_team);
@@ -328,5 +331,19 @@ void GLWidget::reform(int team,const QString& act)
 {
     if (act==tr("Put all inside with formation 1")) forms[1]->resetRobots(ssl->robots,team);
     if (act==tr("Put all inside with formation 2")) forms[2]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all outside")) forms[0]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all outside")) forms[0]->resetRobots(ssl->robots,team);    
 }
+
+GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)
+        : QGraphicsView(scene)
+{
+    glwidget = _glwidget;
+}
+
+void GLWidgetGraphicsView::mousePressEvent(QMouseEvent *event) {glwidget->mousePressEvent(event);}
+void GLWidgetGraphicsView::mouseMoveEvent(QMouseEvent *event) {glwidget->mouseMoveEvent(event);}
+void GLWidgetGraphicsView::mouseReleaseEvent(QMouseEvent *event) {glwidget->mouseReleaseEvent(event);}
+void GLWidgetGraphicsView::wheelEvent(QWheelEvent *event) {glwidget->wheelEvent(event);}
+void GLWidgetGraphicsView::keyPressEvent(QKeyEvent *event){glwidget->keyPressEvent(event);}
+void GLWidgetGraphicsView::closeEvent(QCloseEvent *event){} //{this->viewportEvent(event);}
+

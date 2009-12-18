@@ -2,6 +2,7 @@
 #define GLWIDGET_H
 
 #include <QGLWidget>
+#include <QGraphicsView>
 #include <QTime>
 #include <QMenu>
 #include "sslworld.h"
@@ -9,7 +10,7 @@
 #include "configwidget.h"
 
 #define _RENDER_INTERVAL 10
-
+class GLWidgetGraphicsView;
 class GLWidget : public QGLWidget {
 
     Q_OBJECT
@@ -27,6 +28,7 @@ public:
     QAction* resetRobotAct;
     QAction* moveBallAct;        
     int Current_robot,Current_team,cammode;
+    bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(float x,float y);
     void reform(int team,const QString& act);
@@ -44,6 +46,7 @@ signals:
     void clicked();
     void selectedRobot();
     void closeSignal(bool);
+    void toggleFullScreen(bool);
 protected:
     void paintGL ();
     void initializeGL ();    
@@ -53,7 +56,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);    
     void wheelEvent(QWheelEvent *event);
     void keyPressEvent(QKeyEvent *event);
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event);    
 private:
     int state;
     int moving_robot_id,clicked_robot;
@@ -62,6 +65,22 @@ private:
     QTime time,rendertimer;
     QString m_fps;
     QPoint lastPos;
+friend class GLWidgetGraphicsView;
+};
+
+class GLWidgetGraphicsView : public QGraphicsView        
+{
+    private:
+        GLWidget *glwidget;
+    public:
+        GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget* _glwidget);
+    protected:
+        void mousePressEvent(QMouseEvent *event);
+        void mouseMoveEvent(QMouseEvent *event);
+        void mouseReleaseEvent(QMouseEvent *event);
+        void wheelEvent(QWheelEvent *event);
+        void keyPressEvent(QKeyEvent *event);
+        void closeEvent(QCloseEvent *event);
 };
 
 #endif // WIDGET_H

@@ -220,7 +220,6 @@ void Robot::step()
     wheels[2]->step();
     wheels[3]->step();
     kicker->step();
-    drawLabel();
 }
 
 void Robot::drawLabel()
