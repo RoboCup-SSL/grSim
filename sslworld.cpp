@@ -395,7 +395,11 @@ void SSLWorld::step(float dt)
     if (best_k>=0) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
     selected = best_k;
 
-
+    for (int k=0;k<10;k++)
+    {
+        robots[k]->step();
+        robots[k]->selected = false;
+    }
     p->draw();
     g->drawSkybox(16,17,18,19,20,21);
 
@@ -410,11 +414,7 @@ void SSLWorld::step(float dt)
         glDisable(GL_BLEND);
     }
 
-    for (int k=0;k<10;k++)
-    {
-        robots[k]->step();
-        robots[k]->selected = false;
-    }
+    for (int k=0;k<10;k++) robots[k]->drawLabel();
 
     g->finalizeScene();
 

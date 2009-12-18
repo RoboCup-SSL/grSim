@@ -10,7 +10,6 @@
 #include <QDockWidget>
 #include <QVBoxLayout>
 #include "mainwindow.h"
-
 #include "logger.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -70,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
     QMenu *ballMenu = new QMenu("&Ball");
     simulatorMenu->addMenu(cameraMenu);
     simulatorMenu->addMenu(robotMenu);
-    simulatorMenu->addMenu(ballMenu);    
+    simulatorMenu->addMenu(ballMenu);
     QAction* changeCamMode=new QAction(tr("Change &mode"),cameraMenu);
     changeCamMode->setShortcut(QKeySequence("C"));
     cameraMenu->addAction(changeCamMode);
@@ -85,6 +84,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     robotMenu->addMenu(glwidget->blueRobotsMenu);
     robotMenu->addMenu(glwidget->yellowRobotsMenu);
+
+    fullScreenAct = new QAction(tr("&Full screen"),simulatorMenu);
+    fullScreenAct->setShortcut(QKeySequence("F2"));
+    fullScreenAct->setCheckable(true);
+    fullScreenAct->setChecked(false);
+    simulatorMenu->addAction(fullScreenAct);
 
     viewMenu->addAction(robotwidget->toggleViewAction());
 
@@ -106,6 +111,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(robotwidget->locateBtn,SIGNAL(clicked()),glwidget,SLOT(moveCurrentRobot()));
     QObject::connect(changeCamMode,SIGNAL(triggered()),glwidget,SLOT(changeCameraMode()));
     QObject::connect(ballMenu,SIGNAL(triggered(QAction*)),this,SLOT(ballMenuTriggered(QAction*)));
+    QObject::connect(fullScreenAct,SIGNAL(triggered(bool)),this,SLOT(toggleFullScreen(bool)));
+    QObject::connect(glwidget,SIGNAL(toggleFullScreen(bool)),this,SLOT(toggleFullScreen(bool)));
     //config related signals
     QObject::connect(configwidget->v_BALLMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallMass()));
     QObject::connect(configwidget->v_CHASSISMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeRobotMass()));
@@ -154,6 +161,8 @@ MainWindow::MainWindow(QWidget *parent)
     robotwidget->teamCombo->setCurrentIndex(0);
     robotwidget->robotCombo->setCurrentIndex(0);
     robotwidget->setPicture(glwidget->ssl->robots[glwidget->Current_robot+glwidget->Current_team*5]->img);
+
+    scene = new QGraphicsScene(0,0,800,600);
 }
 
 MainWindow::~MainWindow()
@@ -315,3 +324,28 @@ void MainWindow::ballMenuTriggered(QAction* act)
     else if (act->text()==tr("Put on Penalty 2")) glwidget->putBall(-p, 0);
 }
 
+void MainWindow::toggleFullScreen(bool a)
+{
+    if (a)
+    {
+        view = new GLWidgetGraphicsView(scene,glwidget);
+        lastSize = glwidget->size();        
+        view->setViewport(glwidget);
+        view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+        view->setFrameStyle(0);
+        view->showFullScreen();
+        view->setFocus();        
+        glwidget->fullScreen = true;
+        fullScreenAct->setChecked(true);
+    }
+    else {
+        view->close();        
+        workspace->addWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+        glwidget->show();
+        glwidget->resize(lastSize);
+        glwidget->fullScreen = false;
+        fullScreenAct->setChecked(false);
+    }
+}

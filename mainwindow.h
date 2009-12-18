@@ -35,6 +35,7 @@ public slots:
 
     void alertStaticVars();
     void ballMenuTriggered(QAction* act);
+    void toggleFullScreen(bool);
 private:
     QWorkspace* workspace;
     GLWidget *glwidget;
@@ -46,8 +47,12 @@ private:
     CStatusWidget *statusWidget;
 
     QAction *showsimulator, *showconfig;
+    QAction* fullScreenAct;
     QLabel *fpslabel,*cursorlabel,*selectinglabel;
 
+    QGraphicsScene *scene;
+    GLWidgetGraphicsView *view;
+    QSize lastSize;
 };
 
 #endif // MAINWINDOW_H
