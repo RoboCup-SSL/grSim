@@ -55,6 +55,7 @@ public:
   DEF_VALUE(double,Double,KICKFACTOR)
   DEF_VALUE(double,Double,CHIPFACTOR)
   DEF_VALUE(double,Double,ROLLERTORQUEFACTOR)
+  DEF_VALUE(double,Double,Kicker_Friction)
   DEF_VALUE(double,Double,CHASSISLENGTH)
   DEF_VALUE(double,Double,CHASSISWIDTH)
   DEF_VALUE(double,Double,CHASSISHEIGHT)

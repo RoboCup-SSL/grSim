@@ -70,6 +70,7 @@ public:
     float getDir();
     void setXY(float x,float y);
     void setDir(float ang);
+    int getID();
     PBall* getBall();
 };
 

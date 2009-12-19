@@ -125,6 +125,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_ballangulardamp, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallDamping()));
     QObject::connect(configwidget->v_balllineardamp, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallDamping()));
     QObject::connect(configwidget->v_Gravity,  SIGNAL(wasEdited(VarType*)), this, SLOT(changeGravity()));
+    QObject::connect(configwidget->v_Kicker_Friction,  SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallKickerSurface()));
 
     //geometry config vars
     QObject::connect(configwidget->v_BALLRADIUS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
@@ -290,11 +291,18 @@ void MainWindow::changeWheelMass()
 void MainWindow::changeBallGroundSurface()
 {
     PSurface* ballwithwall = glwidget->ssl->p->findSurface(glwidget->ssl->ball,glwidget->ssl->ground);    
-    ballwithwall->surface.mode = dContactBounce | dContactApprox1 | dContactSlip1;
+    ballwithwall->surface.mode = dContactBounce | dContactApprox1 | dContactSlip1 | dContactSlip2;
     ballwithwall->surface.mu = fric(configwidget->ballfriction());
     ballwithwall->surface.bounce = configwidget->ballbounce();
     ballwithwall->surface.bounce_vel = configwidget->ballbouncevel();
     ballwithwall->surface.slip1 = configwidget->ballslip();
+    ballwithwall->surface.slip2 = configwidget->ballslip();
+}
+
+void MainWindow::changeBallKickerSurface()
+{
+    PSurface* ballwithkicker = glwidget->ssl->p->findSurface(glwidget->ssl->ball,glwidget->ssl->robots[0]->kicker->box);
+    ballwithkicker->surface.mu = configwidget->Kicker_Friction();
 }
 
 void MainWindow::changeBallDamping()
@@ -346,6 +354,8 @@ void MainWindow::toggleFullScreen(bool a)
         glwidget->show();
         glwidget->resize(lastSize);
         glwidget->fullScreen = false;
+        glwidget->setFocusPolicy(Qt::StrongFocus);
+        glwidget->setFocus();
         fullScreenAct->setChecked(false);
     }
 }

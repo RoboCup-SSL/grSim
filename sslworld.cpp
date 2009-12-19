@@ -27,52 +27,30 @@ bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
     //s->id2 is ground
     const dReal* r; //wheels rotation matrix
     const dReal* p; //wheels rotation matrix
-    //dQuaternion q;
     if ((o1==s->id1) && (o2==s->id2))
     {
         r=dBodyGetRotation(dGeomGetBody(o1));
         p=dGeomGetPosition(o1);
-        //dGeomGetQuaternion(o1,q);
     }
     if ((o1==s->id2) && (o2==s->id1))
     {
-        //r=dGeomGetRotation(o2);
         r=dBodyGetRotation(dGeomGetBody(o2));
-        //dGeomGetQuaternion(o2,q);
         p=dGeomGetPosition(o2);
     }
-    //s->surface.mode = dContactFDir1 | dContactSlip1 | dContactSlip2 | dContactApprox1 | dContactSoftCFM;//dContactMu2 | dContactFDir1;
-    s->surface.mode = dContactFDir1 | dContactMu2 | dContactApprox1 | dContactSoftCFM;
 
+    s->surface.mode = dContactFDir1 | dContactMu2  | dContactApprox1 | dContactSoftCFM;
     s->surface.mu = fric(_w->cfg->wheelperpendicularfriction());
     s->surface.mu2 = fric(_w->cfg->wheeltangentfriction());
-
-    s->surface.slip1 = 0.0;
-    s->surface.slip2 = 0.0;
-
-
-
     s->surface.soft_cfm = 0.002;
 
     dVector3 v={0,0,1,1};
     dVector3 axis;
     dMultiply0(axis,r,v,4,3,1);
     float l = sqrt(axis[0]*axis[0] + axis[1]*axis[1]);
-//    s->surface.slip1 = 1;//fabs(axis[0]/l);
-//    s->surface.slip2 = 1;//fabs(axis[1]/l);
     s->fdir1[0] = axis[0]/l;
     s->fdir1[1] = axis[1]/l;
     s->fdir1[2] = 0;
     s->fdir1[3] = 0;
-
-//    float c = sqrt(q[1]*q[1]+q[2]*q[2]+q[3]*q[3]);
-/*    glBegin(GL_LINES);
-        glColor3f(1,0,0);
-        glLineWidth(2);
-        glVertex3f(p[0],p[1],p[2]);
-        glVertex3f(p[0]+axis[0]*0.2,p[1]+axis[1]*0.2,p[2]+axis[2]*0.2);
-    glEnd();
-*/
     s->usefdir1 = true;
     return true;
 }
@@ -102,10 +80,26 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
         _w->cursor_y = s->contactPos[1];
         _w->cursor_z = s->contactPos[2];
     }
-    //if ((s->id1==o1) && (s->id2==o2))
-    /*{
-    }*/
     return false;
+}
+
+bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s)
+{
+    if (_w->ball->tag!=-1) //spinner adjusting
+    {
+        float x,y,z;
+        _w->robots[_w->ball->tag]->chassis->getBodyDirection(x,y,z);
+        s->fdir1[0] = x;
+        s->fdir1[1] = y;
+        s->fdir1[2] = 0;
+        s->fdir1[3] = 0;
+        s->usefdir1 = true;
+        s->surface.mode = dContactMu2 | dContactFDir1 | dContactSoftCFM;
+        s->surface.mu = _w->cfg->ballfriction();
+        s->surface.mu2 = 0;
+        s->surface.soft_cfm = 0.002;
+    }
+    return true;
 }
 
 SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2)
@@ -187,12 +181,13 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     ballwithwall.surface.slip1 = cfg->ballslip();
 
     PSurface wheelswithground;
-    p->createSurface(ball,ground)->surface = ballwithwall.surface;
+    PSurface* ball_ground = p->createSurface(ball,ground);
+    ball_ground->surface = ballwithwall.surface;
+    ball_ground->callback = ballCallBack;
 
     PSurface ballwithkicker;
-    ballwithkicker.surface.mode = dContactApprox1 | dContactMu2;// | dContactSlip1;
-    ballwithkicker.surface.mu = dInfinity;
-    ballwithkicker.surface.mu2 = 0.01;
+    ballwithkicker.surface.mode = dContactApprox1;
+    ballwithkicker.surface.mu = fric(cfg->Kicker_Friction());
 //    ballwithkicker.surface.bounce = 0.2;
 //    ballwithkicker.surface.bounce_vel = 0.1;
     ballwithkicker.surface.slip1 = 5;
@@ -394,12 +389,13 @@ void SSLWorld::step(float dt)
     }
     if (best_k>=0) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
     selected = best_k;
-
+    ball->tag = -1;
     for (int k=0;k<10;k++)
     {
         robots[k]->step();
         robots[k]->selected = false;
     }
+
     p->draw();
     g->drawSkybox(16,17,18,19,20,21);
 

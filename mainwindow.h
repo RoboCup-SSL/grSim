@@ -30,6 +30,7 @@ public slots:
     void changeKickerMass();
     void changeWheelMass();
     void changeBallGroundSurface();
+    void changeBallKickerSurface();
     void changeBallDamping();
     void changeGravity();
 

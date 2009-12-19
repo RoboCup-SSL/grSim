@@ -8,7 +8,6 @@ ConfigWidget::ConfigWidget()
 {  
   tmodel=new VarTreeModel();
   this->setModel(tmodel);  
-
   geo_vars = new VarList("Geometry");
   world.push_back(geo_vars);
     VarList * field_vars = new VarList("Field (in millimeters)");
@@ -58,14 +57,15 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(robotp_vars,Double,KICKERMASS,0.02,"Kicker mass")
         ADD_VALUE(robotp_vars,Double,KICKFACTOR,0.2f,"Kick factor")
         ADD_VALUE(robotp_vars,Double,CHIPFACTOR,0.6f,"Chip kick factor")
-        ADD_VALUE(robotp_vars,Double,ROLLERTORQUEFACTOR,0.01f,"Roller torque factor")
-        ADD_VALUE(robotp_vars,Double,wheeltangentfriction,0.9f,"Wheel tangent friction")
-        ADD_VALUE(robotp_vars,Double,wheelperpendicularfriction,0.1f,"Wheel perpendicular friction")
+        ADD_VALUE(robotp_vars,Double,ROLLERTORQUEFACTOR,0.005f,"Roller torque factor")
+        ADD_VALUE(robotp_vars,Double,Kicker_Friction,0.8f,"Kicker Friction")
+        ADD_VALUE(robotp_vars,Double,wheeltangentfriction,0.8f,"Wheel tangent friction")
+        ADD_VALUE(robotp_vars,Double,wheelperpendicularfriction,0.01f,"Wheel perpendicular friction")
         ADD_VALUE(robotp_vars,Double,Wheel_Motor_FMax,0.2f,"Wheel motor maximum applying torque")
     VarList * ballp_vars = new VarList("Ball");
     phys_vars->addChild(ballp_vars);
         ADD_VALUE(ballp_vars,Double,BALLMASS,0.043,"Ball mass");
-        ADD_VALUE(ballp_vars,Double,ballfriction,1,"Ball-ground friction")
+        ADD_VALUE(ballp_vars,Double,ballfriction,0.5,"Ball-ground friction")
         ADD_VALUE(ballp_vars,Double,ballslip,1,"Ball-ground slip")
         ADD_VALUE(ballp_vars,Double,ballbounce,0.7,"Ball-ground bounce factor")
         ADD_VALUE(ballp_vars,Double,ballbouncevel,0.1,"Ball-ground bounce min velocity")
@@ -77,7 +77,7 @@ ConfigWidget::ConfigWidget()
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10002,"Vision multicast port")
     ADD_VALUE(comm_vars,Int,BlueCommandListenPort,20011,"Blue Team command listen port")
     ADD_VALUE(comm_vars,Int,YellowCommandListenPort,20012,"Yellow Team command listen port")
-    ADD_VALUE(comm_vars,Double,motormaxoutput,1200,"Motor max output (RPM)")
+    ADD_VALUE(comm_vars,Double,motormaxoutput,600,"Motor max output (RPM)")
     ADD_VALUE(comm_vars,Double,motormaxinput,31,"Motor max input")
     ADD_VALUE(comm_vars,Double,shootfactor,1,"Shoot factor")
   world=VarXML::read(world,"../settings.xml");

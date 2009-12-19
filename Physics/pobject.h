@@ -40,6 +40,7 @@ public:
     dWorldID world;
     dSpaceID space;
     CGraphics *g;
+    int tag;
     int id;
 };
 
