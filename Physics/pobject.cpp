@@ -15,6 +15,7 @@ PObject::PObject(float x,float y,float z,float red,float green,float blue,float 
     m_mass = mass;
     visible = true;
     isQSet = false;
+    tag = 0;
 }
 
 void PObject::setVisibility(bool v)

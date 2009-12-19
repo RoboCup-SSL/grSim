@@ -90,7 +90,10 @@ void Robot::Kicker::step()
         {
             float fx,fy,fz;
             rob->chassis->getBodyDirection(fx,fy,fz);
-            //dBodySetAngularVel(rob->getBall()->body,fy*ROLLERTORQUEFACTOR*700,-fx*ROLLERTORQUEFACTOR*700,0);
+            fz = sqrt(fx*fx + fy*fy);
+            fx/=fz;fy/=fz;
+            rob->getBall()->tag = rob->getID();
+            //dBodySetAngularVel(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR()*700,-fx*rob->cfg->ROLLERTORQUEFACTOR()*700,0);
             dBodyAddTorque(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR(),-fx*rob->cfg->ROLLERTORQUEFACTOR(),0);
         }
     }
@@ -200,6 +203,11 @@ Robot::~Robot()
 PBall* Robot::getBall()
 {
     return m_ball;
+}
+
+int Robot::getID()
+{
+    return m_rob_id - 1;
 }
 
 void normalizeVector(float& x,float& y,float& z)
