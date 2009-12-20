@@ -37,9 +37,11 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     moveRobotAct = new QAction(tr("&Locate robot"),this);
     selectRobotAct = new QAction(tr("&Select robot"),this);
     resetRobotAct = new QAction(tr("&Reset robot"),this);
+    onOffRobotAct = new QAction(tr("Turn &off"),this);
     robpopup->addAction(selectRobotAct);
     robpopup->addAction(moveRobotAct);
     robpopup->addAction(resetRobotAct);
+    robpopup->addAction(onOffRobotAct);
     robpopup->addMenu(blueRobotsMenu);
     robpopup->addMenu(yellowRobotsMenu);
 
@@ -47,17 +49,21 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     ballpopup = new QMenu(this);
     ballpopup->addAction(moveBallAct);
 
-
+    mainpopup = new QMenu(this);
+    mainpopup->addMenu(blueRobotsMenu);
+    mainpopup->addMenu(yellowRobotsMenu);
 
     connect(moveRobotAct, SIGNAL(triggered()), this, SLOT(moveRobot()));
     connect(selectRobotAct, SIGNAL(triggered()), this, SLOT(selectRobot()));
     connect(resetRobotAct, SIGNAL(triggered()), this, SLOT(resetRobot()));
     connect(moveBallAct, SIGNAL(triggered()), this, SLOT(moveBall()));
+    connect(onOffRobotAct, SIGNAL(triggered()), this, SLOT(switchRobotOnOff()));
     connect(yellowRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
     connect(blueRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(blueRobotsMenuTriggered(QAction*)));
 
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
+    ctrl = false;
 }
 
 GLWidget::~GLWidget()
@@ -90,6 +96,24 @@ void GLWidget::resetRobot()
     }
 }
 
+void GLWidget::switchRobotOnOff()
+{
+    if (clicked_robot!=-1)
+    {
+        if (ssl->robots[clicked_robot]->on==true)
+        {
+            ssl->robots[clicked_robot]->on = false;
+            onOffRobotAct->setText("Turn &on");
+            emit robotTurnedOnOff(clicked_robot,false);
+        }
+        else {
+            ssl->robots[clicked_robot]->on = true;
+            onOffRobotAct->setText("Turn &off");
+            emit robotTurnedOnOff(clicked_robot,true);
+        }
+    }
+}
+
 void GLWidget::resetCurrentRobot()
 {       
     ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
@@ -113,7 +137,6 @@ void GLWidget::moveBall()
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     lastPos = event->pos();
-
     if (event->buttons() & Qt::LeftButton)
     {
         if (state==1)
@@ -144,6 +167,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
         else clicked_robot=-1;
         if (ssl->selected==-2)
             ballpopup->exec(event->globalPos());
+        if (ssl->selected==-1)
+            mainpopup->exec(event->globalPos());
     }
 }
 
@@ -183,10 +208,10 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     int dy = -(event->y() - lastPos.y());
 
     if (event->buttons() & Qt::LeftButton) {
-        ssl->g->cameraMotion(1,dx,dy);
-    }
-    else if (event->buttons() & Qt::RightButton) {
-        if (ssl->selected==-1) ssl->g->cameraMotion(4,dx,dy);
+        if (ctrl)
+            ssl->g->cameraMotion(4,dx,dy);
+        else
+            ssl->g->cameraMotion(1,dx,dy);
     }
     else if (event->buttons() & Qt::MidButton)
     {
@@ -274,8 +299,14 @@ void GLWidget::putBall(float x,float y)
     dBodySetAngularVel(ssl->ball->body,0,0,0);
 }
 
+void GLWidget::keyReleaseEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Control) ctrl = false;
+}
+
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
+  if (event->key() == Qt::Key_Control) ctrl = true;
   char cmd = event->key();
   if (fullScreen) {
       if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);

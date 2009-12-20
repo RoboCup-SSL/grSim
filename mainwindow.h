@@ -37,6 +37,7 @@ public slots:
     void alertStaticVars();
     void ballMenuTriggered(QAction* act);
     void toggleFullScreen(bool);
+    void setCurrentRobotPosition();
 private:
     QWorkspace* workspace;
     GLWidget *glwidget;

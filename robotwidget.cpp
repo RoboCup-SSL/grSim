@@ -21,7 +21,9 @@ RobotWidget::RobotWidget(QWidget* parent)
     acclabel = new QLabel;
     resetBtn = new QPushButton("Reset");
     locateBtn = new QPushButton("Locate");
-    layout->addWidget(robotpic,0,0,5,1);
+    onOffBtn = new QPushButton("Turn Off");
+    setPoseBtn = new QPushButton("Set Position");
+    layout->addWidget(robotpic,0,0,6,1);
     layout->addWidget(new QLabel("Team"),0,1);
     layout->addWidget(teamCombo,0,2);
     layout->addWidget(new QLabel("Index"),1,1);
@@ -32,10 +34,14 @@ RobotWidget::RobotWidget(QWidget* parent)
     layout->addWidget(acclabel,3,2);
     layout->addWidget(resetBtn,4,1);
     layout->addWidget(locateBtn,4,2);        
+    layout->addWidget(onOffBtn,5,1);
+    layout->addWidget(setPoseBtn,5,2);
     QWidget *widget = new QWidget(this);    
     widget->setLayout(layout);    
     setWidget(widget);    
-    layout->setSizeConstraint(QLayout::SetMinimumSize);    
+    layout->setSizeConstraint(QLayout::SetMinimumSize);
+    getPoseWidget = new GetPositionWidget();
+    QObject::connect(setPoseBtn,SIGNAL(clicked()),this,SLOT(setPoseBtnClicked()));
 }
 
 void RobotWidget::setPicture(QImage* img)
@@ -43,3 +49,15 @@ void RobotWidget::setPicture(QImage* img)
     robotpic->setPixmap(QPixmap::fromImage(*img));
 }
 
+void RobotWidget::changeRobotOnOff(int _id,bool a)
+{
+    if (_id==id) {
+    if (a) onOffBtn->setText("Turn off");
+    else onOffBtn->setText("Turn on");
+    }
+}
+
+void RobotWidget::setPoseBtnClicked()
+{
+    getPoseWidget->show();
+}

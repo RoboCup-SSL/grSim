@@ -193,6 +193,7 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
   wheels[2] = new Wheel(this,cfg->Wheel3Angle(),cfg->Wheel3Angle(),wheeltexid);
   wheels[3] = new Wheel(this,cfg->Wheel4Angle(),cfg->Wheel4Angle(),wheeltexid);
   firsttime=true;
+  on = true;
 }
 
 Robot::~Robot()
@@ -218,16 +219,19 @@ void normalizeVector(float& x,float& y,float& z)
 
 void Robot::step()
 {
-    if (firsttime)
+    if (on)
     {
-        if (m_dir==-1) setDir(180);
-        firsttime = false;
+        if (firsttime)
+        {
+            if (m_dir==-1) setDir(180);
+            firsttime = false;
+        }
+        wheels[0]->step();
+        wheels[1]->step();
+        wheels[2]->step();
+        wheels[3]->step();
+        kicker->step();
     }
-    wheels[0]->step();
-    wheels[1]->step();
-    wheels[2]->step();
-    wheels[3]->step();
-    kicker->step();
 }
 
 void Robot::drawLabel()
@@ -235,8 +239,10 @@ void Robot::drawLabel()
     glPushMatrix();
     dVector3 pos;
     float fr_r,fr_b,fr_n;w->g->getFrustum(fr_r,fr_b,fr_n);
-    const float txtWidth = 12.0f*fr_r/(float)w->g->getWidth();
-    const float txtHeight = 24.0f*fr_b/(float)w->g->getHeight();
+//    const float txtWidth = 12.0f*fr_r/(float)w->g->getWidth();
+//    const float txtHeight = 24.0f*fr_b/(float)w->g->getHeight();
+    const float txtWidth = 12.0f*fr_n/(float)w->g->getWidth();
+    const float txtHeight = 24.0f*fr_n/(float)w->g->getHeight();
     pos[0] = dBodyGetPosition(chassis->body)[0];
     pos[1] = dBodyGetPosition(chassis->body)[1];
     pos[2] = dBodyGetPosition(chassis->body)[2];    

@@ -109,6 +109,9 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(robotwidget->teamCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentTeam()));
     QObject::connect(robotwidget->resetBtn,SIGNAL(clicked()),glwidget,SLOT(resetCurrentRobot()));
     QObject::connect(robotwidget->locateBtn,SIGNAL(clicked()),glwidget,SLOT(moveCurrentRobot()));
+    QObject::connect(robotwidget->onOffBtn,SIGNAL(clicked()),glwidget,SLOT(switchRobotOnOff()));
+    QObject::connect(robotwidget->getPoseWidget->okBtn,SIGNAL(clicked()),this,SLOT(setCurrentRobotPosition()));
+    QObject::connect(glwidget,SIGNAL(robotTurnedOnOff(int,bool)),robotwidget,SLOT(changeRobotOnOff(int,bool)));
     QObject::connect(changeCamMode,SIGNAL(triggered()),glwidget,SLOT(changeCameraMode()));
     QObject::connect(ballMenu,SIGNAL(triggered(QAction*)),this,SLOT(ballMenuTriggered(QAction*)));
     QObject::connect(fullScreenAct,SIGNAL(triggered(bool)),this,SLOT(toggleFullScreen(bool)));
@@ -162,7 +165,7 @@ MainWindow::MainWindow(QWidget *parent)
     robotwidget->teamCombo->setCurrentIndex(0);
     robotwidget->robotCombo->setCurrentIndex(0);
     robotwidget->setPicture(glwidget->ssl->robots[glwidget->Current_robot+glwidget->Current_team*5]->img);
-
+    robotwidget->id = 0;
     scene = new QGraphicsScene(0,0,800,600);
 }
 
@@ -252,6 +255,7 @@ void MainWindow::updateRobotLabel()
 {
     robotwidget->teamCombo->setCurrentIndex(glwidget->Current_team);
     robotwidget->robotCombo->setCurrentIndex(glwidget->Current_robot);
+    robotwidget->id = robotIndex(robotwidget->robotCombo->currentIndex(),robotwidget->teamCombo->currentIndex());
 }
 
 
@@ -358,4 +362,19 @@ void MainWindow::toggleFullScreen(bool a)
         glwidget->setFocus();
         fullScreenAct->setChecked(false);
     }
+}
+
+void MainWindow::setCurrentRobotPosition()
+{
+    int i = robotIndex(glwidget->Current_robot,glwidget->Current_team);
+    bool ok1=false,ok2=false,ok3=false;
+    float x = robotwidget->getPoseWidget->x->text().toFloat(&ok1);
+    float y = robotwidget->getPoseWidget->y->text().toFloat(&ok2);
+    float a = robotwidget->getPoseWidget->a->text().toFloat(&ok3);
+    if (!ok1) {logStatus("Invalid float for x",QColor("red"));return;}
+    if (!ok2) {logStatus("Invalid float for y",QColor("red"));return;}
+    if (!ok3) {logStatus("Invalid float for angle",QColor("red"));return;}
+    glwidget->ssl->robots[i]->setXY(x,y);
+    glwidget->ssl->robots[i]->setDir(a);
+    robotwidget->getPoseWidget->close();
 }

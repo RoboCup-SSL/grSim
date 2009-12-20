@@ -21,13 +21,15 @@ public:
     ConfigWidget* cfg;
     SSLWorld* ssl;
     RobotsFomation* forms[3];
-    QMenu* robpopup,*ballpopup;
+    QMenu* robpopup,*ballpopup,*mainpopup;
     QMenu *blueRobotsMenu,*yellowRobotsMenu;
     QAction* moveRobotAct;
     QAction* selectRobotAct;
     QAction* resetRobotAct;
     QAction* moveBallAct;        
+    QAction* onOffRobotAct;
     int Current_robot,Current_team,cammode;
+    bool ctrl;
     bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(float x,float y);
@@ -42,11 +44,13 @@ public slots:
     void changeCameraMode();
     void yellowRobotsMenuTriggered(QAction* act);
     void blueRobotsMenuTriggered(QAction* act);
+    void switchRobotOnOff();
 signals:
     void clicked();
     void selectedRobot();
     void closeSignal(bool);
     void toggleFullScreen(bool);
+    void robotTurnedOnOff(int,bool);
 protected:
     void paintGL ();
     void initializeGL ();    
@@ -56,6 +60,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);    
     void wheelEvent(QWheelEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent* event);
     void closeEvent(QCloseEvent *event);    
 private:
     int state;
