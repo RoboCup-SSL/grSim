@@ -10,6 +10,8 @@
 #define ROBOT_GRAY 0.4
 
 SSLWorld* _w;
+double randn_notrig(double mu=0.0, double sigma=1.0);
+double randn_trig(double mu=0.0, double sigma=1.0);
 
 dReal fric(float f)
 {
@@ -122,16 +124,17 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     walls[0] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0
                              ,(cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
                              0.7, 0.7, 0.7);
-    walls[1] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0,
+
+    walls[1] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0) - cfg->_SSL_FIELD_REFEREE_MARGIN() / 1000.0,0.0,
             (cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
             0.7, 0.7, 0.7);
 
-    walls[2] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0 ,0.0,
-        cfg->_SSL_WALL_THICKNESS() / 1000.0 ,(cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, 0.4,
+    walls[2] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),-cfg->_SSL_FIELD_REFEREE_MARGIN()/2000.f ,0.0,
+        cfg->_SSL_WALL_THICKNESS() / 1000.0 ,(cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN() + cfg->_SSL_FIELD_REFEREE_MARGIN()) / 1000.0, 0.4,
         0.7, 0.7, 0.7);
 
-    walls[3] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0 ,0.0,
-        cfg->_SSL_WALL_THICKNESS() / 1000.0 , (cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, 0.4,
+    walls[3] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0) ,-cfg->_SSL_FIELD_REFEREE_MARGIN()/2000.f ,0.0,
+        cfg->_SSL_WALL_THICKNESS() / 1000.0 , (cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN() + cfg->_SSL_FIELD_REFEREE_MARGIN()) / 1000.0, 0.4,
         0.7, 0.7, 0.7);
 
     walls[4] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f ,0.0, 0.0
@@ -314,7 +317,7 @@ QImage* createNumber(int i)
     pen.setJoinStyle(Qt::RoundJoin);
     p->setPen(pen);
     QFont f;
-    f.setPointSize(35);
+    f.setPointSize(26);
     p->setFont(f);
     p->drawText(img->width()/2-15,img->height()/2-15,30,30,Qt::AlignCenter,QString("%1").arg(i));
     p->end();
@@ -476,48 +479,68 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,int team)
        robots[nID]->kicker->setRoller(commands[nID].spin);
     }
 }
-
-void SSLWorld::sendVisionBuffer()
+float normalizeAngle(float a)
 {
-    SSL_WrapperPacket packet;
-    SSL_DetectionBall* vball = packet.mutable_detection()->add_balls();
+    if (a>180) return -360+a;
+    if (a<-180) return 360+a;
+    return a;
+}
+SSL_WrapperPacket* SSLWorld::generatePacket()
+{
+    SSL_WrapperPacket* packet = new SSL_WrapperPacket;
+    SSL_DetectionBall* vball = packet->mutable_detection()->add_balls();
     float x,y,z,dir;
     ball->getBodyPosition(x,y,z);
-    packet.mutable_detection()->set_camera_id(0);
-    packet.mutable_detection()->set_frame_number(framenum);
-    packet.mutable_detection()->set_t_capture(0.0f);
-    packet.mutable_detection()->set_t_sent(0.0f);
-    vball->set_x(x*1000.0f);
-    vball->set_y(y*1000.0f);
+    packet->mutable_detection()->set_camera_id(0);
+    packet->mutable_detection()->set_frame_number(framenum);
+    packet->mutable_detection()->set_t_capture(0.0f);
+    packet->mutable_detection()->set_t_sent(0.0f);
+    float dev_x = cfg->noiseDeviation_x();
+    float dev_y = cfg->noiseDeviation_y();
+    float dev_a = cfg->noiseDeviation_angle();
+    vball->set_x(randn_notrig(x*1000.0f,dev_x));
+    vball->set_y(randn_notrig(y*1000.0f,dev_y));
     vball->set_z(z*1000.0f);
     vball->set_pixel_x(x*1000.0f);
     vball->set_pixel_y(y*1000.0f);
     vball->set_confidence(1);
     for(int i = 0; i < 5; i++){
-        SSL_DetectionRobot* rob = packet.mutable_detection()->add_robots_blue();
+        SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
         robots[i]->getXY(x,y);
         dir = robots[i]->getDir();
         rob->set_robot_id(i);
         rob->set_pixel_x(x*1000.0f);
-        rob->set_pixel_y(x*1000.0f);
+        rob->set_pixel_y(y*1000.0f);
         rob->set_confidence(1);
-        rob->set_x(x*1000.0f);
-        rob->set_y(y*1000.0f);
-        rob->set_orientation(dir*M_PI/180.0f);
+        rob->set_x(randn_notrig(x*1000.0f,dev_x));
+        rob->set_y(randn_notrig(y*1000.0f,dev_y));
+        rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
     }
     for(int i = 5; i < 10; i++){
-        SSL_DetectionRobot* rob = packet.mutable_detection()->add_robots_yellow();
+        SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
         robots[i]->getXY(x,y);
         dir = robots[i]->getDir();
         rob->set_robot_id(i-5);
         rob->set_pixel_x(x*1000.0f);
-        rob->set_pixel_y(x*1000.0f);
+        rob->set_pixel_y(y*1000.0f);
         rob->set_confidence(1);
-        rob->set_x(x*1000.0f);
-        rob->set_y(y*1000.0f);
-        rob->set_orientation(dir*M_PI/180.0f);
+        rob->set_x(randn_notrig(x*1000.0f,dev_x));
+        rob->set_y(randn_notrig(y*1000.0f,dev_y));
+        rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
    }
-    visionServer->send(packet);
+   return packet;
+}
+
+void SSLWorld::sendVisionBuffer()
+{
+    sendQueue.push_back(generatePacket());
+    while (sendQueue.size()>=cfg->sendDelay()+1)
+    {
+        SSL_WrapperPacket *packet = sendQueue.front();
+        sendQueue.pop_front();
+        visionServer->send(*packet);
+        delete packet;
+    }
 }
 
 void RobotsFomation::setAll(float* xx,float *yy)
@@ -551,8 +574,8 @@ RobotsFomation::RobotsFomation(int type)
     }
     if (type==-1)
     {
-        float teamPosX[ROBOT_COUNT] = {6, 6, 6, 6, 6};
-        float teamPosY[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
+        float teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
+        float teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7};
         setAll(teamPosX,teamPosY);
     }
 /*
@@ -616,3 +639,121 @@ void RobotsFomation::resetRobots(Robot** r,int team)
 }
 
 
+
+
+//// Copy & pasted from http://www.dreamincode.net/code/snippet1446.htm
+/******************************************************************************/
+/* randn()
+ *
+ * Normally (Gaussian) distributed random numbers, using the Box-Muller
+ * transformation.  This transformation takes two uniformly distributed deviates
+ * within the unit circle, and transforms them into two independently
+ * distributed normal deviates.  Utilizes the internal rand() function; this can
+ * easily be changed to use a better and faster RNG.
+ *
+ * The parameters passed to the function are the mean and standard deviation of
+ * the desired distribution.  The default values used, when no arguments are
+ * passed, are 0 and 1 - the standard normal distribution.
+ *
+ *
+ * Two functions are provided:
+ *
+ * The first uses the so-called polar version of the B-M transformation, using
+ * multiple calls to a uniform RNG to ensure the initial deviates are within the
+ * unit circle.  This avoids making any costly trigonometric function calls.
+ *
+ * The second makes only a single set of calls to the RNG, and calculates a
+ * position within the unit circle with two trigonometric function calls.
+ *
+ * The polar version is generally superior in terms of speed; however, on some
+ * systems, the optimization of the math libraries may result in better
+ * performance of the second.  Try it out on the target system to see which
+ * works best for you.  On my test machine (Athlon 3800+), the non-trig version
+ * runs at about 3x10^6 calls/s; while the trig version runs at about
+ * 1.8x10^6 calls/s (-O2 optimization).
+ *
+ *
+ * Example calls:
+ * randn_notrig();	//returns normal deviate with mean=0.0, std. deviation=1.0
+ * randn_notrig(5.2,3.0);	//returns deviate with mean=5.2, std. deviation=3.0
+ *
+ *
+ * Dependencies - requires <cmath> for the sqrt(), sin(), and cos() calls, and a
+ * #defined value for PI.
+ */
+
+/******************************************************************************/
+//	"Polar" version without trigonometric calls
+double randn_notrig(double mu, double sigma) {
+        if (sigma==0) return mu;
+        static bool deviateAvailable=false;	//	flag
+        static float storedDeviate;			//	deviate from previous calculation
+        double polar, rsquared, var1, var2;
+
+        //	If no deviate has been stored, the polar Box-Muller transformation is
+        //	performed, producing two independent normally-distributed random
+        //	deviates.  One is stored for the next round, and one is returned.
+        if (!deviateAvailable) {
+
+                //	choose pairs of uniformly distributed deviates, discarding those
+                //	that don't fall within the unit circle
+                do {
+                        var1=2.0*( double(rand())/double(RAND_MAX) ) - 1.0;
+                        var2=2.0*( double(rand())/double(RAND_MAX) ) - 1.0;
+                        rsquared=var1*var1+var2*var2;
+                } while ( rsquared>=1.0 || rsquared == 0.0);
+
+                //	calculate polar tranformation for each deviate
+                polar=sqrt(-2.0*log(rsquared)/rsquared);
+
+                //	store first deviate and set flag
+                storedDeviate=var1*polar;
+                deviateAvailable=true;
+
+                //	return second deviate
+                return var2*polar*sigma + mu;
+        }
+
+        //	If a deviate is available from a previous call to this function, it is
+        //	returned, and the flag is set to false.
+        else {
+                deviateAvailable=false;
+                return storedDeviate*sigma + mu;
+        }
+}
+
+
+/******************************************************************************/
+//	Standard version with trigonometric calls
+#define PI 3.14159265358979323846
+
+double randn_trig(double mu, double sigma) {
+        static bool deviateAvailable=false;	//	flag
+        static float storedDeviate;			//	deviate from previous calculation
+        double dist, angle;
+
+        //	If no deviate has been stored, the standard Box-Muller transformation is
+        //	performed, producing two independent normally-distributed random
+        //	deviates.  One is stored for the next round, and one is returned.
+        if (!deviateAvailable) {
+
+                //	choose a pair of uniformly distributed deviates, one for the
+                //	distance and one for the angle, and perform transformations
+                dist=sqrt( -2.0 * log(double(rand()) / double(RAND_MAX)) );
+                angle=2.0 * PI * (double(rand()) / double(RAND_MAX));
+
+                //	calculate and store first deviate and set flag
+                storedDeviate=dist*cos(angle);
+                deviateAvailable=true;
+
+                //	calcaulate return second deviate
+                return dist * sin(angle) * sigma + mu;
+        }
+
+        //	If a deviate is available from a previous call to this function, it is
+        //	returned, and the flag is set to false.
+        else {
+                deviateAvailable=false;
+                return storedDeviate*sigma + mu;
+        }
+}

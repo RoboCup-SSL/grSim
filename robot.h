@@ -24,6 +24,7 @@ public:
     PBall* dummy;
     dJointID dummy_to_chassis;
     PBox* boxes[3];
+    bool on;
     bool selected; //these values are not controled by this class
     float select_x,select_y,select_z;
     QImage *img,*number;

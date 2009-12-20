@@ -28,7 +28,8 @@ SOURCES += main.cpp \
     configwidget.cpp \
     statuswidget.cpp \
     logger.cpp \
-    robotwidget.cpp
+    robotwidget.cpp \
+    getpositionwidget.cpp
 HEADERS += mainwindow.h \
     glwidget.h \
     Graphics/graphics.h \
@@ -51,7 +52,8 @@ HEADERS += mainwindow.h \
     configwidget.h \
     statuswidget.h \
     logger.h \
-    robotwidget.h
+    robotwidget.h \
+    getpositionwidget.h
 LIBS += -L$$PWD/libs/ \
     -lode-0.11.1 \
     -lprotobuf-2.1.0 \

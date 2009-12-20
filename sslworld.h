@@ -18,8 +18,8 @@
 #include "configwidget.h"
 
 #include <QObject>
-
 #include <QUdpSocket>
+#include <QList>
 
 #define ROBOT_COUNT 5
 
@@ -32,12 +32,13 @@ private:
     QGLWidget* m_parent;
     int framenum;
     float last_dt;
+    QList<SSL_WrapperPacket*> sendQueue;
 public:
-
     SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2);
     virtual ~SSLWorld();
     void glinit();
     void step(float dt=-1);
+    SSL_WrapperPacket* generatePacket();
     void sendVisionBuffer();
     struct cmdBuffer {
         bool isNew;

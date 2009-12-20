@@ -47,6 +47,7 @@ public:
   DEF_VALUE(double,Double,_SSL_FIELD_PENALTY_LINE)
   DEF_VALUE(double,Double,_SSL_FIELD_PENALTY_POINT)
   DEF_VALUE(double,Double,_SSL_FIELD_MARGIN)
+  DEF_VALUE(double,Double,_SSL_FIELD_REFEREE_MARGIN)
   DEF_VALUE(double,Double,_SSL_WALL_THICKNESS)
   DEF_VALUE(double,Double,_SSL_GOAL_THICKNESS)
   DEF_VALUE(double,Double,_SSL_GOAL_DEPTH)
@@ -94,6 +95,10 @@ public:
   DEF_VALUE(int,Int,VisionMulticastPort)  
   DEF_VALUE(int,Int,BlueCommandListenPort)
   DEF_VALUE(int,Int,YellowCommandListenPort)
+  DEF_VALUE(int,Int,sendDelay)
+  DEF_VALUE(double,Double,noiseDeviation_x)
+  DEF_VALUE(double,Double,noiseDeviation_y)
+  DEF_VALUE(double,Double,noiseDeviation_angle)
 };
 
 class ConfigDockWidget : public QDockWidget
