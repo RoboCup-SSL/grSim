@@ -28,6 +28,8 @@ public:
     QAction* resetRobotAct;
     QAction* moveBallAct;        
     QAction* onOffRobotAct;
+    QAction* moveBallHereAct;
+    QAction* moveRobotHereAct;
     int Current_robot,Current_team,cammode;
     bool ctrl;
     bool fullScreen;
@@ -45,6 +47,8 @@ public slots:
     void yellowRobotsMenuTriggered(QAction* act);
     void blueRobotsMenuTriggered(QAction* act);
     void switchRobotOnOff();
+    void moveRobotHere();
+    void moveBallHere();
 signals:
     void clicked();
     void selectedRobot();

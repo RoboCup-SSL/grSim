@@ -12,6 +12,7 @@
 SSLWorld* _w;
 double randn_notrig(double mu=0.0, double sigma=1.0);
 double randn_trig(double mu=0.0, double sigma=1.0);
+double rand0_1();
 
 dReal fric(float f)
 {
@@ -417,7 +418,6 @@ void SSLWorld::step(float dt)
 
     g->finalizeScene();
 
-
     sendVisionBuffer();
     framenum ++;
 }
@@ -488,7 +488,6 @@ float normalizeAngle(float a)
 SSL_WrapperPacket* SSLWorld::generatePacket()
 {
     SSL_WrapperPacket* packet = new SSL_WrapperPacket;
-    SSL_DetectionBall* vball = packet->mutable_detection()->add_balls();
     float x,y,z,dir;
     ball->getBodyPosition(x,y,z);
     packet->mutable_detection()->set_camera_id(0);
@@ -498,13 +497,19 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
     float dev_x = cfg->noiseDeviation_x();
     float dev_y = cfg->noiseDeviation_y();
     float dev_a = cfg->noiseDeviation_angle();
-    vball->set_x(randn_notrig(x*1000.0f,dev_x));
-    vball->set_y(randn_notrig(y*1000.0f,dev_y));
-    vball->set_z(z*1000.0f);
-    vball->set_pixel_x(x*1000.0f);
-    vball->set_pixel_y(y*1000.0f);
-    vball->set_confidence(1);
+    if (rand0_1() > cfg->ball_vanishing())
+    {
+        SSL_DetectionBall* vball = packet->mutable_detection()->add_balls();
+        vball->set_x(randn_notrig(x*1000.0f,dev_x));
+        vball->set_y(randn_notrig(y*1000.0f,dev_y));
+        vball->set_z(z*1000.0f);
+        vball->set_pixel_x(x*1000.0f);
+        vball->set_pixel_y(y*1000.0f);
+        vball->set_confidence(1);
+    }
     for(int i = 0; i < 5; i++){
+      if (rand0_1() > cfg->blue_team_vanishing())
+      {
         SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
         robots[i]->getXY(x,y);
         dir = robots[i]->getDir();
@@ -515,8 +520,11 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         rob->set_x(randn_notrig(x*1000.0f,dev_x));
         rob->set_y(randn_notrig(y*1000.0f,dev_y));
         rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
+      }
     }
     for(int i = 5; i < 10; i++){
+      if (rand0_1() > cfg->yellow_team_vanishing())
+      {
         SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
         robots[i]->getXY(x,y);
         dir = robots[i]->getDir();
@@ -527,6 +535,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         rob->set_x(randn_notrig(x*1000.0f,dev_x));
         rob->set_y(randn_notrig(y*1000.0f,dev_y));
         rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
+      }
    }
    return packet;
 }
@@ -756,4 +765,9 @@ double randn_trig(double mu, double sigma) {
                 deviateAvailable=false;
                 return storedDeviate*sigma + mu;
         }
+}
+
+double rand0_1()
+{
+    return (double) (rand()) / (double) (RAND_MAX);
 }

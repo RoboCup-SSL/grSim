@@ -84,6 +84,11 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(gauss_vars,Double,noiseDeviation_x,0,"Deviation for x values")
         ADD_VALUE(gauss_vars,Double,noiseDeviation_y,0,"Deviation for y values")
         ADD_VALUE(gauss_vars,Double,noiseDeviation_angle,0,"Deviation for angle values")
+    VarList * vanishing_vars = new VarList("Vanishing probability");
+        comm_vars->addChild(vanishing_vars);
+        ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
+        ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
+        ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
     ADD_VALUE(comm_vars,Double,motormaxoutput,600,"Motor max output (RPM)")
     ADD_VALUE(comm_vars,Double,motormaxinput,31,"Motor max input")
     ADD_VALUE(comm_vars,Double,shootfactor,1,"Shoot factor")

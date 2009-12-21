@@ -3,6 +3,8 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QSizePolicy>
+
 RobotWidget::RobotWidget(QWidget* parent)
         : QDockWidget("Current Robot",parent)
 {    
@@ -23,23 +25,24 @@ RobotWidget::RobotWidget(QWidget* parent)
     locateBtn = new QPushButton("Locate");
     onOffBtn = new QPushButton("Turn Off");
     setPoseBtn = new QPushButton("Set Position");
-    layout->addWidget(robotpic,0,0,6,1);
+    layout->addWidget(robotpic,0,0,5,1);
     layout->addWidget(new QLabel("Team"),0,1);
     layout->addWidget(teamCombo,0,2);
     layout->addWidget(new QLabel("Index"),1,1);
     layout->addWidget(robotCombo,1,2);
     layout->addWidget(new QLabel("Velocity"),2,1);
     layout->addWidget(vellabel,2,2);    
-    layout->addWidget(new QLabel("Acceleration"),3,1);
-    layout->addWidget(acclabel,3,2);
-    layout->addWidget(resetBtn,4,1);
-    layout->addWidget(locateBtn,4,2);        
-    layout->addWidget(onOffBtn,5,1);
-    layout->addWidget(setPoseBtn,5,2);
-    QWidget *widget = new QWidget(this);    
+//    layout->addWidget(new QLabel("Acceleration"),3,1);
+//    layout->addWidget(acclabel,3,2);
+    layout->addWidget(resetBtn,3,1);
+    layout->addWidget(locateBtn,3,2);
+    layout->addWidget(onOffBtn,4,1);
+    layout->addWidget(setPoseBtn,4,2);
+    QWidget *widget = new QWidget(this);        
     widget->setLayout(layout);    
+    widget->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     setWidget(widget);    
-    layout->setSizeConstraint(QLayout::SetMinimumSize);
+///    layout->setSizeConstraint(QLayout::SetMinimumSize);
     getPoseWidget = new GetPositionWidget();
     QObject::connect(setPoseBtn,SIGNAL(clicked()),this,SLOT(setPoseBtnClicked()));
 }
