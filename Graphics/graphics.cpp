@@ -541,7 +541,7 @@ void CGraphics::drawGround()
   glEnable (GL_DEPTH_TEST);
   glDepthFunc (GL_LESS);
 
-  const float gsize = 10.0f;
+  const float gsize = 100.0f;
   const float offset = 0;
 
   glBegin (GL_QUADS);

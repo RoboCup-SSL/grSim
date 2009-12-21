@@ -99,6 +99,9 @@ public:
   DEF_VALUE(double,Double,noiseDeviation_x)
   DEF_VALUE(double,Double,noiseDeviation_y)
   DEF_VALUE(double,Double,noiseDeviation_angle)
+  DEF_VALUE(double,Double,ball_vanishing)
+  DEF_VALUE(double,Double,blue_team_vanishing)
+  DEF_VALUE(double,Double,yellow_team_vanishing)
 };
 
 class ConfigDockWidget : public QDockWidget

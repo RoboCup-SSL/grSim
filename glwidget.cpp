@@ -45,11 +45,15 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     robpopup->addMenu(blueRobotsMenu);
     robpopup->addMenu(yellowRobotsMenu);
 
-    moveBallAct = new QAction(tr("&Move ball"),this);
+    moveBallAct = new QAction(tr("&Locate ball"),this);
     ballpopup = new QMenu(this);
     ballpopup->addAction(moveBallAct);
 
+    moveRobotHereAct = new QAction(tr("Locate current &robot here"),this);
+    moveBallHereAct = new QAction(tr("Locate &ball here"),this);
     mainpopup = new QMenu(this);
+    mainpopup->addAction(moveBallHereAct);
+    mainpopup->addAction(moveRobotHereAct);
     mainpopup->addMenu(blueRobotsMenu);
     mainpopup->addMenu(yellowRobotsMenu);
 
@@ -60,6 +64,8 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     connect(onOffRobotAct, SIGNAL(triggered()), this, SLOT(switchRobotOnOff()));
     connect(yellowRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
     connect(blueRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(blueRobotsMenuTriggered(QAction*)));
+    connect(moveBallHereAct, SIGNAL(triggered()),this , SLOT(moveBallHere()));
+    connect(moveRobotHereAct, SIGNAL(triggered()),this , SLOT(moveRobotHere()));
 
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
@@ -363,6 +369,16 @@ void GLWidget::reform(int team,const QString& act)
     if (act==tr("Put all inside with formation 1")) forms[1]->resetRobots(ssl->robots,team);
     if (act==tr("Put all inside with formation 2")) forms[2]->resetRobots(ssl->robots,team);
     if (act==tr("Put all outside")) forms[0]->resetRobots(ssl->robots,team);    
+}
+
+void GLWidget::moveBallHere()
+{
+    ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS());
+}
+
+void GLWidget::moveRobotHere()
+{
+    ssl->robots[robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
 }
 
 GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)
