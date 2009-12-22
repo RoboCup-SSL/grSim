@@ -67,12 +67,9 @@ MainWindow::MainWindow(QWidget *parent)
     QMenu *cameraMenu = new QMenu("&Camera");
     QMenu *robotMenu = new QMenu("&Robot");
     QMenu *ballMenu = new QMenu("&Ball");
-    simulatorMenu->addMenu(cameraMenu);
     simulatorMenu->addMenu(robotMenu);
     simulatorMenu->addMenu(ballMenu);
-    QAction* changeCamMode=new QAction(tr("Change &mode"),cameraMenu);
-    changeCamMode->setShortcut(QKeySequence("C"));
-    cameraMenu->addAction(changeCamMode);
+    cameraMenu->addAction(glwidget->changeCamModeAct);
 
     ballMenu->addAction(tr("Put on Center"))->setShortcut(QKeySequence("-"));
     ballMenu->addAction(tr("Put on Corner 1"))->setShortcut(QKeySequence("Ctrl+1"));
@@ -92,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent)
     simulatorMenu->addAction(fullScreenAct);
 
     viewMenu->addAction(robotwidget->toggleViewAction());
+    viewMenu->addMenu(cameraMenu);
 
     addDockWidget(Qt::LeftDockWidgetArea,dockconfig);
     addDockWidget(Qt::BottomDockWidgetArea, statusWidget);
@@ -112,7 +110,6 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(robotwidget->onOffBtn,SIGNAL(clicked()),glwidget,SLOT(switchRobotOnOff()));
     QObject::connect(robotwidget->getPoseWidget->okBtn,SIGNAL(clicked()),this,SLOT(setCurrentRobotPosition()));
     QObject::connect(glwidget,SIGNAL(robotTurnedOnOff(int,bool)),robotwidget,SLOT(changeRobotOnOff(int,bool)));
-    QObject::connect(changeCamMode,SIGNAL(triggered()),glwidget,SLOT(changeCameraMode()));
     QObject::connect(ballMenu,SIGNAL(triggered(QAction*)),this,SLOT(ballMenuTriggered(QAction*)));
     QObject::connect(fullScreenAct,SIGNAL(triggered(bool)),this,SLOT(toggleFullScreen(bool)));
     QObject::connect(glwidget,SIGNAL(toggleFullScreen(bool)),this,SLOT(toggleFullScreen(bool)));
