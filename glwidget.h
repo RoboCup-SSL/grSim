@@ -28,9 +28,12 @@ public:
     QAction* resetRobotAct;
     QAction* moveBallAct;        
     QAction* onOffRobotAct;
+    QAction* lockToRobotAct;
     QAction* moveBallHereAct;
     QAction* moveRobotHereAct;
+    QAction* changeCamModeAct;
     int Current_robot,Current_team,cammode;
+    int lockedIndex;
     bool ctrl;
     bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
@@ -49,6 +52,7 @@ public slots:
     void switchRobotOnOff();
     void moveRobotHere();
     void moveBallHere();
+    void lockCameraToRobot();
 signals:
     void clicked();
     void selectedRobot();

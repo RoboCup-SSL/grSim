@@ -186,6 +186,21 @@ void CGraphics::getCameraForward(float& x,float& y,float& z)
   rotxy(x,y,h);
 }
 
+void CGraphics::lookAt(float x,float y,float z)
+{
+    float rx = x - view_xyz[0];
+    float ry = y - view_xyz[1];
+    float rz = z - view_xyz[2];
+    float rr = sqrt(rx*rx + ry*ry + rz*rz);
+    if (rr==0) return;
+    float r = 0;
+    float p = asin(rz/rr)*180.0/M_PI;
+    float h = atan2(ry,rx)*180.0/M_PI;
+    view_hpr[0] = h;
+    view_hpr[1] = p;
+    view_hpr[2] = r;
+}
+
 void CGraphics::getCameraRight(float& x,float& y,float& z)
 {
   float h = view_hpr[0]*M_PI/180.0f;

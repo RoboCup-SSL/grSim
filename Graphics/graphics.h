@@ -36,6 +36,7 @@ public:
     void setRenderDepth(float depth);
     void setViewpoint (float x,float y,float z,float h,float p,float r);
     void cameraMotion (int mode, int deltax, int deltay);
+    void lookAt(float x,float y,float z);
     void getCameraForward(float& x,float& y,float& z);
     void getCameraRight(float& x,float& y,float& z);
     void zoomCamera(float dz);

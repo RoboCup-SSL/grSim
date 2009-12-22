@@ -38,10 +38,12 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     selectRobotAct = new QAction(tr("&Select robot"),this);
     resetRobotAct = new QAction(tr("&Reset robot"),this);
     onOffRobotAct = new QAction(tr("Turn &off"),this);
-    robpopup->addAction(selectRobotAct);
+    lockToRobotAct = new QAction(tr("Loc&k camera to this"),this);
+    //robpopup->addAction(selectRobotAct);
     robpopup->addAction(moveRobotAct);
     robpopup->addAction(resetRobotAct);
     robpopup->addAction(onOffRobotAct);
+    robpopup->addAction(lockToRobotAct);
     robpopup->addMenu(blueRobotsMenu);
     robpopup->addMenu(yellowRobotsMenu);
 
@@ -54,8 +56,12 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     mainpopup = new QMenu(this);
     mainpopup->addAction(moveBallHereAct);
     mainpopup->addAction(moveRobotHereAct);
+    changeCamModeAct=new QAction(tr("Change &mode"),this);
+    changeCamModeAct->setShortcut(QKeySequence("C"));
+    mainpopup->addAction(changeCamModeAct);
     mainpopup->addMenu(blueRobotsMenu);
     mainpopup->addMenu(yellowRobotsMenu);
+
 
     connect(moveRobotAct, SIGNAL(triggered()), this, SLOT(moveRobot()));
     connect(selectRobotAct, SIGNAL(triggered()), this, SLOT(selectRobot()));
@@ -66,7 +72,8 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     connect(blueRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(blueRobotsMenuTriggered(QAction*)));
     connect(moveBallHereAct, SIGNAL(triggered()),this , SLOT(moveBallHere()));
     connect(moveRobotHereAct, SIGNAL(triggered()),this , SLOT(moveRobotHere()));
-
+    connect(lockToRobotAct, SIGNAL(triggered()), this, SLOT(lockCameraToRobot()));
+    connect(changeCamModeAct,SIGNAL(triggered()),this,SLOT(changeCameraMode()));
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
     ctrl = false;
@@ -154,7 +161,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
                 ssl->show3DCursor = false;
             }
         }
-        if (state==2)
+        else if (state==2)
         {
             ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS()*1.1);
             dBodySetAngularVel(ssl->ball->body,0,0,0);
@@ -162,12 +169,17 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
             ssl->show3DCursor = false;
             state = 0;
         }
+        else {
+            clicked_robot = ssl->selected;
+            selectRobot();
+        }
     }
     if (event->buttons() & Qt::RightButton)
     {
         if (ssl->selected!=-1 && ssl->selected!=-2)
         {
             clicked_robot = ssl->selected;
+            selectRobot();
             robpopup->exec(event->globalPos());
         }
         else clicked_robot=-1;
@@ -249,9 +261,15 @@ void GLWidget::paintGL()
     if (cammode==1)
     {
         float x,y,z;
-        int R = Current_robot+Current_team*5;
+        int R = robotIndex(Current_robot,Current_team);
         ssl->robots[R]->getXY(x,y);z = 0.3;
         ssl->g->setViewpoint(x,y,z,ssl->robots[R]->getDir(),-25,0);
+    }
+    if (cammode==-1)
+    {
+        float x,y,z;
+        ssl->robots[lockedIndex]->getXY(x,y);z = 0.3;
+        ssl->g->lookAt(x,y,z);
     }
     if (first_time) {ssl->step();first_time = false;}
     else {
@@ -288,14 +306,21 @@ void GLWidget::changeCameraMode()
 {
     static float xyz[3],hpr[3];
       this->cammode ++;
-      this->cammode %= 3;
+      this->cammode %= 6;
       if (this->cammode==0)
-        this->ssl->g->setViewpoint(xyz,hpr);
+        this->ssl->g->setViewpoint(0,-(cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,90,-45,0);
       else if (this->cammode==1)
       {
           this->ssl->g->getViewpoint(xyz,hpr);
       }
-      else this->ssl->g->setViewpoint(0,0,5,0,-90,0);
+      else if (this->cammode==2)
+          this->ssl->g->setViewpoint(0,0,5,0,-90,0);
+      else if (this->cammode==3)
+          this->ssl->g->setViewpoint(0, (cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,270,-45,0);
+      else if (this->cammode==4)
+          this->ssl->g->setViewpoint(-(cfg->_SSL_FIELD_LENGTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,0,3,0,-45,0);
+      else if (this->cammode==5)
+          this->ssl->g->setViewpoint((cfg->_SSL_FIELD_LENGTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,0,3,180,-45,0);
 }
 
 void GLWidget::putBall(float x,float y)
@@ -374,6 +399,12 @@ void GLWidget::reform(int team,const QString& act)
 void GLWidget::moveBallHere()
 {
     ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS());
+}
+
+void GLWidget::lockCameraToRobot()
+{
+    cammode = -1;
+    lockedIndex = clicked_robot;
 }
 
 void GLWidget::moveRobotHere()
