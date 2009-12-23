@@ -55,8 +55,8 @@ void RobotWidget::setPicture(QImage* img)
 void RobotWidget::changeRobotOnOff(int _id,bool a)
 {
     if (_id==id) {
-    if (a) onOffBtn->setText("Turn off");
-    else onOffBtn->setText("Turn on");
+        if (a) onOffBtn->setText("Turn off");
+        else onOffBtn->setText("Turn on");
     }
 }
 

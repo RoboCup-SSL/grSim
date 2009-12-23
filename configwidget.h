@@ -96,12 +96,17 @@ public:
   DEF_VALUE(int,Int,BlueCommandListenPort)
   DEF_VALUE(int,Int,YellowCommandListenPort)
   DEF_VALUE(int,Int,sendDelay)
+  DEF_VALUE(bool,Bool,noise)
   DEF_VALUE(double,Double,noiseDeviation_x)
   DEF_VALUE(double,Double,noiseDeviation_y)
   DEF_VALUE(double,Double,noiseDeviation_angle)
+  DEF_VALUE(bool,Bool,vanishing)
   DEF_VALUE(double,Double,ball_vanishing)
   DEF_VALUE(double,Double,blue_team_vanishing)
   DEF_VALUE(double,Double,yellow_team_vanishing)
+  DEF_VALUE(std::string, String, plotter_addr)
+  DEF_VALUE(int, Int, plotter_port)
+  DEF_VALUE(bool, Bool, plotter)
 };
 
 class ConfigDockWidget : public QDockWidget

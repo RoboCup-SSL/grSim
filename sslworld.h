@@ -24,6 +24,12 @@
 #define ROBOT_COUNT 5
 
 class RobotsFomation;
+class SendingPacket {
+    public:
+    SendingPacket(SSL_WrapperPacket* _packet,int _t);
+    SSL_WrapperPacket* packet;
+    int t;
+};
 
 class SSLWorld : public QObject
 {
@@ -32,7 +38,7 @@ private:
     QGLWidget* m_parent;
     int framenum;
     float last_dt;
-    QList<SSL_WrapperPacket*> sendQueue;
+    QList<SendingPacket*> sendQueue;
 public:
     SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2);
     virtual ~SSLWorld();
@@ -60,8 +66,9 @@ public:
     float cursor_radius;
     RoboCupSSLServer *visionServer;
     QUdpSocket *blueSocket,*yellowSocket;
-
-    Robot* robots[ROBOT_COUNT*2];
+    bool updatedCursor;
+    Robot* robots[ROBOT_COUNT*2];    
+    QTime *timer;
     void recvActions(QUdpSocket* commandSocket,int team);
 public slots:
     void recvFromBlue();

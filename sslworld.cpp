@@ -60,6 +60,7 @@ bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
 
 bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
 {
+    if (!_w->updatedCursor) return false;
     dGeomID obj;
     if (o1==_w->ray->geom) obj = o2;
     else obj = o1;
@@ -112,6 +113,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     cfg = _cfg;
     m_parent = parent;
     show3DCursor = false;
+    updatedCursor = false;
     framenum = 0;
     last_dt = -1;    
     g = new CGraphics(parent);
@@ -227,6 +229,8 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
   reconnectBlueCommandSocket();
   yellowSocket = NULL;
   reconnectYellowCommandSocket();
+  timer = new QTime();
+  timer->start();
 }
 
 void SSLWorld::reconnectBlueCommandSocket()
@@ -526,7 +530,8 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
     float dev_x = cfg->noiseDeviation_x();
     float dev_y = cfg->noiseDeviation_y();
     float dev_a = cfg->noiseDeviation_angle();
-    if (rand0_1() > cfg->ball_vanishing())
+    if (cfg->noise()==false) {dev_x = 0;dev_y = 0;dev_a = 0;}
+    if ((cfg->vanishing()==false) || (rand0_1() > cfg->ball_vanishing()))
     {
         SSL_DetectionBall* vball = packet->mutable_detection()->add_balls();
         vball->set_x(randn_notrig(x*1000.0f,dev_x));
@@ -537,7 +542,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         vball->set_confidence(1);
     }
     for(int i = 0; i < 5; i++){
-      if (rand0_1() > cfg->blue_team_vanishing())
+      if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))
       {
         SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
         robots[i]->getXY(x,y);
@@ -552,7 +557,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
       }
     }
     for(int i = 5; i < 10; i++){
-      if (rand0_1() > cfg->yellow_team_vanishing())
+      if ((cfg->vanishing()==false) || (rand0_1() > cfg->yellow_team_vanishing()))
       {
         SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
         robots[i]->getXY(x,y);
@@ -569,15 +574,24 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
    return packet;
 }
 
+SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
+{
+    packet = _packet;
+    t      = _t;
+}
+
 void SSLWorld::sendVisionBuffer()
 {
-    sendQueue.push_back(generatePacket());
-    while (sendQueue.size()>=cfg->sendDelay()+1)
+    int t = timer->elapsed();
+    sendQueue.push_back(new SendingPacket(generatePacket(),t));
+    while (t - sendQueue.front()->t>=cfg->sendDelay())
     {
-        SSL_WrapperPacket *packet = sendQueue.front();
+        SSL_WrapperPacket *packet = sendQueue.front()->packet;
+        delete sendQueue.front();
         sendQueue.pop_front();
         visionServer->send(*packet);
         delete packet;
+        if (sendQueue.isEmpty()) break;
     }
 }
 
@@ -614,6 +628,12 @@ RobotsFomation::RobotsFomation(int type)
     {
         float teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
         float teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7};
+        setAll(teamPosX,teamPosY);
+    }
+    if (type==-2)
+    {
+        float teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
+        float teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3};
         setAll(teamPosX,teamPosY);
     }
 /*

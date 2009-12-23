@@ -14,11 +14,11 @@ GetPositionWidget::GetPositionWidget()
     layout->addWidget(new QLabel("X"),0,0);
     layout->addWidget(new QLabel("Y"),1,0);
     layout->addWidget(new QLabel("Angle"),2,0);
+    layout->addWidget(okBtn,3,1);
+    layout->addWidget(cancelBtn,3,0);
     layout->addWidget(x,0,1);
     layout->addWidget(y,1,1);
     layout->addWidget(a,2,1);
-    layout->addWidget(okBtn,3,1);
-    layout->addWidget(cancelBtn,3,0);
     setLayout(layout);
     connect(cancelBtn,SIGNAL(clicked()),this,SLOT(cancelBtnClicked()));
 }
