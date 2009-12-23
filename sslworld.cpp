@@ -156,7 +156,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p->addObject(ray);
     for (int i=0;i<10;i++)
         p->addObject(walls[i]);
-    const int wheeltexid = 22;
+    const int wheeltexid = 37;
 
 
     for (int k=0;k<5;k++)
@@ -301,26 +301,40 @@ QImage* createBlob(char yb,int i,QImage** res)
     return img;
 }
 
-QImage* createNumber(int i)
+QImage* createNumber(int i,int r,int g,int b,int a)
 {
-    QImage* img = new QImage(32,32,QImage::Format_RGB32);
+    QImage* img = new QImage(32,32,QImage::Format_ARGB32);
     QPainter *p = new QPainter();
     QBrush br;
-    p->begin(img);
-    br.setColor(QColor("black"));
-    br.setStyle(Qt::SolidPattern);
-    p->fillRect(0,0,32,32,br);
+    p->begin(img);    
+    QColor black(0,0,0,0);
+    for (int i=0;i<img->width();i++)
+        for (int j=0;j<img->height();j++)
+        {
+            img->setPixel(i,j,black.rgba());
+        }
+    QColor txtcolor(r,g,b,a);
     QPen pen;
-    pen.setStyle(Qt::DashDotLine);
+    pen.setStyle(Qt::SolidLine);
     pen.setWidth(3);
-    pen.setBrush(Qt::white);
+    pen.setBrush(txtcolor);
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
     p->setPen(pen);
-    QFont f;
+    QFont f;    
+    f.setBold(true);
     f.setPointSize(26);
     p->setFont(f);
     p->drawText(img->width()/2-15,img->height()/2-15,30,30,Qt::AlignCenter,QString("%1").arg(i));
+/*    for (int i=0;i<img->width();i++)
+        for (int j=0;j<img->height();j++)
+        {
+            QColor color;color.setRgba(img->pixel(i,j));
+            int rr,gg,bb,aa;
+            color.getRgb(&rr,&gg,&bb,&aa);
+            if (aa>0)
+                img->setPixel(i,j,txtcolor.rgba());
+        }*/
     p->end();
     delete p;
     return img;
@@ -340,11 +354,26 @@ void SSLWorld::glinit()
     g->loadTexture(createBlob('y',2,&robots[7]->img));
     g->loadTexture(createBlob('y',3,&robots[8]->img));
     g->loadTexture(createBlob('y',4,&robots[9]->img));
-    g->loadTexture(createNumber(0));
-    g->loadTexture(createNumber(1));
-    g->loadTexture(createNumber(2));
-    g->loadTexture(createNumber(3));
-    g->loadTexture(createNumber(4));
+    g->loadTexture(createNumber(0,15,193,225,255));
+    g->loadTexture(createNumber(1,15,193,225,255));
+    g->loadTexture(createNumber(2,15,193,225,255));
+    g->loadTexture(createNumber(3,15,193,225,255));
+    g->loadTexture(createNumber(4,15,193,225,255));
+    g->loadTexture(createNumber(0,0xff,0xff,0,255));
+    g->loadTexture(createNumber(1,0xff,0xff,0,255));
+    g->loadTexture(createNumber(2,0xff,0xff,0,255));
+    g->loadTexture(createNumber(3,0xff,0xff,0,255));
+    g->loadTexture(createNumber(4,0xff,0xff,0,255));
+    g->loadTexture(createNumber(0,15,193,225,100));
+    g->loadTexture(createNumber(1,15,193,225,100));
+    g->loadTexture(createNumber(2,15,193,225,100));
+    g->loadTexture(createNumber(3,15,193,225,100));
+    g->loadTexture(createNumber(4,15,193,225,100));
+    g->loadTexture(createNumber(0,0xff,0xff,0,100));
+    g->loadTexture(createNumber(1,0xff,0xff,0,100));
+    g->loadTexture(createNumber(2,0xff,0xff,0,100));
+    g->loadTexture(createNumber(3,0xff,0xff,0,100));
+    g->loadTexture(createNumber(4,0xff,0xff,0,100));
     g->loadTexture(new QImage("../Graphics/sky/neg_x.bmp"));
     g->loadTexture(new QImage("../Graphics/sky/pos_x.bmp"));
     g->loadTexture(new QImage("../Graphics/sky/neg_y.bmp"));
@@ -401,7 +430,7 @@ void SSLWorld::step(float dt)
     }
 
     p->draw();
-    g->drawSkybox(16,17,18,19,20,21);
+    g->drawSkybox(31,32,33,34,35,36);
 
     dMatrix3 R;
     if (show3DCursor)

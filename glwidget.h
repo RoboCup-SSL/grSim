@@ -27,6 +27,7 @@ public:
     QAction* selectRobotAct;
     QAction* resetRobotAct;
     QAction* moveBallAct;        
+    QAction* lockToBallAct;
     QAction* onOffRobotAct;
     QAction* lockToRobotAct;
     QAction* moveBallHereAct;
@@ -53,6 +54,7 @@ public slots:
     void moveRobotHere();
     void moveBallHere();
     void lockCameraToRobot();
+    void lockCameraToBall();
 signals:
     void clicked();
     void selectedRobot();
