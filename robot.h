@@ -7,6 +7,7 @@
 #include "Physics/pball.h"
 
 #include "configwidget.h"
+#define PLOT_PACKET_SIZE 13
 
 class Robot
 {
@@ -23,10 +24,12 @@ public:
     PCylinder* chassis;
     PBall* dummy;
     dJointID dummy_to_chassis;
-    PBox* boxes[3];
+    PBox* boxes[3];    
     bool on;
-    bool selected; //these values are not controled by this class
-    float select_x,select_y,select_z;
+    //these values are not controled by this class
+    float data[PLOT_PACKET_SIZE];
+    bool selected;
+    float select_x,select_y,select_z;    
     QImage *img,*number;
     class Wheel
     {

@@ -38,19 +38,25 @@ public slots:
     void ballMenuTriggered(QAction* act);
     void toggleFullScreen(bool);
     void setCurrentRobotPosition();
+    void takeSnapshot();
+    void takeSnapshotToClipboard();
+    void reconnectPlotterSocket(VarType*);
 private:
     QWorkspace* workspace;
     GLWidget *glwidget;
     ConfigWidget *configwidget;
     ConfigDockWidget *dockconfig;
     RobotWidget *robotwidget;
+    QUdpSocket* plotSocket;    
+    float balldata[PLOT_PACKET_SIZE];
 
     CStatusPrinter *printer;
     CStatusWidget *statusWidget;
 
     QAction *showsimulator, *showconfig;
     QAction* fullScreenAct;
-    QLabel *fpslabel,*cursorlabel,*selectinglabel;
+    QLabel *fpslabel,*cursorlabel,*selectinglabel,*vanishlabel,*noiselabel;
+    QString current_dir;
 
     QGraphicsScene *scene;
     GLWidgetGraphicsView *view;

@@ -17,7 +17,7 @@ class GLWidget : public QGLWidget {
 public:
     GLWidget(QWidget *parent,ConfigWidget* _cfg);
     ~GLWidget();
-    QString getFPS();
+    float getFPS();
     ConfigWidget* cfg;
     SSLWorld* ssl;
     RobotsFomation* forms[3];
@@ -33,9 +33,10 @@ public:
     QAction* moveBallHereAct;
     QAction* moveRobotHereAct;
     QAction* changeCamModeAct;
+    QMenu *cameraMenu;
     int Current_robot,Current_team,cammode;
     int lockedIndex;
-    bool ctrl;
+    bool ctrl,alt;
     bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(float x,float y);
@@ -78,7 +79,7 @@ private:
     int frames;
     bool first_time;
     QTime time,rendertimer;
-    QString m_fps;
+    float m_fps;
     QPoint lastPos;
 friend class GLWidgetGraphicsView;
 };

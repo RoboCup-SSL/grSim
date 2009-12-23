@@ -28,7 +28,7 @@ CGraphics::CGraphics(QGLWidget* _owner)
   float hpr[3] = {121.0000f,-27.5000f,0.0000f};
   setViewpoint (xyz,hpr);
   sphere_quality = 1;
-  m_renderDepth = 100;
+  m_renderDepth = 1000;
 /*  view_xyz[0] = 2;
   view_xyz[1] = 0;
   view_xyz[2] = 1;
@@ -267,7 +267,7 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
     glRotatef (view_hpr[2], 1,0,0);
     glRotatef (view_hpr[1], 0,1,0);
     glRotatef (-view_hpr[0], 0,0,1);
-    glScalef (20,20,20);
+    glScalef (200,200,200);
     // Enable/Disable features
 
     glPushAttrib(GL_ENABLE_BIT);

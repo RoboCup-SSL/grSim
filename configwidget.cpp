@@ -78,20 +78,27 @@ ConfigWidget::ConfigWidget()
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10002,"Vision multicast port")
     ADD_VALUE(comm_vars,Int,BlueCommandListenPort,20011,"Blue Team command listen port")
     ADD_VALUE(comm_vars,Int,YellowCommandListenPort,20012,"Yellow Team command listen port")
-    ADD_VALUE(comm_vars,Int,sendDelay,0,"Sending delay (frames)")
+    ADD_VALUE(comm_vars,Int,sendDelay,0,"Sending delay (milliseconds)")
     VarList * gauss_vars = new VarList("Gaussian noise");
         comm_vars->addChild(gauss_vars);
-        ADD_VALUE(gauss_vars,Double,noiseDeviation_x,0,"Deviation for x values")
-        ADD_VALUE(gauss_vars,Double,noiseDeviation_y,0,"Deviation for y values")
-        ADD_VALUE(gauss_vars,Double,noiseDeviation_angle,0,"Deviation for angle values")
+        ADD_VALUE(gauss_vars,Bool,noise,false,"Noise")
+        ADD_VALUE(gauss_vars,Double,noiseDeviation_x,3,"Deviation for x values")
+        ADD_VALUE(gauss_vars,Double,noiseDeviation_y,3,"Deviation for y values")
+        ADD_VALUE(gauss_vars,Double,noiseDeviation_angle,2,"Deviation for angle values")
     VarList * vanishing_vars = new VarList("Vanishing probability");
         comm_vars->addChild(vanishing_vars);
+        ADD_VALUE(gauss_vars,Bool,vanishing,false,"Vanishing")
         ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
         ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
     ADD_VALUE(comm_vars,Double,motormaxoutput,600,"Motor max output (RPM)")
     ADD_VALUE(comm_vars,Double,motormaxinput,31,"Motor max input")
     ADD_VALUE(comm_vars,Double,shootfactor,1,"Shoot factor")
+  VarList * plotter_vars = new VarList("Plotter");
+  world.push_back(plotter_vars);
+    ADD_VALUE(plotter_vars, String, plotter_addr,"127.0.0.1", "Plotter address")
+    ADD_VALUE(plotter_vars, Int, plotter_port,20020, "Plotter port")
+    ADD_VALUE(plotter_vars, Bool, plotter,true, "Send")
   world=VarXML::read(world,"../settings.xml");
 
   tmodel->setRootItems(world);

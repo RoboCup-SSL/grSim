@@ -16,9 +16,10 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     first_time = true;
     cfg = _cfg;
     forms[0] = new RobotsFomation(-1);  //outside
-    forms[1] = new RobotsFomation(1);  //inside type 1
-    forms[2] = new RobotsFomation(2);  //inside type 2
-    ssl = new SSLWorld(this,cfg,forms[1],forms[1]);
+    forms[1] = new RobotsFomation(-2);  //outside
+    forms[2] = new RobotsFomation(1);  //inside type 1
+    forms[3] = new RobotsFomation(2);  //inside type 2
+    ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
     Current_robot = 0;
     Current_team = 0;
     cammode = 0;
@@ -58,9 +59,14 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     mainpopup = new QMenu(this);
     mainpopup->addAction(moveBallHereAct);
     mainpopup->addAction(moveRobotHereAct);
+    cameraMenu = new QMenu("&Camera");
     changeCamModeAct=new QAction(tr("Change &mode"),this);
     changeCamModeAct->setShortcut(QKeySequence("C"));
-    mainpopup->addAction(changeCamModeAct);
+    cameraMenu->addAction(changeCamModeAct);
+    cameraMenu->addAction(lockToRobotAct);
+    cameraMenu->addAction(lockToBallAct);
+
+    mainpopup->addMenu(cameraMenu);
     mainpopup->addMenu(blueRobotsMenu);
     mainpopup->addMenu(yellowRobotsMenu);
 
@@ -80,6 +86,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
     ctrl = false;
+    alt = false;
 }
 
 GLWidget::~GLWidget()
@@ -173,8 +180,10 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
             state = 0;
         }
         else {
-            clicked_robot = ssl->selected;
-            selectRobot();
+            if (ssl->selected>=0){
+                clicked_robot = ssl->selected;
+                selectRobot();
+            }
         }
     }
     if (event->buttons() & Qt::RightButton)
@@ -204,6 +213,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
 
 void GLWidget::update3DCursor(int mouse_x,int mouse_y)
 {
+    ssl->updatedCursor = true;
     float xyz[3],hpr[3],fx,fy,fz,rx,ry,rz,ux,uy,uz,px,py,pz;
     ssl->g->getViewpoint(xyz,hpr);
     ssl->g->getCameraForward(fx,fy,fz);
@@ -250,7 +260,7 @@ void GLWidget::mouseReleaseEvent(QMouseEvent * /* event */)
     emit clicked();
 }
 
-QString GLWidget::getFPS()
+float GLWidget::getFPS()
 {
     return m_fps;
 }
@@ -296,7 +306,7 @@ void GLWidget::paintGL()
         }
     }
     rendertimer.restart();
-    m_fps.setNum(frames /(time.elapsed()/1000.0), 'f', 2);
+    m_fps = frames /(time.elapsed()/1000.0);
 
     if (!(frames % (1000/_RENDER_INTERVAL))) {
         time.restart();
@@ -346,11 +356,16 @@ void GLWidget::putBall(float x,float y)
 void GLWidget::keyReleaseEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Control) ctrl = false;
+    if (event->key() == Qt::Key_Alt) {
+        alt = false;
+        moveCurrentRobot();
+    }
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
   if (event->key() == Qt::Key_Control) ctrl = true;
+  if (event->key() == Qt::Key_Alt) alt = true;
   char cmd = event->key();
   if (fullScreen) {
       if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);
@@ -404,9 +419,10 @@ void GLWidget::yellowRobotsMenuTriggered(QAction *act)
 
 void GLWidget::reform(int team,const QString& act)
 {
-    if (act==tr("Put all inside with formation 1")) forms[1]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all inside with formation 2")) forms[2]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all outside")) forms[0]->resetRobots(ssl->robots,team);    
+    if (act==tr("Put all inside with formation 1")) forms[2]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all inside with formation 2")) forms[3]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all outside") && team==0) forms[0]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all outside") && team==1) forms[1]->resetRobots(ssl->robots,team);
 }
 
 void GLWidget::moveBallHere()
@@ -417,7 +433,7 @@ void GLWidget::moveBallHere()
 void GLWidget::lockCameraToRobot()
 {
     cammode = -1;
-    lockedIndex = clicked_robot;
+    lockedIndex = robotIndex(Current_robot,Current_team);//clicked_robot;
 }
 
 void GLWidget::lockCameraToBall()
