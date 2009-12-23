@@ -493,7 +493,7 @@ int CGraphics::getWidth()
 
 int CGraphics::getHeight()
 {
-    return _width;
+    return _height;
 }
 
 void CGraphics::finalizeScene()

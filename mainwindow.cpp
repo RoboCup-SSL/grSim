@@ -70,6 +70,8 @@ MainWindow::MainWindow(QWidget *parent)
     simulatorMenu->addMenu(robotMenu);
     simulatorMenu->addMenu(ballMenu);
     cameraMenu->addAction(glwidget->changeCamModeAct);
+    cameraMenu->addAction(glwidget->lockToRobotAct);
+    cameraMenu->addAction(glwidget->lockToBallAct);
 
     ballMenu->addAction(tr("Put on Center"))->setShortcut(QKeySequence("-"));
     ballMenu->addAction(tr("Put on Corner 1"))->setShortcut(QKeySequence("Ctrl+1"));

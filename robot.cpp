@@ -239,10 +239,8 @@ void Robot::drawLabel()
     glPushMatrix();
     dVector3 pos;
     float fr_r,fr_b,fr_n;w->g->getFrustum(fr_r,fr_b,fr_n);
-//    const float txtWidth = 12.0f*fr_r/(float)w->g->getWidth();
-//    const float txtHeight = 24.0f*fr_b/(float)w->g->getHeight();
-    const float txtWidth = 12.0f*fr_n/(float)w->g->getWidth();
-    const float txtHeight = 24.0f*fr_n/(float)w->g->getHeight();
+    const float txtWidth = 12.0f*fr_r/(float)w->g->getWidth();
+    const float txtHeight = 24.0f*fr_b/(float)w->g->getHeight();
     pos[0] = dBodyGetPosition(chassis->body)[0];
     pos[1] = dBodyGetPosition(chassis->body)[1];
     pos[2] = dBodyGetPosition(chassis->body)[2];    
@@ -266,11 +264,11 @@ void Robot::drawLabel()
     float ty = rx*fz-fx*rz;
     float tz = fx*ry-fy*rx;
     w->g->setTransform(pos,rot);
-    w->g->useTexture((m_rob_id-1)%5 + 11);
+    w->g->useTexture((m_rob_id-1) + 11 + 10*((on)?0:1));
     glShadeModel (GL_FLAT);
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_COLOR);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glBegin(GL_QUADS);
         glTexCoord2f(1,1);glVertex3f( txtWidth*rx*zfact +txtHeight*tx*zfact, txtWidth*ry*zfact +txtHeight*ty*zfact, txtWidth*rz*zfact +txtHeight*tz*zfact);
         glTexCoord2f(0,1);glVertex3f(-txtWidth*rx*zfact +txtHeight*tx*zfact,-txtWidth*ry*zfact +txtHeight*ty*zfact,-txtWidth*rz*zfact +txtHeight*tz*zfact);

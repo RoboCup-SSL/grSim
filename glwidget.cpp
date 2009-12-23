@@ -38,7 +38,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     selectRobotAct = new QAction(tr("&Select robot"),this);
     resetRobotAct = new QAction(tr("&Reset robot"),this);
     onOffRobotAct = new QAction(tr("Turn &off"),this);
-    lockToRobotAct = new QAction(tr("Loc&k camera to this"),this);
+    lockToRobotAct = new QAction(tr("Loc&k camera to this robot"),this);
     //robpopup->addAction(selectRobotAct);
     robpopup->addAction(moveRobotAct);
     robpopup->addAction(resetRobotAct);
@@ -48,8 +48,10 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     robpopup->addMenu(yellowRobotsMenu);
 
     moveBallAct = new QAction(tr("&Locate ball"),this);
+    lockToBallAct = new QAction(tr("Loc&k camera to ball"),this);
     ballpopup = new QMenu(this);
     ballpopup->addAction(moveBallAct);
+    ballpopup->addAction(lockToBallAct);
 
     moveRobotHereAct = new QAction(tr("Locate current &robot here"),this);
     moveBallHereAct = new QAction(tr("Locate &ball here"),this);
@@ -73,6 +75,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     connect(moveBallHereAct, SIGNAL(triggered()),this , SLOT(moveBallHere()));
     connect(moveRobotHereAct, SIGNAL(triggered()),this , SLOT(moveRobotHere()));
     connect(lockToRobotAct, SIGNAL(triggered()), this, SLOT(lockCameraToRobot()));
+    connect(lockToBallAct, SIGNAL(triggered()), this, SLOT(lockCameraToBall()));
     connect(changeCamModeAct,SIGNAL(triggered()),this,SLOT(changeCameraMode()));
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
@@ -180,6 +183,9 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
         {
             clicked_robot = ssl->selected;
             selectRobot();
+            if (ssl->robots[ssl->selected]->on)
+                onOffRobotAct->setText("Turn &off");
+            else onOffRobotAct->setText("Turn &on");
             robpopup->exec(event->globalPos());
         }
         else clicked_robot=-1;
@@ -271,6 +277,12 @@ void GLWidget::paintGL()
         ssl->robots[lockedIndex]->getXY(x,y);z = 0.3;
         ssl->g->lookAt(x,y,z);
     }
+    if (cammode==-2)
+    {
+        float x,y,z;
+        ssl->ball->getBodyPosition(x,y,z);
+        ssl->g->lookAt(x,y,z);
+    }
     if (first_time) {ssl->step();first_time = false;}
     else {
         if (cfg->SyncWithGL())
@@ -305,22 +317,23 @@ void GLWidget::paintGL()
 void GLWidget::changeCameraMode()
 {
     static float xyz[3],hpr[3];
-      this->cammode ++;
-      this->cammode %= 6;
-      if (this->cammode==0)
-        this->ssl->g->setViewpoint(0,-(cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,90,-45,0);
-      else if (this->cammode==1)
+    if (cammode<0) cammode=0;
+    else cammode ++;
+      cammode %= 6;
+      if (cammode==0)
+        ssl->g->setViewpoint(0,-(cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,90,-45,0);
+      else if (cammode==1)
       {
-          this->ssl->g->getViewpoint(xyz,hpr);
+          ssl->g->getViewpoint(xyz,hpr);
       }
-      else if (this->cammode==2)
-          this->ssl->g->setViewpoint(0,0,5,0,-90,0);
-      else if (this->cammode==3)
-          this->ssl->g->setViewpoint(0, (cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,270,-45,0);
-      else if (this->cammode==4)
-          this->ssl->g->setViewpoint(-(cfg->_SSL_FIELD_LENGTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,0,3,0,-45,0);
-      else if (this->cammode==5)
-          this->ssl->g->setViewpoint((cfg->_SSL_FIELD_LENGTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,0,3,180,-45,0);
+      else if (cammode==2)
+          ssl->g->setViewpoint(0,0,5,0,-90,0);
+      else if (cammode==3)
+          ssl->g->setViewpoint(0, (cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,270,-45,0);
+      else if (cammode==4)
+          ssl->g->setViewpoint(-(cfg->_SSL_FIELD_LENGTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,0,3,0,-45,0);
+      else if (cammode==5)
+          ssl->g->setViewpoint((cfg->_SSL_FIELD_LENGTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,0,3,180,-45,0);
 }
 
 void GLWidget::putBall(float x,float y)
@@ -347,29 +360,29 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   int R = robotIndex(Current_robot,Current_team);
   bool flag=false;
   switch (cmd) {
-      case 't': case 'T': this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(1,S);this->ssl->robots[R]->incSpeed(2,-S);this->ssl->robots[R]->incSpeed(3,S);break;
-      case 'g': case 'G': this->ssl->robots[R]->incSpeed(0,S);this->ssl->robots[R]->incSpeed(1,-S);this->ssl->robots[R]->incSpeed(2,S);this->ssl->robots[R]->incSpeed(3,-S);break;
-      case 'f': case 'F': this->ssl->robots[R]->incSpeed(0,S);this->ssl->robots[R]->incSpeed(1,S);this->ssl->robots[R]->incSpeed(2,S);this->ssl->robots[R]->incSpeed(3,S);break;
-      case 'h': case 'H': this->ssl->robots[R]->incSpeed(0,-S);this->ssl->robots[R]->incSpeed(1,-S);this->ssl->robots[R]->incSpeed(2,-S);this->ssl->robots[R]->incSpeed(3,-S);break;
+      case 't': case 'T': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,S);break;
+      case 'g': case 'G': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,-S);break;
+      case 'f': case 'F': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,S);break;
+      case 'h': case 'H': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,-S);break;
 /*
-      case 't': case 'T': this->ssl->robots[R]->setSpeed(0,-S);this->ssl->robots[R]->setSpeed(1,S);this->ssl->robots[R]->setSpeed(2,-S);this->ssl->robots[R]->setSpeed(3,S);break;
-      case 'g': case 'G': this->ssl->robots[R]->setSpeed(0,S);this->ssl->robots[R]->setSpeed(1,-S);this->ssl->robots[R]->setSpeed(2,S);this->ssl->robots[R]->setSpeed(3,-S);break;
-      case 'f': case 'F': this->ssl->robots[R]->setSpeed(0,S);this->ssl->robots[R]->setSpeed(1,S);this->ssl->robots[R]->setSpeed(2,S);this->ssl->robots[R]->setSpeed(3,S);break;
-      case 'h': case 'H': this->ssl->robots[R]->setSpeed(0,-S);this->ssl->robots[R]->setSpeed(1,-S);this->ssl->robots[R]->setSpeed(2,-S);this->ssl->robots[R]->setSpeed(3,-S);break;
+      case 't': case 'T': ssl->robots[R]->setSpeed(0,-S);ssl->robots[R]->setSpeed(1,S);ssl->robots[R]->setSpeed(2,-S);ssl->robots[R]->setSpeed(3,S);break;
+      case 'g': case 'G': ssl->robots[R]->setSpeed(0,S);ssl->robots[R]->setSpeed(1,-S);ssl->robots[R]->setSpeed(2,S);ssl->robots[R]->setSpeed(3,-S);break;
+      case 'f': case 'F': ssl->robots[R]->setSpeed(0,S);ssl->robots[R]->setSpeed(1,S);ssl->robots[R]->setSpeed(2,S);ssl->robots[R]->setSpeed(3,S);break;
+      case 'h': case 'H': ssl->robots[R]->setSpeed(0,-S);ssl->robots[R]->setSpeed(1,-S);ssl->robots[R]->setSpeed(2,-S);ssl->robots[R]->setSpeed(3,-S);break;
 */
-  case 'w': case 'W':dBodyAddForce(this->ssl->ball->body,0, BallForce,0);break;
-  case 's': case 'S':dBodyAddForce(this->ssl->ball->body,0,-BallForce,0);break;
-  case 'd': case 'D':dBodyAddForce(this->ssl->ball->body, BallForce,0,0);break;
-  case 'a': case 'A':dBodyAddForce(this->ssl->ball->body,-BallForce,0,0);break;
-  case 'k':case 'K': this->ssl->robots[R]->kicker->kick(10);break;
-  case 'l':case 'L': this->ssl->robots[R]->kicker->kick(10,true);break;
-  case 'j':case 'J': this->ssl->robots[R]->kicker->toggleRoller();break;  
+  case 'w': case 'W':dBodyAddForce(ssl->ball->body,0, BallForce,0);break;
+  case 's': case 'S':dBodyAddForce(ssl->ball->body,0,-BallForce,0);break;
+  case 'd': case 'D':dBodyAddForce(ssl->ball->body, BallForce,0,0);break;
+  case 'a': case 'A':dBodyAddForce(ssl->ball->body,-BallForce,0,0);break;
+  case 'k':case 'K': ssl->robots[R]->kicker->kick(10);break;
+  case 'l':case 'L': ssl->robots[R]->kicker->kick(10,true);break;
+  case 'j':case 'J': ssl->robots[R]->kicker->toggleRoller();break;
   case ' ':
-    this->ssl->robots[R]->resetSpeeds();
+    ssl->robots[R]->resetSpeeds();
     break;
   case '`':
-    dBodySetLinearVel(this->ssl->ball->body,0,0,0);
-    dBodySetAngularVel(this->ssl->ball->body,0,0,0);
+    dBodySetLinearVel(ssl->ball->body,0,0,0);
+    dBodySetAngularVel(ssl->ball->body,0,0,0);
     break;
   }
 }
@@ -407,6 +420,11 @@ void GLWidget::lockCameraToRobot()
     lockedIndex = clicked_robot;
 }
 
+void GLWidget::lockCameraToBall()
+{
+    cammode = -2;
+}
+
 void GLWidget::moveRobotHere()
 {
     ssl->robots[robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
@@ -423,5 +441,5 @@ void GLWidgetGraphicsView::mouseMoveEvent(QMouseEvent *event) {glwidget->mouseMo
 void GLWidgetGraphicsView::mouseReleaseEvent(QMouseEvent *event) {glwidget->mouseReleaseEvent(event);}
 void GLWidgetGraphicsView::wheelEvent(QWheelEvent *event) {glwidget->wheelEvent(event);}
 void GLWidgetGraphicsView::keyPressEvent(QKeyEvent *event){glwidget->keyPressEvent(event);}
-void GLWidgetGraphicsView::closeEvent(QCloseEvent *event){} //{this->viewportEvent(event);}
+void GLWidgetGraphicsView::closeEvent(QCloseEvent *event){} //{viewportEvent(event);}
 
