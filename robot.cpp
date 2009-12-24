@@ -93,8 +93,19 @@ void Robot::Kicker::step()
             fz = sqrt(fx*fx + fy*fy);
             fx/=fz;fy/=fz;
             rob->getBall()->tag = rob->getID();
+
+            float vx,vy,vz;
+            float bx,by,bz;
+            float kx,ky,kz;
+            rob->chassis->getBodyDirection(vx,vy,vz);
+            rob->getBall()->getBodyPosition(bx,by,bz);
+            box->getBodyPosition(kx,ky,kz);
+            float yy = -((-(kx-bx)*vy + (ky-by)*vx)) / rob->cfg->KWIDTH();
+            float dir = 1;
+            if (yy>0) dir = -1.0f;
             //dBodySetAngularVel(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR()*700,-fx*rob->cfg->ROLLERTORQUEFACTOR()*700,0);
             dBodyAddTorque(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR(),-fx*rob->cfg->ROLLERTORQUEFACTOR(),0);
+            dBodyAddTorque(rob->getBall()->body,yy*fx*rob->cfg->RollerPerpendicularTorqueFactor(),yy*fy*rob->cfg->RollerPerpendicularTorqueFactor(),0);
         }
     }
     else box->setColor(0.9,0.9,0.9);

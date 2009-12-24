@@ -20,7 +20,7 @@ public:
     float getFPS();
     ConfigWidget* cfg;
     SSLWorld* ssl;
-    RobotsFomation* forms[3];
+    RobotsFomation* forms[4];
     QMenu* robpopup,*ballpopup,*mainpopup;
     QMenu *blueRobotsMenu,*yellowRobotsMenu;
     QAction* moveRobotAct;

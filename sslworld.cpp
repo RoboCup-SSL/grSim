@@ -100,7 +100,7 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s)
         s->usefdir1 = true;
         s->surface.mode = dContactMu2 | dContactFDir1 | dContactSoftCFM;
         s->surface.mu = _w->cfg->ballfriction();
-        s->surface.mu2 = 0;
+        s->surface.mu2 = 0.5;
         s->surface.soft_cfm = 0.002;
     }
     return true;
