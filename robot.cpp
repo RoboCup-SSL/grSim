@@ -143,12 +143,12 @@ void Robot::Kicker::toggleRoller()
 void Robot::Kicker::kick(float kickspeed,bool chip)
 {    
     float vx,vy,vz;
-    rob->chassis->getBodyDirection(vx,vy,vz);
+    rob->chassis->getBodyDirection(vx,vy,vz);    
     float zf = 0;
     if (chip) zf = kickspeed*rob->cfg->CHIPFACTOR();
 
     if (isTouchingBall())
-        dBodyAddForce(rob->getBall()->body,vx*kickspeed*rob->cfg->KICKFACTOR(),vy*kickspeed*rob->cfg->KICKFACTOR(),zf);
+        dBodySetLinearVel(rob->getBall()->body,vx*kickspeed*rob->cfg->KICKFACTOR(),vy*kickspeed*rob->cfg->KICKFACTOR(),zf);
     kicking = true;kickstate=10;
   if (!kicking)
   {

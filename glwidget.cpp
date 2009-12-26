@@ -105,8 +105,8 @@ void GLWidget::selectRobot()
 {
     if (clicked_robot!=-1)
     {
-        Current_robot = clicked_robot%5;
-        Current_team = clicked_robot/5;
+        Current_robot = clicked_robot%ROBOT_COUNT;
+        Current_team = clicked_robot/ROBOT_COUNT;
         emit selectedRobot();
     }
 }
@@ -308,20 +308,26 @@ void GLWidget::paintGL()
     rendertimer.restart();
     m_fps = frames /(time.elapsed()/1000.0);
 
-    if (!(frames % (1000/_RENDER_INTERVAL))) {
+    if (!(frames % ((int)(ceil(cfg->DesiredFPS()))))) {
         time.restart();
         frames = 0;
+    }       
+    QFont font;    
+    for (int i=0;i<ROBOT_COUNT*2;i++)
+    {
+        float xx,yy;
+        ssl->robots[i]->getXY(xx,yy);        
+        if (i>=ROBOT_COUNT) qglColor(Qt::yellow);
+        else qglColor(Qt::cyan);
+        renderText(xx,yy,0.3,QString::number(i%ROBOT_COUNT),font);
+        if (!ssl->robots[i]->on){
+            qglColor(Qt::red);
+            font.setBold(true);
+            renderText(xx,yy,0.4,"Off",font);
+        }
+        font.setBold(false);
     }
-
     frames ++;
-
-    /*
-    QPainter painter;
-    painter.begin(this);
-
-    painter.drawLine(0,0,100,100);
-    painter.end();
-*/
 }
 
 void GLWidget::changeCameraMode()

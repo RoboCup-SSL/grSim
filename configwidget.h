@@ -90,6 +90,7 @@ public:
   DEF_VALUE(double,Double,balllineardamp)
   DEF_VALUE(double,Double,ballangulardamp)
   DEF_VALUE(bool,Bool,SyncWithGL)
+  DEF_VALUE(double,Double,DesiredFPS)
   DEF_VALUE(double,Double,DeltaTime)
   DEF_VALUE(double,Double,Gravity)
   DEF_VALUE(std::string,String,VisionMulticastAddr)  
