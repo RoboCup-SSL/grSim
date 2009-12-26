@@ -17,6 +17,10 @@
 #include "mainwindow.h"
 #include "logger.h"
 
+int MainWindow::getInterval()
+{
+    return ceil((1000.0f / configwidget->DesiredFPS()));
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,8 +28,6 @@ MainWindow::MainWindow(QWidget *parent)
     QDir dir = qApp->applicationDirPath();
     dir.cdUp();
     current_dir = dir.path();
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(_RENDER_INTERVAL);
     /* Status Logger */
     printer = new CStatusPrinter();
     statusWidget = new CStatusWidget(printer);
@@ -93,13 +95,13 @@ MainWindow::MainWindow(QWidget *parent)
     simulatorMenu->addMenu(robotMenu);
     simulatorMenu->addMenu(ballMenu);
 
-    ballMenu->addAction(tr("Put on Center"))->setShortcut(QKeySequence("-"));
+    ballMenu->addAction(tr("Put on Center"))->setShortcut(QKeySequence("Ctrl+0"));
     ballMenu->addAction(tr("Put on Corner 1"))->setShortcut(QKeySequence("Ctrl+1"));
     ballMenu->addAction(tr("Put on Corner 2"))->setShortcut(QKeySequence("Ctrl+2"));
     ballMenu->addAction(tr("Put on Corner 3"))->setShortcut(QKeySequence("Ctrl+3"));
     ballMenu->addAction(tr("Put on Corner 4"))->setShortcut(QKeySequence("Ctrl+4"));
-    ballMenu->addAction(tr("Put on Penalty 1"))->setShortcut(QKeySequence("Alt+Ctrl+1"));
-    ballMenu->addAction(tr("Put on Penalty 2"))->setShortcut(QKeySequence("Alt+Ctrl+2"));
+    ballMenu->addAction(tr("Put on Penalty 1"))->setShortcut(QKeySequence("Ctrl+5"));
+    ballMenu->addAction(tr("Put on Penalty 2"))->setShortcut(QKeySequence("Ctrl+6"));
 
     robotMenu->addMenu(glwidget->blueRobotsMenu);
     robotMenu->addMenu(glwidget->yellowRobotsMenu);
@@ -118,6 +120,9 @@ MainWindow::MainWindow(QWidget *parent)
     addDockWidget(Qt::LeftDockWidgetArea, robotwidget);
     workspace->addWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);    
     glwidget->setWindowState(Qt::WindowMaximized);
+
+    timer = new QTimer(this);
+    timer->setInterval(getInterval());
 
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     QObject::connect(takeSnapshotAct, SIGNAL(triggered(bool)), this, SLOT(takeSnapshot()));
@@ -155,6 +160,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_plotter_port, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectPlotterSocket(VarType*)));
 
     //geometry config vars
+    QObject::connect(configwidget->v_DesiredFPS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeTimer()));
     QObject::connect(configwidget->v_BALLRADIUS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
     QObject::connect(configwidget->v_BOTTOMHEIGHT, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
     QObject::connect(configwidget->v_CHASSISHEIGHT, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
@@ -218,18 +224,23 @@ void MainWindow::showHideSimulator(bool v)
 void MainWindow::changeCurrentRobot()
 {
     glwidget->Current_robot=robotwidget->robotCombo->currentIndex();
-    robotwidget->setPicture(glwidget->ssl->robots[glwidget->Current_robot+glwidget->Current_team*5]->img);
+    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
 }
 
 void MainWindow::changeCurrentTeam()
 {
     glwidget->Current_team=robotwidget->teamCombo->currentIndex();
-    robotwidget->setPicture(glwidget->ssl->robots[glwidget->Current_robot+glwidget->Current_team*5]->img);
+    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
 }
 
 void MainWindow::changeGravity()
 {
     dWorldSetGravity (glwidget->ssl->p->world,0,0,-configwidget->Gravity());
+}
+
+void MainWindow::changeTimer()
+{
+    timer->setInterval(getInterval());
 }
 
 QString floatToStr(float a)
@@ -268,8 +279,8 @@ void MainWindow::update()
         }
         else
         {            
-            int R = glwidget->ssl->selected%5;
-            int T = glwidget->ssl->selected/5;
+            int R = glwidget->ssl->selected%ROBOT_COUNT;
+            int T = glwidget->ssl->selected/ROBOT_COUNT;
             if (T==0) selectinglabel->setText(QString("%1:Blue").arg(R));
             else selectinglabel->setText(QString("%1:Yellow").arg(R));
         }
@@ -334,6 +345,7 @@ void MainWindow::updateRobotLabel()
     robotwidget->teamCombo->setCurrentIndex(glwidget->Current_team);
     robotwidget->robotCombo->setCurrentIndex(glwidget->Current_robot);
     robotwidget->id = robotIndex(robotwidget->robotCombo->currentIndex(),robotwidget->teamCombo->currentIndex());
+    robotwidget->changeRobotOnOff(robotwidget->id,glwidget->ssl->robots[robotwidget->id]->on);
 }
 
 

@@ -1,16 +1,10 @@
 #include "pworld.h"
-
 PSurface::PSurface()
 {
   callback = NULL;
   usefdir1 = false;
-  surface.mode = dContactSlip1 | dContactSlip2 | dContactApprox1;
-  //                          dContactSoftERP | dContactSoftCFM ;
-  surface.mu = dInfinity;
-  surface.slip1 = 1;//0.1;
-  surface.slip2 = 1;//0.1;
-  //surface.soft_erp = 0.05;
-  //surface.soft_cfm = 0.03;
+  surface.mode = dContactApprox1;
+  surface.mu = 0.5;
 }
 bool PSurface::isIt(dGeomID i1,dGeomID i2)
 {
@@ -31,7 +25,8 @@ PWorld::PWorld(float dt,float gravity,CGraphics* graphics)
     space = dHashSpaceCreate (0);
     contactgroup = dJointGroupCreate (0);
     dWorldSetGravity (world,0,0,-gravity);
-
+    objects_count = 0;
+    sur_matrix = NULL;
     dAllocateODEDataForThread(dAllocateMaskAll);
     delta_time = dt;
     g = graphics;
@@ -51,11 +46,10 @@ void PWorld::setGravity(float gravity)
 }
 
 void PWorld::handleCollisions(dGeomID o1, dGeomID o2)
-{
-//  if (dGeomGetSpace(o1)==dGeomGetSpace(o2)) return;
-  PSurface* sur;
-  for (int j=0;j<surfaces.count();j++)
-    if (surfaces[j]->isIt(o1,o2))
+{   
+    PSurface* sur;
+    int j=sur_matrix[*((int*)(dGeomGetData(o1)))][*((int*)(dGeomGetData(o2)))];
+    if (j!=-1)
     {
         const int N = 10;
         dContact contact[N];
@@ -79,8 +73,6 @@ void PWorld::handleCollisions(dGeomID o1, dGeomID o2)
                   contact[i].fdir1[1] = sur->fdir1[1];
                   contact[i].fdir1[2] = sur->fdir1[2];
                   contact[i].fdir1[3] = sur->fdir1[3];
-                  //printf("using (%f,%f,%f)\n",sur->fdir1[0],sur->fdir1[1],sur->fdir1[2]);
-//                  printf("contact: %d %d\n",i,j);
               }
               dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
 
@@ -89,21 +81,47 @@ void PWorld::handleCollisions(dGeomID o1, dGeomID o2)
                             dGeomGetBody(contact[i].geom.g2));
             }
         }
-
-        break;
     }
 
 }
 
 void PWorld::addObject(PObject* o)
-{
+{      
     int id = objects.count();
     o->id = id;
     if (o->world==NULL) o->world = world;
     if (o->space==NULL) o->space = space;
     o->g = g;
     o->init();
+    dGeomSetData(o->geom,(void*)(&(o->id)));
     objects.append(o);
+}
+
+void PWorld::initAllObjects()
+{
+    objects_count = objects.count();
+    int c = objects_count;
+    bool flag = false;
+    if (sur_matrix!=NULL)
+    {
+        for (int i=0;i<c;i++)
+            delete sur_matrix[i];
+        delete sur_matrix;
+        flag = true;
+    }    
+    sur_matrix = new int* [c];
+    for (int i=0;i<c;i++)
+    {
+        sur_matrix[i] = new int [c];    
+        for (int j=0;j<c;j++)
+            sur_matrix[i][j] = -1;
+    }
+    if (flag)
+    {
+        for (int i=0;i<surfaces.count();i++)
+            sur_matrix[(*(int*)(dGeomGetData(surfaces[i]->id1)))][*((int*)(dGeomGetData(surfaces[i]->id2)))] =
+            sur_matrix[(*(int*)(dGeomGetData(surfaces[i]->id2)))][*((int*)(dGeomGetData(surfaces[i]->id1)))] = i;
+    }
 }
 
 PSurface* PWorld::createSurface(PObject* o1,PObject* o2)
@@ -112,6 +130,8 @@ PSurface* PWorld::createSurface(PObject* o1,PObject* o2)
     s->id1 = o1->geom;
     s->id2 = o2->geom;
     surfaces.append(s);
+    sur_matrix[o1->id][o2->id] =
+    sur_matrix[o2->id][o1->id] = surfaces.count() - 1;
     return s;
 }
 

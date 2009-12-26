@@ -13,17 +13,20 @@ private:
     QVector<PObject*> objects;
     QVector<PSurface*> surfaces;
     float delta_time;
+    int **sur_matrix;
+    int objects_count;
 public:
     PWorld(float dt,float gravity,CGraphics* graphics);
     ~PWorld();
     void setGravity(float gravity);
     void addObject(PObject* o);
+    void initAllObjects();
     PSurface* createSurface(PObject* o1,PObject* o2);
     PSurface* findSurface(PObject* o1,PObject* o2);
     void step(float dt=-1);
     void glinit();
     void draw();
-    void handleCollisions(dGeomID o1, dGeomID o2);
+    void handleCollisions(dGeomID o1, dGeomID o2);    
     dWorldID world;
     dSpaceID space;
     CGraphics* g;

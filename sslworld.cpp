@@ -171,6 +171,9 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     dBodySetAngularDampingThreshold(ball->body,0.001);
     dBodySetAngularDamping(ball->body,cfg->ballangulardamp());
 
+    p->initAllObjects();
+
+    //Surfaces
 
     p->createSurface(ray,ground)->callback = rayCallback;
     p->createSurface(ray,ball)->callback = rayCallback;
@@ -194,8 +197,6 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     PSurface ballwithkicker;
     ballwithkicker.surface.mode = dContactApprox1;
     ballwithkicker.surface.mu = fric(cfg->Kicker_Friction());
-//    ballwithkicker.surface.bounce = 0.2;
-//    ballwithkicker.surface.bounce_vel = 0.1;
     ballwithkicker.surface.slip1 = 5;
     for (int i=0;i<10;i++)
         p->createSurface(ball,walls[i])->surface = ballwithwall.surface;
@@ -447,7 +448,7 @@ void SSLWorld::step(float dt)
         glDisable(GL_BLEND);
     }
 
-    for (int k=0;k<10;k++) robots[k]->drawLabel();
+    //for (int k=0;k<10;k++) robots[k]->drawLabel();
 
     g->finalizeScene();
 
@@ -541,7 +542,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         vball->set_pixel_y(y*1000.0f);
         vball->set_confidence(1);
     }
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < ROBOT_COUNT; i++){
       if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))
       {
         SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
@@ -556,13 +557,13 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
       }
     }
-    for(int i = 5; i < 10; i++){
+    for(int i = ROBOT_COUNT; i < ROBOT_COUNT*2; i++){
       if ((cfg->vanishing()==false) || (rand0_1() > cfg->yellow_team_vanishing()))
       {
         SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
         robots[i]->getXY(x,y);
         dir = robots[i]->getDir();
-        rob->set_robot_id(i-5);
+        rob->set_robot_id(i-ROBOT_COUNT);
         rob->set_pixel_x(x*1000.0f);
         rob->set_pixel_y(y*1000.0f);
         rob->set_confidence(1);

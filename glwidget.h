@@ -9,7 +9,6 @@
 
 #include "configwidget.h"
 
-#define _RENDER_INTERVAL 10
 class GLWidgetGraphicsView;
 class GLWidget : public QGLWidget {
 

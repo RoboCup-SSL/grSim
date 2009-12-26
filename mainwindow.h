@@ -33,6 +33,7 @@ public slots:
     void changeBallKickerSurface();
     void changeBallDamping();
     void changeGravity();
+    void changeTimer();
 
     void alertStaticVars();
     void ballMenuTriggered(QAction* act);
@@ -42,6 +43,8 @@ public slots:
     void takeSnapshotToClipboard();
     void reconnectPlotterSocket(VarType*);
 private:
+    int getInterval();    
+    QTimer *timer;
     QWorkspace* workspace;
     GLWidget *glwidget;
     ConfigWidget *configwidget;
