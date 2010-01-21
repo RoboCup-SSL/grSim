@@ -229,7 +229,7 @@ void normalizeVector(float& x,float& y,float& z)
 }
 
 void Robot::step()
-{
+{    
     if (on)
     {
         if (firsttime)
@@ -243,6 +243,19 @@ void Robot::step()
         wheels[3]->step();
         kicker->step();
     }
+    else {
+        if (last_state)
+        {
+            wheels[0]->speed = wheels[1]->speed = wheels[2]->speed = wheels[3]->speed = 0;
+            kicker->setRoller(false);
+            wheels[0]->step();
+            wheels[1]->step();
+            wheels[2]->step();
+            wheels[3]->step();
+            kicker->step();
+        }
+    }
+    last_state = on;
 }
 
 void Robot::drawLabel()

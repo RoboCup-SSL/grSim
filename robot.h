@@ -18,6 +18,7 @@ class Robot
     float m_dir;
     int m_rob_id;
     bool firsttime;
+    bool last_state;
 public:    
     ConfigWidget* cfg;
     dSpaceID space;
