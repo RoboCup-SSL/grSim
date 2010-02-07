@@ -46,13 +46,6 @@ public:
     void step(float dt=-1);
     SSL_WrapperPacket* generatePacket();
     void sendVisionBuffer();
-    struct cmdBuffer {
-        bool isNew;
-        char m1, m2, m3;
-        int shootPower;
-        bool spin;
-        bool chip;
-    } commands[ROBOT_COUNT*2];
     ConfigWidget* cfg;
     CGraphics* g;
     PWorld* p;

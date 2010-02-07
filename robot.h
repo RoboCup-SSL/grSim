@@ -35,7 +35,8 @@ public:
     class Wheel
     {
       public:
-        Wheel(Robot* robot,float ang,float ang2,int wheeltexid);
+        int id;
+        Wheel(Robot* robot,int _id,float ang,float ang2,int wheeltexid);
         void step();
         dJointID joint;
         dJointID motor;

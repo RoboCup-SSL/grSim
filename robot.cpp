@@ -2,8 +2,9 @@
 
 // ang2 = position angle
 // ang  = rotation angle
-Robot::Wheel::Wheel(Robot* robot,float ang,float ang2,int wheeltexid)
-{    
+Robot::Wheel::Wheel(Robot* robot,int _id,float ang,float ang2,int wheeltexid)
+{
+    id = _id;
     rob = robot;
     float rad = rob->cfg->CHASSISWIDTH()*0.5 - rob->cfg->WHEELLENGTH()*0.5;
     ang *= M_PI/180.0f;
@@ -39,8 +40,11 @@ Robot::Wheel::Wheel(Robot* robot,float ang,float ang2,int wheeltexid)
 
 void Robot::Wheel::step()
 {
-    dJointSetAMotorParam(motor,dParamVel,speed*(rob->cfg->motormaxoutput()*2.0f*M_PI)/(60.0f*rob->cfg->motormaxinput()));
-    dJointSetAMotorParam(motor,dParamFMax,rob->cfg->Wheel_Motor_FMax());
+ //   if (id!=0)
+    {
+        dJointSetAMotorParam(motor,dParamVel,speed*(rob->cfg->motormaxoutput()*2.0f*M_PI)/(60.0f*rob->cfg->motormaxinput()));
+        dJointSetAMotorParam(motor,dParamFMax,rob->cfg->Wheel_Motor_FMax());
+    }
     //dJointSetHingeParam (joint,dParamVel,speed);
     //dJointSetHingeParam (joint,dParamFMax,5);
 }
@@ -199,10 +203,10 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
 
   kicker = new Kicker(this);
 
-  wheels[0] = new Wheel(this,cfg->Wheel1Angle(),cfg->Wheel1Angle(),wheeltexid);
-  wheels[1] = new Wheel(this,cfg->Wheel2Angle(),cfg->Wheel2Angle(),wheeltexid);
-  wheels[2] = new Wheel(this,cfg->Wheel3Angle(),cfg->Wheel3Angle(),wheeltexid);
-  wheels[3] = new Wheel(this,cfg->Wheel4Angle(),cfg->Wheel4Angle(),wheeltexid);
+  wheels[0] = new Wheel(this,0,cfg->Wheel1Angle(),cfg->Wheel1Angle(),wheeltexid);
+  wheels[1] = new Wheel(this,1,cfg->Wheel2Angle(),cfg->Wheel2Angle(),wheeltexid);
+  wheels[2] = new Wheel(this,2,cfg->Wheel3Angle(),cfg->Wheel3Angle(),wheeltexid);
+  wheels[3] = new Wheel(this,3,cfg->Wheel4Angle(),cfg->Wheel4Angle(),wheeltexid);
   firsttime=true;
   on = true;
 }
