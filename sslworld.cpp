@@ -435,7 +435,7 @@ void SSLWorld::step(float dt)
     }
 
     p->draw();
-    g->drawSkybox(31,32,33,34,35,36);
+    //g->drawSkybox(31,32,33,34,35,36);
 
     dMatrix3 R;
     if (show3DCursor)
@@ -470,48 +470,44 @@ void SSLWorld::recvFromYellow()
 void SSLWorld::recvActions(QUdpSocket* commandSocket,int team)
 {
     unsigned char action;
-    int nID;
+    int nID,id;
     // Data received from Comm Thread
     QHostAddress sender;
     quint16 port;
     while (commandSocket->hasPendingDatagrams())
     {
-        char *c = new char [5];
-        commandSocket->readDatagram(c,5,&sender,&port);
+        char *c = new char [6];
+        commandSocket->readDatagram(c,6,&sender,&port);
         if (c[0]!=99) continue;
         action = c[1];
-        nID = action & 0x07;
+        nID = action & 0x07;        
         if (nID>=ROBOT_COUNT) continue;
+        id  = nID;
         nID = robotIndex(nID,team);
-        commands[nID].shootPower = (action & 0x70) >> 4;
-        commands[nID].chip = (action & 0x80);
-        commands[nID].spin = action & 0x08;
-
-        commands[nID].m1 = c[2];
-        commands[nID].m2 = c[3];
-        commands[nID].m3 = c[4];
-        char sm1, sm2, sm3, sm4;
-
-        sm1 =  ( (commands[nID].m1 >> 2) & 0x3F);
-        sm2 = (((commands[nID].m1 << 4) & 0x30 ) | (( commands[nID].m2 >> 4) & 0x0F ) );
-        sm3 = (((commands[nID].m2 << 2) & 0x3C ) | (( commands[nID].m3 >> 6) & 0x03 ) ) ;
-        sm4 = ( (commands[nID].m3 & 0x3f)) ;
-        if (sm1 >= 32) sm1 = sm1 | 0xC0;
-        if (sm2 >= 32) sm2 = sm2 | 0xC0;
-        if (sm3 >= 32) sm3 = sm3 | 0xC0;
-        if (sm4 >= 32) sm4 = sm4 | 0xC0;
-
+        int shootPower = (action & 0x70) >> 4;
+        int chip = (action & 0x80);
+        int spin = action & 0x08;
+        char sm1 = c[2];
+        char sm2 = c[3];
+        char sm3 = c[4];
+        char sm4 = c[5];
         robots[nID]->setSpeed(0,sm1);
         robots[nID]->setSpeed(1,sm2);
         robots[nID]->setSpeed(2,sm3);
         robots[nID]->setSpeed(3,sm4);
         // Applying Shoot and spinner
-       if ((commands[nID].shootPower > 0))
-           robots[nID]->kicker->kick(((double) commands[nID].shootPower*cfg->shootfactor()));
-       else if ((commands[nID].chip == true))
-           robots[nID]->kicker->kick(((double) commands[nID].shootPower*cfg->shootfactor()),true);
-       robots[nID]->kicker->setRoller(commands[nID].spin);
+        if ((shootPower > 0))
+           robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()));
+        else if ((chip == true))
+           robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
+        robots[nID]->kicker->setRoller(spin);
+        char status = 0;
+        status = id;
+        if (robots[nID]->kicker->isTouchingBall()) status = status | 8;
+        if (robots[nID]->on) status = status | 240;
+        commandSocket->writeDatagram(&status,1,sender,port);
     }
+
 }
 float normalizeAngle(float a)
 {

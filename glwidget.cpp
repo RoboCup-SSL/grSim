@@ -284,7 +284,7 @@ void GLWidget::paintGL()
     if (cammode==-1)
     {
         float x,y,z;
-        ssl->robots[lockedIndex]->getXY(x,y);z = 0.3;
+        ssl->robots[lockedIndex]->getXY(x,y);z = 0.1;
         ssl->g->lookAt(x,y,z);
     }
     if (cammode==-2)
