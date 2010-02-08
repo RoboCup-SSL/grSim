@@ -39,7 +39,8 @@ public:
     bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(float x,float y);
-    void reform(int team,const QString& act);
+    void reform(int team,const QString& act);    
+    void step();
 public slots:
     void moveRobot();
     void resetRobot();
@@ -63,7 +64,7 @@ signals:
     void robotTurnedOnOff(int,bool);
 protected:
     void paintGL ();
-    void initializeGL ();    
+    void initializeGL ();        
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

@@ -80,6 +80,8 @@ ConfigWidget::ConfigWidget()
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10002,"Vision multicast port")
     ADD_VALUE(comm_vars,Int,BlueCommandListenPort,20011,"Blue Team command listen port")
     ADD_VALUE(comm_vars,Int,YellowCommandListenPort,20012,"Yellow Team command listen port")
+    ADD_VALUE(comm_vars,Int,BlueStatusSendPort,30011,"Blue Team status send port")
+    ADD_VALUE(comm_vars,Int,YellowStatusSendPort,30012,"Yellow Team status send port")
     ADD_VALUE(comm_vars,Int,sendDelay,0,"Sending delay (milliseconds)")
     VarList * gauss_vars = new VarList("Gaussian noise");
         comm_vars->addChild(gauss_vars);

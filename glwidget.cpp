@@ -159,6 +159,7 @@ void GLWidget::moveBall()
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
+    if (!ssl->g->isGraphicsEnabled()) return;
     lastPos = event->pos();
     if (event->buttons() & Qt::LeftButton)
     {
@@ -207,12 +208,14 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
+    if (!ssl->g->isGraphicsEnabled()) return;
     ssl->g->zoomCamera(-event->delta()*0.002);
     update3DCursor(event->x(),event->y());
 }
 
 void GLWidget::update3DCursor(int mouse_x,int mouse_y)
 {
+    if (!ssl->g->isGraphicsEnabled()) return;
     ssl->updatedCursor = true;
     float xyz[3],hpr[3],fx,fy,fz,rx,ry,rz,ux,uy,uz,px,py,pz;
     ssl->g->getViewpoint(xyz,hpr);
@@ -238,6 +241,7 @@ void GLWidget::update3DCursor(int mouse_x,int mouse_y)
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    if (!ssl->g->isGraphicsEnabled()) return;
     int dx = -(event->x() - lastPos.x());
     int dy = -(event->y() - lastPos.y());
 
@@ -267,13 +271,36 @@ float GLWidget::getFPS()
 
 
 void GLWidget::initializeGL ()
-{
+{    
     ssl->glinit();
 }
 
+void GLWidget::step()
+{
+    rendertimer.restart();
+    m_fps = frames /(time.elapsed()/1000.0);
+    if (!(frames % ((int)(ceil(cfg->DesiredFPS()))))) {
+        time.restart();
+        frames = 0;
+    }
+    if (first_time) {ssl->step();first_time = false;}
+    else {
+        if (cfg->SyncWithGL())
+        {
+            float ddt=rendertimer.elapsed()/1000.0;
+            if (ddt>0.05) ddt=0.05;
+            ssl->step(ddt);
+        }
+        else {
+            ssl->step(cfg->DeltaTime());
+        }
+    }
+    frames ++;
+}
 
 void GLWidget::paintGL()
-{    
+{
+    if (!ssl->g->isGraphicsEnabled()) return;
     if (cammode==1)
     {
         float x,y,z;
@@ -293,41 +320,22 @@ void GLWidget::paintGL()
         ssl->ball->getBodyPosition(x,y,z);
         ssl->g->lookAt(x,y,z);
     }
-    if (first_time) {ssl->step();first_time = false;}
-    else {
-        if (cfg->SyncWithGL())
+    step();    
+        QFont font;
+        for (int i=0;i<ROBOT_COUNT*2;i++)
         {
-            float ddt=rendertimer.elapsed()/1000.0;
-            if (ddt>0.05) ddt=0.05;
-            ssl->step(ddt);
+            float xx,yy;
+            ssl->robots[i]->getXY(xx,yy);
+            if (i>=ROBOT_COUNT) qglColor(Qt::yellow);
+            else qglColor(Qt::cyan);
+            renderText(xx,yy,0.3,QString::number(i%ROBOT_COUNT),font);
+            if (!ssl->robots[i]->on){
+                qglColor(Qt::red);
+                font.setBold(true);
+                renderText(xx,yy,0.4,"Off",font);
+            }
+            font.setBold(false);
         }
-        else {
-            ssl->step(cfg->DeltaTime());
-        }
-    }
-    rendertimer.restart();
-    m_fps = frames /(time.elapsed()/1000.0);
-
-    if (!(frames % ((int)(ceil(cfg->DesiredFPS()))))) {
-        time.restart();
-        frames = 0;
-    }       
-    QFont font;    
-    for (int i=0;i<ROBOT_COUNT*2;i++)
-    {
-        float xx,yy;
-        ssl->robots[i]->getXY(xx,yy);        
-        if (i>=ROBOT_COUNT) qglColor(Qt::yellow);
-        else qglColor(Qt::cyan);
-        renderText(xx,yy,0.3,QString::number(i%ROBOT_COUNT),font);
-        if (!ssl->robots[i]->on){
-            qglColor(Qt::red);
-            font.setBold(true);
-            renderText(xx,yy,0.4,"Off",font);
-        }
-        font.setBold(false);
-    }
-    frames ++;
 }
 
 void GLWidget::changeCameraMode()
