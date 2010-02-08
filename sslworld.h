@@ -59,15 +59,18 @@ public:
     float cursor_radius;
     RoboCupSSLServer *visionServer;
     QUdpSocket *blueSocket,*yellowSocket;
+    QUdpSocket *blueStatusSocket,*yellowStatusSocket;
     bool updatedCursor;
     Robot* robots[ROBOT_COUNT*2];    
     QTime *timer;
-    void recvActions(QUdpSocket* commandSocket,int team);
+    void recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,int statusPort,int team);
 public slots:
     void recvFromBlue();
     void recvFromYellow();
     void reconnectBlueCommandSocket();
     void reconnectYellowCommandSocket();
+    void reconnectYellowStatusSocket();
+    void reconnectBlueStatusSocket();
     void reconnectVisionSocket();
 };
 

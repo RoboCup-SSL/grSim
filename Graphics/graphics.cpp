@@ -29,11 +29,28 @@ CGraphics::CGraphics(QGLWidget* _owner)
   setViewpoint (xyz,hpr);
   sphere_quality = 1;
   m_renderDepth = 100;
+  graphicDisabled = false;
+}
+
+void CGraphics::disableGraphics()
+{
+    graphicDisabled = true;
+}
+
+void CGraphics::enableGraphics()
+{
+    graphicDisabled = false;
+}
+
+bool CGraphics::isGraphicsEnabled()
+{
+    return !graphicDisabled;
 }
 
 void CGraphics::setSphereQuality(int q) {sphere_quality = q;}
 int CGraphics::loadTexture(QImage* img)
 {
+    if (graphicDisabled) return -1;
     GLuint id;
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &id);
@@ -45,6 +62,7 @@ int CGraphics::loadTexture(QImage* img)
 
 int CGraphics::loadTextureSkyBox(QImage* img)
 {
+    if (graphicDisabled) return -1;
     GLuint id;
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &id);
@@ -80,6 +98,7 @@ int CGraphics::loadTextureSkyBox(QImage* img)
 
 void CGraphics::getViewpoint (float* xyz, float* hpr)
 {
+    if (graphicDisabled) return;
     xyz[0] = view_xyz[0];
     xyz[1] = view_xyz[1];
     xyz[2] = view_xyz[2];
@@ -141,6 +160,7 @@ void CGraphics::wrapCameraAngles()
 
 void CGraphics::cameraMotion (int mode, int deltax, int deltay)
 {
+    if (graphicDisabled) return;
   float side = 0.01f * float(deltax);
   float fwd = (mode==4) ? (0.01f * float(deltay)) : 0.0f;
   float s = (float) sin (view_hpr[0]*M_PI/180.0f);
@@ -216,6 +236,7 @@ void CGraphics::zoomCamera(float dz)
 
 void CGraphics::setCamera (float x, float y, float z, float h, float p, float r)
 {
+    if (graphicDisabled) return;
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity();
   glRotatef (90, 0,0,1);
@@ -230,6 +251,7 @@ void CGraphics::setCamera (float x, float y, float z, float h, float p, float r)
 // sets the material color, not the light color
 void CGraphics::setColor (float r, float g, float b, float alpha)
 {
+    if (graphicDisabled) return;
   GLfloat light_ambient[4],light_diffuse[4],light_specular[4];
   light_ambient[0] = r*0.3f;
   light_ambient[1] = g*0.3f;
@@ -250,6 +272,7 @@ void CGraphics::setColor (float r, float g, float b, float alpha)
 }
 void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
 {
+    if (graphicDisabled) return;
     // Store the current matrix
     glPushMatrix();
 
@@ -338,6 +361,7 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
 
 void CGraphics::useTexture(int tex_id)
 {
+    if (graphicDisabled) return;
 //    glEnable(GL_TEXTURE_2D);
 //    glBindTexture(GL_TEXTURE_2D, tex_ids[tex_id]);
 
@@ -347,11 +371,13 @@ void CGraphics::useTexture(int tex_id)
 
 void CGraphics::noTexture()
 {
+    if (graphicDisabled) return;
     glDisable(GL_TEXTURE_2D);
 }
 
 void CGraphics::setTransform (const float pos[3], const float R[12])
 {
+    if (graphicDisabled) return;
   GLfloat matrix[16];
   matrix[0]=R[0];
   matrix[1]=R[4];
@@ -375,6 +401,7 @@ void CGraphics::setTransform (const float pos[3], const float R[12])
 
 void CGraphics::setTransformD (const double pos[3], const double R[12])
 {
+    if (graphicDisabled) return;
   GLdouble matrix[16];
   matrix[0]=R[0];
   matrix[1]=R[4];
@@ -398,6 +425,7 @@ void CGraphics::setTransformD (const double pos[3], const double R[12])
 
 void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool fog,float fogr,float fogg,float fogb,float fogdensity)
 {
+    if (graphicDisabled) return;
   _width = width;
   _height = height;
   // setup stuff
@@ -496,6 +524,7 @@ void CGraphics::finalizeScene()
 
 void CGraphics::drawSky ()
 {
+    if (graphicDisabled) return;
 /*  glDisable (GL_LIGHTING);
 
   // make sure sky depth is as far back as possible
@@ -533,6 +562,7 @@ void CGraphics::drawSky ()
 
 void CGraphics::resetState()
 {
+    if (graphicDisabled) return;
   glEnable (GL_LIGHTING);
   glDisable (GL_TEXTURE_2D);
   glShadeModel (GL_FLAT);
@@ -544,6 +574,7 @@ void CGraphics::resetState()
 
 void CGraphics::drawGround()
 {
+    if (graphicDisabled) return;
   glDisable (GL_LIGHTING);
   glShadeModel (GL_FLAT);
   glEnable (GL_DEPTH_TEST);
@@ -573,6 +604,7 @@ void CGraphics::drawGround()
 
 void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float SSL_FIELD_PENALTY_POINT,float epsilon)
 {
+    if (graphicDisabled) return;
     float angle,x,y,z;
     float radx = (SSL_FIELD_PENALTY) / ( SSL_FIELD_LENGTH / 2.0);
     float radz = (SSL_FIELD_PENALTY) / ( SSL_FIELD_WIDTH / 2.0);
@@ -658,6 +690,7 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
 
 void CGraphics::_drawBox (const float sides[3])
 {
+    if (graphicDisabled) return;
   float lx = sides[0]*0.5f;
   float ly = sides[1]*0.5f;
   float lz = sides[2]*0.5f;
@@ -743,6 +776,7 @@ void CGraphics::_drawPatch (float p1[3], float p2[3], float p3[3], int level)
 
 void CGraphics::_drawSphere()
 {
+    if (graphicDisabled) return;
   // icosahedron data for an icosahedron of radius 1.0
 # define ICX 0.525731112119133606f
 # define ICZ 0.850650808352039932f
@@ -793,6 +827,7 @@ void CGraphics::_drawSphere()
 static int capped_cylinder_quality = 3;
 void CGraphics::drawCircle(float x0,float y0,float z0,float r)
 {
+    if (graphicDisabled) return;
   int i;
   float tmp,ny,nz,a,ca,sa;
   const int n = 24;	// number of sides to the cylinder (divisible by 4)
@@ -821,6 +856,7 @@ void CGraphics::drawCircle(float x0,float y0,float z0,float r)
 
 void CGraphics::_drawCapsule (float l, float r)
 {
+    if (graphicDisabled) return;
   int i,j;
   float tmp,nx,ny,nz,start_nx,start_ny,a,ca,sa;
   // number of sides to the cylinder (divisible by 4):
@@ -910,6 +946,7 @@ void CGraphics::_drawCapsule (float l, float r)
 
 void CGraphics::_drawCylinder (float l, float r, float zoffset)
 {
+    if (graphicDisabled) return;
   int i;
   float tmp,ny,nz,a,ca,sa;
   const int n = 24;	// number of sides to the cylinder (divisible by 4)
@@ -968,6 +1005,7 @@ void CGraphics::_drawCylinder (float l, float r, float zoffset)
 
 void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id)
 {
+    if (graphicDisabled) return;
   int i;
   float tmp,ny,nz,a,ca,sa;
   const int n = 24;	// number of sides to the cylinder (divisible by 4)
@@ -1034,6 +1072,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
 void CGraphics::drawBox (const float pos[3], const float R[12],
                            const float sides[3])
 {
+    if (graphicDisabled) return;
   glShadeModel (GL_FLAT);
   setTransform (pos,R);
   _drawBox (sides);
@@ -1045,6 +1084,7 @@ void CGraphics::drawBox (const float pos[3], const float R[12],
 void CGraphics::drawSphere (const float pos[3], const float R[12],
                               float radius)
 {
+    if (graphicDisabled) return;
   glEnable (GL_NORMALIZE);
   glShadeModel (GL_SMOOTH);
   setTransform (pos,R);
@@ -1060,6 +1100,7 @@ void CGraphics::drawSphere (const float pos[3], const float R[12],
 void CGraphics::drawCylinder (const float pos[3], const float R[12],
                                 float length, float radius)
 {
+    if (graphicDisabled) return;
   glShadeModel (GL_SMOOTH);
   setTransform (pos,R);
   _drawCylinder (length,radius,0);
@@ -1069,6 +1110,7 @@ void CGraphics::drawCylinder (const float pos[3], const float R[12],
 void CGraphics::drawCylinder_TopTextured (const float pos[3], const float R[12],
                                 float length, float radius,int tex_id)
 {
+    if (graphicDisabled) return;
   glShadeModel (GL_SMOOTH);
   setTransform (pos,R);
   _drawCylinder_TopTextured (length,radius,0,tex_id);
@@ -1078,6 +1120,7 @@ void CGraphics::drawCylinder_TopTextured (const float pos[3], const float R[12],
 void CGraphics::drawCapsule (const float pos[3], const float R[12],
                                       float length, float radius)
 {
+    if (graphicDisabled) return;
   glShadeModel (GL_SMOOTH);
   setTransform (pos,R);
   _drawCapsule (length,radius);
@@ -1088,6 +1131,7 @@ void CGraphics::drawCapsule (const float pos[3], const float R[12],
 
 void CGraphics::drawLine (const float pos1[3], const float pos2[3])
 {
+    if (graphicDisabled) return;
   glDisable (GL_LIGHTING);
   glLineWidth (2);
   glShadeModel (GL_FLAT);

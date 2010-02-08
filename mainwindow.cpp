@@ -185,7 +185,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_VisionMulticastPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectVisionSocket()));
     QObject::connect(configwidget->v_BlueCommandListenPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectBlueCommandSocket()));
     QObject::connect(configwidget->v_YellowCommandListenPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectYellowCommandSocket()));
-
+    QObject::connect(configwidget->v_BlueStatusSendPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectBlueStatusSocket()));
+    QObject::connect(configwidget->v_YellowStatusSendPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectYellowStatusSocket()));
     timer->start();
 
 
@@ -198,6 +199,7 @@ MainWindow::MainWindow(QWidget *parent)
     robotwidget->id = 0;
     scene = new QGraphicsScene(0,0,800,600);
     plotSocket = NULL;reconnectPlotterSocket(NULL);
+    //glwidget->ssl->g->disableGraphics();
 }
 
 MainWindow::~MainWindow()
@@ -253,7 +255,8 @@ QString floatToStr(float a)
 
 void MainWindow::update()
 {
-    glwidget->updateGL();
+    if (glwidget->ssl->g->isGraphicsEnabled()) glwidget->updateGL();
+    else glwidget->step();
 
     int R = robotIndex(glwidget->Current_robot,glwidget->Current_team);
 

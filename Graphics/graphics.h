@@ -22,9 +22,13 @@ private:
     void _drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id);    
     void wrapCameraAngles();
     void setCamera (float x, float y, float z, float h, float p, float r);
+    bool graphicDisabled;
 public:
     CGraphics(QGLWidget* _owner);
     ~CGraphics();
+    void disableGraphics();
+    void enableGraphics();
+    bool isGraphicsEnabled();
     int loadTexture(QImage* img);
     int loadTextureSkyBox(QImage* img);
     void setViewpoint (float xyz[3], float hpr[3]);

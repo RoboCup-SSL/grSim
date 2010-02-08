@@ -230,8 +230,34 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
   reconnectBlueCommandSocket();
   yellowSocket = NULL;
   reconnectYellowCommandSocket();
+  blueStatusSocket = NULL;
+  reconnectBlueStatusSocket();
+  yellowStatusSocket = NULL;
+  reconnectYellowStatusSocket();  
   timer = new QTime();
   timer->start();
+}
+
+void SSLWorld::reconnectBlueStatusSocket()
+{
+  if (blueStatusSocket!=NULL)
+  {
+      delete blueStatusSocket;
+  }
+  blueStatusSocket = new QUdpSocket(this);
+  if (blueStatusSocket->bind(QHostAddress::Any,cfg->BlueStatusSendPort()))
+    logStatus(QString("Status send port binded for Blue Team on: %1").arg(cfg->BlueStatusSendPort()),QColor("green"));
+}
+
+void SSLWorld::reconnectYellowStatusSocket()
+{
+  if (yellowStatusSocket!=NULL)
+  {
+      delete yellowStatusSocket;
+  }
+  yellowStatusSocket = new QUdpSocket(this);
+  if (yellowStatusSocket->bind(QHostAddress::Any,cfg->YellowStatusSendPort()))
+    logStatus(QString("Status send port binded for Yellow Team on: %1").arg(cfg->YellowStatusSendPort()),QColor("green"));
 }
 
 void SSLWorld::reconnectBlueCommandSocket()
@@ -438,6 +464,7 @@ void SSLWorld::step(float dt)
     //g->drawSkybox(31,32,33,34,35,36);
 
     dMatrix3 R;
+    if (g->isGraphicsEnabled())
     if (show3DCursor)
     {
         dRFromAxisAndAngle(R,0,0,1,0);
@@ -458,16 +485,16 @@ void SSLWorld::step(float dt)
 
 void SSLWorld::recvFromBlue()
 {
-    recvActions(blueSocket,0);
+    recvActions(blueSocket,blueStatusSocket,cfg->BlueStatusSendPort(),0);
 }
 
 
 void SSLWorld::recvFromYellow()
 {
-    recvActions(yellowSocket,1);
+    recvActions(yellowSocket,yellowStatusSocket,cfg->YellowStatusSendPort(),1);
 }
 
-void SSLWorld::recvActions(QUdpSocket* commandSocket,int team)
+void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,int statusPort,int team)
 {
     unsigned char action;
     int nID,id;
@@ -505,7 +532,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,int team)
         status = id;
         if (robots[nID]->kicker->isTouchingBall()) status = status | 8;
         if (robots[nID]->on) status = status | 240;
-        commandSocket->writeDatagram(&status,1,sender,port);
+        statusSocket->writeDatagram(&status,1,sender,statusPort);
     }
 
 }
@@ -690,6 +717,7 @@ void RobotsFomation::resetRobots(Robot** r,int team)
     for (int k=0;k<ROBOT_COUNT;k++)
     {
         r[robotIndex(k,team)]->setXY(x[k]*dir,y[k]);
+        r[robotIndex(k,team)]->resetRobot();
     }
 }
 
