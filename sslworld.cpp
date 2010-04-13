@@ -68,10 +68,10 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
     {
         if (_w->robots[i]->chassis->geom==obj || _w->robots[i]->dummy->geom==obj)
         {
-             _w->robots[i]->selected = true;
-             _w->robots[i]->select_x = s->contactPos[0];
-             _w->robots[i]->select_y = s->contactPos[1];
-             _w->robots[i]->select_z = s->contactPos[2];
+            _w->robots[i]->selected = true;
+            _w->robots[i]->select_x = s->contactPos[0];
+            _w->robots[i]->select_y = s->contactPos[1];
+            _w->robots[i]->select_z = s->contactPos[2];
         }
     }
     if (_w->ball->geom==obj)
@@ -107,7 +107,7 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s)
 }
 
 SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2)
-        : QObject(parent)
+    : QObject(parent)
 {    
     _w = this;
     cfg = _cfg;
@@ -129,30 +129,30 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
                              0.7, 0.7, 0.7);
 
     walls[1] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0) - cfg->_SSL_FIELD_REFEREE_MARGIN() / 1000.0,0.0,
-            (cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
-            0.7, 0.7, 0.7);
+                             (cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
+                             0.7, 0.7, 0.7);
 
     walls[2] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),-cfg->_SSL_FIELD_REFEREE_MARGIN()/2000.f ,0.0,
-        cfg->_SSL_WALL_THICKNESS() / 1000.0 ,(cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN() + cfg->_SSL_FIELD_REFEREE_MARGIN()) / 1000.0, 0.4,
-        0.7, 0.7, 0.7);
+                             cfg->_SSL_WALL_THICKNESS() / 1000.0 ,(cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN() + cfg->_SSL_FIELD_REFEREE_MARGIN()) / 1000.0, 0.4,
+                             0.7, 0.7, 0.7);
 
     walls[3] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0) ,-cfg->_SSL_FIELD_REFEREE_MARGIN()/2000.f ,0.0,
-        cfg->_SSL_WALL_THICKNESS() / 1000.0 , (cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN() + cfg->_SSL_FIELD_REFEREE_MARGIN()) / 1000.0, 0.4,
-        0.7, 0.7, 0.7);
+                             cfg->_SSL_WALL_THICKNESS() / 1000.0 , (cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN() + cfg->_SSL_FIELD_REFEREE_MARGIN()) / 1000.0, 0.4,
+                             0.7, 0.7, 0.7);
 
     walls[4] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f ,0.0, 0.0
-        , cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+                             , cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
     walls[5] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f,-cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f - cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f,0.0
-        , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+                             , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
     walls[6] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f,cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f+ cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f, 0.0
-        , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+                             , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
 
     walls[7] = new PFixedBox(- (( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f) ,0.0, 0.0
-        , cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+                             , cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
     walls[8] = new PFixedBox(- (( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f),-cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f - cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f,0.0
-        , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+                             , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
     walls[9] = new PFixedBox( -(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f),cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f+ cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f, 0.0
-        , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+                              , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
@@ -162,9 +162,9 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
 
     for (int k=0;k<5;k++)
-       robots[k] = new Robot(p,ball,cfg,-form1->x[k],form1->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,wheeltexid,1);
+        robots[k] = new Robot(p,ball,cfg,-form1->x[k],form1->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,wheeltexid,1);
     for (int k=0;k<5;k++)
-       robots[k+5] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
+        robots[k+5] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
 
     dBodySetLinearDampingThreshold(ball->body,0.001);
     dBodySetLinearDamping(ball->body,cfg->balllineardamp());
@@ -179,8 +179,8 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p->createSurface(ray,ball)->callback = rayCallback;
     for (int k=0;k<10;k++)
     {
-       p->createSurface(ray,robots[k]->chassis)->callback = rayCallback;
-       p->createSurface(ray,robots[k]->dummy)->callback = rayCallback;
+        p->createSurface(ray,robots[k]->chassis)->callback = rayCallback;
+        p->createSurface(ray,robots[k]->dummy)->callback = rayCallback;
     }
     PSurface ballwithwall;
     ballwithwall.surface.mode = dContactBounce | dContactApprox1 | dContactSlip1;
@@ -224,80 +224,80 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         }
     }
 
-  visionServer = NULL;
-  reconnectVisionSocket();
-  blueSocket = NULL;
-  reconnectBlueCommandSocket();
-  yellowSocket = NULL;
-  reconnectYellowCommandSocket();
-  blueStatusSocket = NULL;
-  reconnectBlueStatusSocket();
-  yellowStatusSocket = NULL;
-  reconnectYellowStatusSocket();  
-  timer = new QTime();
-  timer->start();
+    visionServer = NULL;
+    reconnectVisionSocket();
+    blueSocket = NULL;
+    reconnectBlueCommandSocket();
+    yellowSocket = NULL;
+    reconnectYellowCommandSocket();
+    blueStatusSocket = NULL;
+    reconnectBlueStatusSocket();
+    yellowStatusSocket = NULL;
+    reconnectYellowStatusSocket();
+    timer = new QTime();
+    timer->start();
 }
 
 void SSLWorld::reconnectBlueStatusSocket()
 {
-  if (blueStatusSocket!=NULL)
-  {
-      delete blueStatusSocket;
-  }
-  blueStatusSocket = new QUdpSocket(this);
-  if (blueStatusSocket->bind(QHostAddress::Any,cfg->BlueStatusSendPort()))
-    logStatus(QString("Status send port binded for Blue Team on: %1").arg(cfg->BlueStatusSendPort()),QColor("green"));
+    if (blueStatusSocket!=NULL)
+    {
+        delete blueStatusSocket;
+    }
+    blueStatusSocket = new QUdpSocket(this);
+    if (blueStatusSocket->bind(QHostAddress::Any,cfg->BlueStatusSendPort()))
+        logStatus(QString("Status send port binded for Blue Team on: %1").arg(cfg->BlueStatusSendPort()),QColor("green"));
 }
 
 void SSLWorld::reconnectYellowStatusSocket()
 {
-  if (yellowStatusSocket!=NULL)
-  {
-      delete yellowStatusSocket;
-  }
-  yellowStatusSocket = new QUdpSocket(this);
-  if (yellowStatusSocket->bind(QHostAddress::Any,cfg->YellowStatusSendPort()))
-    logStatus(QString("Status send port binded for Yellow Team on: %1").arg(cfg->YellowStatusSendPort()),QColor("green"));
+    if (yellowStatusSocket!=NULL)
+    {
+        delete yellowStatusSocket;
+    }
+    yellowStatusSocket = new QUdpSocket(this);
+    if (yellowStatusSocket->bind(QHostAddress::Any,cfg->YellowStatusSendPort()))
+        logStatus(QString("Status send port binded for Yellow Team on: %1").arg(cfg->YellowStatusSendPort()),QColor("green"));
 }
 
 void SSLWorld::reconnectBlueCommandSocket()
 {
-  if (blueSocket!=NULL)
-  {
-      QObject::disconnect(blueSocket,SIGNAL(readyRead()),this,SLOT(recvFromBlue()));
-      delete blueSocket;
-  }
-  blueSocket = new QUdpSocket(this);
-  if (blueSocket->bind(QHostAddress::Any,cfg->BlueCommandListenPort()))
-    logStatus(QString("Command listen port binded for Blue Team on: %1").arg(cfg->BlueCommandListenPort()),QColor("green"));
-  QObject::connect(blueSocket,SIGNAL(readyRead()),this,SLOT(recvFromBlue()));
+    if (blueSocket!=NULL)
+    {
+        QObject::disconnect(blueSocket,SIGNAL(readyRead()),this,SLOT(recvFromBlue()));
+        delete blueSocket;
+    }
+    blueSocket = new QUdpSocket(this);
+    if (blueSocket->bind(QHostAddress::Any,cfg->BlueCommandListenPort()))
+        logStatus(QString("Command listen port binded for Blue Team on: %1").arg(cfg->BlueCommandListenPort()),QColor("green"));
+    QObject::connect(blueSocket,SIGNAL(readyRead()),this,SLOT(recvFromBlue()));
 }
 
 
 void SSLWorld::reconnectYellowCommandSocket()
 {
-  if (yellowSocket!=NULL)
-  {
-      QObject::disconnect(yellowSocket,SIGNAL(readyRead()),this,SLOT(recvFromYellow()));
-      delete yellowSocket;
-  }
-  yellowSocket = new QUdpSocket(this);
-  if (yellowSocket->bind(QHostAddress::Any,cfg->YellowCommandListenPort()))
-    logStatus(QString("Command listen port binded for Yellow Team on: %1").arg(cfg->YellowCommandListenPort()),QColor("green"));
-  QObject::connect(yellowSocket,SIGNAL(readyRead()),this,SLOT(recvFromYellow()));
+    if (yellowSocket!=NULL)
+    {
+        QObject::disconnect(yellowSocket,SIGNAL(readyRead()),this,SLOT(recvFromYellow()));
+        delete yellowSocket;
+    }
+    yellowSocket = new QUdpSocket(this);
+    if (yellowSocket->bind(QHostAddress::Any,cfg->YellowCommandListenPort()))
+        logStatus(QString("Command listen port binded for Yellow Team on: %1").arg(cfg->YellowCommandListenPort()),QColor("green"));
+    QObject::connect(yellowSocket,SIGNAL(readyRead()),this,SLOT(recvFromYellow()));
 }
 
 
 void SSLWorld::reconnectVisionSocket()
 {
-  if (visionServer!=NULL)
-      delete visionServer;
-  visionServer = new RoboCupSSLServer(
+    if (visionServer!=NULL)
+        delete visionServer;
+    visionServer = new RoboCupSSLServer(
 #ifdef Q_OS_WIN32
-          m_parent,
+            m_parent,
 #endif
-          cfg->VisionMulticastPort(),cfg->VisionMulticastAddr());
-  visionServer->open();
+            cfg->VisionMulticastPort(),cfg->VisionMulticastAddr());
+    visionServer->open();
 }
 
 
@@ -313,7 +313,7 @@ SSLWorld::~SSLWorld()
 QImage* createBlob(char yb,int i,QImage** res)
 {
     QImage* img = new QImage(QString(":/Graphics/%1%2").arg(yb).arg(i+1)+QString(".bmp"));
-/*  QPainter *p = new QPainter();
+    /*  QPainter *p = new QPainter();
     p->begin(img);
     QPen pen;
     pen.setStyle(Qt::DashDotLine);
@@ -342,8 +342,8 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     for (int i=0;i<img->width();i++)
         for (int j=0;j<img->height();j++)
         {
-            img->setPixel(i,j,black.rgba());
-        }
+        img->setPixel(i,j,black.rgba());
+    }
     QColor txtcolor(r,g,b,a);
     QPen pen;
     pen.setStyle(Qt::SolidLine);
@@ -357,7 +357,7 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     f.setPointSize(26);
     p->setFont(f);
     p->drawText(img->width()/2-15,img->height()/2-15,30,30,Qt::AlignCenter,QString("%1").arg(i));
-/*    for (int i=0;i<img->width();i++)
+    /*    for (int i=0;i<img->width();i++)
         for (int j=0;j<img->height();j++)
         {
             QColor color;color.setRgba(img->pixel(i,j));
@@ -433,8 +433,8 @@ void SSLWorld::step(float dt)
         ball->getBodyPosition(bx,by,bz);
         g->getViewpoint(xyz,hpr);
         best_dist  =(bx-xyz[0])*(bx-xyz[0])
-                   +(by-xyz[1])*(by-xyz[1])
-                   +(bz-xyz[2])*(bz-xyz[2]);
+                    +(by-xyz[1])*(by-xyz[1])
+                    +(bz-xyz[2])*(bz-xyz[2]);
     }
     for (int k=0;k<10;k++)
     {
@@ -442,8 +442,8 @@ void SSLWorld::step(float dt)
         {
             g->getViewpoint(xyz,hpr);
             float dist= (robots[k]->select_x-xyz[0])*(robots[k]->select_x-xyz[0])
-                       +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
-                       +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
+                        +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
+                        +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
             if (dist<best_dist) {
                 best_dist = dist;
                 best_k = k;
@@ -465,8 +465,8 @@ void SSLWorld::step(float dt)
 
     dMatrix3 R;
     if (g->isGraphicsEnabled())
-    if (show3DCursor)
-    {
+        if (show3DCursor)
+        {
         dRFromAxisAndAngle(R,0,0,1,0);
         g->setColor(1,0.9,0.2,0.5);
         glEnable(GL_BLEND);
@@ -514,19 +514,30 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         int shootPower = (action & 0x70) >> 4;
         int chip = (action & 0x80);
         int spin = action & 0x08;
-        char sm1 = c[2];
-        char sm2 = c[3];
-        char sm3 = c[4];
-        char sm4 = c[5];
+        //        char sm1 = c[2];
+        //        char sm2 = c[3];
+        //        char sm3 = c[4];
+        //        char sm4 = c[5];
+        char m1 = c[2];
+        char m2 = c[3];
+        char m3 = c[4];
+        char sm1 =  ( (m1 >> 2) & 0x3F);
+        char sm2 = (((m1 << 4) & 0x30 ) | ((m2 >> 4) & 0x0F ) );
+        char sm3 = (((m2 << 2) & 0x3C ) | ((m3 >> 6) & 0x03 ) ) ;
+        char sm4 = ( (m3 & 0x3f));
+        if (sm1 >= 32) sm1 = sm1 | 0xC0;
+        if (sm2 >= 32) sm2 = sm2 | 0xC0;
+        if (sm3 >= 32) sm3 = sm3 | 0xC0;
+        if (sm4 >= 32) sm4 = sm4 | 0xC0;
         robots[nID]->setSpeed(0,sm1);
         robots[nID]->setSpeed(1,sm2);
         robots[nID]->setSpeed(2,sm3);
         robots[nID]->setSpeed(3,sm4);
         // Applying Shoot and spinner
         if ((shootPower > 0))
-           robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()));
+            robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()));
         else if ((chip == true))
-           robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
+            robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
         robots[nID]->kicker->setRoller(spin);
         char status = 0;
         status = id;
@@ -566,36 +577,36 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         vball->set_confidence(1);
     }
     for(int i = 0; i < ROBOT_COUNT; i++){
-      if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))
-      {
-        SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
-        robots[i]->getXY(x,y);
-        dir = robots[i]->getDir();
-        rob->set_robot_id(i);
-        rob->set_pixel_x(x*1000.0f);
-        rob->set_pixel_y(y*1000.0f);
-        rob->set_confidence(1);
-        rob->set_x(randn_notrig(x*1000.0f,dev_x));
-        rob->set_y(randn_notrig(y*1000.0f,dev_y));
-        rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
-      }
+        if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))
+        {
+            SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
+            robots[i]->getXY(x,y);
+            dir = robots[i]->getDir();
+            rob->set_robot_id(i);
+            rob->set_pixel_x(x*1000.0f);
+            rob->set_pixel_y(y*1000.0f);
+            rob->set_confidence(1);
+            rob->set_x(randn_notrig(x*1000.0f,dev_x));
+            rob->set_y(randn_notrig(y*1000.0f,dev_y));
+            rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
+        }
     }
     for(int i = ROBOT_COUNT; i < ROBOT_COUNT*2; i++){
-      if ((cfg->vanishing()==false) || (rand0_1() > cfg->yellow_team_vanishing()))
-      {
-        SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
-        robots[i]->getXY(x,y);
-        dir = robots[i]->getDir();
-        rob->set_robot_id(i-ROBOT_COUNT);
-        rob->set_pixel_x(x*1000.0f);
-        rob->set_pixel_y(y*1000.0f);
-        rob->set_confidence(1);
-        rob->set_x(randn_notrig(x*1000.0f,dev_x));
-        rob->set_y(randn_notrig(y*1000.0f,dev_y));
-        rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
-      }
-   }
-   return packet;
+        if ((cfg->vanishing()==false) || (rand0_1() > cfg->yellow_team_vanishing()))
+        {
+            SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
+            robots[i]->getXY(x,y);
+            dir = robots[i]->getDir();
+            rob->set_robot_id(i-ROBOT_COUNT);
+            rob->set_pixel_x(x*1000.0f);
+            rob->set_pixel_y(y*1000.0f);
+            rob->set_confidence(1);
+            rob->set_x(randn_notrig(x*1000.0f,dev_x));
+            rob->set_y(randn_notrig(y*1000.0f,dev_y));
+            rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
+        }
+    }
+    return packet;
 }
 
 SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
@@ -660,7 +671,7 @@ RobotsFomation::RobotsFomation(int type)
         float teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3};
         setAll(teamPosX,teamPosY);
     }
-/*
+    /*
         float teamPosX[5] = {-2.0, -2.0 , 0.0, -2.2, -0.33};
         float teamPosY[5] = {0.0, 1.0 , -0.7, 0.7, 1.25};
 
@@ -686,28 +697,28 @@ RobotsFomation::RobotsFomation(int type)
 
 void RobotsFomation::loadFromFile(const QString& filename)
 {
-     QFile file(filename);
-     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-         return;
-     QTextStream in(&file);
-     int k;
-     for (k=0;k<ROBOT_COUNT;k++) x[k]=y[k]=0;
-     k=0;
-     while (!in.atEnd()) {
-         QString line = in.readLine();
-         QStringList list = line.split(",");         
-         if (list.count()>=2)
-         {             
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    QTextStream in(&file);
+    int k;
+    for (k=0;k<ROBOT_COUNT;k++) x[k]=y[k]=0;
+    k=0;
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList list = line.split(",");
+        if (list.count()>=2)
+        {
             x[k]=list[0].toFloat();
             y[k]=list[1].toFloat();
-         }
-         else if (list.count()==1)
-         {
+        }
+        else if (list.count()==1)
+        {
             x[k]=list[0].toFloat();
-         }
-         if (k==ROBOT_COUNT-1) break;
-         k++;
-     }     
+        }
+        if (k==ROBOT_COUNT-1) break;
+        k++;
+    }
 }
 
 void RobotsFomation::resetRobots(Robot** r,int team)
@@ -768,41 +779,41 @@ void RobotsFomation::resetRobots(Robot** r,int team)
 /******************************************************************************/
 //	"Polar" version without trigonometric calls
 double randn_notrig(double mu, double sigma) {
-        if (sigma==0) return mu;
-        static bool deviateAvailable=false;	//	flag
-        static float storedDeviate;			//	deviate from previous calculation
-        double polar, rsquared, var1, var2;
+    if (sigma==0) return mu;
+    static bool deviateAvailable=false;	//	flag
+    static float storedDeviate;			//	deviate from previous calculation
+    double polar, rsquared, var1, var2;
 
-        //	If no deviate has been stored, the polar Box-Muller transformation is
-        //	performed, producing two independent normally-distributed random
-        //	deviates.  One is stored for the next round, and one is returned.
-        if (!deviateAvailable) {
+    //	If no deviate has been stored, the polar Box-Muller transformation is
+    //	performed, producing two independent normally-distributed random
+    //	deviates.  One is stored for the next round, and one is returned.
+    if (!deviateAvailable) {
 
-                //	choose pairs of uniformly distributed deviates, discarding those
-                //	that don't fall within the unit circle
-                do {
-                        var1=2.0*( double(rand())/double(RAND_MAX) ) - 1.0;
-                        var2=2.0*( double(rand())/double(RAND_MAX) ) - 1.0;
-                        rsquared=var1*var1+var2*var2;
-                } while ( rsquared>=1.0 || rsquared == 0.0);
+        //	choose pairs of uniformly distributed deviates, discarding those
+        //	that don't fall within the unit circle
+        do {
+            var1=2.0*( double(rand())/double(RAND_MAX) ) - 1.0;
+            var2=2.0*( double(rand())/double(RAND_MAX) ) - 1.0;
+            rsquared=var1*var1+var2*var2;
+        } while ( rsquared>=1.0 || rsquared == 0.0);
 
-                //	calculate polar tranformation for each deviate
-                polar=sqrt(-2.0*log(rsquared)/rsquared);
+        //	calculate polar tranformation for each deviate
+        polar=sqrt(-2.0*log(rsquared)/rsquared);
 
-                //	store first deviate and set flag
-                storedDeviate=var1*polar;
-                deviateAvailable=true;
+        //	store first deviate and set flag
+        storedDeviate=var1*polar;
+        deviateAvailable=true;
 
-                //	return second deviate
-                return var2*polar*sigma + mu;
-        }
+        //	return second deviate
+        return var2*polar*sigma + mu;
+    }
 
-        //	If a deviate is available from a previous call to this function, it is
-        //	returned, and the flag is set to false.
-        else {
-                deviateAvailable=false;
-                return storedDeviate*sigma + mu;
-        }
+    //	If a deviate is available from a previous call to this function, it is
+    //	returned, and the flag is set to false.
+    else {
+        deviateAvailable=false;
+        return storedDeviate*sigma + mu;
+    }
 }
 
 
@@ -811,34 +822,34 @@ double randn_notrig(double mu, double sigma) {
 #define PI 3.14159265358979323846
 
 double randn_trig(double mu, double sigma) {
-        static bool deviateAvailable=false;	//	flag
-        static float storedDeviate;			//	deviate from previous calculation
-        double dist, angle;
+    static bool deviateAvailable=false;	//	flag
+    static float storedDeviate;			//	deviate from previous calculation
+    double dist, angle;
 
-        //	If no deviate has been stored, the standard Box-Muller transformation is
-        //	performed, producing two independent normally-distributed random
-        //	deviates.  One is stored for the next round, and one is returned.
-        if (!deviateAvailable) {
+    //	If no deviate has been stored, the standard Box-Muller transformation is
+    //	performed, producing two independent normally-distributed random
+    //	deviates.  One is stored for the next round, and one is returned.
+    if (!deviateAvailable) {
 
-                //	choose a pair of uniformly distributed deviates, one for the
-                //	distance and one for the angle, and perform transformations
-                dist=sqrt( -2.0 * log(double(rand()) / double(RAND_MAX)) );
-                angle=2.0 * PI * (double(rand()) / double(RAND_MAX));
+        //	choose a pair of uniformly distributed deviates, one for the
+        //	distance and one for the angle, and perform transformations
+        dist=sqrt( -2.0 * log(double(rand()) / double(RAND_MAX)) );
+        angle=2.0 * PI * (double(rand()) / double(RAND_MAX));
 
-                //	calculate and store first deviate and set flag
-                storedDeviate=dist*cos(angle);
-                deviateAvailable=true;
+        //	calculate and store first deviate and set flag
+        storedDeviate=dist*cos(angle);
+        deviateAvailable=true;
 
-                //	calcaulate return second deviate
-                return dist * sin(angle) * sigma + mu;
-        }
+        //	calcaulate return second deviate
+        return dist * sin(angle) * sigma + mu;
+    }
 
-        //	If a deviate is available from a previous call to this function, it is
-        //	returned, and the flag is set to false.
-        else {
-                deviateAvailable=false;
-                return storedDeviate*sigma + mu;
-        }
+    //	If a deviate is available from a previous call to this function, it is
+    //	returned, and the flag is set to false.
+    else {
+        deviateAvailable=false;
+        return storedDeviate*sigma + mu;
+    }
 }
 
 double rand0_1()
