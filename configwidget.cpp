@@ -96,7 +96,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
     ADD_VALUE(comm_vars,Double,motormaxoutput,1000,"Motor max output (RPM)")
-    ADD_VALUE(comm_vars,Double,motormaxinput,127,"Motor max input")
+    ADD_VALUE(comm_vars,Double,motormaxinput,31,"Motor max input")
     ADD_VALUE(comm_vars,Double,shootfactor,5,"Shoot factor")
   VarList * plotter_vars = new VarList("Plotter");
   world.push_back(plotter_vars);
