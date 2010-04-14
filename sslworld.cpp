@@ -109,6 +109,10 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s)
 SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2)
     : QObject(parent)
 {    
+    /**BALL TRACKER**/
+    bx = by = 0;
+    vx = vy = 1;
+    /****/
     _w = this;
     cfg = _cfg;
     m_parent = parent;
@@ -574,7 +578,18 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         vball->set_z(z*1000.0f);
         vball->set_pixel_x(x*1000.0f);
         vball->set_pixel_y(y*1000.0f);
-        vball->set_confidence(1);
+        vball->set_confidence(0.9 + rand0_1()*0.1);
+    }
+    if(true){
+        SSL_DetectionBall* fball = packet->mutable_detection()->add_balls();
+        fball->set_x(bx);
+        fball->set_y(by);
+        fball->set_z(0);
+        fball->set_pixel_x(0);
+        fball->set_pixel_y(0);
+        fball->set_confidence(0.75 + rand0_1()*0.25);
+        bx = bx+vx;
+        by = by-vy;
     }
     for(int i = 0; i < ROBOT_COUNT; i++){
         if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))

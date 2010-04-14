@@ -1,7 +1,6 @@
 #include <QtGlobal>
 #include "logger.h"
 
-#ifdef Q_OS_UNIX
 
 //========================================================================
 //  This software is free: you can redistribute it and/or modify
@@ -23,8 +22,10 @@
   \author  Stefan Zickler, 2009
 */
 //========================================================================
+#ifdef Q_OS_UNIX
 #include "robocup_ssl_server.h"
 
+#ifndef AR_HOME_MODE
 RoboCupSSLServer::RoboCupSSLServer(int port,
                      string net_address,
                      string net_interface)
@@ -46,9 +47,9 @@ void RoboCupSSLServer::close() {
 
 bool RoboCupSSLServer::open() {
   close();
-  
+
   if(!mc.open(_port,true,true)) {
-    logStatus(QString("Unable to open UDP network port: %1").arg(_port),QColor("red"));    
+    logStatus(QString("Unable to open UDP network port: %1").arg(_port),QColor("red"));
     return(false);
   }
 
@@ -61,7 +62,7 @@ bool RoboCupSSLServer::open() {
   }
 
   if(!mc.addMulticast(multiaddr,interface)) {
-    logStatus(QString("Unable to setup UDP multicast."),QColor("orange"));    
+    logStatus(QString("Unable to setup UDP multicast."),QColor("orange"));
   }
   logStatus(QString("Vision UDP network successfully configured. (Multicast address: %1:%2)").arg(_net_address.c_str()).arg(_port),QColor("green"));
   return(true);
@@ -95,6 +96,77 @@ bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
   gdata->CopyFrom(geometry);
   return send(pkt);
 }
+#else
+#include "robocup_ssl_server.h"
+#include <QDebug>
+
+RoboCupSSLServer::RoboCupSSLServer(int port,
+                     string net_address,
+                     string net_interface)
+{
+  _port=port;
+  _net_address=net_address;
+  _net_interface=net_interface;
+  udps=NULL;
+
+}
+
+
+RoboCupSSLServer::~RoboCupSSLServer()
+{
+}
+
+void RoboCupSSLServer::close() {
+  if(udps!=NULL){
+    if(udps->isOpen()){
+        udps->close();
+    }
+    delete udps;
+  }
+}
+
+bool RoboCupSSLServer::open() {
+  qDebug()<<"here";
+  close();
+
+  udps = new QUdpSocket(this);
+
+  if(!udps->bind(QHostAddress::LocalHost,_port)) {
+    logStatus(QString("Unable to open UDP network port: %1").arg(_port),QColor("red"));
+    return(false);
+  }
+
+  logStatus(QString("Vision UDP network successfully configured. (Port : %2)").arg(_port),QColor("green"));
+  return(true);
+}
+
+bool RoboCupSSLServer::send(const SSL_WrapperPacket & packet) {
+  string buffer;
+  packet.SerializeToString(&buffer);
+  bool result;
+  mutex.lock();
+  result=udps->writeDatagram(buffer.c_str(),buffer.length(),QHostAddress::LocalHost,_port);
+  mutex.unlock();
+  if (result==false) {
+    logStatus(QString("Sending UDP datagram failed (maybe too large?). Size was: %1 byte(s)").arg(buffer.length()),QColor("red"));
+  }
+  return(result);
+}
+
+bool RoboCupSSLServer::send(const SSL_DetectionFrame & frame) {
+  SSL_WrapperPacket pkt;
+  SSL_DetectionFrame * nframe = pkt.mutable_detection();
+  nframe->CopyFrom(frame);
+  return send(pkt);
+}
+
+bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
+  SSL_WrapperPacket pkt;
+  SSL_GeometryData * gdata = pkt.mutable_geometry();
+  gdata->CopyFrom(geometry);
+  return send(pkt);
+}
+#endif
 
 #endif
 #ifdef Q_OS_WIN32
@@ -129,10 +201,10 @@ void RoboCupSSLServer::close() {
 
 bool RoboCupSSLServer::open() {
     close();
-    s = new QUdpSocket(_parent);    
+    s = new QUdpSocket(_parent);
     ip_mreq Tmreq;
     s->bind(_port,QUdpSocket::ShareAddress);
-    int sd = s->socketDescriptor();    
+    int sd = s->socketDescriptor();
     if(sd != -1)
     {
         struct sockaddr_in SendAddr;
@@ -147,7 +219,7 @@ bool RoboCupSSLServer::open() {
 
         //Make this a member of the Multicast Group
         if(setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char far *)&mreq,sizeof(mreq)) < 0)
-        {            
+        {
             logStatus(QString("Multicast Init: Membership Error!"),QColor("orange"));
         }
         // set TTL (Time To Live)

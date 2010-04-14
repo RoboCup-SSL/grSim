@@ -39,6 +39,8 @@ private:
     int framenum;
     float last_dt;
     QList<SendingPacket*> sendQueue;
+    /**BALL TRACKER TEST**/
+    float bx,by,vx,vy;
 public:
     SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2);
     virtual ~SSLWorld();
