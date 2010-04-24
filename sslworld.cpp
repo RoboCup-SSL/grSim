@@ -113,6 +113,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     bx = by = 0;
     vx = vy = 1;
     /****/
+    ballTrainingMode = false;
     _w = this;
     cfg = _cfg;
     m_parent = parent;
@@ -539,7 +540,24 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         robots[nID]->setSpeed(3,sm4);
         // Applying Shoot and spinner
         if ((shootPower > 0))
+        {
+            if (ballTrainingMode)
+            {
+                if (id==0) //reset ball
+                {
+                    dBodySetLinearVel(ball->body,0,0,0);
+                    dBodySetAngularVel(ball->body,0,0,0);
+                    dBodySetPosition(ball->body,-2,0,0.08);
+                    logStatus("Ball training mode: Reseting ball",QColor("orange"));
+                }
+                else if (id==1) //kick the ball
+                {                    
+                    dBodySetLinearVel(ball->body,sm1*5.0/32.0,0,0);
+                    logStatus("Ball training mode: Kicking ball",QColor("blue"));
+                }
+            }
             robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()));
+        }
         else if ((chip == true))
             robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
         robots[nID]->kicker->setRoller(spin);
