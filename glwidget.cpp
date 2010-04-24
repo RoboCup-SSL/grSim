@@ -4,7 +4,7 @@
 #include "glwidget.h"
 #include "Physics/pball.h"
 #include "Physics/pground.h"
-
+#include "logger.h"
 #include <QDebug>
 #include <QLabel>
 
@@ -86,7 +86,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
     ctrl = false;
-    alt = false;
+    alt = false;    
 }
 
 GLWidget::~GLWidget()
@@ -380,6 +380,19 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 {
   if (event->key() == Qt::Key_Control) ctrl = true;
   if (event->key() == Qt::Key_Alt) alt = true;
+  if (event->key() == Qt::Key_F12)
+  {
+      if (!ssl->ballTrainingMode)
+      {
+          ssl->ballTrainingMode = true;
+          logStatus("Ball Training Mode On",QColor("green"));
+      }
+      else
+      {
+          ssl->ballTrainingMode = false;
+          logStatus("Ball Training Mode Off",QColor("red"));
+      }
+  }
   char cmd = event->key();
   if (fullScreen) {
       if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);

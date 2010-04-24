@@ -20,7 +20,7 @@
 //========================================================================
 #include <QtGlobal>
 
-#define AR_HOME_MODE
+//#define AR_HOME_MODE
 
 #ifdef Q_OS_UNIX
 
