@@ -171,11 +171,11 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     for (int k=0;k<5;k++)
         robots[k+5] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
 
-    dBodySetLinearDampingThreshold(ball->body,0.001);
+/*    dBodySetLinearDampingThreshold(ball->body,0.001);
     dBodySetLinearDamping(ball->body,cfg->balllineardamp());
     dBodySetAngularDampingThreshold(ball->body,0.001);
     dBodySetAngularDamping(ball->body,cfg->ballangulardamp());
-
+*/
     p->initAllObjects();
 
     //Surfaces
@@ -188,11 +188,11 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         p->createSurface(ray,robots[k]->dummy)->callback = rayCallback;
     }
     PSurface ballwithwall;
-    ballwithwall.surface.mode = dContactBounce | dContactApprox1 | dContactSlip1;
-    ballwithwall.surface.mu = fric(cfg->ballfriction());
+    ballwithwall.surface.mode = dContactBounce | dContactApprox1;// | dContactSlip1;
+    ballwithwall.surface.mu = 1;//fric(cfg->ballfriction());
     ballwithwall.surface.bounce = cfg->ballbounce();
     ballwithwall.surface.bounce_vel = cfg->ballbouncevel();
-    ballwithwall.surface.slip1 = cfg->ballslip();
+    ballwithwall.surface.slip1 = 0;//cfg->ballslip();
 
     PSurface wheelswithground;
     PSurface* ball_ground = p->createSurface(ball,ground);
@@ -423,6 +423,30 @@ void SSLWorld::glinit()
 
 void SSLWorld::step(float dt)
 {    
+    const dReal* ballvel = dBodyGetLinearVel(ball->body);
+    double ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
+    ballspeed = sqrt(ballspeed);    
+    double ballfx=0,ballfy=0,ballfz=0;
+    //double balltx=0,ballty=0,balltz=0;
+    if (ballspeed<0.01)
+    {
+        //ballfx = -ballvel[0]*0.01;
+        //ballfy = -ballvel[1]*0.01;
+        //ballfz = -ballvel[2]*0.01;
+        const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
+        dBodySetAngularVel(ball->body,ballAngVel[0]*0.5,ballAngVel[1]*0.5,ballAngVel[2]*0.5);
+    }
+    else {
+        double fk = cfg->ballfriction()*cfg->BALLMASS()*cfg->Gravity();
+        ballfx = -fk*ballvel[0] / ballspeed;
+        ballfy = -fk*ballvel[1] / ballspeed;
+        ballfz = -fk*ballvel[2] / ballspeed;
+        //balltx = -ballfy;
+        //ballty = ballfx;
+        balltz = 0;
+        //dBodyAddTorque(ball->body,balltx,ballty,balltz);
+    }
+    dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
     if (dt==0) dt=last_dt;
     else last_dt = dt;
     g->initScene(m_parent->width(),m_parent->height(),0,0.7,1);//true,0.7,0.7,0.7,0.8);
@@ -598,7 +622,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         vball->set_pixel_y(y*1000.0f);
         vball->set_confidence(0.9 + rand0_1()*0.1);
     }
-    if(true){
+    if(false){
         SSL_DetectionBall* fball = packet->mutable_detection()->add_balls();
         fball->set_x(bx);
         fball->set_y(by);
