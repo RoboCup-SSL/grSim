@@ -443,7 +443,7 @@ void SSLWorld::step(float dt)
         ballfz = -fk*ballvel[2] / ballspeed;
         //balltx = -ballfy;
         //ballty = ballfx;
-        balltz = 0;
+        //balltz = 0;
         //dBodyAddTorque(ball->body,balltx,ballty,balltz);
     }
     dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
