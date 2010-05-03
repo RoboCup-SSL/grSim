@@ -68,7 +68,7 @@ ConfigWidget::ConfigWidget()
     VarList * ballp_vars = new VarList("Ball");
     phys_vars->addChild(ballp_vars);
         ADD_VALUE(ballp_vars,Double,BALLMASS,0.043,"Ball mass");
-        ADD_VALUE(ballp_vars,Double,ballfriction,0.5,"Ball-ground friction")
+        ADD_VALUE(ballp_vars,Double,ballfriction,0.05,"Ball-ground friction")
         ADD_VALUE(ballp_vars,Double,ballslip,1,"Ball-ground slip")
         ADD_VALUE(ballp_vars,Double,ballbounce,0.7,"Ball-ground bounce factor")
         ADD_VALUE(ballp_vars,Double,ballbouncevel,0.1,"Ball-ground bounce min velocity")
@@ -97,7 +97,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
     ADD_VALUE(comm_vars,Double,motormaxoutput,1000,"Motor max output (RPM)")
     ADD_VALUE(comm_vars,Double,motormaxinput,31,"Motor max input")
-    ADD_VALUE(comm_vars,Double,shootfactor,5,"Shoot factor")
+    ADD_VALUE(comm_vars,Double,shootfactor,1.5,"Shoot factor")
   VarList * plotter_vars = new VarList("Plotter");
   world.push_back(plotter_vars);
     ADD_VALUE(plotter_vars, String, plotter_addr,"127.0.0.1", "Plotter address")

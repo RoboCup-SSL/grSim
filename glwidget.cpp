@@ -419,6 +419,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   case 'k':case 'K': ssl->robots[R]->kicker->kick(10);break;
   case 'l':case 'L': ssl->robots[R]->kicker->kick(10,true);break;
   case 'j':case 'J': ssl->robots[R]->kicker->toggleRoller();break;
+  case 'i':case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);break;
   case ' ':
     ssl->robots[R]->resetSpeeds();
     break;
