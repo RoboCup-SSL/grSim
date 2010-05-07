@@ -427,7 +427,7 @@ void SSLWorld::step(float dt)
     double ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
     ballspeed = sqrt(ballspeed);    
     double ballfx=0,ballfy=0,ballfz=0;
-    //double balltx=0,ballty=0,balltz=0;
+    double balltx=0,ballty=0,balltz=0;
     if (ballspeed<0.01)
     {
         //ballfx = -ballvel[0]*0.01;
@@ -441,10 +441,10 @@ void SSLWorld::step(float dt)
         ballfx = -fk*ballvel[0] / ballspeed;
         ballfy = -fk*ballvel[1] / ballspeed;
         ballfz = -fk*ballvel[2] / ballspeed;
-        //balltx = -ballfy;
-        //ballty = ballfx;
-        //balltz = 0;
-        //dBodyAddTorque(ball->body,balltx,ballty,balltz);
+        balltx = -ballfy*cfg->BALLRADIUS();
+        ballty = ballfx*cfg->BALLRADIUS();
+        balltz = 0;
+        dBodyAddTorque(ball->body,balltx,ballty,balltz);
     }
     dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
     if (dt==0) dt=last_dt;
