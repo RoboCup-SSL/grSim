@@ -319,7 +319,7 @@ void MainWindow::update()
         plotSocket->writeDatagram((char*)data, sizeof(float)*PLOT_PACKET_SIZE, QHostAddress(configwidget->plotter_addr().c_str()), configwidget->plotter_port());
         for (int i=0;i<ROBOT_COUNT*2;i++)
         {            
-            data[0] = i;            
+            data[0] = i+(i/ROBOT_COUNT)*100;
             glwidget->ssl->robots[i]->chassis->getBodyPosition(x,y,z);
             data[1] = x*1000.0f;
             data[2] = y*1000.0f;
