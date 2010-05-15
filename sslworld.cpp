@@ -111,7 +111,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 {    
     /**BALL TRACKER**/
     bx = by = 0;
-    vx = vy = 1;
+    vx = vy = 0;
     /****/
     ballTrainingMode = false;
     _w = this;
@@ -603,11 +603,12 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
 {
     SSL_WrapperPacket* packet = new SSL_WrapperPacket;
     float x,y,z,dir;
-    ball->getBodyPosition(x,y,z);
+    ball->getBodyPosition(x,y,z);    
     packet->mutable_detection()->set_camera_id(0);
-    packet->mutable_detection()->set_frame_number(framenum);
-    packet->mutable_detection()->set_t_capture(0.0f);
-    packet->mutable_detection()->set_t_sent(0.0f);
+    packet->mutable_detection()->set_frame_number(framenum);    
+    int t_elapsed = timer->elapsed();
+    packet->mutable_detection()->set_t_capture(t_elapsed);
+    packet->mutable_detection()->set_t_sent(t_elapsed);
     float dev_x = cfg->noiseDeviation_x();
     float dev_y = cfg->noiseDeviation_y();
     float dev_a = cfg->noiseDeviation_angle();
@@ -632,6 +633,10 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         fball->set_confidence(0.75 + rand0_1()*0.25);
         bx = bx+vx;
         by = by-vy;
+        if (bx>cfg->_SSL_FIELD_LENGTH()*0.5) vx = -vx;
+        if (bx<-cfg->_SSL_FIELD_LENGTH()*0.5) vx = -vx;
+        if (by>cfg->_SSL_FIELD_WIDTH()*0.5) vy = -vy;
+        if (by<-cfg->_SSL_FIELD_WIDTH()*0.5) vy = -vy;
     }
     for(int i = 0; i < ROBOT_COUNT; i++){
         if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))

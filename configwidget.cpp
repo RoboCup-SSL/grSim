@@ -27,8 +27,8 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(field_vars,Double,_SSL_GOAL_HEIGHT,400.0,"Goal height")
     VarList * robotg_vars = new VarList("Robot");
     geo_vars->addChild(robotg_vars);
-        ADD_VALUE(robotg_vars,Double,CHASSISLENGTH,0.17,"Chassis length")
-        ADD_VALUE(robotg_vars,Double,CHASSISWIDTH,0.18,"Chassis width")
+        ADD_VALUE(robotg_vars,Double,CHASSISLENGTH,0.165,"Chassis length")
+        ADD_VALUE(robotg_vars,Double,CHASSISWIDTH,0.165,"Chassis width")
         ADD_VALUE(robotg_vars,Double,CHASSISHEIGHT,0.13,"Chassis height")
         ADD_VALUE(robotg_vars,Double,BOTTOMHEIGHT,0.02,"Chassis bottom Z value")
         ADD_VALUE(robotg_vars,Double,KICKERHEIGHT,0.005,"Kicker Z value")
