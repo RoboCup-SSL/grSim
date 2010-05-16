@@ -199,6 +199,7 @@ MainWindow::MainWindow(QWidget *parent)
     robotwidget->id = 0;
     scene = new QGraphicsScene(0,0,800,600);
     plotSocket = NULL;reconnectPlotterSocket(NULL);
+    plotterCounter = 0;
     //glwidget->ssl->g->disableGraphics();
 }
 
@@ -295,50 +296,54 @@ void MainWindow::update()
     statusWidget->update();
     if (configwidget->plotter())
     {
-        float data[PLOT_PACKET_SIZE];
-        float x,y,z;
-        data[0] = -1;
-        glwidget->ssl->ball->getBodyPosition(x,y,z);
-        data[1] = x*1000.0f;
-        data[2] = y*1000.0f;
-        data[3] = z*1000.0f;
-        data[4] = 0;
-        const dReal * v = dBodyGetLinearVel(glwidget->ssl->ball->body);
-        data[5] = v[0]*1000.0f;
-        data[6] = v[1]*1000.0f;
-        data[7] = v[2]*1000.0f;
-        data[8] = 0;
-        data[9] = (data[5]-balldata[5])/configwidget->DeltaTime();
-        data[10]= (data[6]-balldata[6])/configwidget->DeltaTime();
-        data[11]= (data[7]-balldata[7])/configwidget->DeltaTime();
-        data[12]= 0;
-        for (int k = 0;k<2*ROBOT_COUNT;k++)
+        plotterCounter++;
+
         {
-            balldata[k] = data[k];
-        }
-        plotSocket->writeDatagram((char*)data, sizeof(float)*PLOT_PACKET_SIZE, QHostAddress(configwidget->plotter_addr().c_str()), configwidget->plotter_port());
-        for (int i=0;i<ROBOT_COUNT*2;i++)
-        {            
-            data[0] = i+(i/ROBOT_COUNT)*100;
-            glwidget->ssl->robots[i]->chassis->getBodyPosition(x,y,z);
+            float data[PLOT_PACKET_SIZE];
+            float x,y,z;
+            data[0] = -1;
+            glwidget->ssl->ball->getBodyPosition(x,y,z);
             data[1] = x*1000.0f;
             data[2] = y*1000.0f;
             data[3] = z*1000.0f;
-            data[4] = glwidget->ssl->robots[i]->getDir();
-            const dReal * v = dBodyGetLinearVel(glwidget->ssl->robots[i]->chassis->body);
+            data[4] = 0;
+            const dReal * v = dBodyGetLinearVel(glwidget->ssl->ball->body);
             data[5] = v[0]*1000.0f;
             data[6] = v[1]*1000.0f;
             data[7] = v[2]*1000.0f;
-            data[8] = dBodyGetAngularVel(glwidget->ssl->robots[i]->chassis->body)[2] * 180.0 / M_PI;
-            data[9] = (data[5]-glwidget->ssl->robots[i]->data[5])/configwidget->DeltaTime();
-            data[10]= (data[6]-glwidget->ssl->robots[i]->data[6])/configwidget->DeltaTime();
-            data[11]= (data[7]-glwidget->ssl->robots[i]->data[7])/configwidget->DeltaTime();
-            data[12]= (data[8]-glwidget->ssl->robots[i]->data[8])/configwidget->DeltaTime();
+            data[8] = 0;
+            data[9] = (data[5]-balldata[5])/configwidget->DeltaTime();
+            data[10]= (data[6]-balldata[6])/configwidget->DeltaTime();
+            data[11]= (data[7]-balldata[7])/configwidget->DeltaTime();
+            data[12]= 0;
             for (int k = 0;k<2*ROBOT_COUNT;k++)
             {
-                glwidget->ssl->robots[i]->data[k] = data[k];
+                balldata[k] = data[k];
             }
             plotSocket->writeDatagram((char*)data, sizeof(float)*PLOT_PACKET_SIZE, QHostAddress(configwidget->plotter_addr().c_str()), configwidget->plotter_port());
+            for (int i=0;i<ROBOT_COUNT*2;i++)
+            {
+                data[0] = i+(i/ROBOT_COUNT)*100;
+                glwidget->ssl->robots[i]->chassis->getBodyPosition(x,y,z);
+                data[1] = x*1000.0f;
+                data[2] = y*1000.0f;
+                data[3] = z*1000.0f;
+                data[4] = glwidget->ssl->robots[i]->getDir();
+                const dReal * v = dBodyGetLinearVel(glwidget->ssl->robots[i]->chassis->body);
+                data[5] = v[0]*1000.0f;
+                data[6] = v[1]*1000.0f;
+                data[7] = v[2]*1000.0f;
+                data[8] = dBodyGetAngularVel(glwidget->ssl->robots[i]->chassis->body)[2] * 180.0 / M_PI;
+                data[9] = (data[5]-glwidget->ssl->robots[i]->data[5])/configwidget->DeltaTime();
+                data[10]= (data[6]-glwidget->ssl->robots[i]->data[6])/configwidget->DeltaTime();
+                data[11]= (data[7]-glwidget->ssl->robots[i]->data[7])/configwidget->DeltaTime();
+                data[12]= (data[8]-glwidget->ssl->robots[i]->data[8])/configwidget->DeltaTime();
+                for (int k = 0;k<2*ROBOT_COUNT;k++)
+                {
+                    glwidget->ssl->robots[i]->data[k] = data[k];
+                }
+                plotSocket->writeDatagram((char*)data, sizeof(float)*PLOT_PACKET_SIZE, QHostAddress(configwidget->plotter_addr().c_str()), configwidget->plotter_port());
+            }
         }
     }
 }
