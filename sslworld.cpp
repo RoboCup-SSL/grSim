@@ -721,6 +721,18 @@ RobotsFomation::RobotsFomation(int type)
         float teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5};
         setAll(teamPosX,teamPosY);
     }
+    if (type==3)
+    {
+        float teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
+        float teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        setAll(teamPosX,teamPosY);
+    }
+    if (type==4)
+    {
+        float teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
+        float teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        setAll(teamPosX,teamPosY);
+    }
     if (type==-1)
     {
         float teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};

@@ -52,6 +52,7 @@ private:
     RobotWidget *robotwidget;
     QUdpSocket* plotSocket;    
     float balldata[PLOT_PACKET_SIZE];
+    int plotterCounter;
 
     CStatusPrinter *printer;
     CStatusWidget *statusWidget;

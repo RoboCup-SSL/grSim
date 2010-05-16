@@ -19,6 +19,8 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     forms[1] = new RobotsFomation(-2);  //outside
     forms[2] = new RobotsFomation(1);  //inside type 1
     forms[3] = new RobotsFomation(2);  //inside type 2
+    forms[4] = new RobotsFomation(3);  //inside type 1
+    forms[5] = new RobotsFomation(4);  //inside type 2
     ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
     Current_robot = 0;
     Current_team = 0;
@@ -30,10 +32,11 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     blueRobotsMenu->addAction(tr("Put all inside with formation 1"));
     blueRobotsMenu->addAction(tr("Put all inside with formation 2"));
     blueRobotsMenu->addAction(tr("Put all outside"));
+    blueRobotsMenu->addAction(tr("Put all out of field"));
     yellowRobotsMenu->addAction(tr("Put all inside with formation 1"));
     yellowRobotsMenu->addAction(tr("Put all inside with formation 2"));
     yellowRobotsMenu->addAction(tr("Put all outside"));
-
+    yellowRobotsMenu->addAction(tr("Put all out of field"));
     robpopup = new QMenu(this);
     moveRobotAct = new QAction(tr("&Locate robot"),this);
     selectRobotAct = new QAction(tr("&Select robot"),this);
@@ -86,7 +89,9 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
     ctrl = false;
-    alt = false;    
+    alt = false;
+    kickingball = false;
+    kickpower = 3.0;
 }
 
 GLWidget::~GLWidget()
@@ -185,6 +190,19 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
                 clicked_robot = ssl->selected;
                 selectRobot();
             }
+            if (kickingball)
+            {
+                float x,y,z;
+                ssl->ball->getBodyPosition(x,y,z);
+                x = ssl->cursor_x - x;
+                y = ssl->cursor_y - y;
+                x /= hypot(x,y);
+                y /= hypot(x,y);
+                x *= kickpower;
+                y *= kickpower;
+                dBodySetLinearVel(ssl->ball->body,x,y,0);
+                dBodySetAngularVel(ssl->ball->body,-y/cfg->BALLRADIUS(),x/cfg->BALLRADIUS(),0);
+            }
         }
     }
     if (event->buttons() & Qt::RightButton)
@@ -243,8 +261,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (!ssl->g->isGraphicsEnabled()) return;
     int dx = -(event->x() - lastPos.x());
-    int dy = -(event->y() - lastPos.y());
-
+    int dy = -(event->y() - lastPos.y());    
     if (event->buttons() & Qt::LeftButton) {
         if (ctrl)
             ssl->g->cameraMotion(4,dx,dy);
@@ -420,6 +437,18 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   case 'l':case 'L': ssl->robots[R]->kicker->kick(10,true);break;
   case 'j':case 'J': ssl->robots[R]->kicker->toggleRoller();break;
   case 'i':case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BALLRADIUS(),0);break;
+  case ';':
+      if (kickingball==false)
+      {
+          kickingball = true; logStatus(QString("Kick mode On").arg(kickpower),QColor("blue"));
+      }
+      else
+      {
+          kickingball = false; logStatus(QString("Kick mode Off").arg(kickpower),QColor("red"));
+      }
+      break;
+  case ']': kickpower += 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("orange"));break;
+  case '[': kickpower -= 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("cyan"));break;
   case ' ':
     ssl->robots[R]->resetSpeeds();
     break;
@@ -451,6 +480,7 @@ void GLWidget::reform(int team,const QString& act)
     if (act==tr("Put all inside with formation 2")) forms[3]->resetRobots(ssl->robots,team);
     if (act==tr("Put all outside") && team==0) forms[0]->resetRobots(ssl->robots,team);
     if (act==tr("Put all outside") && team==1) forms[1]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all out of field")) forms[4]->resetRobots(ssl->robots,team);    
 }
 
 void GLWidget::moveBallHere()

@@ -17,9 +17,9 @@ public:
     GLWidget(QWidget *parent,ConfigWidget* _cfg);
     ~GLWidget();
     float getFPS();
-    ConfigWidget* cfg;
+    ConfigWidget* cfg;   
     SSLWorld* ssl;
-    RobotsFomation* forms[4];
+    RobotsFomation* forms[6];
     QMenu* robpopup,*ballpopup,*mainpopup;
     QMenu *blueRobotsMenu,*yellowRobotsMenu;
     QAction* moveRobotAct;
@@ -35,7 +35,8 @@ public:
     QMenu *cameraMenu;
     int Current_robot,Current_team,cammode;
     int lockedIndex;
-    bool ctrl,alt;
+    bool ctrl,alt,kickingball;
+    double kickpower;
     bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(float x,float y);
