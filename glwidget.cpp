@@ -294,6 +294,13 @@ void GLWidget::initializeGL ()
 
 void GLWidget::step()
 {
+    static double lastBallSpeed=-1;
+    const dReal* ballV = dBodyGetLinearVel(ssl->ball->body);
+    double ballSpeed = ballV[0]*ballV[0] + ballV[1]*ballV[1] + ballV[2]*ballV[2];
+    ballSpeed  = sqrt(ballSpeed);
+    if (ballSpeed>lastBallSpeed && lastBallSpeed!=-1)
+        logStatus(QString("Ball speed=%1").arg(ballSpeed),QColor("blue"));
+    lastBallSpeed = ballSpeed;
     rendertimer.restart();
     m_fps = frames /(time.elapsed()/1000.0);
     if (!(frames % ((int)(ceil(cfg->DesiredFPS()))))) {
@@ -440,11 +447,11 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
   case ';':
       if (kickingball==false)
       {
-          kickingball = true; logStatus(QString("Kick mode On").arg(kickpower),QColor("blue"));
+          kickingball = true; logStatus(QString("Kick mode On"),QColor("blue"));
       }
       else
       {
-          kickingball = false; logStatus(QString("Kick mode Off").arg(kickpower),QColor("red"));
+          kickingball = false; logStatus(QString("Kick mode Off"),QColor("red"));
       }
       break;
   case ']': kickpower += 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("orange"));break;
