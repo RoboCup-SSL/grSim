@@ -76,6 +76,7 @@ public:
   DEF_VALUE(double,Double,WHEELMASS)
   DEF_VALUE(double,Double,BALLMASS)
   DEF_VALUE(double,Double,KICKERMASS)
+  DEF_VALUE(double,Double,kickerDampFactor)
   DEF_VALUE(double,Double,BALLRADIUS)
   DEF_VALUE(double,Double,motormaxoutput)
   DEF_VALUE(double,Double,motormaxinput)
