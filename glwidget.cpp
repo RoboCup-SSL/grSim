@@ -193,11 +193,12 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
             if (kickingball)
             {
                 float x,y,z;
-                ssl->ball->getBodyPosition(x,y,z);
+                ssl->ball->getBodyPosition(x,y,z);                
                 x = ssl->cursor_x - x;
                 y = ssl->cursor_y - y;
-                x /= hypot(x,y);
-                y /= hypot(x,y);
+                float lxy = hypot(x,y);
+                x /= lxy;
+                y /= lxy;
                 x *= kickpower;
                 y *= kickpower;
                 dBodySetLinearVel(ssl->ball->body,x,y,0);
