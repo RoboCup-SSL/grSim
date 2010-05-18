@@ -148,7 +148,7 @@ void Robot::Kicker::kick(float kickspeed,bool chip)
 {    
     float dx,dy,dz;
     float vx,vy,vz;
-    rob->chassis->getBodyDirection(dx,dy,dz);    
+    rob->chassis->getBodyDirection(dx,dy,dz);dz = 0;
     float zf = 0;
     if (chip) zf = kickspeed*rob->cfg->CHIPFACTOR();
 
@@ -156,8 +156,15 @@ void Robot::Kicker::kick(float kickspeed,bool chip)
     {
         double dlen = dx*dx+dy*dy+dz*dz;
         dlen = sqrt(dlen);
-        vx = dx*kickspeed*rob->cfg->KICKFACTOR();
-        vy = dy*kickspeed*rob->cfg->KICKFACTOR();
+        if (chip)
+        {
+            vx = dx*kickspeed*rob->cfg->CHIPFACTOR();
+            vy = dy*kickspeed*rob->cfg->CHIPFACTOR();
+        }
+        else {
+            vx = dx*kickspeed*rob->cfg->KICKFACTOR();
+            vy = dy*kickspeed*rob->cfg->KICKFACTOR();
+        }
         vz = 0;
         const dReal* vball = dBodyGetLinearVel(rob->getBall()->body);
         double vn = -(vball[0]*dx + vball[1]*dy)*rob->cfg->kickerDampFactor();
