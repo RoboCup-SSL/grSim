@@ -210,10 +210,11 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         p->createSurface(robots[k]->chassis,ground);
         for (int j=0;j<10;j++)
             p->createSurface(robots[k]->chassis,walls[j]);
-        p->createSurface(robots[k]->chassis,ball);
+        p->createSurface(robots[k]->dummy,ball);        
         p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
         for (int j=0;j<4;j++)
         {
+            p->createSurface(robots[k]->wheels[j]->cyl,ball);
             PSurface* w_g = p->createSurface(robots[k]->wheels[j]->cyl,ground);
             w_g->surface=wheelswithground.surface;
             w_g->usefdir1=true;
@@ -541,7 +542,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         id  = nID;
         nID = robotIndex(nID,team);
         int shootPower = (action & 0x70) >> 4;
-        int chip = (action & 0x80);
+        int chip = (action & 0x80);          
         int spin = action & 0x08;
         //        char sm1 = c[2];
         //        char sm2 = c[3];
@@ -563,7 +564,14 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         robots[nID]->setSpeed(2,sm3);
         robots[nID]->setSpeed(3,sm4);
         // Applying Shoot and spinner
-        if ((shootPower > 0))
+        if (chip)
+        {
+            if (shootPower==0)
+                shootPower = 10;
+            robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
+            logStatus(QString("chip: %1").arg(shootPower),QColor("orange"));
+        }
+        else if ((shootPower > 0))
         {
             if (ballTrainingMode)
             {
@@ -581,9 +589,8 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
                 }
             }
             robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()));
+            logStatus("kick",QColor("red"));
         }
-        else if ((chip == true))
-            robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
         robots[nID]->kicker->setRoller(spin);
         char status = 0;
         status = id;
