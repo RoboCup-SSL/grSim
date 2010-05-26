@@ -47,15 +47,16 @@ public:
     class Kicker
     {
       private:
-        bool kicking,rolling;
+        bool kicking;
+        int rolling;
         int kickstate;
         float m_kickspeed,m_kicktime;
       public:
         Kicker(Robot* robot);
         void step();
         void kick(float kickspeed,bool chip=false);
-        void setRoller(bool roller);
-        bool getRoller();
+        void setRoller(int roller);
+        int getRoller();
         void toggleRoller();
         bool isTouchingBall();
         dJointID joint;
