@@ -6,7 +6,7 @@ Robot::Wheel::Wheel(Robot* robot,int _id,float ang,float ang2,int wheeltexid)
 {
     id = _id;
     rob = robot;
-    float rad = rob->cfg->CHASSISWIDTH()*0.5 - rob->cfg->WHEELLENGTH()*0.5;
+    float rad = rob->cfg->CHASSISWIDTH()*0.5 - rob->cfg->WHEELLENGTH();
     ang *= M_PI/180.0f;
     ang2 *= M_PI/180.0f;
     float x = rob->m_x;

@@ -564,7 +564,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         char packetType = (action & (1 << 4)) >> 4;
         id  = nID;
         nID = robotIndex(nID,team);
-        int spin = (action & 0xC0) >> 5;
+        int spin = (action & 0xC0) >> 6;
         if (spin==2) spin = -1;
         char kickbyte = c[2];        
         int shootPower = kickbyte & 0x0F;        
