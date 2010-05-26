@@ -75,7 +75,7 @@ Robot::Kicker::Kicker(Robot* robot)
   dJointSetHingeParam (joint,dParamLoStop,0);
   dJointSetHingeParam (joint,dParamHiStop,0);
 
-  rolling = false;
+  rolling = 0;
   kicking = false;
 }
 
@@ -87,7 +87,7 @@ void Robot::Kicker::step()
         kickstate--;
         if (kickstate<=0) kicking = false;
     }
-    else if (rolling)
+    else if (rolling!=0)
     {
         box->setColor(1,0.7,0);
         if (isTouchingBall())
@@ -96,6 +96,7 @@ void Robot::Kicker::step()
             rob->chassis->getBodyDirection(fx,fy,fz);
             fz = sqrt(fx*fx + fy*fy);
             fx/=fz;fy/=fz;
+            if (rolling==-1) {fx=-fx;fy=-fy;}
             rob->getBall()->tag = rob->getID();
 
             float vx,vy,vz;
@@ -129,19 +130,21 @@ bool Robot::Kicker::isTouchingBall()
   return ((xx<rob->cfg->KLENGTH()*2.0f+rob->cfg->BALLRADIUS()) && (yy<rob->cfg->KWIDTH()*0.5f) && (zz<rob->cfg->KHEIGHT()*0.5f));
 }
 
-void Robot::Kicker::setRoller(bool roller)
+void Robot::Kicker::setRoller(int roller)
 {
     rolling = roller;
 }
 
-bool Robot::Kicker::getRoller()
+int Robot::Kicker::getRoller()
 {
     return rolling;
 }
 
 void Robot::Kicker::toggleRoller()
 {
-    rolling = !rolling;
+    if (rolling==0)
+        rolling = 1;
+    else rolling = 0;
 }
 
 void Robot::Kicker::kick(float kickspeed,bool chip)
@@ -264,7 +267,7 @@ void Robot::step()
         if (last_state)
         {
             wheels[0]->speed = wheels[1]->speed = wheels[2]->speed = wheels[3]->speed = 0;
-            kicker->setRoller(false);
+            kicker->setRoller(0);
             wheels[0]->step();
             wheels[1]->step();
             wheels[2]->step();

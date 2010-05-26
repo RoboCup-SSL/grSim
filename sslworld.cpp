@@ -533,7 +533,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
     quint16 port;
     while (commandSocket->hasPendingDatagrams())
     {
-        char *c = new char [6];
+/*        char *c = new char [6];
         commandSocket->readDatagram(c,6,&sender,&port);
         if (c[0]!=99) continue;
         action = c[1];
@@ -544,10 +544,6 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         int shootPower = (action & 0x70) >> 4;
         int chip = (action & 0x80);          
         int spin = action & 0x08;
-        //        char sm1 = c[2];
-        //        char sm2 = c[3];
-        //        char sm3 = c[4];
-        //        char sm4 = c[5];
         char m1 = c[2];
         char m2 = c[3];
         char m3 = c[4];
@@ -558,7 +554,33 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         if (sm1 >= 32) sm1 = sm1 | 0xC0;
         if (sm2 >= 32) sm2 = sm2 | 0xC0;
         if (sm3 >= 32) sm3 = sm3 | 0xC0;
-        if (sm4 >= 32) sm4 = sm4 | 0xC0;
+        if (sm4 >= 32) sm4 = sm4 | 0xC0;*/
+        char *c = new char [8];
+        commandSocket->readDatagram(c,8,&sender,&port);
+        if (((unsigned char) c[0])!=0x99) continue;
+        action = c[1];        
+        nID = action & 0x0F;        
+        if (nID>=ROBOT_COUNT) continue;
+        char packetType = (action & (1 << 4)) >> 4;
+        id  = nID;
+        nID = robotIndex(nID,team);
+        int spin = (action & 0xC0) >> 5;
+        if (spin==2) spin = -1;
+        char kickbyte = c[2];        
+        int shootPower = kickbyte & 0x0F;        
+        int chip = kickbyte & 0x10;
+        int sm1,sm2,sm3,sm4;
+        if (packetType == 3)
+        {
+            //todo: jacobian here
+        }
+        else
+        {
+            sm1 = c[3];
+            sm2 = c[4];
+            sm3 = c[5];
+            sm4 = c[6];
+        }
         robots[nID]->setSpeed(0,sm1);
         robots[nID]->setSpeed(1,sm2);
         robots[nID]->setSpeed(2,sm3);
@@ -566,8 +588,6 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         // Applying Shoot and spinner
         if (chip)
         {
-            if (shootPower==0)
-                shootPower = 10;
             robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
             logStatus(QString("chip: %1").arg(shootPower),QColor("orange"));
         }
@@ -588,8 +608,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
                     logStatus("Ball training mode: Kicking ball",QColor("blue"));
                 }
             }
-            robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()));
-            logStatus("kick",QColor("red"));
+            robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()));            
         }
         robots[nID]->kicker->setRoller(spin);
         char status = 0;
