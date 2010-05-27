@@ -561,7 +561,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         action = c[1];        
         nID = action & 0x0F;        
         if (nID>=ROBOT_COUNT) continue;
-        char packetType = (action & (1 << 4)) >> 4;
+        char packetType = (action >> 4) & 0x03;
         id  = nID;
         nID = robotIndex(nID,team);
         int spin = (action & 0xC0) >> 6;
@@ -569,10 +569,31 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
         char kickbyte = c[2];        
         int shootPower = kickbyte & 0x0F;        
         int chip = kickbyte & 0x10;
-        int sm1,sm2,sm3,sm4;
+        int sm1,sm2,sm3,sm4,sm5;
         if (packetType == 3)
         {
-            //todo: jacobian here
+            short int vxDesired;
+            short int vyDesired;
+            short int wDesired;
+
+            sm1 = c[3];
+            sm2 = c[4];
+            sm3 = c[5];
+            sm4 = c[6];
+            sm5 = c[7];
+
+            vxDesired = 256 * sm1 + sm2;
+            vyDesired = 256 * sm3 + sm4;
+            wDesired = sm5;
+
+            logStatus(QString("Vx=%1").arg(vxDesired),QColor("red"));
+
+//            qDebug() << num2;
+
+
+
+
+
         }
         else
         {
