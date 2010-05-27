@@ -205,7 +205,7 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
   //dSpaceSetCleanup (space,0);
 
   chassis = new PCylinder(x,y,z,cfg->CHASSISWIDTH()*0.5f,cfg->CHASSISHEIGHT(),cfg->CHASSISMASS()*0.99f,r,g,b,rob_id);
-  chassis->space = space;
+  chassis->space = space;  
   w->addObject(chassis);
 
   dummy   = new PBall(x,y,z,cfg->CHASSISLENGTH()*0.5f,cfg->CHASSISMASS()*0.01f,0,0,0);
@@ -217,7 +217,7 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float 
   dJointAttach (dummy_to_chassis,chassis->body,dummy->body);
   //dJointSetFixedParam(
 
-  kicker = new Kicker(this);
+  kicker = new Kicker(this);  
 
   wheels[0] = new Wheel(this,0,cfg->Wheel1Angle(),cfg->Wheel1Angle(),wheeltexid);
   wheels[1] = new Wheel(this,1,cfg->Wheel2Angle(),cfg->Wheel2Angle(),wheeltexid);
