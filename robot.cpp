@@ -108,8 +108,8 @@ void Robot::Kicker::step()
             float yy = -((-(kx-bx)*vy + (ky-by)*vx)) / rob->cfg->KWIDTH();
             float dir = 1;
             if (yy>0) dir = -1.0f;
-            //dBodySetAngularVel(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR()*700,-fx*rob->cfg->ROLLERTORQUEFACTOR()*700,0);
-            dBodyAddTorque(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR(),-fx*rob->cfg->ROLLERTORQUEFACTOR(),0);
+            dBodySetAngularVel(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR()*1400,-fx*rob->cfg->ROLLERTORQUEFACTOR()*1400,0);
+            //dBodyAddTorque(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR(),-fx*rob->cfg->ROLLERTORQUEFACTOR(),0);
             dBodyAddTorque(rob->getBall()->body,yy*fx*rob->cfg->RollerPerpendicularTorqueFactor(),yy*fy*rob->cfg->RollerPerpendicularTorqueFactor(),0);
         }
     }
@@ -124,6 +124,8 @@ bool Robot::Kicker::isTouchingBall()
   rob->chassis->getBodyDirection(vx,vy,vz);  
   rob->getBall()->getBodyPosition(bx,by,bz);
   box->getBodyPosition(kx,ky,kz);
+  kx += vx*rob->cfg->KLENGTH()*0.5f;
+  ky += vy*rob->cfg->KLENGTH()*0.5f;
   float xx = fabs((kx-bx)*vx + (ky-by)*vy);
   float yy = fabs(-(kx-bx)*vy + (ky-by)*vx);
   float zz = fabs(kz-bz);

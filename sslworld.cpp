@@ -435,7 +435,7 @@ void SSLWorld::step(float dt)
         //ballfy = -ballvel[1]*0.01;
         //ballfz = -ballvel[2]*0.01;
         const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
-        dBodySetAngularVel(ball->body,ballAngVel[0]*0.5,ballAngVel[1]*0.5,ballAngVel[2]*0.5);
+        //dBodySetAngularVel(ball->body,ballAngVel[0]*0.9,ballAngVel[1]*0.9,ballAngVel[2]*0.9);
     }
     else {
         double fk = cfg->ballfriction()*cfg->BALLMASS()*cfg->Gravity();
