@@ -1022,7 +1022,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
   float nny,nnz;
   glBegin (GL_TRIANGLE_STRIP);
   for (i=0; i<=n; i++) {
-      if (i>=2 && i<=n-2)
+      if (i>2 && i<n-2)
       {
     glNormal3d (ny,nz,0);
     glVertex3d (ny*r,nz*r,l+zoffset);
@@ -1057,7 +1057,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
   glBegin (GL_TRIANGLE_FAN);
 
   for (i=0; i<n; i++) {
-      if (i>=2 && i<=n-2)
+      if (i>2 && i<n-2)
       {
 
     glNormal3d (0,0,1);
@@ -1079,7 +1079,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
   glNormal3d (0,0,-1);
   glVertex3d (0,0,-l+zoffset);
   for (i=0; i<=n; i++) {
-      if (i>=2 && i<=n-2)
+      if (i>=2 && i<n-2)
       {
 
     glNormal3d (0,0,-1);
