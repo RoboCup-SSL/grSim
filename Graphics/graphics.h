@@ -19,7 +19,7 @@ private:
     void _drawSphere();
     void _drawCapsule (float l, float r);
     void _drawCylinder (float l, float r, float zoffset);
-    void _drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id);    
+    void _drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id,bool robot=false);
     void wrapCameraAngles();
     void setCamera (float x, float y, float z, float h, float p, float r);
     bool graphicDisabled;
@@ -63,7 +63,7 @@ public:
     void drawBox (const float pos[3], const float R[12],const float sides[3]);
     void drawSphere (const float pos[3], const float R[12],float radius);
     void drawCylinder (const float pos[3], const float R[12],float length, float radius);    
-    void drawCylinder_TopTextured (const float pos[3], const float R[12],float length, float radius,int tex_id);
+    void drawCylinder_TopTextured (const float pos[3], const float R[12],float length, float radius,int tex_id,bool robot=false);
     void drawCapsule (const float pos[3], const float R[12],float length, float radius);
     void drawLine (const float pos1[3], const float pos2[3]);
     void drawCircle(float x0,float y0,float z0,float r);

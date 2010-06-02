@@ -210,7 +210,8 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         p->createSurface(robots[k]->chassis,ground);
         for (int j=0;j<10;j++)
             p->createSurface(robots[k]->chassis,walls[j]);
-        p->createSurface(robots[k]->dummy,ball);        
+        p->createSurface(robots[k]->dummy,ball);
+        //p->createSurface(robots[k]->chassis,ball);
         p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
         for (int j=0;j<4;j++)
         {
@@ -424,35 +425,39 @@ void SSLWorld::glinit()
 
 void SSLWorld::step(float dt)
 {    
-    const dReal* ballvel = dBodyGetLinearVel(ball->body);
-    double ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
-    ballspeed = sqrt(ballspeed);    
-    double ballfx=0,ballfy=0,ballfz=0;
-    double balltx=0,ballty=0,balltz=0;
-    if (ballspeed<0.01)
-    {
-        //ballfx = -ballvel[0]*0.01;
-        //ballfy = -ballvel[1]*0.01;
-        //ballfz = -ballvel[2]*0.01;
-        const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
-        //dBodySetAngularVel(ball->body,ballAngVel[0]*0.9,ballAngVel[1]*0.9,ballAngVel[2]*0.9);
-    }
-    else {
-        double fk = cfg->ballfriction()*cfg->BALLMASS()*cfg->Gravity();
-        ballfx = -fk*ballvel[0] / ballspeed;
-        ballfy = -fk*ballvel[1] / ballspeed;
-        ballfz = -fk*ballvel[2] / ballspeed;
-        balltx = -ballfy*cfg->BALLRADIUS();
-        ballty = ballfx*cfg->BALLRADIUS();
-        balltz = 0;
-        dBodyAddTorque(ball->body,balltx,ballty,balltz);
-    }
-    dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
-    if (dt==0) dt=last_dt;
-    else last_dt = dt;
     g->initScene(m_parent->width(),m_parent->height(),0,0.7,1);//true,0.7,0.7,0.7,0.8);
-    selected = -1;
-    p->step(dt);    
+    for (int kk=0;kk<5;kk++)
+    {
+        const dReal* ballvel = dBodyGetLinearVel(ball->body);
+        double ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
+        ballspeed = sqrt(ballspeed);
+        double ballfx=0,ballfy=0,ballfz=0;
+        double balltx=0,ballty=0,balltz=0;
+        if (ballspeed<0.01)
+        {
+            //ballfx = -ballvel[0]*0.01;
+            //ballfy = -ballvel[1]*0.01;
+            //ballfz = -ballvel[2]*0.01;
+            const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
+            //dBodySetAngularVel(ball->body,ballAngVel[0]*0.9,ballAngVel[1]*0.9,ballAngVel[2]*0.9);
+        }
+        else {
+            double fk = cfg->ballfriction()*cfg->BALLMASS()*cfg->Gravity();
+            ballfx = -fk*ballvel[0] / ballspeed;
+            ballfy = -fk*ballvel[1] / ballspeed;
+            ballfz = -fk*ballvel[2] / ballspeed;
+            balltx = -ballfy*cfg->BALLRADIUS();
+            ballty = ballfx*cfg->BALLRADIUS();
+            balltz = 0;
+            dBodyAddTorque(ball->body,balltx,ballty,balltz);
+        }
+        dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
+        if (dt==0) dt=last_dt;
+        else last_dt = dt;
+
+        selected = -1;
+        p->step(dt*0.2);
+    }
 
     int best_k=-1;
     float best_dist = 1e8;
@@ -488,8 +493,7 @@ void SSLWorld::step(float dt)
     {
         robots[k]->step();
         robots[k]->selected = false;
-    }
-
+    }    
     p->draw();
     //g->drawSkybox(31,32,33,34,35,36);
 

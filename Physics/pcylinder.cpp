@@ -1,11 +1,12 @@
 #include "pcylinder.h"
 
-PCylinder::PCylinder(float x,float y,float z,float radius,float length,float mass,float red,float green,float blue,int texid)
+PCylinder::PCylinder(float x,float y,float z,float radius,float length,float mass,float red,float green,float blue,int texid,bool robot)
           : PObject(x,y,z,red,green,blue,mass)
 {
     m_radius = radius;
     m_length = length;    
     m_texid = texid;
+    m_robot = robot;
 }
 
 PCylinder::~PCylinder()
@@ -27,7 +28,92 @@ void PCylinder::init()
   body = dBodyCreate (world);
   initPosBody();
   setMass(m_mass);
-  geom = dCreateCylinder(0,m_radius,m_length);
+/*  if (m_texid!=-1)
+  {
+      dTriMeshDataID g = dGeomTriMeshDataCreate();
+      const int vertexcount = 19*3+1;
+      const int indexcount = 19*9;
+      dVector3* vertices = new dVector3[vertexcount];
+      dTriIndex* indices = new dTriIndex[indexcount];
+
+      const int n = 24;	// number of sides to the cylinder (divisible by 4)
+
+      double l = m_length*0.5;
+      double a = float(M_PI*2.0)/float(n);
+      double sa = (float) sin(a);
+      double ca = (float) cos(a);
+      double r = m_radius;
+
+      double ny=1,nz=0,tmp;
+      int v=0,f=0;      
+      int i;
+      for (i=0; i<=n; i++) {
+          if (i>2 && i<n-2)
+          {
+              vertices[v][0] = ny*r;
+              vertices[v][1] = nz*r;
+              vertices[v][2] = l;v++;
+              vertices[v][0] = ny*r;
+              vertices[v][1] = nz*r;
+              vertices[v][2] = -l;v++;
+              indices[f] = v;f++;
+              indices[f] = v-2;f++;
+              indices[f] = v-1;f++;              
+              indices[f] = v-1;f++;
+              indices[f] = v;f++;
+              indices[f] = v+1;f++;
+          }
+        }
+      //v=38;f=38*3
+        // rotate ny,nz
+        tmp = ca*ny - sa*nz;
+        nz = sa*ny + ca*nz;
+        ny = tmp;      
+
+      ny=1; nz=0;		  // normal vector = (0,ny,nz)
+      glBegin (GL_TRIANGLE_FAN);
+      vertices[v][0] = 0;
+      vertices[v][1] = 0;
+      vertices[v][2] = l;v++;
+      for (i=0; i<n; i++) {
+          if (i>2 && i<n-2)
+          {
+            vertices[v][0] = ny*r;
+            vertices[v][1] = nz*r;
+            vertices[v][2] = l;v++;
+            indices[f] = 38;f++;
+            indices[f] = v;f++;
+            indices[f] = v-1;f++;
+          }
+        // rotate ny,nz
+        tmp = ca*ny - sa*nz;
+        nz = sa*ny + ca*nz;
+        ny = tmp;
+      }
+      // draw bottom cap
+//      ny=1; nz=0;		  // normal vector = (0,ny,nz)
+//      glBegin (GL_TRIANGLE_FAN);
+//      glNormal3d (0,0,-1);
+//      glVertex3d (0,0,-l+zoffset);
+//      for (i=0; i<=n; i++) {
+//          if (i>=2 && i<n-2)
+//          {
+//
+//        glNormal3d (0,0,-1);
+//        glVertex3d (ny*r,nz*r,-l+zoffset);
+//    }
+//        // rotate ny,nz
+//        tmp = ca*ny + sa*nz;
+//        nz = -sa*ny + ca*nz;
+//        ny = tmp;
+//      }
+      dGeomTriMeshDataBuildSimple(g, (dReal*) vertices, vertexcount, indices, indexcount);
+      geom = dCreateTriMesh(0,g,NULL,NULL,NULL);
+  }  
+  else */
+  {
+    geom = dCreateCylinder(0,m_radius,m_length);
+  }
   dGeomSetBody (geom,body);
   dSpaceAdd (space,geom);
 }
@@ -38,7 +124,7 @@ void PCylinder::draw()
     if (m_texid==-1)
         g->drawCylinder(dBodyGetPosition(body),dBodyGetRotation(body),m_length,m_radius);
     else
-        g->drawCylinder_TopTextured(dBodyGetPosition(body),dBodyGetRotation(body),m_length,m_radius,m_texid);  
+        g->drawCylinder_TopTextured(dBodyGetPosition(body),dBodyGetRotation(body),m_length,m_radius,m_texid,m_robot);
 
 /*    glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
