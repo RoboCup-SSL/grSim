@@ -9,8 +9,9 @@ private:
     float m_radius,m_length;
     GLuint m_gllistid;
     int m_texid;
+    bool m_robot;
 public:
-    PCylinder(float x,float y,float z,float radius,float length,float mass,float red,float green,float blue,int tex_id=-1);
+    PCylinder(float x,float y,float z,float radius,float length,float mass,float red,float green,float blue,int tex_id=-1,bool robot=false);
     virtual ~PCylinder();
     virtual void setMass(float mass);
     virtual void init();

@@ -179,7 +179,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
         }
         else if (state==2)
         {
-            ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS()*1.1);
+            ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS()*1.1*20.0);
             dBodySetAngularVel(ssl->ball->body,0,0,0);
             dBodySetLinearVel(ssl->ball->body,0,0,0);
             ssl->show3DCursor = false;
@@ -493,7 +493,7 @@ void GLWidget::reform(int team,const QString& act)
 
 void GLWidget::moveBallHere()
 {
-    ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS());
+    ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS()*20);
 }
 
 void GLWidget::lockCameraToRobot()

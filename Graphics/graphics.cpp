@@ -1003,7 +1003,7 @@ void CGraphics::_drawCylinder (float l, float r, float zoffset)
   glEnd();
 }
 
-void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id)
+void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id,bool robot)
 {
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_COLOR);
@@ -1022,7 +1022,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
   float nny,nnz;
   glBegin (GL_TRIANGLE_STRIP);
   for (i=0; i<=n; i++) {
-      if (i>2 && i<n-2)
+      if ((i>2 && i<n-2) || (!robot))
       {
     glNormal3d (ny,nz,0);
     glVertex3d (ny*r,nz*r,l+zoffset);
@@ -1057,7 +1057,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
   glBegin (GL_TRIANGLE_FAN);
 
   for (i=0; i<n; i++) {
-      if (i>2 && i<n-2)
+      if ((i>2 && i<n-2)  || (!robot))
       {
 
     glNormal3d (0,0,1);
@@ -1079,7 +1079,7 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
   glNormal3d (0,0,-1);
   glVertex3d (0,0,-l+zoffset);
   for (i=0; i<=n; i++) {
-      if (i>=2 && i<n-2)
+      if ((i>=2 && i<n-2)  || (!robot))
       {
 
     glNormal3d (0,0,-1);
@@ -1134,12 +1134,12 @@ void CGraphics::drawCylinder (const float pos[3], const float R[12],
 }
 
 void CGraphics::drawCylinder_TopTextured (const float pos[3], const float R[12],
-                                float length, float radius,int tex_id)
+                                float length, float radius,int tex_id,bool robot)
 {
     if (graphicDisabled) return;
   glShadeModel (GL_SMOOTH);
   setTransform (pos,R);
-  _drawCylinder_TopTextured (length,radius,0,tex_id);
+  _drawCylinder_TopTextured (length,radius,0,tex_id,robot);
   glPopMatrix();
 }
 
