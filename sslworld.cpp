@@ -657,7 +657,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
     ball->getBodyPosition(x,y,z);    
     packet->mutable_detection()->set_camera_id(0);
     packet->mutable_detection()->set_frame_number(framenum);    
-    int t_elapsed = timer->elapsed()/1000.0;
+    double t_elapsed = timer->elapsed()/1000.0;
     packet->mutable_detection()->set_t_capture(t_elapsed);
     packet->mutable_detection()->set_t_sent(t_elapsed);
     float dev_x = cfg->noiseDeviation_x();
