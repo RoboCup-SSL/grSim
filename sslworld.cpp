@@ -692,6 +692,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
     for(int i = 0; i < ROBOT_COUNT; i++){
         if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))
         {
+            if (!robots[i]->on) continue;
             SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
             robots[i]->getXY(x,y);
             dir = robots[i]->getDir();
@@ -707,6 +708,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
     for(int i = ROBOT_COUNT; i < ROBOT_COUNT*2; i++){
         if ((cfg->vanishing()==false) || (rand0_1() > cfg->yellow_team_vanishing()))
         {
+            if (!robots[i]->on) continue;
             SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
             robots[i]->getXY(x,y);
             dir = robots[i]->getDir();
