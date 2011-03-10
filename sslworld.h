@@ -41,7 +41,10 @@ private:
     QList<SendingPacket*> sendQueue;
     /**BALL TRACKER TEST**/
     float bx,by,vx,vy;    
+    char packet[200];
 public:
+    float customDT;
+    bool isGLEnabled;
     SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2);
     virtual ~SSLWorld();
     void glinit();
@@ -75,6 +78,8 @@ public slots:
     void reconnectYellowStatusSocket();
     void reconnectBlueStatusSocket();
     void reconnectVisionSocket();
+signals:
+    void fpsChanged(int newFPS);
 };
 
 class RobotsFomation {

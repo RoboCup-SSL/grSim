@@ -42,6 +42,8 @@ public slots:
     void takeSnapshot();
     void takeSnapshotToClipboard();
     void reconnectPlotterSocket(VarType*);
+
+    void customFPS(int fps);
 private:
     int getInterval();    
     QTimer *timer;
