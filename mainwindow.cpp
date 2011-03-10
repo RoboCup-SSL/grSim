@@ -22,6 +22,13 @@ int MainWindow::getInterval()
     return ceil((1000.0f / configwidget->DesiredFPS()));
 }
 
+void MainWindow::customFPS(int fps)
+{
+    int k = ceil((1000.0f / fps));
+    timer->setInterval(k);
+    logStatus(QString("new FPS set by user: %1").arg(fps),"red");
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -143,6 +150,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ballMenu,SIGNAL(triggered(QAction*)),this,SLOT(ballMenuTriggered(QAction*)));
     QObject::connect(fullScreenAct,SIGNAL(triggered(bool)),this,SLOT(toggleFullScreen(bool)));
     QObject::connect(glwidget,SIGNAL(toggleFullScreen(bool)),this,SLOT(toggleFullScreen(bool)));
+    QObject::connect(glwidget->ssl, SIGNAL(fpsChanged(int)), this, SLOT(customFPS(int)));
     //config related signals
     QObject::connect(configwidget->v_BALLMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallMass()));
     QObject::connect(configwidget->v_CHASSISMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeRobotMass()));
