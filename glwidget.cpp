@@ -300,7 +300,7 @@ void GLWidget::step()
     double ballSpeed = ballV[0]*ballV[0] + ballV[1]*ballV[1] + ballV[2]*ballV[2];
     ballSpeed  = sqrt(ballSpeed);
     if (ballSpeed>lastBallSpeed && lastBallSpeed!=-1)
-        logStatus(QString("Ball speed=%1").arg(ballSpeed),QColor("blue"));
+        ;//logStatus(QString("Ball speed=%1").arg(ballSpeed),QColor("blue"));
     lastBallSpeed = ballSpeed;
     rendertimer.restart();
     m_fps = frames /(time.elapsed()/1000.0);

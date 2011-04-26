@@ -589,7 +589,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
                 float x,y,d;
                 if (pp[ofs]==100)
                 {
-                    logStatus(QString("replacing robot %1").arg(i),"blue");
+                    //logStatus(QString("replacing robot %1").arg(i),"blue");
                     (* (((char*) (&x)) + 0) ) = pp[ofs+1];
                     (* (((char*) (&x)) + 1) ) = pp[ofs+2];
                     (* (((char*) (&x)) + 2) ) = pp[ofs+3];
@@ -613,7 +613,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
             }
             if (pp[ofs]==100)
             {
-                logStatus("replacing ball","blue");
+                //logStatus("replacing ball","blue");
                 float x,y,vx,vy;
                 (* (((char*) (&x)) + 0) ) = pp[ofs+1];
                 (* (((char*) (&x)) + 1) ) = pp[ofs+2];
@@ -692,7 +692,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
                     vyDesired = 256 * sm3 + sm4;
                     wDesired = sm5;
 
-                    logStatus(QString("Vx=%1").arg(vxDesired),QColor("red"));
+                    //logStatus(QString("Vx=%1").arg(vxDesired),QColor("red"));
 
         //            qDebug() << num2;
 
@@ -716,7 +716,7 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
                 if (chip)
                 {
                     robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
-                    logStatus(QString("chip: %1").arg(shootPower),QColor("orange"));
+                    //logStatus(QString("chip: %1").arg(shootPower),QColor("orange"));
                 }
                 else if ((shootPower > 0))
                 {
