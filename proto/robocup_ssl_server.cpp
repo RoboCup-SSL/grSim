@@ -126,7 +126,7 @@ void RoboCupSSLServer::close() {
 }
 
 bool RoboCupSSLServer::open() {
-  qDebug()<<"here";
+  //qDebug()<<"here";
   close();
 
   udps = new QUdpSocket(this);
@@ -255,7 +255,7 @@ bool RoboCupSSLServer::open() {
 
 
 /*  if (s->bind(_port))
-      qDebug() << "Binded google-protocol UDP socket on port:" << _port;*/
+      //qDebug() << "Binded google-protocol UDP socket on port:" << _port;*/
 #if 0
 /*    int sd = s->socketDescriptor();
     struct ip_mreq multicastRequest;
