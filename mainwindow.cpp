@@ -282,9 +282,9 @@ void MainWindow::update()
     lvv[2]=vv[2];
     QString ss;
     fpslabel->setText(QString("Frame rate: %1 fps").arg(ss.sprintf("%06.2f",glwidget->getFPS())));
-//    static int fff = 0;
+    static int fff = 0;
 //    qDebug() << fff << "," << glwidget->getFPS();
-//    fff ++;
+    fff ++;
     if (glwidget->ssl->selected!=-1)
     {
         selectinglabel->setVisible(true);
