@@ -783,8 +783,8 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         fball->set_x(bx);
         fball->set_y(by);
         fball->set_z(0);
-        fball->set_pixel_x(0);
-        fball->set_pixel_y(0);
+//        fball->set_pixel_x(0);
+//        fball->set_pixel_y(0);
         fball->set_confidence(0.75 + rand0_1()*0.25);
         bx = bx+vx;
         by = by-vy;
@@ -837,16 +837,17 @@ SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
 void SSLWorld::sendVisionBuffer()
 {
     int t = timer->elapsed();
-    sendQueue.push_back(new SendingPacket(generatePacket(),t));
-    while (t - sendQueue.front()->t>=cfg->sendDelay())
-    {
-        SSL_WrapperPacket *packet = sendQueue.front()->packet;
-        delete sendQueue.front();
-        sendQueue.pop_front();
-        visionServer->send(*packet);
-        delete packet;
-        if (sendQueue.isEmpty()) break;
-    }
+    visionServer->send(*generatePacket());
+//    sendQueue.push_back(new SendingPacket(generatePacket(),t));
+//    while (t - sendQueue.front()->t>=cfg->sendDelay())
+//    {
+//        SSL_WrapperPacket *packet = sendQueue.front()->packet;
+//        delete sendQueue.front();
+//        sendQueue.pop_front();
+//        visionServer->send(*packet);
+//        delete packet;
+//        if (sendQueue.isEmpty()) break;
+//    }
 }
 
 void RobotsFomation::setAll(float* xx,float *yy)
