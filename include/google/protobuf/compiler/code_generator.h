@@ -40,6 +40,8 @@
 
 #include <google/protobuf/stubs/common.h>
 #include <string>
+#include <vector>
+#include <utility>
 
 namespace google {
 namespace protobuf {
@@ -51,7 +53,7 @@ namespace compiler {
 
 // Defined in this file.
 class CodeGenerator;
-class OutputDirectory;
+class GeneratorContext;
 
 // The abstract interface to a class which generates code implementing a
 // particular proto file in a particular language.  A number of these may
@@ -74,7 +76,7 @@ class LIBPROTOC_EXPORT CodeGenerator {
   // the problem (e.g. "invalid parameter") and returns false.
   virtual bool Generate(const FileDescriptor* file,
                         const string& parameter,
-                        OutputDirectory* output_directory,
+                        GeneratorContext* generator_context,
                         string* error) const = 0;
 
  private:
@@ -83,11 +85,12 @@ class LIBPROTOC_EXPORT CodeGenerator {
 
 // CodeGenerators generate one or more files in a given directory.  This
 // abstract interface represents the directory to which the CodeGenerator is
-// to write.
-class LIBPROTOC_EXPORT OutputDirectory {
+// to write and other information about the context in which the Generator
+// runs.
+class LIBPROTOC_EXPORT GeneratorContext {
  public:
-  inline OutputDirectory() {}
-  virtual ~OutputDirectory();
+  inline GeneratorContext() {}
+  virtual ~GeneratorContext();
 
   // Opens the given file, truncating it if it exists, and returns a
   // ZeroCopyOutputStream that writes to the file.  The caller takes ownership
@@ -96,14 +99,41 @@ class LIBPROTOC_EXPORT OutputDirectory {
   //
   // The filename given should be relative to the root of the source tree.
   // E.g. the C++ generator, when generating code for "foo/bar.proto", will
-  // generate the files "foo/bar.pb2.h" and "foo/bar.pb2.cc"; note that
+  // generate the files "foo/bar.pb.h" and "foo/bar.pb.cc"; note that
   // "foo/" is included in these filenames.  The filename is not allowed to
   // contain "." or ".." components.
   virtual io::ZeroCopyOutputStream* Open(const string& filename) = 0;
 
+  // Creates a ZeroCopyOutputStream which will insert code into the given file
+  // at the given insertion point.  See plugin.proto (plugin.pb.h) for more
+  // information on insertion points.  The default implementation
+  // assert-fails -- it exists only for backwards-compatibility.
+  //
+  // WARNING:  This feature is currently EXPERIMENTAL and is subject to change.
+  virtual io::ZeroCopyOutputStream* OpenForInsert(
+      const string& filename, const string& insertion_point);
+
+  // Returns a vector of FileDescriptors for all the files being compiled
+  // in this run.  Useful for languages, such as Go, that treat files
+  // differently when compiled as a set rather than individually.
+  virtual void ListParsedFiles(vector<const FileDescriptor*>* output);
+
  private:
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(OutputDirectory);
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(GeneratorContext);
 };
+
+// The type GeneratorContext was once called OutputDirectory. This typedef
+// provides backward compatibility.
+typedef GeneratorContext OutputDirectory;
+
+// Several code generators treat the parameter argument as holding a
+// list of options separated by commas.  This helper function parses
+// a set of comma-delimited name/value pairs: e.g.,
+//   "foo=bar,baz,qux=corge"
+// parses to the pairs:
+//   ("foo", "bar"), ("baz", ""), ("qux", "corge")
+extern void ParseGeneratorParameter(const string&,
+            vector<pair<string, string> >*);
 
 }  // namespace compiler
 }  // namespace protobuf
