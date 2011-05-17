@@ -48,12 +48,37 @@
 #include <stdint.h>
 #endif
 
+#if defined(_MSC_VER) && defined(_CPPUNWIND)
+  #define PROTOBUF_USE_EXCEPTIONS
+#elif defined(__EXCEPTIONS)
+  #define PROTOBUF_USE_EXCEPTIONS
+#endif
+#ifdef PROTOBUF_USE_EXCEPTIONS
+#include <exception>
+#endif
+
+#if defined(_WIN32) && defined(GetMessage)
+// Allow GetMessage to be used as a valid method name in protobuf classes.
+// windows.h defines GetMessage() as a macro.  Let's re-define it as an inline
+// function.  The inline function should be equivalent for C++ users.
+inline BOOL GetMessage_Win32(
+    LPMSG lpMsg, HWND hWnd,
+    UINT wMsgFilterMin, UINT wMsgFilterMax) {
+  return GetMessage(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax);
+}
+#undef GetMessage
+inline BOOL GetMessage(
+    LPMSG lpMsg, HWND hWnd,
+    UINT wMsgFilterMin, UINT wMsgFilterMax) {
+  return GetMessage_Win32(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax);
+}
+#endif
+
+
 namespace std {}
 
 namespace google {
 namespace protobuf {
-
-using namespace std;  // Don't do this at home, kids.
 
 #undef GOOGLE_DISALLOW_EVIL_CONSTRUCTORS
 #define GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(TypeName)    \
@@ -83,24 +108,24 @@ namespace internal {
 
 // The current version, represented as a single integer to make comparison
 // easier:  major * 10^6 + minor * 10^3 + micro
-#define GOOGLE_PROTOBUF_VERSION 2001000
+#define GOOGLE_PROTOBUF_VERSION 2004001
 
 // The minimum library version which works with the current version of the
 // headers.
-#define GOOGLE_PROTOBUF_MIN_LIBRARY_VERSION 2001000
+#define GOOGLE_PROTOBUF_MIN_LIBRARY_VERSION 2004000
 
 // The minimum header version which works with the current version of
 // the library.  This constant should only be used by protoc's C++ code
 // generator.
-static const int kMinHeaderVersionForLibrary = 2001000;
+static const int kMinHeaderVersionForLibrary = 2004000;
 
 // The minimum protoc version which works with the current version of the
 // headers.
-#define GOOGLE_PROTOBUF_MIN_PROTOC_VERSION 2001000
+#define GOOGLE_PROTOBUF_MIN_PROTOC_VERSION 2004000
 
 // The minimum header version which works with the current version of
 // protoc.  This constant should only be used in VerifyVersion().
-static const int kMinHeaderVersionForProtoc = 2001000;
+static const int kMinHeaderVersionForProtoc = 2004000;
 
 // Verifies that the headers and libraries are compatible.  Use the macro
 // below to call this.
@@ -108,7 +133,7 @@ void LIBPROTOBUF_EXPORT VerifyVersion(int headerVersion, int minLibraryVersion,
                                       const char* filename);
 
 // Converts a numeric version number to a string.
-string LIBPROTOBUF_EXPORT VersionString(int version);
+std::string LIBPROTOBUF_EXPORT VersionString(int version);
 
 }  // namespace internal
 
@@ -171,7 +196,13 @@ static const int64 kint64min = -kint64max - 1;
 static const uint32 kuint32max = 0xFFFFFFFFu;
 static const uint64 kuint64max = GOOGLE_ULONGLONG(0xFFFFFFFFFFFFFFFF);
 
-#undef GOOGLE_ATTRIBUTE_ALWAYS_INLINE
+// -------------------------------------------------------------------
+// Annotations:  Some parts of the code have been annotated in ways that might
+//   be useful to some compilers or tools, but are not supported universally.
+//   You can #define these annotations yourself if the default implementation
+//   is not right for you.
+
+#ifndef GOOGLE_ATTRIBUTE_ALWAYS_INLINE
 #if defined(__GNUC__) && (__GNUC__ > 3 ||(__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
 // For functions we want to force inline.
 // Introduced in gcc 3.1.
@@ -179,6 +210,35 @@ static const uint64 kuint64max = GOOGLE_ULONGLONG(0xFFFFFFFFFFFFFFFF);
 #else
 // Other compilers will have to figure it out for themselves.
 #define GOOGLE_ATTRIBUTE_ALWAYS_INLINE
+#endif
+#endif
+
+#ifndef GOOGLE_ATTRIBUTE_DEPRECATED
+#ifdef __GNUC__
+// If the method/variable/type is used anywhere, produce a warning.
+#define GOOGLE_ATTRIBUTE_DEPRECATED __attribute__((deprecated))
+#else
+#define GOOGLE_ATTRIBUTE_DEPRECATED
+#endif
+#endif
+
+#ifndef GOOGLE_PREDICT_TRUE
+#ifdef __GNUC__
+// Provided at least since GCC 3.0.
+#define GOOGLE_PREDICT_TRUE(x) (__builtin_expect(!!(x), 1))
+#else
+#define GOOGLE_PREDICT_TRUE
+#endif
+#endif
+
+// Delimits a block of code which may write to memory which is simultaneously
+// written by other threads, but which has been determined to be thread-safe
+// (e.g. because it is an idempotent write).
+#ifndef GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN
+#define GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN()
+#endif
+#ifndef GOOGLE_SAFE_CONCURRENT_WRITES_END
+#define GOOGLE_SAFE_CONCURRENT_WRITES_END()
 #endif
 
 // ===================================================================
@@ -275,7 +335,9 @@ inline To down_cast(From* f) {                   // so we only accept pointers
     implicit_cast<From*, To>(0);
   }
 
+#if !defined(NDEBUG) && !defined(GOOGLE_PROTOBUF_NO_RTTI)
   assert(f == NULL || dynamic_cast<To>(f) != NULL);  // RTTI: debug mode only!
+#endif
   return static_cast<To>(f);
 }
 
@@ -313,6 +375,7 @@ struct CompileAssert {
 #define GOOGLE_COMPILE_ASSERT(expr, msg) \
   typedef ::google::protobuf::internal::CompileAssert<(bool(expr))> \
           msg[bool(expr) ? 1 : -1]
+
 
 // Implementation details of COMPILE_ASSERT:
 //
@@ -581,7 +644,7 @@ class LIBPROTOBUF_EXPORT LogMessage {
   LogMessage(LogLevel level, const char* filename, int line);
   ~LogMessage();
 
-  LogMessage& operator<<(const string& value);
+  LogMessage& operator<<(const std::string& value);
   LogMessage& operator<<(const char* value);
   LogMessage& operator<<(char value);
   LogMessage& operator<<(int value);
@@ -597,7 +660,7 @@ class LIBPROTOBUF_EXPORT LogMessage {
   LogLevel level_;
   const char* filename_;
   int line_;
-  string message_;
+  std::string message_;
 };
 
 // Used to make the entire "LOG(BLAH) << etc." expression have a void return
@@ -642,24 +705,24 @@ class LIBPROTOBUF_EXPORT LogFinisher {
 
 #define GOOGLE_CHECK(EXPRESSION) \
   GOOGLE_LOG_IF(FATAL, !(EXPRESSION)) << "CHECK failed: " #EXPRESSION ": "
-#define GOOGLE_CHECK_EQ(A, B) GOOGLE_CHECK(A == B)
-#define GOOGLE_CHECK_NE(A, B) GOOGLE_CHECK(A != B)
-#define GOOGLE_CHECK_LT(A, B) GOOGLE_CHECK(A <  B)
-#define GOOGLE_CHECK_LE(A, B) GOOGLE_CHECK(A <= B)
-#define GOOGLE_CHECK_GT(A, B) GOOGLE_CHECK(A >  B)
-#define GOOGLE_CHECK_GE(A, B) GOOGLE_CHECK(A >= B)
+#define GOOGLE_CHECK_EQ(A, B) GOOGLE_CHECK((A) == (B))
+#define GOOGLE_CHECK_NE(A, B) GOOGLE_CHECK((A) != (B))
+#define GOOGLE_CHECK_LT(A, B) GOOGLE_CHECK((A) <  (B))
+#define GOOGLE_CHECK_LE(A, B) GOOGLE_CHECK((A) <= (B))
+#define GOOGLE_CHECK_GT(A, B) GOOGLE_CHECK((A) >  (B))
+#define GOOGLE_CHECK_GE(A, B) GOOGLE_CHECK((A) >= (B))
 
 #ifdef NDEBUG
 
-#define GOOGLE_DLOG GOOGLE_LOG_IF(false, INFO)
+#define GOOGLE_DLOG GOOGLE_LOG_IF(INFO, false)
 
 #define GOOGLE_DCHECK(EXPRESSION) while(false) GOOGLE_CHECK(EXPRESSION)
-#define GOOGLE_DCHECK_EQ(A, B) GOOGLE_DCHECK(A == B)
-#define GOOGLE_DCHECK_NE(A, B) GOOGLE_DCHECK(A != B)
-#define GOOGLE_DCHECK_LT(A, B) GOOGLE_DCHECK(A <  B)
-#define GOOGLE_DCHECK_LE(A, B) GOOGLE_DCHECK(A <= B)
-#define GOOGLE_DCHECK_GT(A, B) GOOGLE_DCHECK(A >  B)
-#define GOOGLE_DCHECK_GE(A, B) GOOGLE_DCHECK(A >= B)
+#define GOOGLE_DCHECK_EQ(A, B) GOOGLE_DCHECK((A) == (B))
+#define GOOGLE_DCHECK_NE(A, B) GOOGLE_DCHECK((A) != (B))
+#define GOOGLE_DCHECK_LT(A, B) GOOGLE_DCHECK((A) <  (B))
+#define GOOGLE_DCHECK_LE(A, B) GOOGLE_DCHECK((A) <= (B))
+#define GOOGLE_DCHECK_GT(A, B) GOOGLE_DCHECK((A) >  (B))
+#define GOOGLE_DCHECK_GE(A, B) GOOGLE_DCHECK((A) >= (B))
 
 #else  // NDEBUG
 
@@ -676,7 +739,7 @@ class LIBPROTOBUF_EXPORT LogFinisher {
 #endif  // !NDEBUG
 
 typedef void LogHandler(LogLevel level, const char* filename, int line,
-                        const string& message);
+                        const std::string& message);
 
 // The protobuf library sometimes writes warning and error messages to
 // stderr.  These messages are primarily useful for developers, but may
@@ -788,8 +851,9 @@ class LIBPROTOBUF_EXPORT FunctionClosure0 : public Closure {
   ~FunctionClosure0();
 
   void Run() {
+    bool needs_delete = self_deleting_;  // read in case callback deletes
     function_();
-    if (self_deleting_) delete this;
+    if (needs_delete) delete this;
   }
 
  private:
@@ -807,8 +871,9 @@ class MethodClosure0 : public Closure {
   ~MethodClosure0() {}
 
   void Run() {
+    bool needs_delete = self_deleting_;  // read in case callback deletes
     (object_->*method_)();
-    if (self_deleting_) delete this;
+    if (needs_delete) delete this;
   }
 
  private:
@@ -829,8 +894,9 @@ class FunctionClosure1 : public Closure {
   ~FunctionClosure1() {}
 
   void Run() {
+    bool needs_delete = self_deleting_;  // read in case callback deletes
     function_(arg1_);
-    if (self_deleting_) delete this;
+    if (needs_delete) delete this;
   }
 
  private:
@@ -851,8 +917,9 @@ class MethodClosure1 : public Closure {
   ~MethodClosure1() {}
 
   void Run() {
+    bool needs_delete = self_deleting_;  // read in case callback deletes
     (object_->*method_)(arg1_);
-    if (self_deleting_) delete this;
+    if (needs_delete) delete this;
   }
 
  private:
@@ -874,8 +941,9 @@ class FunctionClosure2 : public Closure {
   ~FunctionClosure2() {}
 
   void Run() {
+    bool needs_delete = self_deleting_;  // read in case callback deletes
     function_(arg1_, arg2_);
-    if (self_deleting_) delete this;
+    if (needs_delete) delete this;
   }
 
  private:
@@ -897,8 +965,9 @@ class MethodClosure2 : public Closure {
   ~MethodClosure2() {}
 
   void Run() {
+    bool needs_delete = self_deleting_;  // read in case callback deletes
     (object_->*method_)(arg1_, arg2_);
-    if (self_deleting_) delete this;
+    if (needs_delete) delete this;
   }
 
  private:
@@ -1111,6 +1180,30 @@ namespace internal {
 LIBPROTOBUF_EXPORT void OnShutdown(void (*func)());
 
 }  // namespace internal
+
+#ifdef PROTOBUF_USE_EXCEPTIONS
+class FatalException : public std::exception {
+ public:
+  FatalException(const char* filename, int line, const std::string& message)
+      : filename_(filename), line_(line), message_(message) {}
+  virtual ~FatalException() throw();
+
+  virtual const char* what() const throw();
+
+  const char* filename() const { return filename_; }
+  int line() const { return line_; }
+  const std::string& message() const { return message_; }
+
+ private:
+  const char* filename_;
+  const int line_;
+  const std::string message_;
+};
+#endif
+
+// This is at the end of the file instead of the beginning to work around a bug
+// in some versions of MSVC.
+using namespace std;  // Don't do this at home, kids.
 
 }  // namespace protobuf
 }  // namespace google

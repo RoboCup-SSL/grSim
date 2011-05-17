@@ -29,7 +29,9 @@ SOURCES += main.cpp \
     statuswidget.cpp \
     logger.cpp \
     robotwidget.cpp \
-    getpositionwidget.cpp
+    getpositionwidget.cpp \
+    proto/grSim_Replacement.pb.cc \
+    proto/grSim_Commands.pb.cc
 HEADERS += mainwindow.h \
     glwidget.h \
     Graphics/graphics.h \
@@ -53,7 +55,9 @@ HEADERS += mainwindow.h \
     statuswidget.h \
     logger.h \
     robotwidget.h \
-    getpositionwidget.h
+    getpositionwidget.h \
+    proto/grSim_Replacement.pb.h \
+    proto/grSim_Commands.pb.h
 LIBS += -L$$PWD/libs/ \
     -lode-0.11.1 \
     -lprotobuf-2.1.0 \

@@ -140,6 +140,10 @@ class LIBPROTOBUF_EXPORT GeneratedMessageReflection : public Reflection {
   bool HasField(const Message& message, const FieldDescriptor* field) const;
   int FieldSize(const Message& message, const FieldDescriptor* field) const;
   void ClearField(Message* message, const FieldDescriptor* field) const;
+  void RemoveLast(Message* message, const FieldDescriptor* field) const;
+  void Swap(Message* message1, Message* message2) const;
+  void SwapElements(Message* message, const FieldDescriptor* field,
+            int index1, int index2) const;
   void ListFields(const Message& message,
                   vector<const FieldDescriptor*>* output) const;
 
@@ -165,7 +169,8 @@ class LIBPROTOBUF_EXPORT GeneratedMessageReflection : public Reflection {
   const EnumValueDescriptor* GetEnum(const Message& message,
                                      const FieldDescriptor* field) const;
   const Message& GetMessage(const Message& message,
-                            const FieldDescriptor* field) const;
+                            const FieldDescriptor* field,
+                            MessageFactory* factory = NULL) const;
 
   void SetInt32 (Message* message,
                  const FieldDescriptor* field, int32  value) const;
@@ -186,7 +191,8 @@ class LIBPROTOBUF_EXPORT GeneratedMessageReflection : public Reflection {
                  const string& value) const;
   void SetEnum  (Message* message, const FieldDescriptor* field,
                  const EnumValueDescriptor* value) const;
-  Message* MutableMessage(Message* message, const FieldDescriptor* field) const;
+  Message* MutableMessage(Message* message, const FieldDescriptor* field,
+                          MessageFactory* factory = NULL) const;
 
   int32  GetRepeatedInt32 (const Message& message,
                            const FieldDescriptor* field, int index) const;
@@ -258,7 +264,8 @@ class LIBPROTOBUF_EXPORT GeneratedMessageReflection : public Reflection {
   void AddEnum(Message* message,
                const FieldDescriptor* field,
                const EnumValueDescriptor* value) const;
-  Message* AddMessage(Message* message, const FieldDescriptor* field) const;
+  Message* AddMessage(Message* message, const FieldDescriptor* field,
+                      MessageFactory* factory = NULL) const;
 
   const FieldDescriptor* FindKnownExtensionByName(const string& name) const;
   const FieldDescriptor* FindKnownExtensionByNumber(int number) const;
@@ -314,9 +321,13 @@ class LIBPROTOBUF_EXPORT GeneratedMessageReflection : public Reflection {
                                       const FieldDescriptor* field,
                                       int index) const;
   template <typename Type>
+  inline const Type& GetRepeatedPtrField(const Message& message,
+                                         const FieldDescriptor* field,
+                                         int index) const;
+  template <typename Type>
   inline void SetRepeatedField(Message* message,
                                const FieldDescriptor* field, int index,
-                               const Type& value) const;
+                               Type value) const;
   template <typename Type>
   inline Type* MutableRepeatedField(Message* message,
                                     const FieldDescriptor* field,
@@ -347,9 +358,10 @@ class LIBPROTOBUF_EXPORT GeneratedMessageReflection : public Reflection {
 // choose 16 rather than some other number just in case the compiler would
 // be confused by an unaligned pointer.
 #define GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(TYPE, FIELD)    \
-  (reinterpret_cast<const char*>(                             \
-     &reinterpret_cast<const TYPE*>(16)->FIELD) -             \
-   reinterpret_cast<const char*>(16))
+  static_cast<int>(                                           \
+    reinterpret_cast<const char*>(                            \
+      &reinterpret_cast<const TYPE*>(16)->FIELD) -            \
+    reinterpret_cast<const char*>(16))
 
 // There are some places in proto2 where dynamic_cast would be useful as an
 // optimization.  For example, take Message::MergeFrom(const Message& other).
@@ -383,11 +395,6 @@ inline To dynamic_cast_if_available(From from) {
 #endif
 }
 
-// Compute the space used by a string, not including sizeof(string) itself.
-// This is slightly complicated because small strings store their data within
-// the string object but large strings do not.
-LIBPROTOBUF_EXPORT int StringSpaceUsedExcludingSelf(const string& str);
-
 // Helper for EnumType_Parse functions: try to parse the string 'name' as an
 // enum name of the given type, returning true and filling in value on success,
 // or returning false and leaving value unchanged on failure.
@@ -409,7 +416,6 @@ bool ParseNamedEnum(const EnumDescriptor* descriptor,
 // function is not to be inlined, so that you can do this without including
 // descriptor.h.
 LIBPROTOBUF_EXPORT const string& NameOfEnum(const EnumDescriptor* descriptor, int value);
-
 
 }  // namespace internal
 }  // namespace protobuf
