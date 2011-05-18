@@ -720,17 +720,16 @@ SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
 void SSLWorld::sendVisionBuffer()
 {
     int t = timer->elapsed();
-    visionServer->send(*generatePacket());
-//    sendQueue.push_back(new SendingPacket(generatePacket(),t));
-//    while (t - sendQueue.front()->t>=cfg->sendDelay())
-//    {
-//        SSL_WrapperPacket *packet = sendQueue.front()->packet;
-//        delete sendQueue.front();
-//        sendQueue.pop_front();
-//        visionServer->send(*packet);
-//        delete packet;
-//        if (sendQueue.isEmpty()) break;
-//    }
+    sendQueue.push_back(new SendingPacket(generatePacket(),t));
+    while (t - sendQueue.front()->t>=cfg->sendDelay())
+    {
+        SSL_WrapperPacket *packet = sendQueue.front()->packet;
+        delete sendQueue.front();
+        sendQueue.pop_front();
+        visionServer->send(*packet);
+        delete packet;
+        if (sendQueue.isEmpty()) break;
+    }
 }
 
 void RobotsFomation::setAll(float* xx,float *yy)
