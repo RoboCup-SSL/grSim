@@ -7,6 +7,7 @@
 
 #include "logger.h"
 
+#include "proto/grSim_Packet.pb.h"
 #include "proto/grSim_Commands.pb.h"
 #include "proto/grSim_Replacement.pb.h"
 
@@ -239,10 +240,8 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
     visionServer = NULL;
     reconnectVisionSocket();
-    blueSocket = NULL;
-    reconnectBlueCommandSocket();
-    yellowSocket = NULL;
-    reconnectYellowCommandSocket();
+    commandSocket = NULL;
+    reconnectCommandSocket();
     blueStatusSocket = NULL;
     reconnectBlueStatusSocket();
     yellowStatusSocket = NULL;
@@ -274,33 +273,18 @@ void SSLWorld::reconnectYellowStatusSocket()
         logStatus(QString("Status send port binded for Yellow Team on: %1").arg(cfg->YellowStatusSendPort()),QColor("green"));
 }
 
-void SSLWorld::reconnectBlueCommandSocket()
+void SSLWorld::reconnectCommandSocket()
 {
-    if (blueSocket!=NULL)
+    if (commandSocket!=NULL)
     {
-        QObject::disconnect(blueSocket,SIGNAL(readyRead()),this,SLOT(recvFromBlue()));
-        delete blueSocket;
+        QObject::disconnect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
+        delete commandSocket;
     }
-    blueSocket = new QUdpSocket(this);
-    if (blueSocket->bind(QHostAddress::Any,cfg->BlueCommandListenPort()))
-        logStatus(QString("Command listen port binded for Blue Team on: %1").arg(cfg->BlueCommandListenPort()),QColor("green"));
-    QObject::connect(blueSocket,SIGNAL(readyRead()),this,SLOT(recvFromBlue()));
+    commandSocket = new QUdpSocket(this);
+    if (commandSocket->bind(QHostAddress::Any,cfg->CommandListenPort()))
+        logStatus(QString("Command listen port binded on: %1").arg(cfg->CommandListenPort()),QColor("green"));
+    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
 }
-
-
-void SSLWorld::reconnectYellowCommandSocket()
-{
-    if (yellowSocket!=NULL)
-    {
-        QObject::disconnect(yellowSocket,SIGNAL(readyRead()),this,SLOT(recvFromYellow()));
-        delete yellowSocket;
-    }
-    yellowSocket = new QUdpSocket(this);
-    if (yellowSocket->bind(QHostAddress::Any,cfg->YellowCommandListenPort()))
-        logStatus(QString("Command listen port binded for Yellow Team on: %1").arg(cfg->YellowCommandListenPort()),QColor("green"));
-    QObject::connect(yellowSocket,SIGNAL(readyRead()),this,SLOT(recvFromYellow()));
-}
-
 
 void SSLWorld::reconnectVisionSocket()
 {
@@ -318,10 +302,8 @@ void SSLWorld::reconnectVisionSocket()
 SSLWorld::~SSLWorld()
 {
     delete visionServer;
-    yellowSocket->close();
-    blueSocket->close();
-    delete yellowSocket;
-    delete blueSocket;
+    commandSocket->close();
+    delete commandSocket;
 }
 
 QImage* createBlob(char yb,int i,QImage** res)
@@ -535,240 +517,120 @@ void SSLWorld::step(float dt)
     framenum ++;
 }
 
-void SSLWorld::recvFromBlue()
+
+void SSLWorld::recvActions()
 {
-    recvActions(blueSocket,blueStatusSocket,cfg->BlueStatusSendPort(),0);
-}
-
-
-void SSLWorld::recvFromYellow()
-{
-    recvActions(yellowSocket,yellowStatusSocket,cfg->YellowStatusSendPort(),1);
-}
-
-
-
-void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,int statusPort,int team)
-{
-    unsigned char action;
-    int nID,id;
-    // Data received from Comm Thread
     QHostAddress sender;
-    quint16 port;
-    //gr
-    grSim_Commands packet;
+    quint16 port;    
+    grSim_Packet packet;
     while (commandSocket->hasPendingDatagrams())
     {
-        int size = commandSocket->readDatagram(in_buffer, 65536);
+        int size = commandSocket->readDatagram(in_buffer, 65536, &sender, &port);
         if (size > 0)
         {
             packet.ParseFromArray(in_buffer, size);
             int team=0;
-            if (packet.isteamyellow()) team=1;
-            for (int i=0;i<packet.robot_commands_size();i++)
+            if (packet.has_commands())
             {
-                int k = packet.robot_commands(i).id();
-                int id = robotIndex(k, team);
-                if (id > ROBOT_COUNT*2 || id < 0) continue;
-                bool wheels = false;
-                if (packet.robot_commands(i).has_wheelsspeed())
+                if (packet.commands().has_isteamyellow())
                 {
-                    if (packet.robot_commands(i).wheelsspeed()==true)
+                    if (packet.commands().isteamyellow()) team=1;
+                }
+                for (int i=0;i<packet.commands().robot_commands_size();i++)
+                {
+                    if (!packet.commands().robot_commands(i).has_id()) continue;
+                    int k = packet.commands().robot_commands(i).id();
+                    int id = robotIndex(k, team);
+                    if ((id < 0) || (id >= ROBOT_COUNT*2)) continue;
+                    bool wheels = false;
+                    if (packet.commands().robot_commands(i).has_wheelsspeed())
                     {
-                        if (packet.robot_commands(i).has_wheel1()) robots[id]->setSpeed(0, packet.robot_commands(i).wheel1());
-                        if (packet.robot_commands(i).has_wheel2()) robots[id]->setSpeed(1, packet.robot_commands(i).wheel2());
-                        if (packet.robot_commands(i).has_wheel3()) robots[id]->setSpeed(2, packet.robot_commands(i).wheel3());
-                        if (packet.robot_commands(i).has_wheel4()) robots[id]->setSpeed(3, packet.robot_commands(i).wheel4());
-                        wheels = true;
-                    }
-                }
-                if (!wheels)
-                {
-                    double vx = 0;if (packet.robot_commands(i).has_veltangent()) vx = packet.robot_commands(i).veltangent();
-                    double vy = 0;if (packet.robot_commands(i).has_velnormal())  vy = packet.robot_commands(i).velnormal();
-                    double vw = 0;if (packet.robot_commands(i).has_velangular()) vw = packet.robot_commands(i).velangular();
-                    robots[id]->setSpeed(vw, vy, w);
-                }
-
-            }
-        }
-
-        commandSocket->readDatagram(packet,155,&sender,&port);
-        bool posPacket=true;        
-        bool comPacket=true;
-        for (int i=0;i<8;i++)
-        {
-            if (packet[i]!=55) posPacket = false;
-            if (packet[i]!=45) comPacket = false;
-        }                
-        if (posPacket)
-        {            
-            char *pp = packet + 8;
-            int ofs = 0;            
-            for (int i=0;i<10;i++)
-            {
-                float x,y,d;
-                if (pp[ofs]==100)
-                {
-                    //logStatus(QString("replacing robot %1").arg(i),"blue");
-                    (* (((char*) (&x)) + 0) ) = pp[ofs+1];
-                    (* (((char*) (&x)) + 1) ) = pp[ofs+2];
-                    (* (((char*) (&x)) + 2) ) = pp[ofs+3];
-                    (* (((char*) (&x)) + 3) ) = pp[ofs+4];
-
-                    (* (((char*) (&y)) + 0) ) = pp[ofs+5];
-                    (* (((char*) (&y)) + 1) ) = pp[ofs+6];
-                    (* (((char*) (&y)) + 2) ) = pp[ofs+7];
-                    (* (((char*) (&y)) + 3) ) = pp[ofs+8];
-
-                    (* (((char*) (&d)) + 0) ) = pp[ofs+9];
-                    (* (((char*) (&d)) + 1) ) = pp[ofs+10];
-                    (* (((char*) (&d)) + 2) ) = pp[ofs+11];
-                    (* (((char*) (&d)) + 3) ) = pp[ofs+12];
-
-                    robots[i]->setXY(x,y);
-                    robots[i]->resetRobot();
-                    robots[i]->setDir(d);                    
-                }
-                ofs += 13;
-            }
-            if (pp[ofs]==100)
-            {
-                //logStatus("replacing ball","blue");
-                float x,y,vx,vy;
-                (* (((char*) (&x)) + 0) ) = pp[ofs+1];
-                (* (((char*) (&x)) + 1) ) = pp[ofs+2];
-                (* (((char*) (&x)) + 2) ) = pp[ofs+3];
-                (* (((char*) (&x)) + 3) ) = pp[ofs+4];
-
-                (* (((char*) (&y)) + 0) ) = pp[ofs+5];
-                (* (((char*) (&y)) + 1) ) = pp[ofs+6];
-                (* (((char*) (&y)) + 2) ) = pp[ofs+7];
-                (* (((char*) (&y)) + 3) ) = pp[ofs+8];
-
-                (* (((char*) (&vx)) + 0) ) = pp[ofs+9];
-                (* (((char*) (&vx)) + 1) ) = pp[ofs+10];
-                (* (((char*) (&vx)) + 2) ) = pp[ofs+11];
-                (* (((char*) (&vx)) + 3) ) = pp[ofs+12];
-
-                (* (((char*) (&vy)) + 0) ) = pp[ofs+9];
-                (* (((char*) (&vy)) + 1) ) = pp[ofs+10];
-                (* (((char*) (&vy)) + 2) ) = pp[ofs+11];
-                (* (((char*) (&vy)) + 3) ) = pp[ofs+12];
-                ball->setBodyPosition(x,y,cfg->BALLRADIUS()*1.2);
-                dBodySetLinearVel(ball->body,vx,vy,0);
-                dBodySetAngularVel(ball->body,0,0,0);
-            }
-        }
-        else if (comPacket)
-        {            
-            for (int k=0;k<7;k++)
-            {
-                char* c = packet + (k+1)*8;
-                if (c[0]==66)
-                {
-                    if (c[1]==10) isGLEnabled = false;
-                    else isGLEnabled = true;
-                    float tt;
-                    (* (((char*) (&tt)) + 0) ) = c[2];
-                    (* (((char*) (&tt)) + 1) ) = c[3];
-                    (* (((char*) (&tt)) + 2) ) = c[4];
-                    (* (((char*) (&tt)) + 3) ) = c[5];
-                    short int fps;
-                    (* (((char*) (&fps)) + 0) ) = c[6];
-                    (* (((char*) (&fps)) + 1) ) = c[7];
-                    if (fps>0)
-                    {
-                        emit fpsChanged(fps);
-                    }
-                    customDT = tt;                                        
-                    continue;
-                }
-                if (((unsigned char) c[0])!=0x99) continue;
-                action = c[1];
-                nID = action & 0x0F;
-                if (nID>=ROBOT_COUNT) continue;
-                char packetType = (action >> 4) & 0x03;
-                id  = nID;
-                nID = robotIndex(nID,team);
-                int spin = (action & 0xC0) >> 6;
-                if (spin==2) spin = -1;
-                char kickbyte = c[2];
-                int shootPower = kickbyte & 0x0F;
-                int chip = kickbyte & 0x10;
-                int sm1,sm2,sm3,sm4,sm5;
-                if (packetType == 3)
-                {
-                    short int vxDesired;
-                    short int vyDesired;
-                    short int wDesired;
-
-                    sm1 = c[3];
-                    sm2 = c[4];
-                    sm3 = c[5];
-                    sm4 = c[6];
-                    sm5 = c[7];
-
-                    vxDesired = 256 * sm1 + sm2;
-                    vyDesired = 256 * sm3 + sm4;
-                    wDesired = sm5;
-
-                    //logStatus(QString("Vx=%1").arg(vxDesired),QColor("red"));
-
-        //            qDebug() << num2;
-
-
-
-
-
-                }
-                else
-                {
-                    sm1 = c[3];
-                    sm2 = c[4];
-                    sm3 = c[5];
-                    sm4 = c[6];
-                }
-                robots[nID]->setSpeed(0,sm1);
-                robots[nID]->setSpeed(1,sm2);
-                robots[nID]->setSpeed(2,sm3);
-                robots[nID]->setSpeed(3,sm4);
-                // Applying Shoot and spinner
-                if (chip)
-                {
-                    robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()),true);
-                    //logStatus(QString("chip: %1").arg(shootPower),QColor("orange"));
-                }
-                else if ((shootPower > 0))
-                {
-                    if (ballTrainingMode)
-                    {
-                        if (id==0) //reset ball
+                        if (packet.commands().robot_commands(i).wheelsspeed()==true)
                         {
-                            dBodySetLinearVel(ball->body,0,0,0);
-                            dBodySetAngularVel(ball->body,0,0,0);
-                            dBodySetPosition(ball->body,-2,0,0.08);
-                            logStatus("Ball training mode: Reseting ball",QColor("orange"));
-                        }
-                        else if (id==1) //kick the ball
-                        {
-                            dBodySetLinearVel(ball->body,sm1*5.0/32.0,0,0);
-                            logStatus("Ball training mode: Kicking ball",QColor("blue"));
+                            if (packet.commands().robot_commands(i).has_wheel1()) robots[id]->setSpeed(0, packet.commands().robot_commands(i).wheel1());
+                            if (packet.commands().robot_commands(i).has_wheel2()) robots[id]->setSpeed(1, packet.commands().robot_commands(i).wheel2());
+                            if (packet.commands().robot_commands(i).has_wheel3()) robots[id]->setSpeed(2, packet.commands().robot_commands(i).wheel3());
+                            if (packet.commands().robot_commands(i).has_wheel4()) robots[id]->setSpeed(3, packet.commands().robot_commands(i).wheel4());
+                            wheels = true;
                         }
                     }
-                    robots[nID]->kicker->kick(((double) shootPower*cfg->shootfactor()));
+                    if (!wheels)
+                    {
+                        double vx = 0;if (packet.commands().robot_commands(i).has_veltangent()) vx = packet.commands().robot_commands(i).veltangent();
+                        double vy = 0;if (packet.commands().robot_commands(i).has_velnormal())  vy = packet.commands().robot_commands(i).velnormal();
+                        double vw = 0;if (packet.commands().robot_commands(i).has_velangular()) vw = packet.commands().robot_commands(i).velangular();
+                        robots[id]->setSpeed(vw, vy, vw);
+                    }
+                    double kickx = 0 , kickz = 0;
+                    bool kick = false;
+                    if (packet.commands().robot_commands(i).has_kickspeedx())
+                    {
+                        kick = true;
+                        kickx = packet.commands().robot_commands(i).kickspeedx();
+                    }
+                    if (packet.commands().robot_commands(i).has_kickspeedz())
+                    {
+                        kick = true;
+                        kickz = packet.commands().robot_commands(i).kickspeedz();
+                    }
+                    if (kick && ((kickx>0.0001) || (kickz>0.0001)))
+                        robots[id]->kicker->kick(kickx,kickz);
+                    int rolling = 0;
+                    if (packet.commands().robot_commands(i).has_spinner())
+                    {
+                        if (packet.commands().robot_commands(i).spinner()) rolling = 1;
+                    }
+                    robots[id]->kicker->setRoller(rolling);
+
+                    char status = 0;
+                    status = k;
+                    if (robots[id]->kicker->isTouchingBall()) status = status | 8;
+                    if (robots[id]->on) status = status | 240;
+                    if (team == 0)
+                        blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
+                    else
+                        yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
+
                 }
-                robots[nID]->kicker->setRoller(spin);
-                char status = 0;
-                status = id;
-                if (robots[nID]->kicker->isTouchingBall()) status = status | 8;
-                if (robots[nID]->on) status = status | 240;
-                statusSocket->writeDatagram(&status,1,sender,statusPort);                
+            }
+            if (packet.has_replacement())
+            {
+                for (int i=0;i<packet.replacement().robots_size();i++)
+                {
+                    int team = 0;
+                    if (packet.replacement().robots(i).has_yellowteam())
+                    {
+                        if (packet.replacement().robots(i).yellowteam())
+                            team = 1;
+                    }
+                    if (!packet.replacement().robots(i).has_id()) continue;
+                    int k = packet.replacement().robots(i).id();
+                    double x = 0, y = 0, dir = 0;
+                    if (packet.replacement().robots(i).has_x()) x = packet.replacement().robots(i).x();
+                    if (packet.replacement().robots(i).has_y()) y = packet.replacement().robots(i).y();
+                    if (packet.replacement().robots(i).has_dir()) dir = packet.replacement().robots(i).dir();
+                    int id = robotIndex(k, team);
+                    if ((id < 0) || (id >= ROBOT_COUNT*2)) continue;
+                    robots[id]->setXY(x,y);
+                    robots[id]->resetRobot();
+                    robots[id]->setDir(dir);
+                }
+                if (packet.replacement().has_ball())
+                {
+                    double x = 0, y = 0, vx = 0, vy = 0;
+                    if (packet.replacement().ball().has_x())  x  = packet.replacement().ball().x();
+                    if (packet.replacement().ball().has_y())  y  = packet.replacement().ball().y();
+                    if (packet.replacement().ball().has_vx()) vx = packet.replacement().ball().vx();
+                    if (packet.replacement().ball().has_vy()) vy = packet.replacement().ball().vy();
+                    ball->setBodyPosition(x,y,cfg->BALLRADIUS()*1.2);
+                    dBodySetLinearVel(ball->body,vx,vy,0);
+                    dBodySetAngularVel(ball->body,0,0,0);
+                }
             }
         }
     }
-
 }
+
 float normalizeAngle(float a)
 {
     if (a>180) return -360+a;
