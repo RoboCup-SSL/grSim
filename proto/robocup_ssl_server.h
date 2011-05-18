@@ -24,7 +24,6 @@
 
 #ifdef Q_OS_UNIX
 
-#ifndef AR_HOME_MODE
 #ifndef ROBOCUP_SSL_SERVER_H
 #define ROBOCUP_SSL_SERVER_H
 #include "netraw.h"
@@ -60,10 +59,7 @@ public:
 };
 
 #endif
-#endif
 
-
-#endif
 #endif
 
 #ifdef Q_OS_WIN32

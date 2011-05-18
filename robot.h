@@ -54,7 +54,7 @@ public:
       public:
         Kicker(Robot* robot);
         void step();
-        void kick(float kickspeed,bool chip=false);
+        void kick(float kickspeedx, float kickspeedz);
         void setRoller(int roller);
         int getRoller();
         void toggleRoller();

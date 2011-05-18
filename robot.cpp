@@ -42,7 +42,7 @@ void Robot::Wheel::step()
 {
  //   if (id!=0)
     {
-        dJointSetAMotorParam(motor,dParamVel,speed*(rob->cfg->motormaxoutput()*2.0f*M_PI)/(60.0f*rob->cfg->motormaxinput()));
+        dJointSetAMotorParam(motor,dParamVel,speed);
         dJointSetAMotorParam(motor,dParamFMax,rob->cfg->Wheel_Motor_FMax());
     }
     //dJointSetHingeParam (joint,dParamVel,speed);
@@ -149,42 +149,28 @@ void Robot::Kicker::toggleRoller()
     else rolling = 0;
 }
 
-void Robot::Kicker::kick(float kickspeed,bool chip)
+void Robot::Kicker::kick(float kickspeedx, float kickspeedz)
 {    
     float dx,dy,dz;
     float vx,vy,vz;
     rob->chassis->getBodyDirection(dx,dy,dz);dz = 0;
-    float zf = 0;
-    if (chip) zf = kickspeed*rob->cfg->CHIPFACTOR();
-
+    float zf = kickspeedz;
     if (isTouchingBall())
     {
         double dlen = dx*dx+dy*dy+dz*dz;
         dlen = sqrt(dlen);
-        vx = dx*kickspeed*rob->cfg->KICKFACTOR();
-        vy = dy*kickspeed*rob->cfg->KICKFACTOR();
+        vx = dx*kickspeedx/dlen;
+        vy = dy*kickspeedx/dlen;
         vz = 0;
         const dReal* vball = dBodyGetLinearVel(rob->getBall()->body);
         double vn = -(vball[0]*dx + vball[1]*dy)*rob->cfg->kickerDampFactor();
         double vt = -(vball[0]*dy - vball[1]*dx);
         vx += vn * dx - vt * dy;
         vy += vn * dy + vt * dx;
-        dBodySetLinearVel(rob->getBall()->body,vx,vy,zf);
+        dBodySetLinearVel(rob->getBall()->body,vx,vy,kickspeedz);
     }
-    kicking = true;kickstate=10;
-  if (!kicking)
-  {
-
-/*    kicking = true;
-    kickstate=1;
-    m_kicktime  = (int) (KICK_MAX_ANGLE / kickspeed);
-    m_kickspeed = KICK_MAX_ANGLE/m_kicktime;
-    dJointSetHingeParam (joint,dParamLoStop,0);
-    dJointSetHingeParam (joint,dParamHiStop,1);
-*/
-
-    //dJointSetHingeParam (joint,dParamFMax,0.5);
-  }
+    kicking = true;
+    kickstate = 10;
 }
 
 Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,float x,float y,float z,float r,float g,float b,int rob_id,int wheeltexid,int dir)

@@ -96,20 +96,7 @@ bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
   return send(pkt);
 }
 
-#include "robocup_ssl_server.h"
-#include <QDebug>
-
-RoboCupSSLServer::RoboCupSSLServer(int port,
-                     string net_address,
-                     string net_interface)
-{
-  _port=port;
-  _net_address=net_address;
-  _net_interface=net_interface;
-  udps=NULL;
-
-}
-
+#endif
 
 #ifdef Q_OS_WIN32
 #include "robocup_ssl_server.h"

@@ -31,7 +31,8 @@ SOURCES += main.cpp \
     robotwidget.cpp \
     getpositionwidget.cpp \
     proto/grSim_Replacement.pb.cc \
-    proto/grSim_Commands.pb.cc
+    proto/grSim_Commands.pb.cc \
+    proto/grSim_Packet.pb.cc
 HEADERS += mainwindow.h \
     glwidget.h \
     Graphics/graphics.h \
@@ -57,7 +58,8 @@ HEADERS += mainwindow.h \
     robotwidget.h \
     getpositionwidget.h \
     proto/grSim_Replacement.pb.h \
-    proto/grSim_Commands.pb.h
+    proto/grSim_Commands.pb.h \
+    proto/grSim_Packet.pb.h
 LIBS += -L$$PWD/libs/ \
     -lode-0.11.1 \
     -lprotobuf-2.4.0 \
