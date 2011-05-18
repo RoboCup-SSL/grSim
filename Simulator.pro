@@ -60,7 +60,7 @@ HEADERS += mainwindow.h \
     proto/grSim_Commands.pb.h
 LIBS += -L$$PWD/libs/ \
     -lode-0.11.1 \
-    -lprotobuf-2.1.0 \
+    -lprotobuf-2.4.0 \
     -lVarTypes
 OBJECTS_DIR = $$PWD/objs
 DESTDIR = $$PWD/objs

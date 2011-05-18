@@ -42,6 +42,7 @@ private:
     /**BALL TRACKER TEST**/
     float bx,by,vx,vy;    
     char packet[200];
+    char *in_buffer;
 public:
     float customDT;
     bool isGLEnabled;

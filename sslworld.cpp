@@ -249,6 +249,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     reconnectYellowStatusSocket();
     timer = new QTime();
     timer->start();
+    in_buffer = new char [65536];
 }
 
 void SSLWorld::reconnectBlueStatusSocket()
@@ -545,6 +546,8 @@ void SSLWorld::recvFromYellow()
     recvActions(yellowSocket,yellowStatusSocket,cfg->YellowStatusSendPort(),1);
 }
 
+
+
 void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,int statusPort,int team)
 {
     unsigned char action;
@@ -552,30 +555,44 @@ void SSLWorld::recvActions(QUdpSocket* commandSocket,QUdpSocket* statusSocket,in
     // Data received from Comm Thread
     QHostAddress sender;
     quint16 port;
+    //gr
+    grSim_Commands packet;
     while (commandSocket->hasPendingDatagrams())
     {
-/*        char *c = new char [6];
-        commandSocket->readDatagram(c,6,&sender,&port);
-        if (c[0]!=99) continue;
-        action = c[1];
-        nID = action & 0x07;        
-        if (nID>=ROBOT_COUNT) continue;
-        id  = nID;
-        nID = robotIndex(nID,team);
-        int shootPower = (action & 0x70) >> 4;
-        int chip = (action & 0x80);          
-        int spin = action & 0x08;
-        char m1 = c[2];
-        char m2 = c[3];
-        char m3 = c[4];
-        char sm1 =  ( (m1 >> 2) & 0x3F);
-        char sm2 = (((m1 << 4) & 0x30 ) | ((m2 >> 4) & 0x0F ) );
-        char sm3 = (((m2 << 2) & 0x3C ) | ((m3 >> 6) & 0x03 ) ) ;
-        char sm4 = ( (m3 & 0x3f));
-        if (sm1 >= 32) sm1 = sm1 | 0xC0;
-        if (sm2 >= 32) sm2 = sm2 | 0xC0;
-        if (sm3 >= 32) sm3 = sm3 | 0xC0;
-        if (sm4 >= 32) sm4 = sm4 | 0xC0;*/        
+        int size = commandSocket->readDatagram(in_buffer, 65536);
+        if (size > 0)
+        {
+            packet.ParseFromArray(in_buffer, size);
+            int team=0;
+            if (packet.isteamyellow()) team=1;
+            for (int i=0;i<packet.robot_commands_size();i++)
+            {
+                int k = packet.robot_commands(i).id();
+                int id = robotIndex(k, team);
+                if (id > ROBOT_COUNT*2 || id < 0) continue;
+                bool wheels = false;
+                if (packet.robot_commands(i).has_wheelsspeed())
+                {
+                    if (packet.robot_commands(i).wheelsspeed()==true)
+                    {
+                        if (packet.robot_commands(i).has_wheel1()) robots[id]->setSpeed(0, packet.robot_commands(i).wheel1());
+                        if (packet.robot_commands(i).has_wheel2()) robots[id]->setSpeed(1, packet.robot_commands(i).wheel2());
+                        if (packet.robot_commands(i).has_wheel3()) robots[id]->setSpeed(2, packet.robot_commands(i).wheel3());
+                        if (packet.robot_commands(i).has_wheel4()) robots[id]->setSpeed(3, packet.robot_commands(i).wheel4());
+                        wheels = true;
+                    }
+                }
+                if (!wheels)
+                {
+                    double vx = 0;if (packet.robot_commands(i).has_veltangent()) vx = packet.robot_commands(i).veltangent();
+                    double vy = 0;if (packet.robot_commands(i).has_velnormal())  vy = packet.robot_commands(i).velnormal();
+                    double vw = 0;if (packet.robot_commands(i).has_velangular()) vw = packet.robot_commands(i).velangular();
+                    robots[id]->setSpeed(vw, vy, w);
+                }
+
+            }
+        }
+
         commandSocket->readDatagram(packet,155,&sender,&port);
         bool posPacket=true;        
         bool comPacket=true;

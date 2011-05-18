@@ -417,6 +417,23 @@ void Robot::setSpeed(int i,dReal s)
       wheels[i]->speed = s;
 }
 
+void Robot::setSpeed(double vx, double vy, double vw)
+{
+    // Calculate Motor Speeds
+    double _DEG2RAD = M_PI / 180.0;
+    double motorAlpha[4] = {cfg->Wheel1Angle() * _DEG2RAD, cfg->Wheel2Angle() * _DEG2RAD, cfg->Wheel3Angle() * _DEG2RAD, cfg->Wheel4Angle() * _DEG2RAD};
+
+    double dw1 =  (1.0 / cfg->WHEELRADIUS()) * (( (cfg->CHASSISWIDTH() * 0.5 * vw) - (vx * sin(motorAlpha[0])) + (vy * cos(motorAlpha[0]))) );
+    double dw2 =  (1.0 / cfg->WHEELRADIUS()) * (( (cfg->CHASSISWIDTH() * 0.5 * vw) - (vx * sin(motorAlpha[1])) + (vy * cos(motorAlpha[1]))) );
+    double dw3 =  (1.0 / cfg->WHEELRADIUS()) * (( (cfg->CHASSISWIDTH() * 0.5 * vw) - (vx * sin(motorAlpha[2])) + (vy * cos(motorAlpha[2]))) );
+    double dw4 =  (1.0 / cfg->WHEELRADIUS()) * (( (cfg->CHASSISWIDTH() * 0.5 * vw) - (vx * sin(motorAlpha[3])) + (vy * cos(motorAlpha[3]))) );
+
+    setSpeed(0 , dw1);
+    setSpeed(1 , dw2);
+    setSpeed(2 , dw3);
+    setSpeed(3 , dw4);
+}
+
 dReal Robot::getSpeed(int i)
 {
    if ((i>=4) || (i<0)) return -1;
