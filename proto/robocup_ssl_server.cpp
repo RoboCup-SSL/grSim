@@ -25,7 +25,6 @@
 #ifdef Q_OS_UNIX
 #include "robocup_ssl_server.h"
 
-#ifndef AR_HOME_MODE
 RoboCupSSLServer::RoboCupSSLServer(int port,
                      string net_address,
                      string net_interface)
@@ -96,7 +95,7 @@ bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
   gdata->CopyFrom(geometry);
   return send(pkt);
 }
-#else
+
 #include "robocup_ssl_server.h"
 #include <QDebug>
 
@@ -112,63 +111,6 @@ RoboCupSSLServer::RoboCupSSLServer(int port,
 }
 
 
-RoboCupSSLServer::~RoboCupSSLServer()
-{
-}
-
-void RoboCupSSLServer::close() {
-  if(udps!=NULL){
-    if(udps->isOpen()){
-        udps->close();
-    }
-    delete udps;
-  }
-}
-
-bool RoboCupSSLServer::open() {
-  //qDebug()<<"here";
-  close();
-
-  udps = new QUdpSocket(this);
-
-  if(!udps->bind(QHostAddress::LocalHost,_port)) {
-    logStatus(QString("Unable to open UDP network port: %1").arg(_port),QColor("red"));
-    return(false);
-  }
-
-  logStatus(QString("Vision UDP network successfully configured. (Port : %2)").arg(_port),QColor("green"));
-  return(true);
-}
-
-bool RoboCupSSLServer::send(const SSL_WrapperPacket & packet) {
-  string buffer;
-  packet.SerializeToString(&buffer);
-  bool result;
-  mutex.lock();
-  result=udps->writeDatagram(buffer.c_str(),buffer.length(),QHostAddress::LocalHost,_port);
-  mutex.unlock();
-  if (result==false) {
-    logStatus(QString("Sending UDP datagram failed (maybe too large?). Size was: %1 byte(s)").arg(buffer.length()),QColor("red"));
-  }
-  return(result);
-}
-
-bool RoboCupSSLServer::send(const SSL_DetectionFrame & frame) {
-  SSL_WrapperPacket pkt;
-  SSL_DetectionFrame * nframe = pkt.mutable_detection();
-  nframe->CopyFrom(frame);
-  return send(pkt);
-}
-
-bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
-  SSL_WrapperPacket pkt;
-  SSL_GeometryData * gdata = pkt.mutable_geometry();
-  gdata->CopyFrom(geometry);
-  return send(pkt);
-}
-#endif
-
-#endif
 #ifdef Q_OS_WIN32
 #include "robocup_ssl_server.h"
 

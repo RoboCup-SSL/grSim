@@ -69,6 +69,7 @@ public:
     void step();
     void drawLabel();
     void setSpeed(int i,float s); //i = 0,1,2,3
+    void setSpeed(double vx, double vy, double vw);
     float getSpeed(int i);
     void incSpeed(int i,float v);
     void resetSpeeds();
