@@ -39,8 +39,6 @@ private:
     int framenum;
     float last_dt;
     QList<SendingPacket*> sendQueue;
-    /**BALL TRACKER TEST**/
-    float bx,by,vx,vy;    
     char packet[200];
     char *in_buffer;
 public:
@@ -52,7 +50,6 @@ public:
     void step(float dt=-1);
     SSL_WrapperPacket* generatePacket();
     void sendVisionBuffer();
-    bool ballTrainingMode;
     ConfigWidget* cfg;
     CGraphics* g;
     PWorld* p;

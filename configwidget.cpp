@@ -1,78 +1,65 @@
 #include "configwidget.h"
 
+#define ADD_ENUM(type,name,Defaultvalue,namestring) \
+v_##name = new Var##type(namestring,Defaultvalue);
+#define END_ENUM(parents, name) \
+parents->addChild(v_##name);
+#define ADD_TO_ENUM(name,str) \
+v_##name->addItem(str);
+
+
 #define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
     v_##name = new Var##type(namestring,defaultvalue); \
     parent->addChild(v_##name);
+
+#include<QDir>
+
 
 ConfigWidget::ConfigWidget()
 {  
   tmodel=new VarTreeModel();
   this->setModel(tmodel);  
   geo_vars = new VarList("Geometry");
-  world.push_back(geo_vars);
-    VarList * field_vars = new VarList("Field (in millimeters)");
+  world.push_back(geo_vars);  
+  robot_settings = new QSettings;
+    VarList * field_vars = new VarList("Field");
     geo_vars->addChild(field_vars);
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_LENGTH,6050.0,"Length")
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_WIDTH,4050.0,"Width")
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_RAD,500.0,"Radius")
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY_RADIUS,500.0,"Penalty radius")
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY_LINE,350.0,"Penalty line length")
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_PENALTY_POINT,450.0,"Penalty point")
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_MARGIN,1000.0,"Margin")
-        ADD_VALUE(field_vars,Double,_SSL_FIELD_REFEREE_MARGIN,700.0f,"Referee margin")
-        ADD_VALUE(field_vars,Double,_SSL_WALL_THICKNESS,100.0,"Wall thickness")
-        ADD_VALUE(field_vars,Double,_SSL_GOAL_THICKNESS,20.0,"Goal thickness")
-        ADD_VALUE(field_vars,Double,_SSL_GOAL_DEPTH,200.0,"Goal depth")
-        ADD_VALUE(field_vars,Double,_SSL_GOAL_WIDTH,700.0,"Goal width")
-        ADD_VALUE(field_vars,Double,_SSL_GOAL_HEIGHT,400.0,"Goal height")
-    VarList * robotg_vars = new VarList("Robot");
-    geo_vars->addChild(robotg_vars);
-        ADD_VALUE(robotg_vars,Double,CHASSISLENGTH,0.146,"Chassis length")
-        ADD_VALUE(robotg_vars,Double,CHASSISWIDTH,0.18,"Chassis width")
-        ADD_VALUE(robotg_vars,Double,CHASSISHEIGHT,0.13,"Chassis height")
-        ADD_VALUE(robotg_vars,Double,BOTTOMHEIGHT,0.02,"Chassis bottom Z value")
-        ADD_VALUE(robotg_vars,Double,KICKERHEIGHT,0.005,"Kicker Z value")
-        ADD_VALUE(robotg_vars,Double,KLENGTH,0.005,"Kicker length")
-        ADD_VALUE(robotg_vars,Double,KWIDTH,0.08,"Kicker width")
-        ADD_VALUE(robotg_vars,Double,KHEIGHT,0.04,"Kicker height")
-        ADD_VALUE(robotg_vars,Double,WHEELRADIUS,0.0325,"Wheel radius")
-        ADD_VALUE(robotg_vars,Double,WHEELLENGTH,0.005,"Wheel thickness")
-        ADD_VALUE(robotg_vars,Double,Wheel1Angle,60.0f,"Wheel 1 angle")
-        ADD_VALUE(robotg_vars,Double,Wheel2Angle,135.0f,"Wheel 2 angle")
-        ADD_VALUE(robotg_vars,Double,Wheel3Angle,225.0f,"Wheel 3 angle")
-        ADD_VALUE(robotg_vars,Double,Wheel4Angle,300.0f,"Wheel 4 angle")
+        ADD_VALUE(field_vars,Double,Field_Length,6.05,"Length")
+        ADD_VALUE(field_vars,Double,Field_Width,4.05,"Width")
+        ADD_VALUE(field_vars,Double,Field_Rad,0.5,"Radius")
+        ADD_VALUE(field_vars,Double,Field_Penalty_Rad,0.50,"Penalty radius")
+        ADD_VALUE(field_vars,Double,Field_Penalty_Line,0.350,"Penalty line length")
+        ADD_VALUE(field_vars,Double,Field_Penalty_Point,0.450,"Penalty point")
+        ADD_VALUE(field_vars,Double,Field_Margin,1.0,"Margin")
+        ADD_VALUE(field_vars,Double,Field_Referee_Margin,0.7,"Referee margin")
+        ADD_VALUE(field_vars,Double,Wall_Thickness,0.100,"Wall thickness")
+        ADD_VALUE(field_vars,Double,Goal_Thickness,0.020,"Goal thickness")
+        ADD_VALUE(field_vars,Double,Goal_Depth,0.20,"Goal depth")
+        ADD_VALUE(field_vars,Double,Goal_Width,0.70,"Goal width")
+        ADD_VALUE(field_vars,Double,Goal_Height,0.40,"Goal height")
+    ADD_ENUM(StringEnum,Team,"Parsian","Team");
+    END_ENUM(geo_vars,Team)
+
     VarList * ballg_vars = new VarList("Ball");
     geo_vars->addChild(ballg_vars);
-        ADD_VALUE(ballg_vars,Double,BALLRADIUS,0.0215,"Radius")
+        ADD_VALUE(ballg_vars,Double,BallRadius,0.0215,"Radius")
   VarList * phys_vars = new VarList("Physics");
   world.push_back(phys_vars);
     VarList * worldp_vars = new VarList("World");    
     phys_vars->addChild(worldp_vars);  
-        ADD_VALUE(worldp_vars,Double,DesiredFPS,100,"Desired FPS")
+        ADD_VALUE(worldp_vars,Double,DesiredFPS,65,"Desired FPS")
         ADD_VALUE(worldp_vars,Bool,SyncWithGL,false,"Synchronize ODE with OpenGL")
-        ADD_VALUE(worldp_vars,Double,DeltaTime,0.01,"ODE time step")
+        ADD_VALUE(worldp_vars,Double,DeltaTime,0.015,"ODE time step")
         ADD_VALUE(worldp_vars,Double,Gravity,9.8,"Gravity")
-    VarList * robotp_vars = new VarList("Robot");
-    phys_vars->addChild(robotp_vars);
-        ADD_VALUE(robotp_vars,Double,CHASSISMASS,2,"Chassis mass")
-        ADD_VALUE(robotp_vars,Double,WHEELMASS,0.2,"Wheel mass")
-        ADD_VALUE(robotp_vars,Double,KICKERMASS,0.02,"Kicker mass")
-        ADD_VALUE(robotp_vars,Double,kickerDampFactor,0.2f,"Kicker damp factor")                
-        ADD_VALUE(robotp_vars,Double,ROLLERTORQUEFACTOR,0.06f,"Roller torque factor")
-        ADD_VALUE(robotp_vars,Double,RollerPerpendicularTorqueFactor,0.005f,"Roller perpendicular torque factor")
-        ADD_VALUE(robotp_vars,Double,Kicker_Friction,0.8f,"Kicker Friction")
-        ADD_VALUE(robotp_vars,Double,wheeltangentfriction,0.8f,"Wheel tangent friction")
-        ADD_VALUE(robotp_vars,Double,wheelperpendicularfriction,0.05f,"Wheel perpendicular friction")
-        ADD_VALUE(robotp_vars,Double,Wheel_Motor_FMax,0.2f,"Wheel motor maximum applying torque")
-    VarList * ballp_vars = new VarList("Ball");
+  VarList * ballp_vars = new VarList("Ball");
     phys_vars->addChild(ballp_vars);
-        ADD_VALUE(ballp_vars,Double,BALLMASS,0.043,"Ball mass");
-        ADD_VALUE(ballp_vars,Double,ballfriction,0.05,"Ball-ground friction")
-        ADD_VALUE(ballp_vars,Double,ballslip,1,"Ball-ground slip")
-        ADD_VALUE(ballp_vars,Double,ballbounce,0.5,"Ball-ground bounce factor")
-        ADD_VALUE(ballp_vars,Double,ballbouncevel,0.1,"Ball-ground bounce min velocity")
-        ADD_VALUE(ballp_vars,Double,balllineardamp,0.004,"Ball linear damping")
-        ADD_VALUE(ballp_vars,Double,ballangulardamp,0.004,"Ball angular damping")
+        ADD_VALUE(ballp_vars,Double,BallMass,0.043,"Ball mass");
+        ADD_VALUE(ballp_vars,Double,BallFriction,0.05,"Ball-ground friction")
+        ADD_VALUE(ballp_vars,Double,BallSlip,1,"Ball-ground slip")
+        ADD_VALUE(ballp_vars,Double,BallBounce,0.5,"Ball-ground bounce factor")
+        ADD_VALUE(ballp_vars,Double,BallBounceVel,0.1,"Ball-ground bounce min velocity")
+        ADD_VALUE(ballp_vars,Double,BallLinearDamp,0.004,"Ball linear damping")
+        ADD_VALUE(ballp_vars,Double,BallAngularDamp,0.004,"Ball angular damping")
   VarList * comm_vars = new VarList("Communication");
   world.push_back(comm_vars);
     ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
@@ -93,15 +80,30 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
         ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
-  VarList * plotter_vars = new VarList("Plotter");
-  world.push_back(plotter_vars);
-    ADD_VALUE(plotter_vars, String, plotter_addr,"127.0.0.1", "Plotter address")
-    ADD_VALUE(plotter_vars, Int, plotter_port,20020, "Plotter port")
-    ADD_VALUE(plotter_vars, Bool, plotter,true, "Send")
   world=VarXML::read(world,"../settings.xml");
 
-  tmodel->setRootItems(world);
 
+    QDir dir;
+    std::string team = v_Team->getString();
+    geo_vars->removeChild(v_Team);
+
+    ADD_ENUM(StringEnum,Team,"Parsian","Team");
+    dir.setCurrent(qApp->applicationDirPath()+"/../config/");
+    dir.setNameFilters(QStringList() << "*.ini");
+    dir.setSorting(QDir::Size | QDir::Reversed);
+    QFileInfoList list = dir.entryInfoList();
+    for (int i = 0; i < list.size(); ++i) {
+    QFileInfo fileInfo = list.at(i);
+    QStringList s = fileInfo.fileName().split(".");
+    QString str;
+    if (s.count() > 0) str = s[0];
+        ADD_TO_ENUM(Team,str.toStdString())
+    }
+    END_ENUM(geo_vars,Team)
+
+v_Team->setString(team);
+
+  tmodel->setRootItems(world);
 
   this->expandAndFocus(geo_vars);
   this->expandAndFocus(phys_vars);
@@ -110,6 +112,8 @@ ConfigWidget::ConfigWidget()
   this->fitColumns();
 
   resize(320,400);
+  connect(v_Team, SIGNAL(wasEdited(VarType*)), this, SLOT(loadRobotSettings()));
+  loadRobotSettings();
 }
 
 ConfigWidget::~ConfigWidget() {  
@@ -125,4 +129,36 @@ ConfigDockWidget::ConfigDockWidget(QWidget* _parent,ConfigWidget* _conf){
 void ConfigDockWidget::closeEvent(QCloseEvent* event)
 {
     emit closeSignal(false);
+}
+
+
+void ConfigWidget::loadRobotSettings()
+{
+    QString ss = qApp->applicationDirPath()+QString("/../config/")+QString("%1.ini").arg(Team().c_str());
+    robot_settings = new QSettings(ss, QSettings::IniFormat);
+    robotSettings.RobotCenterFromKicker = robot_settings->value("Geometery/CenterFromKicker", 0.073).toDouble();
+    robotSettings.RobotRadius = robot_settings->value("Geometery/Radius", 0.09).toDouble();
+    robotSettings.RobotHeight = robot_settings->value("Geometery/Height", 0.13).toDouble();
+    robotSettings.BottomHeight = robot_settings->value("Geometery/RobotBottomZValue", 0.02).toDouble();
+    robotSettings.KickerZ = robot_settings->value("Geometery/KickerZValue", 0.005).toDouble();
+    robotSettings.KickerThickness = robot_settings->value("Geometery/KickerThickness", 0.005).toDouble();
+    robotSettings.KickerWidth = robot_settings->value("Geometery/KickerWidth", 0.08).toDouble();
+    robotSettings.KickerHeight = robot_settings->value("Geometery/KickerHeight", 0.04).toDouble();
+    robotSettings.WheelRadius = robot_settings->value("Geometery/WheelRadius", 0.0325).toDouble();
+    robotSettings.WheelThickness = robot_settings->value("Geometery/WheelThickness", 0.005).toDouble();
+    robotSettings.Wheel1Angle = robot_settings->value("Geometery/Wheel1Angle", 60).toDouble();
+    robotSettings.Wheel2Angle = robot_settings->value("Geometery/Wheel2Angle", 135).toDouble();
+    robotSettings.Wheel3Angle = robot_settings->value("Geometery/Wheel3Angle", 225).toDouble();
+    robotSettings.Wheel4Angle = robot_settings->value("Geometery/Wheel4Angle", 300).toDouble();
+
+    robotSettings.BodyMass  = robot_settings->value("Physics/BodyMass", 2).toDouble();
+    robotSettings.WheelMass = robot_settings->value("Physics/WheelMass", 0.2).toDouble();
+    robotSettings.KickerMass= robot_settings->value("Physics/KickerMass",0.02).toDouble();
+    robotSettings.KickerDampFactor = robot_settings->value("Physics/KickerDampFactor", 0.2f).toDouble();
+    robotSettings.RollerTorqueFactor = robot_settings->value("Physics/RollerTorqueFactor", 0.06f).toDouble();
+    robotSettings.RollerPerpendicularTorqueFactor = robot_settings->value("Physics/RollerPerpendicularTorqueFactor", 0.005f).toDouble();
+    robotSettings.Kicker_Friction = robot_settings->value("Physics/KickerFriction", 0.8f).toDouble();
+    robotSettings.WheelTangentFriction = robot_settings->value("Physics/WheelTangentFriction", 0.8f).toDouble();
+    robotSettings.WheelPerpendicularFriction = robot_settings->value("Physics/WheelPerpendicularFriction", 0.05f).toDouble();
+    robotSettings.Wheel_Motor_FMax = robot_settings->value("Physics/WheelMotorMaximumApplyingTorque", 0.2f).toDouble();
 }

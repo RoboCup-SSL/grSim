@@ -102,6 +102,11 @@ MainWindow::MainWindow(QWidget *parent)
     simulatorMenu->addMenu(robotMenu);
     simulatorMenu->addMenu(ballMenu);
 
+    QMenu *helpMenu = new QMenu("&Help");
+    QAction* aboutMenu = new QAction("&About", helpMenu);
+    menuBar()->addMenu(helpMenu);
+    helpMenu->addAction(aboutMenu);
+
     ballMenu->addAction(tr("Put on Center"))->setShortcut(QKeySequence("Ctrl+0"));
     ballMenu->addAction(tr("Put on Corner 1"))->setShortcut(QKeySequence("Ctrl+1"));
     ballMenu->addAction(tr("Put on Corner 2"))->setShortcut(QKeySequence("Ctrl+2"));
@@ -131,6 +136,10 @@ MainWindow::MainWindow(QWidget *parent)
     timer = new QTimer(this);
     timer->setInterval(getInterval());
 
+    aboutWidget = new CAboutWidget(this);
+    workspace->addWindow(aboutWidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+    aboutWidget->hide();
+
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     QObject::connect(takeSnapshotAct, SIGNAL(triggered(bool)), this, SLOT(takeSnapshot()));
     QObject::connect(takeSnapshotToClipboardAct, SIGNAL(triggered(bool)), this, SLOT(takeSnapshotToClipboard()));
@@ -151,42 +160,27 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(fullScreenAct,SIGNAL(triggered(bool)),this,SLOT(toggleFullScreen(bool)));
     QObject::connect(glwidget,SIGNAL(toggleFullScreen(bool)),this,SLOT(toggleFullScreen(bool)));
     QObject::connect(glwidget->ssl, SIGNAL(fpsChanged(int)), this, SLOT(customFPS(int)));
+    QObject::connect(aboutMenu, SIGNAL(triggered()), this, SLOT(showAbout()));
     //config related signals
-    QObject::connect(configwidget->v_BALLMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallMass()));
-    QObject::connect(configwidget->v_CHASSISMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeRobotMass()));
-    QObject::connect(configwidget->v_KICKERMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeKickerMass()));
-    QObject::connect(configwidget->v_WHEELMASS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeWheelMass()));    
-    QObject::connect(configwidget->v_ballbounce, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
-    QObject::connect(configwidget->v_ballbouncevel, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
-    QObject::connect(configwidget->v_ballfriction, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
-    QObject::connect(configwidget->v_ballslip, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
-    QObject::connect(configwidget->v_ballangulardamp, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallDamping()));
-    QObject::connect(configwidget->v_balllineardamp, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallDamping()));
+    QObject::connect(configwidget->v_BallMass, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallMass()));
+    QObject::connect(configwidget->v_BallBounce, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
+    QObject::connect(configwidget->v_BallBounceVel, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
+    QObject::connect(configwidget->v_BallFriction, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
+    QObject::connect(configwidget->v_BallSlip, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
+    QObject::connect(configwidget->v_BallAngularDamp, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallDamping()));
+    QObject::connect(configwidget->v_BallLinearDamp, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallDamping()));
     QObject::connect(configwidget->v_Gravity,  SIGNAL(wasEdited(VarType*)), this, SLOT(changeGravity()));
-    QObject::connect(configwidget->v_Kicker_Friction,  SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallKickerSurface()));
-    QObject::connect(configwidget->v_plotter_addr, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectPlotterSocket(VarType*)));
-    QObject::connect(configwidget->v_plotter_port, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectPlotterSocket(VarType*)));
 
     //geometry config vars
     QObject::connect(configwidget->v_DesiredFPS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeTimer()));
-    QObject::connect(configwidget->v_BALLRADIUS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_BOTTOMHEIGHT, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_CHASSISHEIGHT, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_CHASSISWIDTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_CHASSISLENGTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_KHEIGHT, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_KLENGTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_KWIDTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_KICKERHEIGHT, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_WHEELLENGTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_WHEELRADIUS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v__SSL_FIELD_LENGTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v__SSL_FIELD_MARGIN, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v__SSL_FIELD_PENALTY_LINE, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v__SSL_FIELD_PENALTY_RADIUS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v__SSL_FIELD_RAD, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v__SSL_FIELD_WIDTH, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v__SSL_WALL_THICKNESS, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_BallRadius, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_Field_Length, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_Field_Margin, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_Field_Width, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_Field_Penalty_Line, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_Field_Penalty_Point, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_Field_Penalty_Rad, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_Field_Rad, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
 
     //network
     QObject::connect(configwidget->v_VisionMulticastAddr, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectVisionSocket()));
@@ -198,25 +192,18 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     this->showMaximized();
-    this->setWindowTitle("Parsian Simulator");
+    this->setWindowTitle("grSim");
 
     robotwidget->teamCombo->setCurrentIndex(0);
     robotwidget->robotCombo->setCurrentIndex(0);
     robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
     robotwidget->id = 0;
     scene = new QGraphicsScene(0,0,800,600);
-    plotSocket = NULL;reconnectPlotterSocket(NULL);
-    plotterCounter = 0;
     //glwidget->ssl->g->disableGraphics();
 }
 
 MainWindow::~MainWindow()
 {
-    if (plotSocket!=NULL)
-    {
-        plotSocket->close();
-        delete plotSocket;
-    }
 }
 
 void MainWindow::showHideConfig(bool v)
@@ -233,14 +220,18 @@ void MainWindow::showHideSimulator(bool v)
 
 void MainWindow::changeCurrentRobot()
 {
-    glwidget->Current_robot=robotwidget->robotCombo->currentIndex();
+    glwidget->Current_robot=robotwidget->robotCombo->currentIndex();    
     robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+    robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
 }
 
 void MainWindow::changeCurrentTeam()
 {
     glwidget->Current_team=robotwidget->teamCombo->currentIndex();
     robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+    robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
 }
 
 void MainWindow::changeGravity()
@@ -280,10 +271,7 @@ void MainWindow::update()
     lvv[1]=vv[1];
     lvv[2]=vv[2];
     QString ss;
-    fpslabel->setText(QString("Frame rate: %1 fps").arg(ss.sprintf("%06.2f",glwidget->getFPS())));
-    static int fff = 0;
-//    qDebug() << fff << "," << glwidget->getFPS();
-    fff ++;
+    fpslabel->setText(QString("Frame rate: %1 fps").arg(ss.sprintf("%06.2f",glwidget->getFPS())));        
     if (glwidget->ssl->selected!=-1)
     {
         selectinglabel->setVisible(true);
@@ -304,125 +292,40 @@ void MainWindow::update()
     noiselabel->setVisible(configwidget->noise());
     cursorlabel->setText(QString("Cursor: [X=%1;Y=%2;Z=%3]").arg(floatToStr(glwidget->ssl->cursor_x)).arg(floatToStr(glwidget->ssl->cursor_y)).arg(floatToStr(glwidget->ssl->cursor_z)));
     statusWidget->update();
-    if (configwidget->plotter())
-    {
-        plotterCounter++;
-
-        {
-            float data[PLOT_PACKET_SIZE];
-            float x,y,z;
-            data[0] = -1;
-            glwidget->ssl->ball->getBodyPosition(x,y,z);
-            data[1] = x*1000.0f;
-            data[2] = y*1000.0f;
-            data[3] = z*1000.0f;
-            data[4] = 0;
-            const dReal * v = dBodyGetLinearVel(glwidget->ssl->ball->body);
-            data[5] = v[0]*1000.0f;
-            data[6] = v[1]*1000.0f;
-            data[7] = v[2]*1000.0f;
-            data[8] = 0;
-            data[9] = (data[5]-balldata[5])/configwidget->DeltaTime();
-            data[10]= (data[6]-balldata[6])/configwidget->DeltaTime();
-            data[11]= (data[7]-balldata[7])/configwidget->DeltaTime();
-            data[12]= 0;
-            for (int k = 0;k<2*ROBOT_COUNT;k++)
-            {
-                balldata[k] = data[k];
-            }
-            plotSocket->writeDatagram((char*)data, sizeof(float)*PLOT_PACKET_SIZE, QHostAddress(configwidget->plotter_addr().c_str()), configwidget->plotter_port());
-            for (int i=0;i<ROBOT_COUNT*2;i++)
-            {
-                data[0] = i+(i/ROBOT_COUNT)*100;
-                glwidget->ssl->robots[i]->chassis->getBodyPosition(x,y,z);
-                data[1] = x*1000.0f;
-                data[2] = y*1000.0f;
-                data[3] = z*1000.0f;
-                data[4] = glwidget->ssl->robots[i]->getDir();
-                const dReal * v = dBodyGetLinearVel(glwidget->ssl->robots[i]->chassis->body);
-                data[5] = v[0]*1000.0f;
-                data[6] = v[1]*1000.0f;
-                data[7] = v[2]*1000.0f;
-                data[8] = dBodyGetAngularVel(glwidget->ssl->robots[i]->chassis->body)[2] * 180.0 / M_PI;
-                data[9] = (data[5]-glwidget->ssl->robots[i]->data[5])/configwidget->DeltaTime();
-                data[10]= (data[6]-glwidget->ssl->robots[i]->data[6])/configwidget->DeltaTime();
-                data[11]= (data[7]-glwidget->ssl->robots[i]->data[7])/configwidget->DeltaTime();
-                data[12]= (data[8]-glwidget->ssl->robots[i]->data[8])/configwidget->DeltaTime();
-                for (int k = 0;k<2*ROBOT_COUNT;k++)
-                {
-                    glwidget->ssl->robots[i]->data[k] = data[k];
-                }
-                plotSocket->writeDatagram((char*)data, sizeof(float)*PLOT_PACKET_SIZE, QHostAddress(configwidget->plotter_addr().c_str()), configwidget->plotter_port());
-            }
-        }
-    }
 }
 
 void MainWindow::updateRobotLabel()
 {
     robotwidget->teamCombo->setCurrentIndex(glwidget->Current_team);
     robotwidget->robotCombo->setCurrentIndex(glwidget->Current_robot);
-    robotwidget->id = robotIndex(robotwidget->robotCombo->currentIndex(),robotwidget->teamCombo->currentIndex());
+    robotwidget->id = robotIndex(glwidget->Current_robot,glwidget->Current_team);
     robotwidget->changeRobotOnOff(robotwidget->id,glwidget->ssl->robots[robotwidget->id]->on);
 }
 
 
 void MainWindow::changeBallMass()
 {
-    glwidget->ssl->ball->setMass(configwidget->BALLMASS());
+    glwidget->ssl->ball->setMass(configwidget->BallMass());
 }
 
-void MainWindow::changeRobotMass()
-{    
-    for (int i=0;i<10;i++)
-    {
-        glwidget->ssl->robots[i]->chassis->setMass(configwidget->CHASSISMASS()*0.99f);
-        glwidget->ssl->robots[i]->dummy->setMass(configwidget->CHASSISMASS()*0.01f);
-    }
-}
-
-void MainWindow::changeKickerMass()
-{
-    for (int i=0;i<10;i++)
-    {
-        glwidget->ssl->robots[i]->kicker->box->setMass(configwidget->KICKERMASS());
-    }
-}
-
-void MainWindow::changeWheelMass()
-{
-    for (int i=0;i<10;i++)
-    {
-        for (int j=0;j<4;j++)
-        {
-            glwidget->ssl->robots[i]->wheels[j]->cyl->setMass(configwidget->WHEELMASS());
-        }
-    }    
-}
 
 void MainWindow::changeBallGroundSurface()
 {
-    PSurface* ballwithwall = glwidget->ssl->p->findSurface(glwidget->ssl->ball,glwidget->ssl->ground);    
+    PSurface* ballwithwall = glwidget->ssl->p->findSurface(glwidget->ssl->ball,glwidget->ssl->ground);
     ballwithwall->surface.mode = dContactBounce | dContactApprox1 | dContactSlip1 | dContactSlip2;
-    ballwithwall->surface.mu = fric(configwidget->ballfriction());
-    ballwithwall->surface.bounce = configwidget->ballbounce();
-    ballwithwall->surface.bounce_vel = configwidget->ballbouncevel();
-    ballwithwall->surface.slip1 = configwidget->ballslip();
-    ballwithwall->surface.slip2 = configwidget->ballslip();
-}
-
-void MainWindow::changeBallKickerSurface()
-{
-    PSurface* ballwithkicker = glwidget->ssl->p->findSurface(glwidget->ssl->ball,glwidget->ssl->robots[0]->kicker->box);
-    ballwithkicker->surface.mu = configwidget->Kicker_Friction();
+    ballwithwall->surface.mu = fric(configwidget->BallFriction());
+    ballwithwall->surface.bounce = configwidget->BallBounce();
+    ballwithwall->surface.bounce_vel = configwidget->BallBounceVel();
+    ballwithwall->surface.slip1 = configwidget->BallSlip();
+    ballwithwall->surface.slip2 = configwidget->BallSlip();
 }
 
 void MainWindow::changeBallDamping()
 {
     dBodySetLinearDampingThreshold(glwidget->ssl->ball->body,0.001);
-    dBodySetLinearDamping(glwidget->ssl->ball->body,configwidget->balllineardamp());
+    dBodySetLinearDamping(glwidget->ssl->ball->body,configwidget->BallLinearDamp());
     dBodySetAngularDampingThreshold(glwidget->ssl->ball->body,0.001);
-    dBodySetAngularDamping(glwidget->ssl->ball->body,configwidget->ballangulardamp());
+    dBodySetAngularDamping(glwidget->ssl->ball->body,configwidget->BallAngularDamp());
 }
 
 void MainWindow::alertStaticVars()
@@ -432,9 +335,9 @@ void MainWindow::alertStaticVars()
 
 void MainWindow::ballMenuTriggered(QAction* act)
 {
-    float l = configwidget->_SSL_FIELD_LENGTH()/2000.0f;
-    float w = configwidget->_SSL_FIELD_WIDTH()/2000.0f;
-    float p = l - configwidget->_SSL_FIELD_PENALTY_POINT()/1000.f;
+    float l = configwidget->Field_Length()/2.0;
+    float w = configwidget->Field_Width()/2.0;
+    float p = l - configwidget->Field_Penalty_Point();
     if (act->text()==tr("Put on Center")) glwidget->putBall(0,0);
     else if (act->text()==tr("Put on Corner 1")) glwidget->putBall(-l,-w);
     else if (act->text()==tr("Put on Corner 2")) glwidget->putBall(-l, w);
@@ -500,14 +403,8 @@ void MainWindow::takeSnapshotToClipboard()
     b->setPixmap(p);
 }
 
-void MainWindow::reconnectPlotterSocket(VarType*)
+void MainWindow::showAbout()
 {
-  if (plotSocket!=NULL)
-  {
-    plotSocket->close();
-    delete plotSocket;
-  }
-  plotSocket = new QUdpSocket(this);
-  plotSocket->bind(QHostAddress(configwidget->plotter_addr().c_str()),configwidget->plotter_port());
-  logStatus(QString("Plotter socket connected on: %1:%2").arg(configwidget->plotter_addr().c_str()).arg(configwidget->plotter_port()),QColor("green"));
+    aboutWidget->showNormal();
+    aboutWidget->setFocus();
 }

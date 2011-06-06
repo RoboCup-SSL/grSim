@@ -47,8 +47,8 @@ bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
     }
 
     s->surface.mode = dContactFDir1 | dContactMu2  | dContactApprox1 | dContactSoftCFM;
-    s->surface.mu = fric(_w->cfg->wheelperpendicularfriction());
-    s->surface.mu2 = fric(_w->cfg->wheeltangentfriction());
+    s->surface.mu = fric(_w->cfg->robotSettings.WheelPerpendicularFriction);
+    s->surface.mu2 = fric(_w->cfg->robotSettings.WheelTangentFriction);
     s->surface.soft_cfm = 0.002;
 
     dVector3 v={0,0,1,1};
@@ -104,7 +104,7 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s)
         s->fdir1[3] = 0;
         s->usefdir1 = true;
         s->surface.mode = dContactMu2 | dContactFDir1 | dContactSoftCFM;
-        s->surface.mu = _w->cfg->ballfriction();
+        s->surface.mu = _w->cfg->BallFriction();
         s->surface.mu2 = 0.5;
         s->surface.soft_cfm = 0.002;
     }
@@ -114,13 +114,8 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s)
 SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2)
     : QObject(parent)
 {    
-    /**BALL TRACKER**/
-    bx = by = 0;
-    vx = vy = 0;
-    /****/
     isGLEnabled = true;
-    customDT = -1;
-    ballTrainingMode = false;
+    customDT = -1;    
     _w = this;
     cfg = _cfg;
     m_parent = parent;
@@ -130,41 +125,41 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     last_dt = -1;    
     g = new CGraphics(parent);
     g->setSphereQuality(1);
-    g->setViewpoint(0,-(cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,90,-45,0);
+    g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,90,-45,0);
     p = new PWorld(0.05,9.81f,g);
-    ball = new PBall (0,0,0.5,cfg->BALLRADIUS(),cfg->BALLMASS(), 1,0.7,0);
+    ball = new PBall (0,0,0.5,cfg->BallRadius(),cfg->BallMass(), 1,0.7,0);
 
-    ground = new PGround(cfg->_SSL_FIELD_RAD(),cfg->_SSL_FIELD_LENGTH(),cfg->_SSL_FIELD_WIDTH(),cfg->_SSL_FIELD_PENALTY_RADIUS(),cfg->_SSL_FIELD_PENALTY_LINE(),cfg->_SSL_FIELD_PENALTY_POINT(),0);
+    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),0);
     ray = new PRay(50);
-    walls[0] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),0.0
-                             ,(cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
+    walls[0] = new PFixedBox(0.0,((cfg->Field_Width() + cfg->Field_Margin()) / 2.0) + (cfg->Wall_Thickness() / 2.0),0.0
+                             ,(cfg->Field_Length() + cfg->Field_Margin()) / 1.0, cfg->Wall_Thickness() / 1.0, 0.4,
                              0.7, 0.7, 0.7);
 
-    walls[1] = new PFixedBox(0.0,((cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0) - cfg->_SSL_FIELD_REFEREE_MARGIN() / 1000.0,0.0,
-                             (cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 1000.0, cfg->_SSL_WALL_THICKNESS() / 1000.0, 0.4,
+    walls[1] = new PFixedBox(0.0,((cfg->Field_Width() + cfg->Field_Margin()) / -2.0) - (cfg->Wall_Thickness() / 2.0) - cfg->Field_Referee_Margin() / 1.0,0.0,
+                             (cfg->Field_Length() + cfg->Field_Margin()) / 1.0, cfg->Wall_Thickness() / 1.0, 0.4,
                              0.7, 0.7, 0.7);
 
-    walls[2] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / 2000.0) + (cfg->_SSL_WALL_THICKNESS() / 2000.0),-cfg->_SSL_FIELD_REFEREE_MARGIN()/2000.f ,0.0,
-                             cfg->_SSL_WALL_THICKNESS() / 1000.0 ,(cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN() + cfg->_SSL_FIELD_REFEREE_MARGIN()) / 1000.0, 0.4,
+    walls[2] = new PFixedBox(((cfg->Field_Length() + cfg->Field_Margin()) / 2.0) + (cfg->Wall_Thickness() / 2.0),-cfg->Field_Referee_Margin()/2.f ,0.0,
+                             cfg->Wall_Thickness() / 1.0 ,(cfg->Field_Width() + cfg->Field_Margin() + cfg->Field_Referee_Margin()) / 1.0, 0.4,
                              0.7, 0.7, 0.7);
 
-    walls[3] = new PFixedBox(((cfg->_SSL_FIELD_LENGTH() + cfg->_SSL_FIELD_MARGIN()) / -2000.0) - (cfg->_SSL_WALL_THICKNESS() / 2000.0) ,-cfg->_SSL_FIELD_REFEREE_MARGIN()/2000.f ,0.0,
-                             cfg->_SSL_WALL_THICKNESS() / 1000.0 , (cfg->_SSL_FIELD_WIDTH() + cfg->_SSL_FIELD_MARGIN() + cfg->_SSL_FIELD_REFEREE_MARGIN()) / 1000.0, 0.4,
+    walls[3] = new PFixedBox(((cfg->Field_Length() + cfg->Field_Margin()) / -2.0) - (cfg->Wall_Thickness() / 2.0) ,-cfg->Field_Referee_Margin()/2.f ,0.0,
+                             cfg->Wall_Thickness() / 1.0 , (cfg->Field_Width() + cfg->Field_Margin() + cfg->Field_Referee_Margin()) / 1.0, 0.4,
                              0.7, 0.7, 0.7);
 
-    walls[4] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f ,0.0, 0.0
-                             , cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
-    walls[5] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f,-cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f - cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f,0.0
-                             , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
-    walls[6] = new PFixedBox(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f,cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f+ cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f, 0.0
-                             , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+    walls[4] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth() + cfg->Goal_Thickness()*0.5f ,0.0, 0.0
+                             , cfg->Goal_Thickness(), cfg->Goal_Width() + cfg->Goal_Thickness()*2.0f, cfg->Goal_Height() , 0.1, 0.9, 0.4);
+    walls[5] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5,-cfg->Goal_Width()*0.5f - cfg->Goal_Thickness()*0.5f,0.0
+                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height(), 0.1, 0.9, 0.4);
+    walls[6] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5,cfg->Goal_Width()*0.5f + cfg->Goal_Thickness()*0.5f, 0.0
+                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height(), 0.1, 0.9, 0.4);
 
-    walls[7] = new PFixedBox(- (( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f) ,0.0, 0.0
-                             , cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_WIDTH()*0.001f + cfg->_SSL_GOAL_THICKNESS()*2.0f*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
-    walls[8] = new PFixedBox(- (( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f),-cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f - cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f,0.0
-                             , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
-    walls[9] = new PFixedBox( -(( cfg->_SSL_FIELD_LENGTH() / 2000.0) + cfg->_SSL_GOAL_DEPTH()*0.5*0.001f),cfg->_SSL_GOAL_WIDTH()*0.5f*0.001f+ cfg->_SSL_GOAL_THICKNESS()*0.5f*0.001f, 0.0
-                              , cfg->_SSL_GOAL_DEPTH()*0.001f, cfg->_SSL_GOAL_THICKNESS()*0.001f, cfg->_SSL_GOAL_HEIGHT()*0.001f , 0.1, 0.9, 0.4);
+    walls[7] = new PFixedBox(- (( cfg->Field_Length() / 2.0) + cfg->Goal_Depth() + cfg->Goal_Thickness()*0.5f) ,0.0, 0.0
+                             , cfg->Goal_Thickness(), cfg->Goal_Width() + cfg->Goal_Thickness()*2.0f, cfg->Goal_Height() , 0.1, 0.9, 0.4);
+    walls[8] = new PFixedBox(- (( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5),-cfg->Goal_Width()*0.5f- cfg->Goal_Thickness()*0.5f,0.0
+                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
+    walls[9] = new PFixedBox( -(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5),cfg->Goal_Width()*0.5f+ cfg->Goal_Thickness()*0.5f, 0.0
+                              , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
@@ -178,11 +173,6 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     for (int k=0;k<5;k++)
         robots[k+5] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
 
-/*    dBodySetLinearDampingThreshold(ball->body,0.001);
-    dBodySetLinearDamping(ball->body,cfg->balllineardamp());
-    dBodySetAngularDampingThreshold(ball->body,0.001);
-    dBodySetAngularDamping(ball->body,cfg->ballangulardamp());
-*/
     p->initAllObjects();
 
     //Surfaces
@@ -197,8 +187,8 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     PSurface ballwithwall;
     ballwithwall.surface.mode = dContactBounce | dContactApprox1;// | dContactSlip1;
     ballwithwall.surface.mu = 1;//fric(cfg->ballfriction());
-    ballwithwall.surface.bounce = cfg->ballbounce();
-    ballwithwall.surface.bounce_vel = cfg->ballbouncevel();
+    ballwithwall.surface.bounce = cfg->BallBounce();
+    ballwithwall.surface.bounce_vel = cfg->BallBounceVel();
     ballwithwall.surface.slip1 = 0;//cfg->ballslip();
 
     PSurface wheelswithground;
@@ -208,7 +198,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
     PSurface ballwithkicker;
     ballwithkicker.surface.mode = dContactApprox1;
-    ballwithkicker.surface.mu = fric(cfg->Kicker_Friction());
+    ballwithkicker.surface.mu = fric(cfg->robotSettings.Kicker_Friction);
     ballwithkicker.surface.slip1 = 5;
     for (int i=0;i<10;i++)
         p->createSurface(ball,walls[i])->surface = ballwithwall.surface;
@@ -309,21 +299,6 @@ SSLWorld::~SSLWorld()
 QImage* createBlob(char yb,int i,QImage** res)
 {
     QImage* img = new QImage(QString(":/Graphics/%1%2").arg(yb).arg(i+1)+QString(".bmp"));
-    /*  QPainter *p = new QPainter();
-    p->begin(img);
-    QPen pen;
-    pen.setStyle(Qt::DashDotLine);
-    pen.setWidth(3);
-    pen.setBrush(Qt::gray);
-    pen.setCapStyle(Qt::RoundCap);
-    pen.setJoinStyle(Qt::RoundJoin);
-    p->setPen(pen);
-    QFont f;
-    f.setPointSize(35);
-    p->setFont(f);
-    p->drawText(img->width()/2-15,img->height()/2-15,30,30,Qt::AlignCenter,QString("%1").arg(i));
-    p->end();
-    delete p;*/
     (*res) = img;
     return img;
 }
@@ -353,15 +328,6 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     f.setPointSize(26);
     p->setFont(f);
     p->drawText(img->width()/2-15,img->height()/2-15,30,30,Qt::AlignCenter,QString("%1").arg(i));
-    /*    for (int i=0;i<img->width();i++)
-        for (int j=0;j<img->height();j++)
-        {
-            QColor color;color.setRgba(img->pixel(i,j));
-            int rr,gg,bb,aa;
-            color.getRgb(&rr,&gg,&bb,&aa);
-            if (aa>0)
-                img->setPixel(i,j,txtcolor.rgba());
-        }*/
     p->end();
     delete p;
     return img;
@@ -414,10 +380,6 @@ void SSLWorld::glinit()
 
 void SSLWorld::step(float dt)
 {    
-    /////////// ##############################
-    /////////// ##### REFEREE GOES HERE ######
-    /////////// ##############################
-
     if (!isGLEnabled) g->disableGraphics();
     else g->enableGraphics();
 
@@ -433,19 +395,15 @@ void SSLWorld::step(float dt)
         double balltx=0,ballty=0,balltz=0;
         if (ballspeed<0.01)
         {
-            //ballfx = -ballvel[0]*0.01;
-            //ballfy = -ballvel[1]*0.01;
-            //ballfz = -ballvel[2]*0.01;
             const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
-            //dBodySetAngularVel(ball->body,ballAngVel[0]*0.9,ballAngVel[1]*0.9,ballAngVel[2]*0.9);
         }
         else {
-            double fk = cfg->ballfriction()*cfg->BALLMASS()*cfg->Gravity();
+            double fk = cfg->BallFriction()*cfg->BallMass()*cfg->Gravity();
             ballfx = -fk*ballvel[0] / ballspeed;
             ballfy = -fk*ballvel[1] / ballspeed;
             ballfz = -fk*ballvel[2] / ballspeed;
-            balltx = -ballfy*cfg->BALLRADIUS();
-            ballty = ballfx*cfg->BALLRADIUS();
+            balltx = -ballfy*cfg->BallRadius();
+            ballty = ballfx*cfg->BallRadius();
             balltz = 0;
             dBodyAddTorque(ball->body,balltx,ballty,balltz);
         }
@@ -494,7 +452,7 @@ void SSLWorld::step(float dt)
         robots[k]->selected = false;
     }
     p->draw();
-    //g->drawSkybox(31,32,33,34,35,36);
+    g->drawSkybox(31,32,33,34,35,36);
 
     dMatrix3 R;
 
@@ -622,7 +580,7 @@ void SSLWorld::recvActions()
                     if (packet.replacement().ball().has_y())  y  = packet.replacement().ball().y();
                     if (packet.replacement().ball().has_vx()) vx = packet.replacement().ball().vx();
                     if (packet.replacement().ball().has_vy()) vy = packet.replacement().ball().vy();
-                    ball->setBodyPosition(x,y,cfg->BALLRADIUS()*1.2);
+                    ball->setBodyPosition(x,y,cfg->BallRadius()*1.2);
                     dBodySetLinearVel(ball->body,vx,vy,0);
                     dBodySetAngularVel(ball->body,0,0,0);
                 }
@@ -660,21 +618,6 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         vball->set_pixel_x(x*1000.0f);
         vball->set_pixel_y(y*1000.0f);
         vball->set_confidence(0.9 + rand0_1()*0.1);
-    }
-    if(false){
-        SSL_DetectionBall* fball = packet->mutable_detection()->add_balls();
-        fball->set_x(bx);
-        fball->set_y(by);
-        fball->set_z(0);
-//        fball->set_pixel_x(0);
-//        fball->set_pixel_y(0);
-        fball->set_confidence(0.75 + rand0_1()*0.25);
-        bx = bx+vx;
-        by = by-vy;
-        if (bx>cfg->_SSL_FIELD_LENGTH()*0.5) vx = -vx;
-        if (bx<-cfg->_SSL_FIELD_LENGTH()*0.5) vx = -vx;
-        if (by>cfg->_SSL_FIELD_WIDTH()*0.5) vy = -vy;
-        if (by<-cfg->_SSL_FIELD_WIDTH()*0.5) vy = -vy;
     }
     for(int i = 0; i < ROBOT_COUNT; i++){
         if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))

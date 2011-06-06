@@ -8,6 +8,7 @@
 #include "glwidget.h"
 #include "configwidget.h"
 #include "statuswidget.h"
+#include "aboutwidget.h"
 #include "robotwidget.h"
 
 class MainWindow : public QMainWindow
@@ -25,12 +26,8 @@ public slots:
     void changeCurrentRobot();
     void changeCurrentTeam();
 
-    void changeBallMass();
-    void changeRobotMass();
-    void changeKickerMass();
-    void changeWheelMass();
-    void changeBallGroundSurface();
-    void changeBallKickerSurface();
+    void changeBallMass();   
+    void changeBallGroundSurface();    
     void changeBallDamping();
     void changeGravity();
     void changeTimer();
@@ -41,9 +38,9 @@ public slots:
     void setCurrentRobotPosition();
     void takeSnapshot();
     void takeSnapshotToClipboard();
-    void reconnectPlotterSocket(VarType*);
 
     void customFPS(int fps);
+    void showAbout();
 private:
     int getInterval();    
     QTimer *timer;
@@ -51,10 +48,8 @@ private:
     GLWidget *glwidget;
     ConfigWidget *configwidget;
     ConfigDockWidget *dockconfig;
-    RobotWidget *robotwidget;
-    QUdpSocket* plotSocket;    
-    float balldata[PLOT_PACKET_SIZE];
-    int plotterCounter;
+    RobotWidget *robotwidget;    
+    float balldata[PLOT_PACKET_SIZE];    
 
     CStatusPrinter *printer;
     CStatusWidget *statusWidget;
@@ -67,6 +62,7 @@ private:
     QGraphicsScene *scene;
     GLWidgetGraphicsView *view;
     QSize lastSize;
+    CAboutWidget *aboutWidget;
 };
 
 #endif // MAINWINDOW_H
