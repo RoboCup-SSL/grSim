@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <QSettings>
 
 #include "VarTypes/gui/VarTreeModel.h"
 #include "VarTypes/gui/VarItem.h"
@@ -20,14 +21,57 @@
 #include "VarTypes/primitives/VarDouble.h"
 #include "VarTypes/primitives/VarBool.h"
 #include "VarTypes/primitives/VarInt.h"
-#include "VarXML.h"
-#include "VarTypes.h"
+#include "VarTypes/primitives/VarTrigger.h"
+#include "VarTypes/VarXML.h"
+#include "VarTypes/VarTypes.h"
 
 using namespace VarTypes;
 
 #define DEF_VALUE(type,Type,name)  \
             VarTypes::Var##Type* v_##name; \
             inline type name() {return v_##name->get##Type();}
+
+#define DEF_ENUM(type,name)  \
+            VarTypes::VarStringEnum* v_##name; \
+            type name() {if(v_##name!=NULL) return v_##name->getString();return * (new type);}
+
+#define DEF_TREE(name)  \
+            VarTypes::VarList* name;
+#define DEF_PTREE(parents, name)  \
+            VarTypes::VarList* parents##_##name;
+
+
+
+class RobotSettings {
+public:
+    //geometeric settings
+    double RobotCenterFromKicker;
+    double RobotRadius;
+    double RobotHeight;
+    double BottomHeight;
+    double KickerZ;
+    double KickerThickness;
+    double KickerWidth;
+    double KickerHeight;
+    double WheelRadius;
+    double WheelThickness;
+    double Wheel1Angle;
+    double Wheel2Angle;
+    double Wheel3Angle;
+    double Wheel4Angle;
+    //physical settings
+    double BodyMass;
+    double WheelMass;
+    double KickerMass;
+    double KickerDampFactor;
+    double RollerTorqueFactor;
+    double RollerPerpendicularTorqueFactor;
+    double Kicker_Friction;
+    double WheelTangentFriction;
+    double WheelPerpendicularFriction;
+    double Wheel_Motor_FMax;
+};
+
 
 class ConfigWidget : public VarTreeView
 {
@@ -40,51 +84,33 @@ public:
   VarList * geo_vars;
   ConfigWidget();
   virtual ~ConfigWidget();
-  DEF_VALUE(double,Double,_SSL_FIELD_LENGTH)
-  DEF_VALUE(double,Double,_SSL_FIELD_WIDTH)
-  DEF_VALUE(double,Double,_SSL_FIELD_RAD)
-  DEF_VALUE(double,Double,_SSL_FIELD_PENALTY_RADIUS)
-  DEF_VALUE(double,Double,_SSL_FIELD_PENALTY_LINE)
-  DEF_VALUE(double,Double,_SSL_FIELD_PENALTY_POINT)
-  DEF_VALUE(double,Double,_SSL_FIELD_MARGIN)
-  DEF_VALUE(double,Double,_SSL_FIELD_REFEREE_MARGIN)
-  DEF_VALUE(double,Double,_SSL_WALL_THICKNESS)
-  DEF_VALUE(double,Double,_SSL_GOAL_THICKNESS)
-  DEF_VALUE(double,Double,_SSL_GOAL_DEPTH)
-  DEF_VALUE(double,Double,_SSL_GOAL_WIDTH)
-  DEF_VALUE(double,Double,_SSL_GOAL_HEIGHT)  
-  DEF_VALUE(double,Double,ROLLERTORQUEFACTOR)
-  DEF_VALUE(double,Double,RollerPerpendicularTorqueFactor)
-  DEF_VALUE(double,Double,Kicker_Friction)
-  DEF_VALUE(double,Double,CHASSISLENGTH)
-  DEF_VALUE(double,Double,CHASSISWIDTH)
-  DEF_VALUE(double,Double,CHASSISHEIGHT)
-  DEF_VALUE(double,Double,BOTTOMHEIGHT)
-  DEF_VALUE(double,Double,KICKERHEIGHT)
-  DEF_VALUE(double,Double,KLENGTH)
-  DEF_VALUE(double,Double,KWIDTH)
-  DEF_VALUE(double,Double,KHEIGHT)
-  DEF_VALUE(double,Double,WHEELRADIUS)
-  DEF_VALUE(double,Double,WHEELLENGTH)
-  DEF_VALUE(double,Double,Wheel1Angle)
-  DEF_VALUE(double,Double,Wheel2Angle)
-  DEF_VALUE(double,Double,Wheel3Angle)
-  DEF_VALUE(double,Double,Wheel4Angle)
-  DEF_VALUE(double,Double,CHASSISMASS)
-  DEF_VALUE(double,Double,WHEELMASS)
-  DEF_VALUE(double,Double,BALLMASS)
-  DEF_VALUE(double,Double,KICKERMASS)
-  DEF_VALUE(double,Double,kickerDampFactor)
-  DEF_VALUE(double,Double,BALLRADIUS)
-  DEF_VALUE(double,Double,wheeltangentfriction)
-  DEF_VALUE(double,Double,wheelperpendicularfriction)
-  DEF_VALUE(double,Double,Wheel_Motor_FMax)
-  DEF_VALUE(double,Double,ballfriction)
-  DEF_VALUE(double,Double,ballslip)
-  DEF_VALUE(double,Double,ballbounce)
-  DEF_VALUE(double,Double,ballbouncevel)
-  DEF_VALUE(double,Double,balllineardamp)
-  DEF_VALUE(double,Double,ballangulardamp)
+
+  QSettings* robot_settings;
+  RobotSettings robotSettings;
+
+  DEF_VALUE(double,Double,Field_Length)
+  DEF_VALUE(double,Double,Field_Width)
+  DEF_VALUE(double,Double,Field_Rad)
+  DEF_VALUE(double,Double,Field_Penalty_Rad)
+  DEF_VALUE(double,Double,Field_Penalty_Line)
+  DEF_VALUE(double,Double,Field_Penalty_Point)
+  DEF_VALUE(double,Double,Field_Margin)
+  DEF_VALUE(double,Double,Field_Referee_Margin)
+  DEF_VALUE(double,Double,Wall_Thickness)
+  DEF_VALUE(double,Double,Goal_Thickness)
+  DEF_VALUE(double,Double,Goal_Depth)
+  DEF_VALUE(double,Double,Goal_Width)
+  DEF_VALUE(double,Double,Goal_Height)
+  DEF_ENUM(std::string,Team)
+  DEF_VALUE(double,Double,BallRadius)
+  DEF_VALUE(double,Double,BallMass)
+  DEF_VALUE(double,Double,BallFriction)
+  DEF_VALUE(double,Double,BallSlip)
+  DEF_VALUE(double,Double,BallBounce)
+  DEF_VALUE(double,Double,BallBounceVel)
+  DEF_VALUE(double,Double,BallLinearDamp)
+  DEF_VALUE(double,Double,BallAngularDamp)
+
   DEF_VALUE(bool,Bool,SyncWithGL)
   DEF_VALUE(double,Double,DesiredFPS)
   DEF_VALUE(double,Double,DeltaTime)
@@ -106,6 +132,8 @@ public:
   DEF_VALUE(std::string, String, plotter_addr)
   DEF_VALUE(int, Int, plotter_port)
   DEF_VALUE(bool, Bool, plotter)
+public slots:
+  void loadRobotSettings();
 };
 
 class ConfigDockWidget : public QDockWidget

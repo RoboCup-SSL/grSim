@@ -610,7 +610,7 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
     float radz = (SSL_FIELD_PENALTY) / ( SSL_FIELD_WIDTH / 2.0);
     float penaltyx = SSL_FIELD_PENALTY_POINT / (SSL_FIELD_LENGTH / 2.0);
     glPushMatrix();
-            glScaled(SSL_FIELD_LENGTH / 2000.0 ,  SSL_FIELD_WIDTH / 2000.0,1);
+            glScaled(SSL_FIELD_LENGTH / 2.0 ,  SSL_FIELD_WIDTH / 2.0,1);
 
             GLfloat sizes[2];  // Store supported line width range
             GLfloat step;     // Store supported line width increments

@@ -5,7 +5,6 @@
 #include "Physics/pball.h"
 #include "Physics/pground.h"
 #include "logger.h"
-#include <QDebug>
 #include <QLabel>
 
 GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
@@ -101,7 +100,7 @@ GLWidget::~GLWidget()
 void GLWidget::moveRobot()
 {
     ssl->show3DCursor = true;
-    ssl->cursor_radius = cfg->CHASSISWIDTH()*0.5f;
+    ssl->cursor_radius = cfg->robotSettings.RobotRadius;
     state = 1;
     moving_robot_id = clicked_robot;
 }
@@ -118,26 +117,27 @@ void GLWidget::selectRobot()
 
 void GLWidget::resetRobot()
 {
-    if (clicked_robot!=-1)
+    if (Current_robot!=-1)
     {
-        ssl->robots[clicked_robot]->resetRobot();
+        ssl->robots[robotIndex(Current_robot, Current_team)]->resetRobot();
     }
 }
 
 void GLWidget::switchRobotOnOff()
 {
-    if (clicked_robot!=-1)
+    int k = robotIndex(Current_robot, Current_team);
+    if (Current_robot!=-1)
     {
-        if (ssl->robots[clicked_robot]->on==true)
+        if (ssl->robots[k]->on==true)
         {
-            ssl->robots[clicked_robot]->on = false;
+            ssl->robots[k]->on = false;
             onOffRobotAct->setText("Turn &on");
-            emit robotTurnedOnOff(clicked_robot,false);
+            emit robotTurnedOnOff(k,false);
         }
         else {
-            ssl->robots[clicked_robot]->on = true;
+            ssl->robots[k]->on = true;
             onOffRobotAct->setText("Turn &off");
-            emit robotTurnedOnOff(clicked_robot,true);
+            emit robotTurnedOnOff(k,true);
         }
     }
 }
@@ -150,7 +150,7 @@ void GLWidget::resetCurrentRobot()
 void GLWidget::moveCurrentRobot()
 {
     ssl->show3DCursor = true;
-    ssl->cursor_radius = cfg->CHASSISWIDTH()*0.5f;
+    ssl->cursor_radius = cfg->robotSettings.RobotRadius;
     state = 1;
     moving_robot_id = robotIndex(Current_robot,Current_team);
 }
@@ -158,7 +158,7 @@ void GLWidget::moveCurrentRobot()
 void GLWidget::moveBall()
 {
     ssl->show3DCursor = true;
-    ssl->cursor_radius = cfg->BALLRADIUS();
+    ssl->cursor_radius = cfg->BallRadius();
     state = 2;
 }
 
@@ -179,7 +179,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
         }
         else if (state==2)
         {
-            ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS()*1.1*20.0);
+            ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BallRadius()*1.1*20.0);
             dBodySetAngularVel(ssl->ball->body,0,0,0);
             dBodySetLinearVel(ssl->ball->body,0,0,0);
             ssl->show3DCursor = false;
@@ -202,7 +202,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
                 x *= kickpower;
                 y *= kickpower;
                 dBodySetLinearVel(ssl->ball->body,x,y,0);
-                dBodySetAngularVel(ssl->ball->body,-y/cfg->BALLRADIUS(),x/cfg->BALLRADIUS(),0);
+                dBodySetAngularVel(ssl->ball->body,-y/cfg->BallRadius(),x/cfg->BallRadius(),0);
             }
         }
     }
@@ -370,7 +370,7 @@ void GLWidget::changeCameraMode()
     else cammode ++;
       cammode %= 6;
       if (cammode==0)
-        ssl->g->setViewpoint(0,-(cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,90,-45,0);
+        ssl->g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,90,-45,0);
       else if (cammode==1)
       {
           ssl->g->getViewpoint(xyz,hpr);
@@ -378,11 +378,11 @@ void GLWidget::changeCameraMode()
       else if (cammode==2)
           ssl->g->setViewpoint(0,0,5,0,-90,0);
       else if (cammode==3)
-          ssl->g->setViewpoint(0, (cfg->_SSL_FIELD_WIDTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,3,270,-45,0);
+          ssl->g->setViewpoint(0, (cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,270,-45,0);
       else if (cammode==4)
-          ssl->g->setViewpoint(-(cfg->_SSL_FIELD_LENGTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,0,3,0,-45,0);
+          ssl->g->setViewpoint(-(cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,0,-45,0);
       else if (cammode==5)
-          ssl->g->setViewpoint((cfg->_SSL_FIELD_LENGTH()+cfg->_SSL_FIELD_MARGIN()*2.0f)/2000.0f,0,3,180,-45,0);
+          ssl->g->setViewpoint((cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,180,-45,0);
 }
 
 void GLWidget::putBall(float x,float y)
@@ -405,19 +405,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 {
   if (event->key() == Qt::Key_Control) ctrl = true;
   if (event->key() == Qt::Key_Alt) alt = true;
-  if (event->key() == Qt::Key_F12)
-  {
-      if (!ssl->ballTrainingMode)
-      {
-          ssl->ballTrainingMode = true;
-          logStatus("Ball Training Mode On",QColor("green"));
-      }
-      else
-      {
-          ssl->ballTrainingMode = false;
-          logStatus("Ball Training Mode Off",QColor("red"));
-      }
-  }
   char cmd = event->key();
   if (fullScreen) {
       if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);
@@ -431,21 +418,15 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
       case 'g': case 'G': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,-S);break;
       case 'f': case 'F': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,S);break;
       case 'h': case 'H': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,-S);break;
-/*
-      case 't': case 'T': ssl->robots[R]->setSpeed(0,-S);ssl->robots[R]->setSpeed(1,S);ssl->robots[R]->setSpeed(2,-S);ssl->robots[R]->setSpeed(3,S);break;
-      case 'g': case 'G': ssl->robots[R]->setSpeed(0,S);ssl->robots[R]->setSpeed(1,-S);ssl->robots[R]->setSpeed(2,S);ssl->robots[R]->setSpeed(3,-S);break;
-      case 'f': case 'F': ssl->robots[R]->setSpeed(0,S);ssl->robots[R]->setSpeed(1,S);ssl->robots[R]->setSpeed(2,S);ssl->robots[R]->setSpeed(3,S);break;
-      case 'h': case 'H': ssl->robots[R]->setSpeed(0,-S);ssl->robots[R]->setSpeed(1,-S);ssl->robots[R]->setSpeed(2,-S);ssl->robots[R]->setSpeed(3,-S);break;
-*/
-  case 'w': case 'W':dBodyAddForce(ssl->ball->body,0, BallForce,0);break;
-  case 's': case 'S':dBodyAddForce(ssl->ball->body,0,-BallForce,0);break;
-  case 'd': case 'D':dBodyAddForce(ssl->ball->body, BallForce,0,0);break;
-  case 'a': case 'A':dBodyAddForce(ssl->ball->body,-BallForce,0,0);break;
-  case 'k':case 'K': ssl->robots[R]->kicker->kick(4,0);break;
-  case 'l':case 'L': ssl->robots[R]->kicker->kick(2,2);break;
-  case 'j':case 'J': ssl->robots[R]->kicker->toggleRoller();break;
-  case 'i':case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BALLRADIUS(),0);break;
-  case ';':
+      case 'w': case 'W':dBodyAddForce(ssl->ball->body,0, BallForce,0);break;
+      case 's': case 'S':dBodyAddForce(ssl->ball->body,0,-BallForce,0);break;
+      case 'd': case 'D':dBodyAddForce(ssl->ball->body, BallForce,0,0);break;
+      case 'a': case 'A':dBodyAddForce(ssl->ball->body,-BallForce,0,0);break;
+      case 'k':case 'K': ssl->robots[R]->kicker->kick(4,0);break;
+      case 'l':case 'L': ssl->robots[R]->kicker->kick(2,2);break;
+      case 'j':case 'J': ssl->robots[R]->kicker->toggleRoller();break;
+      case 'i':case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BallRadius(),0);break;
+      case ';':
       if (kickingball==false)
       {
           kickingball = true; logStatus(QString("Kick mode On"),QColor("blue"));
@@ -493,7 +474,10 @@ void GLWidget::reform(int team,const QString& act)
 
 void GLWidget::moveBallHere()
 {
-    ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BALLRADIUS()*20);
+    ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BallRadius()*2);
+    dBodySetLinearVel(ssl->ball->body, 0.0, 0.0, 0.0);
+    dBodySetAngularVel(ssl->ball->body, 0.0, 0.0, 0.0);
+
 }
 
 void GLWidget::lockCameraToRobot()
@@ -510,6 +494,7 @@ void GLWidget::lockCameraToBall()
 void GLWidget::moveRobotHere()
 {
     ssl->robots[robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
+    ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
 }
 
 GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)

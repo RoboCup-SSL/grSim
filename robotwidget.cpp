@@ -32,8 +32,6 @@ RobotWidget::RobotWidget(QWidget* parent)
     layout->addWidget(robotCombo,1,2);
     layout->addWidget(new QLabel("Velocity"),2,1);
     layout->addWidget(vellabel,2,2);    
-//    layout->addWidget(new QLabel("Acceleration"),3,1);
-//    layout->addWidget(acclabel,3,2);
     layout->addWidget(resetBtn,3,1);
     layout->addWidget(locateBtn,3,2);
     layout->addWidget(onOffBtn,4,1);
@@ -42,7 +40,6 @@ RobotWidget::RobotWidget(QWidget* parent)
     widget->setLayout(layout);    
     widget->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     setWidget(widget);    
-///    layout->setSizeConstraint(QLayout::SetMinimumSize);
     getPoseWidget = new GetPositionWidget();
     QObject::connect(setPoseBtn,SIGNAL(clicked()),this,SLOT(setPoseBtnClicked()));
 }

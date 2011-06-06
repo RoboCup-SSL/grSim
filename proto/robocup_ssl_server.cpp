@@ -101,7 +101,6 @@ bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
 #ifdef Q_OS_WIN32
 #include "robocup_ssl_server.h"
 
-#include <QDebug>
 
 RoboCupSSLServer::RoboCupSSLServer(QObject* parent,int port,
                      string net_address,

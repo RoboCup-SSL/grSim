@@ -1,6 +1,5 @@
 #include "logger.h"
 #include "statuswidget.h"
-#include <QDebug>
 CStatusPrinter *printer;
 void initLogger(void* v)
 {
