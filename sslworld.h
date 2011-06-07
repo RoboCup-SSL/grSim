@@ -40,8 +40,8 @@ private:
     float last_dt;
     QList<SendingPacket*> sendQueue;
     char packet[200];
-    char *in_buffer;
-public:
+    char *in_buffer;    
+public:    
     float customDT;
     bool isGLEnabled;
     SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2);
@@ -69,10 +69,6 @@ public:
     QTime *timer;    
 public slots:
     void recvActions();
-    void reconnectCommandSocket();
-    void reconnectYellowStatusSocket();
-    void reconnectBlueStatusSocket();
-    void reconnectVisionSocket();
 signals:
     void fpsChanged(int newFPS);
 };

@@ -32,7 +32,7 @@ public slots:
     void changeGravity();
     void changeTimer();
 
-    void alertStaticVars();
+    void restartSimulator();
     void ballMenuTriggered(QAction* act);
     void toggleFullScreen(bool);
     void setCurrentRobotPosition();
@@ -41,6 +41,10 @@ public slots:
 
     void customFPS(int fps);
     void showAbout();
+    void reconnectCommandSocket();
+    void reconnectYellowStatusSocket();
+    void reconnectBlueStatusSocket();
+    void reconnectVisionSocket();
 private:
     int getInterval();    
     QTimer *timer;
@@ -63,6 +67,9 @@ private:
     GLWidgetGraphicsView *view;
     QSize lastSize;
     CAboutWidget *aboutWidget;
+    RoboCupSSLServer *visionServer;
+    QUdpSocket *commandSocket;
+    QUdpSocket *blueStatusSocket,*yellowStatusSocket;
 };
 
 #endif // MAINWINDOW_H

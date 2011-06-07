@@ -53,6 +53,22 @@ MainWindow::MainWindow(QWidget *parent)
     glwidget->setWindowTitle(tr("Simulator"));
     glwidget->resize(512,512);    
 
+    visionServer = NULL;
+    commandSocket = NULL;
+    blueStatusSocket = NULL;
+    yellowStatusSocket = NULL;
+    reconnectVisionSocket();
+    reconnectCommandSocket();
+    reconnectBlueStatusSocket();
+    reconnectYellowStatusSocket();
+
+    glwidget->ssl->visionServer = visionServer;
+    glwidget->ssl->commandSocket = commandSocket;
+    glwidget->ssl->blueStatusSocket = blueStatusSocket;
+    glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
+
+
+
     robotwidget = new RobotWidget(this);
     /* Status Bar */
     fpslabel = new QLabel(this);
@@ -173,21 +189,23 @@ MainWindow::MainWindow(QWidget *parent)
 
     //geometry config vars
     QObject::connect(configwidget->v_DesiredFPS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeTimer()));
-    QObject::connect(configwidget->v_BallRadius, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_Field_Length, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_Field_Margin, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_Field_Width, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_Field_Penalty_Line, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_Field_Penalty_Point, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_Field_Penalty_Rad, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
-    QObject::connect(configwidget->v_Field_Rad, SIGNAL(wasEdited(VarType*)), this, SLOT(alertStaticVars()));
+    QObject::connect(configwidget->v_BallRadius, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Length, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Margin, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Width, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Penalty_Line, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Penalty_Point, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Penalty_Rad, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Rad, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_BlueTeam, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_YellowTeam, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
 
     //network
-    QObject::connect(configwidget->v_VisionMulticastAddr, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectVisionSocket()));
-    QObject::connect(configwidget->v_VisionMulticastPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectVisionSocket()));
-    QObject::connect(configwidget->v_CommandListenPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectCommandSocket()));
-    QObject::connect(configwidget->v_BlueStatusSendPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectBlueStatusSocket()));
-    QObject::connect(configwidget->v_YellowStatusSendPort, SIGNAL(wasEdited(VarType*)), glwidget->ssl, SLOT(reconnectYellowStatusSocket()));
+    QObject::connect(configwidget->v_VisionMulticastAddr, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectVisionSocket()));
+    QObject::connect(configwidget->v_VisionMulticastPort, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectVisionSocket()));
+    QObject::connect(configwidget->v_CommandListenPort, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectCommandSocket()));
+    QObject::connect(configwidget->v_BlueStatusSendPort, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectBlueStatusSocket()));
+    QObject::connect(configwidget->v_YellowStatusSendPort, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectYellowStatusSocket()));
     timer->start();
 
 
@@ -328,9 +346,15 @@ void MainWindow::changeBallDamping()
     dBodySetAngularDamping(glwidget->ssl->ball->body,configwidget->BallAngularDamp());
 }
 
-void MainWindow::alertStaticVars()
-{    
-    logStatus("You must restart application to see the changes of geometry parameters",QColor("orange"));
+void MainWindow::restartSimulator()
+{        
+    delete glwidget->ssl;
+    glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[2],glwidget->forms[2]);
+    glwidget->ssl->glinit();
+    glwidget->ssl->visionServer = visionServer;
+    glwidget->ssl->commandSocket = commandSocket;
+    glwidget->ssl->blueStatusSocket = blueStatusSocket;
+    glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
 }
 
 void MainWindow::ballMenuTriggered(QAction* act)
@@ -408,3 +432,53 @@ void MainWindow::showAbout()
     aboutWidget->showNormal();
     aboutWidget->setFocus();
 }
+
+
+
+void MainWindow::reconnectBlueStatusSocket()
+{
+    if (blueStatusSocket!=NULL)
+    {
+        delete blueStatusSocket;
+    }
+    blueStatusSocket = new QUdpSocket(this);
+    if (blueStatusSocket->bind(QHostAddress::Any,configwidget->BlueStatusSendPort()))
+        logStatus(QString("Status send port binded for Blue Team on: %1").arg(configwidget->BlueStatusSendPort()),QColor("green"));
+}
+
+void MainWindow::reconnectYellowStatusSocket()
+{
+    if (yellowStatusSocket!=NULL)
+    {
+        delete yellowStatusSocket;
+    }
+    yellowStatusSocket = new QUdpSocket(this);
+    if (yellowStatusSocket->bind(QHostAddress::Any,configwidget->YellowStatusSendPort()))
+        logStatus(QString("Status send port binded for Yellow Team on: %1").arg(configwidget->YellowStatusSendPort()),QColor("green"));
+}
+
+void MainWindow::reconnectCommandSocket()
+{
+    if (commandSocket!=NULL)
+    {
+        QObject::disconnect(commandSocket,SIGNAL(readyRead()),glwidget->ssl,SLOT(recvActions()));
+        delete commandSocket;
+    }
+    commandSocket = new QUdpSocket(this);
+    if (commandSocket->bind(QHostAddress::Any,configwidget->CommandListenPort()))
+        logStatus(QString("Command listen port binded on: %1").arg(configwidget->CommandListenPort()),QColor("green"));
+    QObject::connect(commandSocket,SIGNAL(readyRead()),glwidget->ssl,SLOT(recvActions()));
+}
+
+void MainWindow::reconnectVisionSocket()
+{
+    if (visionServer!=NULL)
+        delete visionServer;
+    visionServer = new RoboCupSSLServer(
+#ifdef Q_OS_WIN32
+            m_parent,
+#endif
+            configwidget->VisionMulticastPort(),configwidget->VisionMulticastAddr());
+    visionServer->open();
+}
+

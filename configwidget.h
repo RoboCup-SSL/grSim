@@ -87,6 +87,8 @@ public:
 
   QSettings* robot_settings;
   RobotSettings robotSettings;
+  RobotSettings blueSettings;
+  RobotSettings yellowSettings;
 
   DEF_VALUE(double,Double,Field_Length)
   DEF_VALUE(double,Double,Field_Width)
@@ -101,7 +103,8 @@ public:
   DEF_VALUE(double,Double,Goal_Depth)
   DEF_VALUE(double,Double,Goal_Width)
   DEF_VALUE(double,Double,Goal_Height)
-  DEF_ENUM(std::string,Team)
+  DEF_ENUM(std::string,YellowTeam)
+  DEF_ENUM(std::string,BlueTeam)
   DEF_VALUE(double,Double,BallRadius)
   DEF_VALUE(double,Double,BallMass)
   DEF_VALUE(double,Double,BallFriction)
@@ -131,9 +134,10 @@ public:
   DEF_VALUE(double,Double,yellow_team_vanishing)
   DEF_VALUE(std::string, String, plotter_addr)
   DEF_VALUE(int, Int, plotter_port)
-  DEF_VALUE(bool, Bool, plotter)
-public slots:
-  void loadRobotSettings();
+  DEF_VALUE(bool, Bool, plotter)  
+  void loadRobotSettings(QString team);
+public slots:  
+  void loadRobotsSettings();
 };
 
 class ConfigDockWidget : public QDockWidget
