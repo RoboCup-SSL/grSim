@@ -32,6 +32,11 @@ CGraphics::CGraphics(QGLWidget* _owner)
   graphicDisabled = false;
 }
 
+CGraphics::~CGraphics()
+{
+
+}
+
 void CGraphics::disableGraphics()
 {
     graphicDisabled = true;

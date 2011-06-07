@@ -168,8 +168,10 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     const int wheeltexid = 37;
 
 
+    cfg->robotSettings = cfg->blueSettings;
     for (int k=0;k<5;k++)
         robots[k] = new Robot(p,ball,cfg,-form1->x[k],form1->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,wheeltexid,1);
+    cfg->robotSettings = cfg->yellowSettings;
     for (int k=0;k<5;k++)
         robots[k+5] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
 
@@ -227,73 +229,15 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
             }
         }
     }
-
-    visionServer = NULL;
-    reconnectVisionSocket();
-    commandSocket = NULL;
-    reconnectCommandSocket();
-    blueStatusSocket = NULL;
-    reconnectBlueStatusSocket();
-    yellowStatusSocket = NULL;
-    reconnectYellowStatusSocket();
     timer = new QTime();
     timer->start();
     in_buffer = new char [65536];
 }
 
-void SSLWorld::reconnectBlueStatusSocket()
-{
-    if (blueStatusSocket!=NULL)
-    {
-        delete blueStatusSocket;
-    }
-    blueStatusSocket = new QUdpSocket(this);
-    if (blueStatusSocket->bind(QHostAddress::Any,cfg->BlueStatusSendPort()))
-        logStatus(QString("Status send port binded for Blue Team on: %1").arg(cfg->BlueStatusSendPort()),QColor("green"));
-}
-
-void SSLWorld::reconnectYellowStatusSocket()
-{
-    if (yellowStatusSocket!=NULL)
-    {
-        delete yellowStatusSocket;
-    }
-    yellowStatusSocket = new QUdpSocket(this);
-    if (yellowStatusSocket->bind(QHostAddress::Any,cfg->YellowStatusSendPort()))
-        logStatus(QString("Status send port binded for Yellow Team on: %1").arg(cfg->YellowStatusSendPort()),QColor("green"));
-}
-
-void SSLWorld::reconnectCommandSocket()
-{
-    if (commandSocket!=NULL)
-    {
-        QObject::disconnect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
-        delete commandSocket;
-    }
-    commandSocket = new QUdpSocket(this);
-    if (commandSocket->bind(QHostAddress::Any,cfg->CommandListenPort()))
-        logStatus(QString("Command listen port binded on: %1").arg(cfg->CommandListenPort()),QColor("green"));
-    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
-}
-
-void SSLWorld::reconnectVisionSocket()
-{
-    if (visionServer!=NULL)
-        delete visionServer;
-    visionServer = new RoboCupSSLServer(
-#ifdef Q_OS_WIN32
-            m_parent,
-#endif
-            cfg->VisionMulticastPort(),cfg->VisionMulticastAddr());
-    visionServer->open();
-}
-
-
 SSLWorld::~SSLWorld()
 {
-    delete visionServer;
-    commandSocket->close();
-    delete commandSocket;
+    delete g;
+    delete p;
 }
 
 QImage* createBlob(char yb,int i,QImage** res)

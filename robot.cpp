@@ -6,7 +6,7 @@ Robot::Wheel::Wheel(Robot* robot,int _id,float ang,float ang2,int wheeltexid)
 {
     id = _id;
     rob = robot;
-    float rad = rob->cfg->robotSettings.RobotRadius - rob->cfg->robotSettings.WheelThickness;
+    float rad = rob->cfg->robotSettings.RobotRadius - rob->cfg->robotSettings.WheelThickness / 2.0;
     ang *= M_PI/180.0f;
     ang2 *= M_PI/180.0f;
     float x = rob->m_x;
@@ -40,13 +40,8 @@ Robot::Wheel::Wheel(Robot* robot,int _id,float ang,float ang2,int wheeltexid)
 
 void Robot::Wheel::step()
 {
- //   if (id!=0)
-    {
-        dJointSetAMotorParam(motor,dParamVel,speed);
-        dJointSetAMotorParam(motor,dParamFMax,rob->cfg->robotSettings.Wheel_Motor_FMax);
-    }
-    //dJointSetHingeParam (joint,dParamVel,speed);
-    //dJointSetHingeParam (joint,dParamFMax,5);
+    dJointSetAMotorParam(motor,dParamVel,speed);
+    dJointSetAMotorParam(motor,dParamFMax,rob->cfg->robotSettings.Wheel_Motor_FMax);
 }
 
 Robot::Kicker::Kicker(Robot* robot)

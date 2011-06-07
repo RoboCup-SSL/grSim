@@ -37,8 +37,10 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(field_vars,Double,Goal_Depth,0.20,"Goal depth")
         ADD_VALUE(field_vars,Double,Goal_Width,0.70,"Goal width")
         ADD_VALUE(field_vars,Double,Goal_Height,0.40,"Goal height")
-    ADD_ENUM(StringEnum,Team,"Parsian","Team");
-    END_ENUM(geo_vars,Team)
+    ADD_ENUM(StringEnum,YellowTeam,"Parsian","Yellow Team");
+    END_ENUM(geo_vars,YellowTeam)
+    ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
+    END_ENUM(geo_vars,BlueTeam)
 
     VarList * ballg_vars = new VarList("Ball");
     geo_vars->addChild(ballg_vars);
@@ -84,10 +86,14 @@ ConfigWidget::ConfigWidget()
 
 
     QDir dir;
-    std::string team = v_Team->getString();
-    geo_vars->removeChild(v_Team);
+    std::string blueteam = v_BlueTeam->getString();
+    geo_vars->removeChild(v_BlueTeam);
 
-    ADD_ENUM(StringEnum,Team,"Parsian","Team");
+    std::string yellowteam = v_YellowTeam->getString();
+    geo_vars->removeChild(v_YellowTeam);
+
+    ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
+    ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
     dir.setCurrent(qApp->applicationDirPath()+"/../config/");
     dir.setNameFilters(QStringList() << "*.ini");
     dir.setSorting(QDir::Size | QDir::Reversed);
@@ -97,11 +103,14 @@ ConfigWidget::ConfigWidget()
     QStringList s = fileInfo.fileName().split(".");
     QString str;
     if (s.count() > 0) str = s[0];
-        ADD_TO_ENUM(Team,str.toStdString())
+        ADD_TO_ENUM(BlueTeam,str.toStdString())
+        ADD_TO_ENUM(YellowTeam,str.toStdString())
     }
-    END_ENUM(geo_vars,Team)
+    END_ENUM(geo_vars,BlueTeam)
+    END_ENUM(geo_vars,YellowTeam)
 
-v_Team->setString(team);
+  v_BlueTeam->setString(blueteam);
+  v_YellowTeam->setString(yellowteam);
 
   tmodel->setRootItems(world);
 
@@ -112,8 +121,9 @@ v_Team->setString(team);
   this->fitColumns();
 
   resize(320,400);
-  connect(v_Team, SIGNAL(wasEdited(VarType*)), this, SLOT(loadRobotSettings()));
-  loadRobotSettings();
+  connect(v_BlueTeam, SIGNAL(wasEdited(VarType*)), this, SLOT(loadRobotsSettings()));
+  connect(v_YellowTeam, SIGNAL(wasEdited(VarType*)), this, SLOT(loadRobotsSettings()));
+  loadRobotsSettings();
 }
 
 ConfigWidget::~ConfigWidget() {  
@@ -132,9 +142,17 @@ void ConfigDockWidget::closeEvent(QCloseEvent* event)
 }
 
 
-void ConfigWidget::loadRobotSettings()
+void ConfigWidget::loadRobotsSettings()
 {
-    QString ss = qApp->applicationDirPath()+QString("/../config/")+QString("%1.ini").arg(Team().c_str());
+    loadRobotSettings(YellowTeam().c_str());
+    yellowSettings = robotSettings;
+    loadRobotSettings(BlueTeam().c_str());
+    blueSettings = robotSettings;
+}
+
+void ConfigWidget::loadRobotSettings(QString team)
+{
+    QString ss = qApp->applicationDirPath()+QString("/../config/")+QString("%1.ini").arg(team);
     robot_settings = new QSettings(ss, QSettings::IniFormat);
     robotSettings.RobotCenterFromKicker = robot_settings->value("Geometery/CenterFromKicker", 0.073).toDouble();
     robotSettings.RobotRadius = robot_settings->value("Geometery/Radius", 0.09).toDouble();
