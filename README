@@ -1,0 +1,5 @@
+sudo apt-get install libqt4-dev g++ build-essential libgl1-mesa-dev libglu1-mesa-dev
+qmake
+make
+./bin/grSim
+
