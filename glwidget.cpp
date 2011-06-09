@@ -1,3 +1,21 @@
+/*
+grSim - RoboCup Small Size Soccer Robots Simulator
+Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <QtGui>
 
 #include <QPainter>
@@ -41,8 +59,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     selectRobotAct = new QAction(tr("&Select robot"),this);
     resetRobotAct = new QAction(tr("&Reset robot"),this);
     onOffRobotAct = new QAction(tr("Turn &off"),this);
-    lockToRobotAct = new QAction(tr("Loc&k camera to this robot"),this);
-    //robpopup->addAction(selectRobotAct);
+    lockToRobotAct = new QAction(tr("Loc&k camera to this robot"),this);    
     robpopup->addAction(moveRobotAct);
     robpopup->addAction(resetRobotAct);
     robpopup->addAction(onOffRobotAct);
@@ -239,8 +256,7 @@ void GLWidget::update3DCursor(int mouse_x,int mouse_y)
     float xyz[3],hpr[3],fx,fy,fz,rx,ry,rz,ux,uy,uz,px,py,pz;
     ssl->g->getViewpoint(xyz,hpr);
     ssl->g->getCameraForward(fx,fy,fz);
-    ssl->g->getCameraRight(rx,ry,rz);
-    ////u = r*f ///Up
+    ssl->g->getCameraRight(rx,ry,rz);    
     ux = ry*fz - rz*fy;
     uy = rz*fx - rx*fz;
     uz = rx*fy - ry*fx;
@@ -299,8 +315,6 @@ void GLWidget::step()
     const dReal* ballV = dBodyGetLinearVel(ssl->ball->body);
     double ballSpeed = ballV[0]*ballV[0] + ballV[1]*ballV[1] + ballV[2]*ballV[2];
     ballSpeed  = sqrt(ballSpeed);
-    if (ballSpeed>lastBallSpeed && lastBallSpeed!=-1)
-        ;//logStatus(QString("Ball speed=%1").arg(ballSpeed),QColor("blue"));
     lastBallSpeed = ballSpeed;
     rendertimer.restart();
     m_fps = frames /(time.elapsed()/1000.0);
@@ -346,21 +360,21 @@ void GLWidget::paintGL()
         ssl->g->lookAt(x,y,z);
     }
     step();    
-        QFont font;
-        for (int i=0;i<ROBOT_COUNT*2;i++)
-        {
-            float xx,yy;
-            ssl->robots[i]->getXY(xx,yy);
-            if (i>=ROBOT_COUNT) qglColor(Qt::yellow);
-            else qglColor(Qt::cyan);
-            renderText(xx,yy,0.3,QString::number(i%ROBOT_COUNT),font);
-            if (!ssl->robots[i]->on){
-                qglColor(Qt::red);
-                font.setBold(true);
-                renderText(xx,yy,0.4,"Off",font);
-            }
-            font.setBold(false);
+    QFont font;
+    for (int i=0;i<ROBOT_COUNT*2;i++)
+    {
+        float xx,yy;
+        ssl->robots[i]->getXY(xx,yy);
+        if (i>=ROBOT_COUNT) qglColor(Qt::yellow);
+        else qglColor(Qt::cyan);
+        renderText(xx,yy,0.3,QString::number(i%ROBOT_COUNT),font);
+        if (!ssl->robots[i]->on){
+            qglColor(Qt::red);
+            font.setBold(true);
+            renderText(xx,yy,0.4,"Off",font);
         }
+        font.setBold(false);
+    }
 }
 
 void GLWidget::changeCameraMode()
@@ -368,21 +382,21 @@ void GLWidget::changeCameraMode()
     static float xyz[3],hpr[3];
     if (cammode<0) cammode=0;
     else cammode ++;
-      cammode %= 6;
-      if (cammode==0)
+    cammode %= 6;
+    if (cammode==0)
         ssl->g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,90,-45,0);
-      else if (cammode==1)
-      {
-          ssl->g->getViewpoint(xyz,hpr);
-      }
-      else if (cammode==2)
-          ssl->g->setViewpoint(0,0,5,0,-90,0);
-      else if (cammode==3)
-          ssl->g->setViewpoint(0, (cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,270,-45,0);
-      else if (cammode==4)
-          ssl->g->setViewpoint(-(cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,0,-45,0);
-      else if (cammode==5)
-          ssl->g->setViewpoint((cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,180,-45,0);
+    else if (cammode==1)
+    {
+        ssl->g->getViewpoint(xyz,hpr);
+    }
+    else if (cammode==2)
+        ssl->g->setViewpoint(0,0,5,0,-90,0);
+    else if (cammode==3)
+        ssl->g->setViewpoint(0, (cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,270,-45,0);
+    else if (cammode==4)
+        ssl->g->setViewpoint(-(cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,0,-45,0);
+    else if (cammode==5)
+        ssl->g->setViewpoint((cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,180,-45,0);
 }
 
 void GLWidget::putBall(float x,float y)
@@ -403,49 +417,49 @@ void GLWidget::keyReleaseEvent(QKeyEvent* event)
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
-  if (event->key() == Qt::Key_Control) ctrl = true;
-  if (event->key() == Qt::Key_Alt) alt = true;
-  char cmd = event->key();
-  if (fullScreen) {
-      if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);
-  }
-  const float S = 0.30;
-  const float BallForce = 0.2;
-  int R = robotIndex(Current_robot,Current_team);
-  bool flag=false;
-  switch (cmd) {
-      case 't': case 'T': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,S);break;
-      case 'g': case 'G': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,-S);break;
-      case 'f': case 'F': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,S);break;
-      case 'h': case 'H': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,-S);break;
-      case 'w': case 'W':dBodyAddForce(ssl->ball->body,0, BallForce,0);break;
-      case 's': case 'S':dBodyAddForce(ssl->ball->body,0,-BallForce,0);break;
-      case 'd': case 'D':dBodyAddForce(ssl->ball->body, BallForce,0,0);break;
-      case 'a': case 'A':dBodyAddForce(ssl->ball->body,-BallForce,0,0);break;
-      case 'k':case 'K': ssl->robots[R]->kicker->kick(4,0);break;
-      case 'l':case 'L': ssl->robots[R]->kicker->kick(2,2);break;
-      case 'j':case 'J': ssl->robots[R]->kicker->toggleRoller();break;
-      case 'i':case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BallRadius(),0);break;
-      case ';':
-      if (kickingball==false)
-      {
-          kickingball = true; logStatus(QString("Kick mode On"),QColor("blue"));
-      }
-      else
-      {
-          kickingball = false; logStatus(QString("Kick mode Off"),QColor("red"));
-      }
-      break;
-  case ']': kickpower += 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("orange"));break;
-  case '[': kickpower -= 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("cyan"));break;
-  case ' ':
-    ssl->robots[R]->resetSpeeds();
-    break;
-  case '`':
-    dBodySetLinearVel(ssl->ball->body,0,0,0);
-    dBodySetAngularVel(ssl->ball->body,0,0,0);
-    break;
-  }
+    if (event->key() == Qt::Key_Control) ctrl = true;
+    if (event->key() == Qt::Key_Alt) alt = true;
+    char cmd = event->key();
+    if (fullScreen) {
+        if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);
+    }
+    const float S = 0.30;
+    const float BallForce = 0.2;
+    int R = robotIndex(Current_robot,Current_team);
+    bool flag=false;
+    switch (cmd) {
+    case 't': case 'T': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,S);break;
+    case 'g': case 'G': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,-S);break;
+    case 'f': case 'F': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,S);break;
+    case 'h': case 'H': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,-S);break;
+    case 'w': case 'W':dBodyAddForce(ssl->ball->body,0, BallForce,0);break;
+    case 's': case 'S':dBodyAddForce(ssl->ball->body,0,-BallForce,0);break;
+    case 'd': case 'D':dBodyAddForce(ssl->ball->body, BallForce,0,0);break;
+    case 'a': case 'A':dBodyAddForce(ssl->ball->body,-BallForce,0,0);break;
+    case 'k':case 'K': ssl->robots[R]->kicker->kick(4,0);break;
+    case 'l':case 'L': ssl->robots[R]->kicker->kick(2,2);break;
+    case 'j':case 'J': ssl->robots[R]->kicker->toggleRoller();break;
+    case 'i':case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BallRadius(),0);break;
+    case ';':
+        if (kickingball==false)
+        {
+            kickingball = true; logStatus(QString("Kick mode On"),QColor("blue"));
+        }
+        else
+        {
+            kickingball = false; logStatus(QString("Kick mode Off"),QColor("red"));
+        }
+        break;
+    case ']': kickpower += 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("orange"));break;
+    case '[': kickpower -= 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("cyan"));break;
+    case ' ':
+        ssl->robots[R]->resetSpeeds();
+        break;
+    case '`':
+        dBodySetLinearVel(ssl->ball->body,0,0,0);
+        dBodySetAngularVel(ssl->ball->body,0,0,0);
+        break;
+    }
 }
 
 void GLWidget::closeEvent(QCloseEvent *event)
@@ -498,7 +512,7 @@ void GLWidget::moveRobotHere()
 }
 
 GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)
-        : QGraphicsView(scene)
+    : QGraphicsView(scene)
 {
     glwidget = _glwidget;
 }
