@@ -170,9 +170,6 @@ MainWindow::MainWindow(QWidget *parent)
     timer = new QTimer(this);
     timer->setInterval(getInterval());
 
-    aboutWidget = new CAboutWidget(this);
-    workspace->addWindow(aboutWidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
-    aboutWidget->hide();
 
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     QObject::connect(takeSnapshotAct, SIGNAL(triggered(bool)), this, SLOT(takeSnapshot()));
@@ -448,8 +445,9 @@ void MainWindow::takeSnapshotToClipboard()
 
 void MainWindow::showAbout()
 {
-    aboutWidget->showNormal();
-    aboutWidget->setFocus();
+    QString title = QString("grSim v0.9 - Build r1240");
+    QString text = QString("grSim - RoboCup Small Size Soccer Robots Simulator\n\n(C) 2011 - Parsian Robotic Center\nhttp://eew.aut.ac.ir/~parsian/grsim\n\ngrSim is free software released under the terms of GNU GPL v3");
+    QMessageBox::about(this, title, text);
 }
 
 

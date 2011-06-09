@@ -26,7 +26,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "glwidget.h"
 #include "configwidget.h"
 #include "statuswidget.h"
-#include "aboutwidget.h"
 #include "robotwidget.h"
 
 class MainWindow : public QMainWindow
@@ -84,7 +83,6 @@ private:
     QGraphicsScene *scene;
     GLWidgetGraphicsView *view;
     QSize lastSize;
-    CAboutWidget *aboutWidget;
     RoboCupSSLServer *visionServer;
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
