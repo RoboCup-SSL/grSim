@@ -100,7 +100,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
         ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
-  world=VarXML::read(world,"../settings.xml");
+    world=VarXML::read(world,(qApp->applicationDirPath() + QString("/settings.xml")).toStdString());
 
 
     QDir dir;
@@ -145,7 +145,7 @@ ConfigWidget::ConfigWidget()
 }
 
 ConfigWidget::~ConfigWidget() {  
-   VarXML::write(world,"../settings.xml");
+   VarXML::write(world,(qApp->applicationDirPath() + QString("/settings.xml")).toStdString());
 }
 
 

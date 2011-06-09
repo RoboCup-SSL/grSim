@@ -66,8 +66,9 @@ LIBS += -L$$PWD/libs/ \
     -lode-0.11.1 \
     -lprotobuf-2.4.0 \
     -lVarTypes
+MOC_DIR = $$PWD/objs
 OBJECTS_DIR = $$PWD/objs
-DESTDIR = $$PWD/objs
+DESTDIR = $$PWD/bin
 INCLUDEPATH += $$PWD/include
 INCLUDEPATH += $$PWD/include/VarTypes
 RESOURCES += textures.qrc
