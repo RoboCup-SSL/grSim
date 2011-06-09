@@ -1,3 +1,21 @@
+/*
+grSim - RoboCup Small Size Soccer Robots Simulator
+Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "sslworld.h"
 
 #include <QtGlobal>
@@ -159,7 +177,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     walls[8] = new PFixedBox(- (( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5),-cfg->Goal_Width()*0.5f- cfg->Goal_Thickness()*0.5f,0.0
                              , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
     walls[9] = new PFixedBox( -(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5),cfg->Goal_Width()*0.5f+ cfg->Goal_Thickness()*0.5f, 0.0
-                              , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
+                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
@@ -257,8 +275,8 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     for (int i=0;i<img->width();i++)
         for (int j=0;j<img->height();j++)
         {
-        img->setPixel(i,j,black.rgba());
-    }
+            img->setPixel(i,j,black.rgba());
+        }
     QColor txtcolor(r,g,b,a);
     QPen pen;
     pen.setStyle(Qt::SolidLine);
@@ -369,8 +387,8 @@ void SSLWorld::step(float dt)
         ball->getBodyPosition(bx,by,bz);
         g->getViewpoint(xyz,hpr);
         best_dist  =(bx-xyz[0])*(bx-xyz[0])
-                    +(by-xyz[1])*(by-xyz[1])
-                    +(bz-xyz[2])*(bz-xyz[2]);
+                +(by-xyz[1])*(by-xyz[1])
+                +(bz-xyz[2])*(bz-xyz[2]);
     }
     for (int k=0;k<10;k++)
     {
@@ -378,8 +396,8 @@ void SSLWorld::step(float dt)
         {
             g->getViewpoint(xyz,hpr);
             float dist= (robots[k]->select_x-xyz[0])*(robots[k]->select_x-xyz[0])
-                        +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
-                        +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
+                    +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
+                    +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
             if (dist<best_dist) {
                 best_dist = dist;
                 best_k = k;
@@ -403,13 +421,13 @@ void SSLWorld::step(float dt)
     if (g->isGraphicsEnabled())
         if (show3DCursor)
         {
-        dRFromAxisAndAngle(R,0,0,1,0);
-        g->setColor(1,0.9,0.2,0.5);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        g->drawCircle(cursor_x,cursor_y,0.001,cursor_radius);
-        glDisable(GL_BLEND);
-    }    
+            dRFromAxisAndAngle(R,0,0,1,0);
+            g->setColor(1,0.9,0.2,0.5);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+            g->drawCircle(cursor_x,cursor_y,0.001,cursor_radius);
+            glDisable(GL_BLEND);
+        }
     //for (int k=0;k<10;k++) robots[k]->drawLabel();
 
     g->finalizeScene();
@@ -672,28 +690,6 @@ RobotsFomation::RobotsFomation(int type)
         float teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3};
         setAll(teamPosX,teamPosY);
     }
-    /*
-        float teamPosX[5] = {-2.0, -2.0 , 0.0, -2.2, -0.33};
-        float teamPosY[5] = {0.0, 1.0 , -0.7, 0.7, 1.25};
-
-        float teamPosX[5] = {-2.2, -1.0 , -1.0, 0.0, -0.33};
-        float teamPosY[5] = {5.0, 5.75 , -5.75, 0.0, 5.25};
-
-        float teamPosX[5] = {-2.2, -1.0 , -1.0, -1.0, -0.70};
-        float teamPosY[5] = {0.0, -0.75 , -0.40, 0.75, 0.75};
-
-        float teamPosX[5] = {0.0, -1.0 , -1.0, -1.0, -0.70};
-        float teamPosY[5] = {0.0, -0.75 , -0.40, 0.75, 0.75};
-
-        float teamPosX[5] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        float teamPosY[5] = {0.0, -0.3, 0.3, 0.0, 1.5};
-
-        float teamPosX[5] = {1.0, 1.0, 1.0, 0.33, 1.7};
-        float teamPosY[5] = {0.75, 0.0, -0.75, -0.25, 0.0};
-
-        float teamPosX[5] = {1.0, 1.0, 1.0, 0.0, 0.0};
-        float teamPosY[5] = {0.35, 0.0, -0.35, -0.50, 0.50};*/
-
 }
 
 void RobotsFomation::loadFromFile(const QString& filename)

@@ -1,3 +1,21 @@
+/*
+grSim - RoboCup Small Size Soccer Robots Simulator
+Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <QtGui>
 
 #include <QApplication>
@@ -216,8 +234,7 @@ MainWindow::MainWindow(QWidget *parent)
     robotwidget->robotCombo->setCurrentIndex(0);
     robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
     robotwidget->id = 0;
-    scene = new QGraphicsScene(0,0,800,600);
-    //glwidget->ssl->g->disableGraphics();
+    scene = new QGraphicsScene(0,0,800,600);    
 }
 
 MainWindow::~MainWindow()
@@ -355,6 +372,8 @@ void MainWindow::restartSimulator()
     glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
     glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
+
+
 }
 
 void MainWindow::ballMenuTriggered(QAction* act)
@@ -461,13 +480,13 @@ void MainWindow::reconnectCommandSocket()
 {
     if (commandSocket!=NULL)
     {
-        QObject::disconnect(commandSocket,SIGNAL(readyRead()),glwidget->ssl,SLOT(recvActions()));
+        QObject::disconnect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
         delete commandSocket;
     }
     commandSocket = new QUdpSocket(this);
     if (commandSocket->bind(QHostAddress::Any,configwidget->CommandListenPort()))
         logStatus(QString("Command listen port binded on: %1").arg(configwidget->CommandListenPort()),QColor("green"));
-    QObject::connect(commandSocket,SIGNAL(readyRead()),glwidget->ssl,SLOT(recvActions()));
+    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
 }
 
 void MainWindow::reconnectVisionSocket()
@@ -475,10 +494,15 @@ void MainWindow::reconnectVisionSocket()
     if (visionServer!=NULL)
         delete visionServer;
     visionServer = new RoboCupSSLServer(
-#ifdef Q_OS_WIN32
-            m_parent,
-#endif
-            configwidget->VisionMulticastPort(),configwidget->VisionMulticastAddr());
+            #ifdef Q_OS_WIN32
+                m_parent,
+            #endif
+                configwidget->VisionMulticastPort(),configwidget->VisionMulticastAddr());
     visionServer->open();
+}
+
+void MainWindow::recvActions()
+{
+    glwidget->ssl->recvActions();
 }
 
