@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     btnReset = new QPushButton("Reset", this);
     btnConnect = new QPushButton("Connect", this);
     txtInfo->setReadOnly(true);
-    txtInfo->setHtml("This program is part of <b>grSim RoboCup SSL Simulator</b> package.<br />For more information please refer to <a href=\"http://eew.aut.ac.ir/~parsian/grsim/\">http://eew.aut.ac.ir/~parsian/grsim</a>");
+    txtInfo->setHtml("This program is part of <b>grSim RoboCup SSL Simulator</b> package.<br />For more information please refer to <a href=\"http://eew.aut.ac.ir/~parsian/grsim/\">http://eew.aut.ac.ir/~parsian/grsim</a><br /><font color=\"gray\">This program is free software under the terms of GNU General Public License Version 3.</font>");
     txtInfo->setFixedHeight(70);
     layout->addWidget(lblIp, 1, 1, 1, 1);layout->addWidget(edtIp, 1, 2, 1, 1);
     layout->addWidget(lblPort, 1, 3, 1, 1);layout->addWidget(edtPort, 1, 4, 1, 1);
@@ -156,46 +156,6 @@ void MainWindow::sendPacket()
     command->set_kickspeedz(edtChip->text().toDouble());
     command->set_spinner(chkSpin->isChecked());
 
-//    if (wm->ball->getReplaced())
-//    {
-//        packet.mutable_replacement()->mutable_ball()->set_x(wm->ball->getReplPos().x);
-//        packet.mutable_replacement()->mutable_ball()->set_y(wm->ball->getReplPos().y);
-//        packet.mutable_replacement()->mutable_ball()->set_vx(wm->ball->getReplVel().x);
-//        packet.mutable_replacement()->mutable_ball()->set_vy(wm->ball->getReplVel().y);
-//        wm->ball->setReplaced(false);
-//    }
-//    for( int i = 0; i < _NUM_PLAYERS; i++ )
-//    {
-//        if (wm->our[i]->getReplaced())
-//        {
-//            grSim_RobotReplacement* repl = packet.mutable_replacement()->add_robots();
-//            repl->set_id(i);
-//            if (wm->getTeamColor() == TEAM_YELLOW)
-//                repl->set_yellowteam(true);
-//            else
-//                repl->set_yellowteam(false);
-//            repl->set_x(wm->our[i]->getReplPos().x);
-//            repl->set_y(wm->our[i]->getReplPos().y);
-//            repl->set_dir(wm->our[i]->getReplPos().dir().degree());
-//        }
-//        wm->our[i]->setReplaced(false);
-//    }
-//    for( int i = 0; i < _NUM_PLAYERS; i++ )
-//    {
-//        if (wm->opp[i]->getReplaced())
-//        {
-//            grSim_RobotReplacement* repl = packet.mutable_replacement()->add_robots();
-//            repl->set_id(i);
-//            if (wm->getTeamColor() == TEAM_YELLOW)
-//                repl->set_yellowteam(false);
-//            else
-//                repl->set_yellowteam(true);
-//            repl->set_x(wm->opp[i]->getReplPos().x);
-//            repl->set_y(wm->opp[i]->getReplPos().y);
-//            repl->set_dir(wm->opp[i]->getReplPos().dir().degree());
-//        }
-//        wm->opp[i]->setReplaced(false);
-//    }
     std::string s;
     packet.SerializeToString(&s);
     udpsocket.send((void*) s.c_str(), s.length(), _addr);
