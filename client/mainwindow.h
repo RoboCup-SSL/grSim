@@ -30,7 +30,7 @@ public slots:
     void resetBtnClicked();
     void disconnectUdp();
 private:
-    bool sending;
+    bool sending, reseting;
     Net::UDP udpsocket;
     Net::Address _addr;
     QLineEdit* edtIp;
