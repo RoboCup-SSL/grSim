@@ -479,7 +479,7 @@ void SSLWorld::recvActions()
                         double vx = 0;if (packet.commands().robot_commands(i).has_veltangent()) vx = packet.commands().robot_commands(i).veltangent();
                         double vy = 0;if (packet.commands().robot_commands(i).has_velnormal())  vy = packet.commands().robot_commands(i).velnormal();
                         double vw = 0;if (packet.commands().robot_commands(i).has_velangular()) vw = packet.commands().robot_commands(i).velangular();
-                        robots[id]->setSpeed(vw, vy, vw);
+                        robots[id]->setSpeed(vx, vy, vw);
                     }
                     double kickx = 0 , kickz = 0;
                     bool kick = false;
