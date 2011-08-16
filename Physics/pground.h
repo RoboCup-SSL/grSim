@@ -24,10 +24,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 class PGround : public PObject
 {
 private:
-    float rad,len,wid,prad,plen,ppoint;
+    dReal rad,len,wid,prad,plen,ppoint;
     int tex;
 public:
-    PGround(float field_radius,float field_length,float field_width,float field_penalty_rad,float field_penalty_line_length,float field_penalty_point,int tex_id);
+    PGround(dReal field_radius,dReal field_length,dReal field_width,dReal field_penalty_rad,dReal field_penalty_line_length,dReal field_penalty_point,int tex_id);
     virtual ~PGround();
     virtual void init();
     virtual void draw();

@@ -209,11 +209,11 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
             }
             if (kickingball)
             {
-                float x,y,z;
+                dReal x,y,z;
                 ssl->ball->getBodyPosition(x,y,z);                
                 x = ssl->cursor_x - x;
                 y = ssl->cursor_y - y;
-                float lxy = hypot(x,y);
+                dReal lxy = hypot(x,y);
                 x /= lxy;
                 y /= lxy;
                 x *= kickpower;
@@ -253,18 +253,19 @@ void GLWidget::update3DCursor(int mouse_x,int mouse_y)
 {
     if (!ssl->g->isGraphicsEnabled()) return;
     ssl->updatedCursor = true;
-    float xyz[3],hpr[3],fx,fy,fz,rx,ry,rz,ux,uy,uz,px,py,pz;
+    dVector3 xyz,hpr;
+    dReal fx,fy,fz,rx,ry,rz,ux,uy,uz,px,py,pz;
     ssl->g->getViewpoint(xyz,hpr);
     ssl->g->getCameraForward(fx,fy,fz);
     ssl->g->getCameraRight(rx,ry,rz);    
     ux = ry*fz - rz*fy;
     uy = rz*fx - rx*fz;
     uz = rx*fy - ry*fx;
-    float w = width();
-    float h = height();
-    float xx,yy,z;
-    float x = 1.0f - 2.0f*(float) mouse_x / w;
-    float y = 1.0f - 2.0f*(float) mouse_y / h;
+    dReal w = width();
+    dReal h = height();
+    dReal xx,yy,z;
+    dReal x = 1.0f - 2.0f*(dReal) mouse_x / w;
+    dReal y = 1.0f - 2.0f*(dReal) mouse_y / h;
     ssl->g->getFrustum(xx,yy,z);
     x *= xx;
     y *= yy;
@@ -298,7 +299,7 @@ void GLWidget::mouseReleaseEvent(QMouseEvent * /* event */)
     emit clicked();
 }
 
-float GLWidget::getFPS()
+dReal GLWidget::getFPS()
 {
     return m_fps;
 }
@@ -326,7 +327,7 @@ void GLWidget::step()
     else {
         if (cfg->SyncWithGL())
         {
-            float ddt=rendertimer.elapsed()/1000.0;
+            dReal ddt=rendertimer.elapsed()/1000.0;
             if (ddt>0.05) ddt=0.05;
             ssl->step(ddt);
         }
@@ -342,20 +343,20 @@ void GLWidget::paintGL()
     if (!ssl->g->isGraphicsEnabled()) return;
     if (cammode==1)
     {
-        float x,y,z;
+        dReal x,y,z;
         int R = robotIndex(Current_robot,Current_team);
         ssl->robots[R]->getXY(x,y);z = 0.3;
         ssl->g->setViewpoint(x,y,z,ssl->robots[R]->getDir(),-25,0);
     }
     if (cammode==-1)
     {
-        float x,y,z;
+        dReal x,y,z;
         ssl->robots[lockedIndex]->getXY(x,y);z = 0.1;
         ssl->g->lookAt(x,y,z);
     }
     if (cammode==-2)
     {
-        float x,y,z;
+        dReal x,y,z;
         ssl->ball->getBodyPosition(x,y,z);
         ssl->g->lookAt(x,y,z);
     }
@@ -363,7 +364,7 @@ void GLWidget::paintGL()
     QFont font;
     for (int i=0;i<ROBOT_COUNT*2;i++)
     {
-        float xx,yy;
+        dReal xx,yy;
         ssl->robots[i]->getXY(xx,yy);
         if (i>=ROBOT_COUNT) qglColor(Qt::yellow);
         else qglColor(Qt::cyan);
@@ -379,7 +380,7 @@ void GLWidget::paintGL()
 
 void GLWidget::changeCameraMode()
 {
-    static float xyz[3],hpr[3];
+    static dReal xyz[3],hpr[3];
     if (cammode<0) cammode=0;
     else cammode ++;
     cammode %= 6;
@@ -399,7 +400,7 @@ void GLWidget::changeCameraMode()
         ssl->g->setViewpoint((cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,180,-45,0);
 }
 
-void GLWidget::putBall(float x,float y)
+void GLWidget::putBall(dReal x,dReal y)
 {
     ssl->ball->setBodyPosition(x,y,0.3);
     dBodySetLinearVel(ssl->ball->body,0,0,0);
@@ -423,8 +424,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     if (fullScreen) {
         if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);
     }
-    const float S = 0.30;
-    const float BallForce = 0.2;
+    const dReal S = 0.30;
+    const dReal BallForce = 0.2;
     int R = robotIndex(Current_robot,Current_team);
     bool flag=false;
     switch (cmd) {

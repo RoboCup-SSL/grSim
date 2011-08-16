@@ -24,11 +24,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 class PRay : public PObject
 {
 private:
-    float _length;
+    dReal _length;
 public:
-    PRay(float length);
+    PRay(dReal length);
     virtual void init();
-    void setPose(float x,float y,float z,float dx,float dy,float dz);
+    void setPose(dReal x,dReal y,dReal z,dReal dx,dReal dy,dReal dz);
 };
 
 #endif // PRAY_H

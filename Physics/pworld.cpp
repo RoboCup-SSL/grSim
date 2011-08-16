@@ -36,16 +36,17 @@ void nearCallback (void *data, dGeomID o1, dGeomID o2)
 }
 
 
-PWorld::PWorld(float dt,float gravity,CGraphics* graphics)
+PWorld::PWorld(dReal dt,dReal gravity,CGraphics* graphics)
 {
-    dInitODE2(0);
+    //dInitODE2(0);
+    dInitODE();
     world = dWorldCreate();
     space = dHashSpaceCreate (0);
     contactgroup = dJointGroupCreate (0);
     dWorldSetGravity (world,0,0,-gravity);
     objects_count = 0;
     sur_matrix = NULL;
-    dAllocateODEDataForThread(dAllocateMaskAll);
+    //dAllocateODEDataForThread(dAllocateMaskAll);
     delta_time = dt;
     g = graphics;
 }
@@ -58,7 +59,7 @@ PWorld::~PWorld()
   dCloseODE();
 }
 
-void PWorld::setGravity(float gravity)
+void PWorld::setGravity(dReal gravity)
 {
     dWorldSetGravity (world,0,0,-gravity);
 }
@@ -162,11 +163,17 @@ PSurface* PWorld::findSurface(PObject* o1,PObject* o2)
     return NULL;
 }
 
-void PWorld::step(float dt)
+void PWorld::step(dReal dt)
 {
+    try {
     dSpaceCollide (space,this,&nearCallback);
     dWorldStep (world,(dt<0) ? delta_time : dt);
     dJointGroupEmpty (contactgroup);
+    }
+    catch (...)
+    {
+        //qDebug() << "Some Error Happened;";
+    }
 }
 
 void PWorld::draw()

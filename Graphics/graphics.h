@@ -19,6 +19,9 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#define dDOUBLE
+#include <ode/ode.h>
+
 #include <QVector>
 #include <QGLWidget>
 #include <QString>
@@ -26,20 +29,20 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 class CGraphics
 {
 private:
-    float view_xyz[3],view_hpr[3];
+    dReal view_xyz[3],view_hpr[3];
     QVector<GLuint> tex_ids;
-    float frustum_right,frustum_bottom,frustum_vnear,m_renderDepth;
+    dReal frustum_right,frustum_bottom,frustum_vnear,m_renderDepth;
     int _width,_height;
     QGLWidget* owner;
     int sphere_quality;
-    void _drawBox (const float sides[3]);
-    void _drawPatch (float p1[3], float p2[3], float p3[3], int level);
+    void _drawBox (const dReal sides[3]);
+    void _drawPatch (dReal p1[3], dReal p2[3], dReal p3[3], int level);
     void _drawSphere();
-    void _drawCapsule (float l, float r);
-    void _drawCylinder (float l, float r, float zoffset);
-    void _drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id,bool robot=false);
+    void _drawCapsule (dReal l, dReal r);
+    void _drawCylinder (dReal l, dReal r, dReal zoffset);
+    void _drawCylinder_TopTextured (dReal l, dReal r, dReal zoffset,int tex_id,bool robot=false);
     void wrapCameraAngles();
-    void setCamera (float x, float y, float z, float h, float p, float r);
+    void setCamera (dReal x, dReal y, dReal z, dReal h, dReal p, dReal r);
     bool graphicDisabled;
 public:
     CGraphics(QGLWidget* _owner);
@@ -49,42 +52,42 @@ public:
     bool isGraphicsEnabled();
     int loadTexture(QImage* img);
     int loadTextureSkyBox(QImage* img);
-    void setViewpoint (float xyz[3], float hpr[3]);
-    void getViewpoint (float* xyz, float* hpr);
-    void getFrustum(float& right,float& bottom,float& vnear);
+    void setViewpoint (dReal xyz[3], dReal hpr[3]);
+    void getViewpoint (dReal* xyz, dReal* hpr);
+    void getFrustum(dReal& right,dReal& bottom,dReal& vnear);
     int getWidth();
     int getHeight();
-    float renderDepth();
-    void setRenderDepth(float depth);
-    void setViewpoint (float x,float y,float z,float h,float p,float r);
+    dReal renderDepth();
+    void setRenderDepth(dReal depth);
+    void setViewpoint (dReal x,dReal y,dReal z,dReal h,dReal p,dReal r);
     void cameraMotion (int mode, int deltax, int deltay);
-    void lookAt(float x,float y,float z);
-    void getCameraForward(float& x,float& y,float& z);
-    void getCameraRight(float& x,float& y,float& z);
-    void zoomCamera(float dz);
-    void setColor (float r, float g, float b, float alpha);
+    void lookAt(dReal x,dReal y,dReal z);
+    void getCameraForward(dReal& x,dReal& y,dReal& z);
+    void getCameraRight(dReal& x,dReal& y,dReal& z);
+    void zoomCamera(dReal dz);
+    void setColor (dReal r, dReal g, dReal b, dReal alpha);
     void setSphereQuality(int q);
     void setShadow(bool state);
     void useTexture(int tex_id);
     void noTexture();
-    void setTransform (const float pos[3], const float R[12]);
+    void setTransform (const dReal pos[3], const dReal R[12]);
     void setTransformD (const double pos[3], const double R[12]);
 
-    void initScene(int width,int height,float rc,float gc,float bc,bool fog=false,float fogr=0.6,float fogg=0.6,float fogb=0.6,float fogdensity=0.6);
+    void initScene(int width,int height,dReal rc,dReal gc,dReal bc,bool fog=false,dReal fogr=0.6,dReal fogg=0.6,dReal fogb=0.6,dReal fogdensity=0.6);
     void finalizeScene();
     void resetState();
     void drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6);
     void drawSky ();
     void drawGround();
-    void drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float SSL_FIELD_PENALTY_POINT,float epsilon);
+    void drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY,dReal SSL_FIELD_LINE_LENGTH,dReal SSL_FIELD_PENALTY_POINT,dReal epsilon);
 
-    void drawBox (const float pos[3], const float R[12],const float sides[3]);
-    void drawSphere (const float pos[3], const float R[12],float radius);
-    void drawCylinder (const float pos[3], const float R[12],float length, float radius);    
-    void drawCylinder_TopTextured (const float pos[3], const float R[12],float length, float radius,int tex_id,bool robot=false);
-    void drawCapsule (const float pos[3], const float R[12],float length, float radius);
-    void drawLine (const float pos1[3], const float pos2[3]);
-    void drawCircle(float x0,float y0,float z0,float r);
+    void drawBox (const dReal pos[3], const dReal R[12],const dReal sides[3]);
+    void drawSphere (const dReal pos[3], const dReal R[12],dReal radius);
+    void drawCylinder (const dReal pos[3], const dReal R[12],dReal length, dReal radius);
+    void drawCylinder_TopTextured (const dReal pos[3], const dReal R[12],dReal length, dReal radius,int tex_id,bool robot=false);
+    void drawCapsule (const dReal pos[3], const dReal R[12],dReal length, dReal radius);
+    void drawLine (const dReal pos1[3], const dReal pos2[3]);
+    void drawCircle(dReal x0,dReal y0,dReal z0,dReal r);
 
 };
 

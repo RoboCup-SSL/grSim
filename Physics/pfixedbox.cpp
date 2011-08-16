@@ -18,7 +18,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "pfixedbox.h"
 
-PFixedBox::PFixedBox(float x,float y,float z,float w,float h,float l,float r,float g,float b)
+PFixedBox::PFixedBox(dReal x,dReal y,dReal z,dReal w,dReal h,dReal l,dReal r,dReal g,dReal b)
        : PObject(x,y,z,r,g,b,0)
 {
     m_w = w;
@@ -39,6 +39,6 @@ void PFixedBox::init()
 void PFixedBox::draw()
 {
     PObject::draw();
-    float dim[3] = {m_w,m_h,m_l};
+    dReal dim[3] = {m_w,m_h,m_l};
     g->drawBox (dGeomGetPosition(geom),dGeomGetRotation(geom),dim);
 }

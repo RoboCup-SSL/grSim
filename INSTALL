@@ -1,0 +1,13 @@
+To Install grSim on your system follow these steps:
+
+1. Download and install following packages on your system
+    VarTypes
+    ode 
+    protobuf
+    
+2. cd proto/pb
+   protoc *.proto --cpp_out=../
+   
+3. qmake grSim.pro
+
+4. make

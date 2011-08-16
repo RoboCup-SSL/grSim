@@ -19,7 +19,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "configwidget.h"
 
 #define ADD_ENUM(type,name,Defaultvalue,namestring) \
-v_##name = new Var##type(namestring,Defaultvalue);
+    v_##name = shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
 #define END_ENUM(parents, name) \
 parents->addChild(v_##name);
 #define ADD_TO_ENUM(name,str) \
@@ -27,20 +27,21 @@ v_##name->addItem(str);
 
 
 #define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
-    v_##name = new Var##type(namestring,defaultvalue); \
+    v_##name = shared_ptr<Var##type>(new Var##type(namestring,defaultvalue)); \
     parent->addChild(v_##name);
 
 #include<QDir>
 
 
 ConfigWidget::ConfigWidget()
-{  
+{      
   tmodel=new VarTreeModel();
   this->setModel(tmodel);  
-  geo_vars = new VarList("Geometry");
+  geo_vars = VarListPtr(new VarList("Geometry"));
   world.push_back(geo_vars);  
   robot_settings = new QSettings;
-    VarList * field_vars = new VarList("Field");
+    VarListPtr field_vars(new VarList("Field"));
+
     geo_vars->addChild(field_vars);
         ADD_VALUE(field_vars,Double,Field_Length,6.05,"Length")
         ADD_VALUE(field_vars,Double,Field_Width,4.05,"Width")
@@ -60,18 +61,18 @@ ConfigWidget::ConfigWidget()
     ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
     END_ENUM(geo_vars,BlueTeam)
 
-    VarList * ballg_vars = new VarList("Ball");
+    VarListPtr ballg_vars(new VarList("Ball"));
     geo_vars->addChild(ballg_vars);
         ADD_VALUE(ballg_vars,Double,BallRadius,0.0215,"Radius")
-  VarList * phys_vars = new VarList("Physics");
+  VarListPtr phys_vars(new VarList("Physics"));
   world.push_back(phys_vars);
-    VarList * worldp_vars = new VarList("World");    
+    VarListPtr worldp_vars(new VarList("World"));
     phys_vars->addChild(worldp_vars);  
         ADD_VALUE(worldp_vars,Double,DesiredFPS,65,"Desired FPS")
         ADD_VALUE(worldp_vars,Bool,SyncWithGL,false,"Synchronize ODE with OpenGL")
         ADD_VALUE(worldp_vars,Double,DeltaTime,0.015,"ODE time step")
         ADD_VALUE(worldp_vars,Double,Gravity,9.8,"Gravity")
-  VarList * ballp_vars = new VarList("Ball");
+  VarListPtr ballp_vars(new VarList("Ball"));
     phys_vars->addChild(ballp_vars);
         ADD_VALUE(ballp_vars,Double,BallMass,0.043,"Ball mass");
         ADD_VALUE(ballp_vars,Double,BallFriction,0.05,"Ball-ground friction")
@@ -80,7 +81,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(ballp_vars,Double,BallBounceVel,0.1,"Ball-ground bounce min velocity")
         ADD_VALUE(ballp_vars,Double,BallLinearDamp,0.004,"Ball linear damping")
         ADD_VALUE(ballp_vars,Double,BallAngularDamp,0.004,"Ball angular damping")
-  VarList * comm_vars = new VarList("Communication");
+  VarListPtr comm_vars(new VarList("Communication"));
   world.push_back(comm_vars);
     ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10020,"Vision multicast port")
@@ -88,13 +89,13 @@ ConfigWidget::ConfigWidget()
     ADD_VALUE(comm_vars,Int,BlueStatusSendPort,30011,"Blue Team status send port")
     ADD_VALUE(comm_vars,Int,YellowStatusSendPort,30012,"Yellow Team status send port")
     ADD_VALUE(comm_vars,Int,sendDelay,0,"Sending delay (milliseconds)")
-    VarList * gauss_vars = new VarList("Gaussian noise");
+    VarListPtr gauss_vars(new VarList("Gaussian noise"));
         comm_vars->addChild(gauss_vars);
         ADD_VALUE(gauss_vars,Bool,noise,false,"Noise")
         ADD_VALUE(gauss_vars,Double,noiseDeviation_x,3,"Deviation for x values")
         ADD_VALUE(gauss_vars,Double,noiseDeviation_y,3,"Deviation for y values")
         ADD_VALUE(gauss_vars,Double,noiseDeviation_angle,2,"Deviation for angle values")
-    VarList * vanishing_vars = new VarList("Vanishing probability");
+    VarListPtr vanishing_vars(new VarList("Vanishing probability"));
         comm_vars->addChild(vanishing_vars);
         ADD_VALUE(gauss_vars,Bool,vanishing,false,"Vanishing")
         ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
@@ -139,8 +140,8 @@ ConfigWidget::ConfigWidget()
   this->fitColumns();
 
   resize(320,400);
-  connect(v_BlueTeam, SIGNAL(wasEdited(VarType*)), this, SLOT(loadRobotsSettings()));
-  connect(v_YellowTeam, SIGNAL(wasEdited(VarType*)), this, SLOT(loadRobotsSettings()));
+  connect(v_BlueTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(loadRobotsSettings()));
+  connect(v_YellowTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(loadRobotsSettings()));
   loadRobotsSettings();
 }
 

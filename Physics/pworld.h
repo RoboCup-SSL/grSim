@@ -30,18 +30,18 @@ private:
     dJointGroupID contactgroup;
     QVector<PObject*> objects;
     QVector<PSurface*> surfaces;
-    float delta_time;
+    dReal delta_time;
     int **sur_matrix;
     int objects_count;
 public:
-    PWorld(float dt,float gravity,CGraphics* graphics);
+    PWorld(dReal dt,dReal gravity,CGraphics* graphics);
     ~PWorld();
-    void setGravity(float gravity);
+    void setGravity(dReal gravity);
     void addObject(PObject* o);
     void initAllObjects();
     PSurface* createSurface(PObject* o1,PObject* o2);
     PSurface* findSurface(PObject* o1,PObject* o2);
-    void step(float dt=-1);
+    void step(dReal dt=-1);
     void glinit();
     void draw();
     void handleCollisions(dGeomID o1, dGeomID o2);    

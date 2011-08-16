@@ -33,11 +33,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #define ROBOT_GRAY 0.4
 
 SSLWorld* _w;
-double randn_notrig(double mu=0.0, double sigma=1.0);
-double randn_trig(double mu=0.0, double sigma=1.0);
-double rand0_1();
+dReal randn_notrig(dReal mu=0.0, dReal sigma=1.0);
+dReal randn_trig(dReal mu=0.0, dReal sigma=1.0);
+dReal rand0_1();
 
-dReal fric(float f)
+dReal fric(dReal f)
 {
     if (f==-1) return dInfinity;
     return f;
@@ -72,7 +72,7 @@ bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
     dVector3 v={0,0,1,1};
     dVector3 axis;
     dMultiply0(axis,r,v,4,3,1);
-    float l = sqrt(axis[0]*axis[0] + axis[1]*axis[1]);
+    dReal l = sqrt(axis[0]*axis[0] + axis[1]*axis[1]);
     s->fdir1[0] = axis[0]/l;
     s->fdir1[1] = axis[1]/l;
     s->fdir1[2] = 0;
@@ -114,7 +114,7 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s)
 {
     if (_w->ball->tag!=-1) //spinner adjusting
     {
-        float x,y,z;
+        dReal x,y,z;
         _w->robots[_w->ball->tag]->chassis->getBodyDirection(x,y,z);
         s->fdir1[0] = x;
         s->fdir1[1] = y;
@@ -340,7 +340,7 @@ void SSLWorld::glinit()
     p->glinit();
 }
 
-void SSLWorld::step(float dt)
+void SSLWorld::step(dReal dt)
 {    
     if (!isGLEnabled) g->disableGraphics();
     else g->enableGraphics();
@@ -351,16 +351,16 @@ void SSLWorld::step(float dt)
     for (int kk=0;kk<5;kk++)
     {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
-        double ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
+        dReal ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
         ballspeed = sqrt(ballspeed);
-        double ballfx=0,ballfy=0,ballfz=0;
-        double balltx=0,ballty=0,balltz=0;
+        dReal ballfx=0,ballfy=0,ballfz=0;
+        dReal balltx=0,ballty=0,balltz=0;
         if (ballspeed<0.01)
         {
             const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
         }
         else {
-            double fk = cfg->BallFriction()*cfg->BallMass()*cfg->Gravity();
+            dReal fk = cfg->BallFriction()*cfg->BallMass()*cfg->Gravity();
             ballfx = -fk*ballvel[0] / ballspeed;
             ballfy = -fk*ballvel[1] / ballspeed;
             ballfz = -fk*ballvel[2] / ballspeed;
@@ -379,11 +379,11 @@ void SSLWorld::step(float dt)
 
 
     int best_k=-1;
-    float best_dist = 1e8;
-    float xyz[3],hpr[3];
+    dReal best_dist = 1e8;
+    dReal xyz[3],hpr[3];
     if (selected==-2) {
         best_k=-2;
-        float bx,by,bz;
+        dReal bx,by,bz;
         ball->getBodyPosition(bx,by,bz);
         g->getViewpoint(xyz,hpr);
         best_dist  =(bx-xyz[0])*(bx-xyz[0])
@@ -395,7 +395,7 @@ void SSLWorld::step(float dt)
         if (robots[k]->selected)
         {
             g->getViewpoint(xyz,hpr);
-            float dist= (robots[k]->select_x-xyz[0])*(robots[k]->select_x-xyz[0])
+            dReal dist= (robots[k]->select_x-xyz[0])*(robots[k]->select_x-xyz[0])
                     +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
                     +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
             if (dist<best_dist) {
@@ -476,12 +476,12 @@ void SSLWorld::recvActions()
                     }
                     if (!wheels)
                     {
-                        double vx = 0;if (packet.commands().robot_commands(i).has_veltangent()) vx = packet.commands().robot_commands(i).veltangent();
-                        double vy = 0;if (packet.commands().robot_commands(i).has_velnormal())  vy = packet.commands().robot_commands(i).velnormal();
-                        double vw = 0;if (packet.commands().robot_commands(i).has_velangular()) vw = packet.commands().robot_commands(i).velangular();
+                        dReal vx = 0;if (packet.commands().robot_commands(i).has_veltangent()) vx = packet.commands().robot_commands(i).veltangent();
+                        dReal vy = 0;if (packet.commands().robot_commands(i).has_velnormal())  vy = packet.commands().robot_commands(i).velnormal();
+                        dReal vw = 0;if (packet.commands().robot_commands(i).has_velangular()) vw = packet.commands().robot_commands(i).velangular();
                         robots[id]->setSpeed(vx, vy, vw);
                     }
-                    double kickx = 0 , kickz = 0;
+                    dReal kickx = 0 , kickz = 0;
                     bool kick = false;
                     if (packet.commands().robot_commands(i).has_kickspeedx())
                     {
@@ -525,7 +525,7 @@ void SSLWorld::recvActions()
                     }
                     if (!packet.replacement().robots(i).has_id()) continue;
                     int k = packet.replacement().robots(i).id();
-                    double x = 0, y = 0, dir = 0;
+                    dReal x = 0, y = 0, dir = 0;
                     if (packet.replacement().robots(i).has_x()) x = packet.replacement().robots(i).x();
                     if (packet.replacement().robots(i).has_y()) y = packet.replacement().robots(i).y();
                     if (packet.replacement().robots(i).has_dir()) dir = packet.replacement().robots(i).dir();
@@ -537,7 +537,7 @@ void SSLWorld::recvActions()
                 }
                 if (packet.replacement().has_ball())
                 {
-                    double x = 0, y = 0, vx = 0, vy = 0;
+                    dReal x = 0, y = 0, vx = 0, vy = 0;
                     if (packet.replacement().ball().has_x())  x  = packet.replacement().ball().x();
                     if (packet.replacement().ball().has_y())  y  = packet.replacement().ball().y();
                     if (packet.replacement().ball().has_vx()) vx = packet.replacement().ball().vx();
@@ -551,7 +551,7 @@ void SSLWorld::recvActions()
     }
 }
 
-float normalizeAngle(float a)
+dReal normalizeAngle(dReal a)
 {
     if (a>180) return -360+a;
     if (a<-180) return 360+a;
@@ -560,16 +560,16 @@ float normalizeAngle(float a)
 SSL_WrapperPacket* SSLWorld::generatePacket()
 {
     SSL_WrapperPacket* packet = new SSL_WrapperPacket;
-    float x,y,z,dir;
+    dReal x,y,z,dir;
     ball->getBodyPosition(x,y,z);    
     packet->mutable_detection()->set_camera_id(0);
     packet->mutable_detection()->set_frame_number(framenum);    
-    double t_elapsed = timer->elapsed()/1000.0;
+    dReal t_elapsed = timer->elapsed()/1000.0;
     packet->mutable_detection()->set_t_capture(t_elapsed);
     packet->mutable_detection()->set_t_sent(t_elapsed);
-    float dev_x = cfg->noiseDeviation_x();
-    float dev_y = cfg->noiseDeviation_y();
-    float dev_a = cfg->noiseDeviation_angle();
+    dReal dev_x = cfg->noiseDeviation_x();
+    dReal dev_y = cfg->noiseDeviation_y();
+    dReal dev_a = cfg->noiseDeviation_angle();
     if (cfg->noise()==false) {dev_x = 0;dev_y = 0;dev_a = 0;}
     if ((cfg->vanishing()==false) || (rand0_1() > cfg->ball_vanishing()))
     {
@@ -637,7 +637,7 @@ void SSLWorld::sendVisionBuffer()
     }
 }
 
-void RobotsFomation::setAll(float* xx,float *yy)
+void RobotsFomation::setAll(dReal* xx,dReal *yy)
 {
     for (int i=0;i<ROBOT_COUNT;i++)
     {
@@ -650,44 +650,44 @@ RobotsFomation::RobotsFomation(int type)
 {
     if (type==0)
     {
-        float teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33};
-        float teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25};
+        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25};
         setAll(teamPosX,teamPosY);
     }
     if (type==1)
     {
-        float teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7};
-        float teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0};
+        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7};
+        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==2)
     {
-        float teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        float teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5};
         setAll(teamPosX,teamPosY);
     }
     if (type==3)
     {
-        float teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        float teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
+        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
         setAll(teamPosX,teamPosY);
     }
     if (type==4)
     {
-        float teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        float teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
+        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
         setAll(teamPosX,teamPosY);
     }
     if (type==-1)
     {
-        float teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
-        float teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7};
+        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
+        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7};
         setAll(teamPosX,teamPosY);
     }
     if (type==-2)
     {
-        float teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
-        float teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3};
+        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
+        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3};
         setAll(teamPosX,teamPosY);
     }
 }
@@ -720,7 +720,7 @@ void RobotsFomation::loadFromFile(const QString& filename)
 
 void RobotsFomation::resetRobots(Robot** r,int team)
 {
-    float dir=-1;
+    dReal dir=-1;
     if (team==1) dir = 1;
     for (int k=0;k<ROBOT_COUNT;k++)
     {
@@ -775,11 +775,11 @@ void RobotsFomation::resetRobots(Robot** r,int team)
 
 /******************************************************************************/
 //	"Polar" version without trigonometric calls
-double randn_notrig(double mu, double sigma) {
+dReal randn_notrig(dReal mu, dReal sigma) {
     if (sigma==0) return mu;
     static bool deviateAvailable=false;	//	flag
-    static float storedDeviate;			//	deviate from previous calculation
-    double polar, rsquared, var1, var2;
+    static dReal storedDeviate;			//	deviate from previous calculation
+    dReal polar, rsquared, var1, var2;
 
     //	If no deviate has been stored, the polar Box-Muller transformation is
     //	performed, producing two independent normally-distributed random
@@ -789,8 +789,8 @@ double randn_notrig(double mu, double sigma) {
         //	choose pairs of uniformly distributed deviates, discarding those
         //	that don't fall within the unit circle
         do {
-            var1=2.0*( double(rand())/double(RAND_MAX) ) - 1.0;
-            var2=2.0*( double(rand())/double(RAND_MAX) ) - 1.0;
+            var1=2.0*( dReal(rand())/dReal(RAND_MAX) ) - 1.0;
+            var2=2.0*( dReal(rand())/dReal(RAND_MAX) ) - 1.0;
             rsquared=var1*var1+var2*var2;
         } while ( rsquared>=1.0 || rsquared == 0.0);
 
@@ -818,10 +818,10 @@ double randn_notrig(double mu, double sigma) {
 //	Standard version with trigonometric calls
 #define PI 3.14159265358979323846
 
-double randn_trig(double mu, double sigma) {
+dReal randn_trig(dReal mu, dReal sigma) {
     static bool deviateAvailable=false;	//	flag
-    static float storedDeviate;			//	deviate from previous calculation
-    double dist, angle;
+    static dReal storedDeviate;			//	deviate from previous calculation
+    dReal dist, angle;
 
     //	If no deviate has been stored, the standard Box-Muller transformation is
     //	performed, producing two independent normally-distributed random
@@ -830,8 +830,8 @@ double randn_trig(double mu, double sigma) {
 
         //	choose a pair of uniformly distributed deviates, one for the
         //	distance and one for the angle, and perform transformations
-        dist=sqrt( -2.0 * log(double(rand()) / double(RAND_MAX)) );
-        angle=2.0 * PI * (double(rand()) / double(RAND_MAX));
+        dist=sqrt( -2.0 * log(dReal(rand()) / dReal(RAND_MAX)) );
+        angle=2.0 * PI * (dReal(rand()) / dReal(RAND_MAX));
 
         //	calculate and store first deviate and set flag
         storedDeviate=dist*cos(angle);
@@ -849,7 +849,7 @@ double randn_trig(double mu, double sigma) {
     }
 }
 
-double rand0_1()
+dReal rand0_1()
 {
-    return (double) (rand()) / (double) (RAND_MAX);
+    return (dReal) (rand()) / (dReal) (RAND_MAX);
 }

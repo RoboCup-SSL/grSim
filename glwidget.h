@@ -34,7 +34,7 @@ class GLWidget : public QGLWidget {
 public:
     GLWidget(QWidget *parent,ConfigWidget* _cfg);
     ~GLWidget();
-    float getFPS();
+    dReal getFPS();
     ConfigWidget* cfg;   
     SSLWorld* ssl;
     RobotsFomation* forms[6];
@@ -57,7 +57,7 @@ public:
     double kickpower;
     bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
-    void putBall(float x,float y);
+    void putBall(dReal x,dReal y);
     void reform(int team,const QString& act);    
     void step();
 public slots:
@@ -98,7 +98,7 @@ private:
     int frames;
     bool first_time;
     QTime time,rendertimer;
-    float m_fps;
+    dReal m_fps;
     QPoint lastPos;
 friend class GLWidgetGraphicsView;
 };

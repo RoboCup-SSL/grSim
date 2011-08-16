@@ -59,14 +59,15 @@ HEADERS += mainwindow.h \
     getpositionwidget.h \
     proto/grSim_Replacement.pb.h \
     proto/grSim_Commands.pb.h \
-    proto/grSim_Packet.pb.h
+    proto/grSim_Packet.pb.h \
+    common.h
 LIBS += -L$$PWD/libs/ \
-    -lode-0.11.1 \
-    -lprotobuf-2.4.0 \
+    -lode \
+    -lprotobuf \
     -lVarTypes
 MOC_DIR = $$PWD/objs
 OBJECTS_DIR = $$PWD/objs
 DESTDIR = $$PWD/bin
-INCLUDEPATH += $$PWD/include
-INCLUDEPATH += $$PWD/include/VarTypes
+INCLUDEPATH += VarTypes \
+                /usr/local/include
 RESOURCES += textures.qrc

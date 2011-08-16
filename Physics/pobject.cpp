@@ -18,7 +18,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "pobject.h"
 
-PObject::PObject(float x,float y,float z,float red,float green,float blue,float mass)
+PObject::PObject(dReal x,dReal y,dReal z,dReal red,dReal green,dReal blue,dReal mass)
 {
     geom = NULL;
     body = NULL;
@@ -46,14 +46,14 @@ bool PObject::getVisibility()
     return visible;
 }
 
-void PObject::setColor(float r,float g,float b)
+void PObject::setColor(dReal r,dReal g,dReal b)
 {
     m_red = r;
     m_green = g;
     m_blue = b;
 }
 
-void PObject::getColor(float& r,float& g,float& b)
+void PObject::getColor(dReal& r,dReal& g,dReal& b)
 {
     r = m_red;
     g = m_green;
@@ -67,19 +67,19 @@ PObject::~PObject()
     if (body!=NULL) dBodyDestroy(body);
 }
 
-void PObject::setRotation(float x_axis,float y_axis,float z_axis,float ang)
+void PObject::setRotation(dReal x_axis,dReal y_axis,dReal z_axis,dReal ang)
 {
     dQFromAxisAndAngle (q,x_axis,y_axis,z_axis,ang);
     isQSet = true;
 }
 
-void PObject::setBodyPosition(float x,float y,float z,bool local)
+void PObject::setBodyPosition(dReal x,dReal y,dReal z,bool local)
 {
     if (!local) dBodySetPosition(body,x,y,z);
     else {local_Pos[0]=x;local_Pos[1]=y;local_Pos[2]=z;}
 }
 
-void PObject::setBodyRotation(float x_axis,float y_axis,float z_axis,float ang,bool local)
+void PObject::setBodyRotation(dReal x_axis,dReal y_axis,dReal z_axis,dReal ang,bool local)
 {
     if (!local)
     {
@@ -91,7 +91,7 @@ void PObject::setBodyRotation(float x_axis,float y_axis,float z_axis,float ang,b
     }
 }
 
-void PObject::getBodyPosition(float &x,float &y,float &z,bool local)
+void PObject::getBodyPosition(dReal &x,dReal &y,dReal &z,bool local)
 {
     if (local) {
         x = local_Pos[0];
@@ -105,7 +105,7 @@ void PObject::getBodyPosition(float &x,float &y,float &z,bool local)
     z = r[2];
 }
 
-void PObject::getBodyDirection(float &x,float &y,float &z)
+void PObject::getBodyDirection(dReal &x,dReal &y,dReal &z)
 {
   const dReal *r=dBodyGetRotation(body);
   dVector3 v={1,0,0};
@@ -141,7 +141,7 @@ void PObject::initPosGeom()
 }
 
 
-void PObject::setMass(float mass)
+void PObject::setMass(dReal mass)
 {
     m_mass = mass;
 }

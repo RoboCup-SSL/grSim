@@ -24,11 +24,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 class PBall : public PObject
 {
 private:
-    float m_radius;
+    dReal m_radius;
 public:
-    PBall(float x,float y,float z,float radius,float mass,float red,float green,float blue);
+    PBall(dReal x,dReal y,dReal z,dReal radius,dReal mass,dReal red,dReal green,dReal blue);
     virtual ~PBall();
-    virtual void setMass(float mass);
+    virtual void setMass(dReal mass);
     virtual void init();
     virtual void draw();
 };

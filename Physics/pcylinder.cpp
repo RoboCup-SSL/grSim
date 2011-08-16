@@ -18,7 +18,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "pcylinder.h"
 
-PCylinder::PCylinder(float x,float y,float z,float radius,float length,float mass,float red,float green,float blue,int texid,bool robot)
+PCylinder::PCylinder(dReal x,dReal y,dReal z,dReal radius,dReal length,dReal mass,dReal red,dReal green,dReal blue,int texid,bool robot)
           : PObject(x,y,z,red,green,blue,mass)
 {
     m_radius = radius;
@@ -32,12 +32,11 @@ PCylinder::~PCylinder()
 }
 
 
-void PCylinder::setMass(float mass)
+void PCylinder::setMass(dReal mass)
 {
   m_mass = mass;
   dMass m;
-  dMassSetCylinder (&m,1,1,m_radius,m_length);
-  dMassAdjust (&m,m_mass);
+  dMassSetCylinderTotal (&m,m_mass,1,m_radius,m_length);
   dBodySetMass (body,&m);
 }
 
@@ -56,13 +55,13 @@ void PCylinder::init()
 
       const int n = 24;	// number of sides to the cylinder (divisible by 4)
 
-      double l = m_length*0.5;
-      double a = float(M_PI*2.0)/float(n);
-      double sa = (float) sin(a);
-      double ca = (float) cos(a);
-      double r = m_radius;
+      dReal l = m_length*0.5;
+      dReal a = dReal(M_PI*2.0)/dReal(n);
+      dReal sa = (dReal) sin(a);
+      dReal ca = (dReal) cos(a);
+      dReal r = m_radius;
 
-      double ny=1,nz=0,tmp;
+      dReal ny=1,nz=0,tmp;
       int v=0,f=0;      
       int i;
       for (i=0; i<=n; i++) {
