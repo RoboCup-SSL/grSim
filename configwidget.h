@@ -30,32 +30,32 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <stdint.h>
 #include <stdio.h>
 
-#include "VarTypes/gui/VarTreeModel.h"
-#include "VarTypes/gui/VarItem.h"
-#include "VarTypes/gui/VarTreeView.h"
-#include "VarTypes/VarXML.h"
-#include "VarTypes/primitives/VarList.h"
-#include "VarTypes/primitives/VarDouble.h"
-#include "VarTypes/primitives/VarBool.h"
-#include "VarTypes/primitives/VarInt.h"
-#include "VarTypes/primitives/VarTrigger.h"
-#include "VarTypes/VarXML.h"
-#include "VarTypes/VarTypes.h"
+#include <vartypes/VarTreeModel.h>
+#include <vartypes/VarItem.h>
+#include <vartypes/VarTreeView.h>
+#include <vartypes/VarXML.h>
+#include <vartypes/VarList.h>
+#include <vartypes/VarDouble.h>
+#include <vartypes/VarBool.h>
+#include <vartypes/VarInt.h>
+#include <vartypes/VarTrigger.h>
+#include <vartypes/VarXML.h>
+#include <vartypes/VarTypes.h>
 
 using namespace VarTypes;
 
 #define DEF_VALUE(type,Type,name)  \
-            VarTypes::Var##Type* v_##name; \
+            shared_ptr<VarTypes::Var##Type> v_##name; \
             inline type name() {return v_##name->get##Type();}
 
 #define DEF_ENUM(type,name)  \
-            VarTypes::VarStringEnum* v_##name; \
+            shared_ptr<VarTypes::VarStringEnum> v_##name; \
             type name() {if(v_##name!=NULL) return v_##name->getString();return * (new type);}
 
 #define DEF_TREE(name)  \
-            VarTypes::VarList* name;
+            shared_ptr<VarTypes::VarList> name;
 #define DEF_PTREE(parents, name)  \
-            VarTypes::VarList* parents##_##name;
+            shared_ptr<VarTypes::VarList> parents##_##name;
 
 
 
@@ -95,10 +95,10 @@ class ConfigWidget : public VarTreeView
   Q_OBJECT
 
 protected:
-  vector<VarType *> world;
+  vector<VarPtr> world;
   VarTreeModel * tmodel;    
 public:
-  VarList * geo_vars;
+  VarListPtr geo_vars;
   ConfigWidget();
   virtual ~ConfigWidget();
 

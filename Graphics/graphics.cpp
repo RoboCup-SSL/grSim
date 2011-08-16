@@ -32,18 +32,18 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 
 
-const float ground_scale = 1.0f/1.0f;	// ground texture scale (1/size)
-const float ground_ofsx = 0.5;		// offset of ground texture
-const float ground_ofsy = 0.5;
-const float sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
-const float sky_height = 1.0f;		// sky height above viewpoint
+const dReal ground_scale = 1.0f/1.0f;	// ground texture scale (1/size)
+const dReal ground_ofsx = 0.5;		// offset of ground texture
+const dReal ground_ofsy = 0.5;
+const dReal sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
+const dReal sky_height = 1.0f;		// sky height above viewpoint
 
 
 CGraphics::CGraphics(QGLWidget* _owner)
 {
   owner = _owner;
-  float xyz[3] = {0.8317f,-0.9817f,0.8000f};
-  float hpr[3] = {121.0000f,-27.5000f,0.0000f};
+  dReal xyz[3] = {0.8317f,-0.9817f,0.8000f};
+  dReal hpr[3] = {121.0000f,-27.5000f,0.0000f};
   setViewpoint (xyz,hpr);
   sphere_quality = 1;
   m_renderDepth = 100;
@@ -119,7 +119,7 @@ int CGraphics::loadTextureSkyBox(QImage* img)
 }
 
 
-void CGraphics::getViewpoint (float* xyz, float* hpr)
+void CGraphics::getViewpoint (dReal* xyz, dReal* hpr)
 {
     if (graphicDisabled) return;
     xyz[0] = view_xyz[0];
@@ -130,24 +130,24 @@ void CGraphics::getViewpoint (float* xyz, float* hpr)
     hpr[2] = view_hpr[2];
 }
 
-void CGraphics::getFrustum(float& right,float& bottom,float& vnear)
+void CGraphics::getFrustum(dReal& right,dReal& bottom,dReal& vnear)
 {
     right = frustum_right;
     bottom= frustum_bottom;
     vnear = frustum_vnear;
 }
 
-void CGraphics::setRenderDepth(float depth)
+void CGraphics::setRenderDepth(dReal depth)
 {
     m_renderDepth = depth;
 }
 
-float CGraphics::renderDepth()
+dReal CGraphics::renderDepth()
 {
     return m_renderDepth;
 }
 
-void CGraphics::setViewpoint (float xyz[3], float hpr[3])
+void CGraphics::setViewpoint (dReal xyz[3], dReal hpr[3])
 {
   if (xyz) {
     view_xyz[0] = xyz[0];
@@ -162,7 +162,7 @@ void CGraphics::setViewpoint (float xyz[3], float hpr[3])
   }
 }
 
-void CGraphics::setViewpoint (float x,float y,float z,float h,float p,float r)
+void CGraphics::setViewpoint (dReal x,dReal y,dReal z,dReal h,dReal p,dReal r)
 {
     view_xyz[0] = x;
     view_xyz[1] = y;
@@ -184,80 +184,80 @@ void CGraphics::wrapCameraAngles()
 void CGraphics::cameraMotion (int mode, int deltax, int deltay)
 {
     if (graphicDisabled) return;
-  float side = 0.01f * float(deltax);
-  float fwd = (mode==4) ? (0.01f * float(deltay)) : 0.0f;
-  float s = (float) sin (view_hpr[0]*M_PI/180.0f);
-  float c = (float) cos (view_hpr[0]*M_PI/180.0f);
+  dReal side = 0.01f * dReal(deltax);
+  dReal fwd = (mode==4) ? (0.01f * dReal(deltay)) : 0.0f;
+  dReal s = (dReal) sin (view_hpr[0]*M_PI/180.0f);
+  dReal c = (dReal) cos (view_hpr[0]*M_PI/180.0f);
 
   if (mode==1) {
-    view_hpr[0] += float (deltax) * 0.5f;
-    view_hpr[1] += float (deltay) * 0.5f;
+    view_hpr[0] += dReal (deltax) * 0.5f;
+    view_hpr[1] += dReal (deltay) * 0.5f;
   }
   else {
     view_xyz[0] += -s*side + c*fwd;
     view_xyz[1] += c*side + s*fwd;
-    if (mode==2 || mode==5) view_xyz[2] += 0.01f * float(deltay);
+    if (mode==2 || mode==5) view_xyz[2] += 0.01f * dReal(deltay);
   }
   wrapCameraAngles();
 }
 
-void rotxy(float &x,float &y,float a)
+void rotxy(dReal &x,dReal &y,dReal a)
 {
-    float ca = cos(a);
-    float sa = sin(a);
-    float xx = x*ca - y*sa;
-    float yy = x*sa + y*ca;
+    dReal ca = cos(a);
+    dReal sa = sin(a);
+    dReal xx = x*ca - y*sa;
+    dReal yy = x*sa + y*ca;
     x = xx;
     y = yy;
 }
 
-void CGraphics::getCameraForward(float& x,float& y,float& z)
+void CGraphics::getCameraForward(dReal& x,dReal& y,dReal& z)
 {
-  float h = view_hpr[0]*M_PI/180.0f;
-  float p = view_hpr[1]*M_PI/180.0f;
-  float r = view_hpr[2]*M_PI/180.0f;
+  dReal h = view_hpr[0]*M_PI/180.0f;
+  dReal p = view_hpr[1]*M_PI/180.0f;
+  dReal r = view_hpr[2]*M_PI/180.0f;
   x=-1; y=0; z=0;
   rotxy(y,z,r);
   rotxy(z,x,-p);
   rotxy(x,y,h);
 }
 
-void CGraphics::lookAt(float x,float y,float z)
+void CGraphics::lookAt(dReal x,dReal y,dReal z)
 {
-    float rx = x - view_xyz[0];
-    float ry = y - view_xyz[1];
-    float rz = z - view_xyz[2];
-    float rr = sqrt(rx*rx + ry*ry + rz*rz);
+    dReal rx = x - view_xyz[0];
+    dReal ry = y - view_xyz[1];
+    dReal rz = z - view_xyz[2];
+    dReal rr = sqrt(rx*rx + ry*ry + rz*rz);
     if (rr==0) return;
-    float r = 0;
-    float p = asin(rz/rr)*180.0/M_PI;
-    float h = atan2(ry,rx)*180.0/M_PI;
+    dReal r = 0;
+    dReal p = asin(rz/rr)*180.0/M_PI;
+    dReal h = atan2(ry,rx)*180.0/M_PI;
     view_hpr[0] = h;
     view_hpr[1] = p;
     view_hpr[2] = r;
 }
 
-void CGraphics::getCameraRight(float& x,float& y,float& z)
+void CGraphics::getCameraRight(dReal& x,dReal& y,dReal& z)
 {
-  float h = view_hpr[0]*M_PI/180.0f;
-  float p = view_hpr[1]*M_PI/180.0f;
-  float r = view_hpr[2]*M_PI/180.0f;
+  dReal h = view_hpr[0]*M_PI/180.0f;
+  dReal p = view_hpr[1]*M_PI/180.0f;
+  dReal r = view_hpr[2]*M_PI/180.0f;
   x=0; y=-1; z=0;
   rotxy(y,z,r);
   rotxy(z,x,-p);
   rotxy(x,y,h);
 }
 
-void CGraphics::zoomCamera(float dz)
+void CGraphics::zoomCamera(dReal dz)
 {
-    float xx,yy,zz;
+    dReal xx,yy,zz;
     getCameraForward(xx,yy,zz);
     view_xyz[0] += xx*dz;
     view_xyz[1] += yy*dz;
     view_xyz[2] += zz*dz;
 }
 
-void CGraphics::setCamera (float x, float y, float z, float h, float p, float r)
+void CGraphics::setCamera (dReal x, dReal y, dReal z, dReal h, dReal p, dReal r)
 {
     if (graphicDisabled) return;
   glMatrixMode (GL_MODELVIEW);
@@ -272,7 +272,7 @@ void CGraphics::setCamera (float x, float y, float z, float h, float p, float r)
 
 
 // sets the material color, not the light color
-void CGraphics::setColor (float r, float g, float b, float alpha)
+void CGraphics::setColor (dReal r, dReal g, dReal b, dReal alpha)
 {
     if (graphicDisabled) return;
   GLfloat light_ambient[4],light_diffuse[4],light_specular[4];
@@ -321,7 +321,7 @@ void CGraphics::drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6)
     glDisable(GL_CULL_FACE);
     // Just in case we set all vertices to white.
     glColor4f(1,1,1,1);
-    const float r = 1.005f;  //to overcome borders problem
+    const dReal r = 1.005f;  //to overcome borders problem
     // neg_x
     glBindTexture(GL_TEXTURE_2D, tex_ids[t1]);
 
@@ -398,7 +398,7 @@ void CGraphics::noTexture()
     glDisable(GL_TEXTURE_2D);
 }
 
-void CGraphics::setTransform (const float pos[3], const float R[12])
+void CGraphics::setTransform (const dReal pos[3], const dReal R[12])
 {
     if (graphicDisabled) return;
   GLfloat matrix[16];
@@ -446,7 +446,7 @@ void CGraphics::setTransformD (const double pos[3], const double R[12])
   glMultMatrixd (matrix);
 }
 
-void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool fog,float fogr,float fogg,float fogb,float fogdensity)
+void CGraphics::initScene(int width,int height,dReal rc,dReal gc,dReal bc,bool fog,dReal fogr,dReal fogg,dReal fogb,dReal fogdensity)
 {
     if (graphicDisabled) return;
   _width = width;
@@ -469,17 +469,17 @@ void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool f
   glViewport (0,0,width,height);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity();
-  const float vnear = 0.1f;
-  const float vfar = m_renderDepth;
-  const float k = 0.8f;     // view scale, 1 = +/- 45 degrees
+  const dReal vnear = 0.1f;
+  const dReal vfar = m_renderDepth;
+  const dReal k = 0.8f;     // view scale, 1 = +/- 45 degrees
   frustum_vnear = vnear;
   if (width >= height) {
-    float k2 = float(height)/float(width);
+    dReal k2 = dReal(height)/dReal(width);
     frustum_right  = vnear*k;
     frustum_bottom = vnear*k*k2;
   }
   else {
-    float k2 = float(width)/float(height);
+    dReal k2 = dReal(width)/dReal(height);
     frustum_right  = vnear*k*k2;
     frustum_bottom = vnear*k;
   }
@@ -501,10 +501,10 @@ void CGraphics::initScene(int width,int height,float rc,float gc,float bc,bool f
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // snapshot camera position (in MS Windows it is changed by the GUI thread)
-  float view2_xyz[3];
-  float view2_hpr[3];
-  memcpy (view2_xyz,view_xyz,sizeof(float)*3);
-  memcpy (view2_hpr,view_hpr,sizeof(float)*3);
+  dReal view2_xyz[3];
+  dReal view2_hpr[3];
+  memcpy (view2_xyz,view_xyz,sizeof(dReal)*3);
+  memcpy (view2_hpr,view_hpr,sizeof(dReal)*3);
 
   // go to GL_MODELVIEW matrix mode and set the camera
   glMatrixMode (GL_MODELVIEW);
@@ -556,11 +556,11 @@ void CGraphics::drawSky ()
   glDepthFunc (GL_LEQUAL);
   glDepthRange (1,1);
 */
-  const float ssize = 1000.0f;
-  float offset = 0.0f;
+  const dReal ssize = 1000.0f;
+  dReal offset = 0.0f;
 
-  float x = ssize*sky_scale;
-  float z = view_xyz[2] + sky_height;
+  dReal x = ssize*sky_scale;
+  dReal z = view_xyz[2] + sky_height;
 
   glBegin (GL_QUADS);
   glNormal3f (0,0,-1);
@@ -603,8 +603,8 @@ void CGraphics::drawGround()
   glEnable (GL_DEPTH_TEST);
   glDepthFunc (GL_LESS);
 
-  const float gsize = 100.0f;
-  const float offset = 0;
+  const dReal gsize = 100.0f;
+  const dReal offset = 0;
 
   glBegin (GL_QUADS);
   glNormal3f (0,0,1);
@@ -625,13 +625,13 @@ void CGraphics::drawGround()
   resetState();
 }
 
-void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float SSL_FIELD_WIDTH,float SSL_FIELD_PENALTY,float SSL_FIELD_LINE_LENGTH,float SSL_FIELD_PENALTY_POINT,float epsilon)
+void CGraphics::drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY,dReal SSL_FIELD_LINE_LENGTH,dReal SSL_FIELD_PENALTY_POINT,dReal epsilon)
 {
     if (graphicDisabled) return;
-    float angle,x,y,z;
-    float radx = (SSL_FIELD_PENALTY) / ( SSL_FIELD_LENGTH / 2.0);
-    float radz = (SSL_FIELD_PENALTY) / ( SSL_FIELD_WIDTH / 2.0);
-    float penaltyx = SSL_FIELD_PENALTY_POINT / (SSL_FIELD_LENGTH / 2.0);
+    dReal angle,x,y,z;
+    dReal radx = (SSL_FIELD_PENALTY) / ( SSL_FIELD_LENGTH / 2.0);
+    dReal radz = (SSL_FIELD_PENALTY) / ( SSL_FIELD_WIDTH / 2.0);
+    dReal penaltyx = SSL_FIELD_PENALTY_POINT / (SSL_FIELD_LENGTH / 2.0);
     glPushMatrix();
             glScaled(SSL_FIELD_LENGTH / 2.0 ,  SSL_FIELD_WIDTH / 2.0,1);
 
@@ -640,7 +640,7 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
             // Get supported line width range and step size
             glGetFloatv(GL_LINE_WIDTH_RANGE,sizes);
             glGetFloatv(GL_LINE_WIDTH_GRANULARITY,&step);
-            float fCurrSize = sizes[0];
+            dReal fCurrSize = sizes[0];
 
             glLineWidth(fCurrSize * 5);
             glBegin(GL_LINE_LOOP);
@@ -668,7 +668,7 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
                       }
             glEnd();
 
-            float h = SSL_FIELD_LINE_LENGTH / SSL_FIELD_WIDTH;
+            dReal h = SSL_FIELD_LINE_LENGTH / SSL_FIELD_WIDTH;
 
             glBegin(GL_LINE_LOOP);
                     z = epsilon;
@@ -711,12 +711,12 @@ void CGraphics::drawSSLGround(float SSL_FIELD_RAD,float SSL_FIELD_LENGTH,float S
 
 }
 
-void CGraphics::_drawBox (const float sides[3])
+void CGraphics::_drawBox (const dReal sides[3])
 {
     if (graphicDisabled) return;
-  float lx = sides[0]*0.5f;
-  float ly = sides[1]*0.5f;
-  float lz = sides[2]*0.5f;
+  dReal lx = sides[0]*0.5f;
+  dReal ly = sides[1]*0.5f;
+  dReal lz = sides[2]*0.5f;
 
   // sides
   glBegin (GL_TRIANGLE_STRIP);
@@ -761,19 +761,19 @@ void CGraphics::_drawBox (const float sides[3])
 // normalized to a distance of 1.0 from the origin (p1,p2,p3 are assumed
 // to be already normalized). Note this is not super-fast because it draws
 // triangles rather than triangle strips.
-void CGraphics::_drawPatch (float p1[3], float p2[3], float p3[3], int level)
+void CGraphics::_drawPatch (dReal p1[3], dReal p2[3], dReal p3[3], int level)
 {
   int i;
   if (level > 0) {
-    float q1[3],q2[3],q3[3];		 // sub-vertices
+    dReal q1[3],q2[3],q3[3];		 // sub-vertices
     for (i=0; i<3; i++) {
       q1[i] = 0.5f*(p1[i]+p2[i]);
       q2[i] = 0.5f*(p2[i]+p3[i]);
       q3[i] = 0.5f*(p3[i]+p1[i]);
     }
-    float length1 = (float)(1.0/sqrt(q1[0]*q1[0]+q1[1]*q1[1]+q1[2]*q1[2]));
-    float length2 = (float)(1.0/sqrt(q2[0]*q2[0]+q2[1]*q2[1]+q2[2]*q2[2]));
-    float length3 = (float)(1.0/sqrt(q3[0]*q3[0]+q3[1]*q3[1]+q3[2]*q3[2]));
+    dReal length1 = (dReal)(1.0/sqrt(q1[0]*q1[0]+q1[1]*q1[1]+q1[2]*q1[2]));
+    dReal length2 = (dReal)(1.0/sqrt(q2[0]*q2[0]+q2[1]*q2[1]+q2[2]*q2[2]));
+    dReal length3 = (dReal)(1.0/sqrt(q3[0]*q3[0]+q3[1]*q3[1]+q3[2]*q3[2]));
     for (i=0; i<3; i++) {
       q1[i] *= length1;
       q2[i] *= length2;
@@ -803,7 +803,7 @@ void CGraphics::_drawSphere()
   // icosahedron data for an icosahedron of radius 1.0
 # define ICX 0.525731112119133606f
 # define ICZ 0.850650808352039932f
-  static GLfloat idata[12][3] = {
+  static dReal idata[12][3] = {
     {-ICX, 0, ICZ},
     {ICX, 0, ICZ},
     {-ICX, 0, -ICZ},
@@ -848,16 +848,16 @@ void CGraphics::_drawSphere()
 
 
 static int capped_cylinder_quality = 3;
-void CGraphics::drawCircle(float x0,float y0,float z0,float r)
+void CGraphics::drawCircle(dReal x0,dReal y0,dReal z0,dReal r)
 {
     if (graphicDisabled) return;
   int i;
-  float tmp,ny,nz,a,ca,sa;
+  dReal tmp,ny,nz,a,ca,sa;
   const int n = 24;	// number of sides to the cylinder (divisible by 4)
 
-  a = float(M_PI*2.0)/float(n);
-  sa = (float) sin(a);
-  ca = (float) cos(a);
+  a = dReal(M_PI*2.0)/dReal(n);
+  sa = (dReal) sin(a);
+  ca = (dReal) cos(a);
 
     // draw top cap
   glShadeModel (GL_FLAT);
@@ -877,18 +877,18 @@ void CGraphics::drawCircle(float x0,float y0,float z0,float r)
 
 // draw a capped cylinder of length l and radius r, aligned along the x axis
 
-void CGraphics::_drawCapsule (float l, float r)
+void CGraphics::_drawCapsule (dReal l, dReal r)
 {
     if (graphicDisabled) return;
   int i,j;
-  float tmp,nx,ny,nz,start_nx,start_ny,a,ca,sa;
+  dReal tmp,nx,ny,nz,start_nx,start_ny,a,ca,sa;
   // number of sides to the cylinder (divisible by 4):
   const int n = capped_cylinder_quality*4;
 ;
   l *= 0.5;
-  a = float(M_PI*2.0)/float(n);
-  sa = (float) sin(a);
-  ca = (float) cos(a);
+  a = dReal(M_PI*2.0)/dReal(n);
+  sa = (dReal) sin(a);
+  ca = (dReal) cos(a);
 
   // draw cylinder body
   ny=1; nz=0;		  // normal vector = (0,ny,nz)
@@ -910,11 +910,11 @@ void CGraphics::_drawCapsule (float l, float r)
   start_ny = 1;
   for (j=0; j<(n/4); j++) {
     // get start_n2 = rotated start_n
-    float start_nx2 =  ca*start_nx + sa*start_ny;
-    float start_ny2 = -sa*start_nx + ca*start_ny;
+    dReal start_nx2 =  ca*start_nx + sa*start_ny;
+    dReal start_ny2 = -sa*start_nx + ca*start_ny;
     // get n=start_n and n2=start_n2
     nx = start_nx; ny = start_ny; nz = 0;
-    float nx2 = start_nx2, ny2 = start_ny2, nz2 = 0;
+    dReal nx2 = start_nx2, ny2 = start_ny2, nz2 = 0;
     glBegin (GL_TRIANGLE_STRIP);
     for (i=0; i<=n; i++) {
       glNormal3d (ny2,nz2,nx2);
@@ -939,11 +939,11 @@ void CGraphics::_drawCapsule (float l, float r)
   start_ny = 1;
   for (j=0; j<(n/4); j++) {
     // get start_n2 = rotated start_n
-    float start_nx2 = ca*start_nx - sa*start_ny;
-    float start_ny2 = sa*start_nx + ca*start_ny;
+    dReal start_nx2 = ca*start_nx - sa*start_ny;
+    dReal start_ny2 = sa*start_nx + ca*start_ny;
     // get n=start_n and n2=start_n2
     nx = start_nx; ny = start_ny; nz = 0;
-    float nx2 = start_nx2, ny2 = start_ny2, nz2 = 0;
+    dReal nx2 = start_nx2, ny2 = start_ny2, nz2 = 0;
     glBegin (GL_TRIANGLE_STRIP);
     for (i=0; i<=n; i++) {
       glNormal3d (ny,nz,nx);
@@ -967,17 +967,17 @@ void CGraphics::_drawCapsule (float l, float r)
 
 // draw a cylinder of length l and radius r, aligned along the z axis
 
-void CGraphics::_drawCylinder (float l, float r, float zoffset)
+void CGraphics::_drawCylinder (dReal l, dReal r, dReal zoffset)
 {
     if (graphicDisabled) return;
   int i;
-  float tmp,ny,nz,a,ca,sa;
+  dReal tmp,ny,nz,a,ca,sa;
   const int n = 24;	// number of sides to the cylinder (divisible by 4)
 
   l *= 0.5;
-  a = float(M_PI*2.0)/float(n);
-  sa = (float) sin(a);
-  ca = (float) cos(a);
+  a = dReal(M_PI*2.0)/dReal(n);
+  sa = (dReal) sin(a);
+  ca = (dReal) cos(a);
 
   // draw cylinder body
   ny=1; nz=0;		  // normal vector = (0,ny,nz)
@@ -1026,23 +1026,23 @@ void CGraphics::_drawCylinder (float l, float r, float zoffset)
   glEnd();
 }
 
-void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int tex_id,bool robot)
+void CGraphics::_drawCylinder_TopTextured (dReal l, dReal r, dReal zoffset,int tex_id,bool robot)
 {
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_COLOR);
     if (graphicDisabled) return;
   int i;
-  float tmp,ny,nz,a,ca,sa;
+  dReal tmp,ny,nz,a,ca,sa;
   const int n = 24;	// number of sides to the cylinder (divisible by 4)
 
   l *= 0.5;
-  a = float(M_PI*2.0)/float(n);
-  sa = (float) sin(a);
-  ca = (float) cos(a);
+  a = dReal(M_PI*2.0)/dReal(n);
+  sa = (dReal) sin(a);
+  ca = (dReal) cos(a);
 
   // draw cylinder body
   ny=1; nz=0;		  // normal vector = (0,ny,nz)
-  float nny,nnz;
+  dReal nny,nnz;
   glBegin (GL_TRIANGLE_STRIP);
   for (i=0; i<=n; i++) {
       if ((i>2 && i<n-2) || (!robot))
@@ -1118,8 +1118,8 @@ void CGraphics::_drawCylinder_TopTextured (float l, float r, float zoffset,int t
 }
 
 
-void CGraphics::drawBox (const float pos[3], const float R[12],
-                           const float sides[3])
+void CGraphics::drawBox (const dReal pos[3], const dReal R[12],
+                           const dReal sides[3])
 {
     if (graphicDisabled) return;
   glShadeModel (GL_FLAT);
@@ -1130,8 +1130,8 @@ void CGraphics::drawBox (const float pos[3], const float R[12],
 }
 
 
-void CGraphics::drawSphere (const float pos[3], const float R[12],
-                              float radius)
+void CGraphics::drawSphere (const dReal pos[3], const dReal R[12],
+                              dReal radius)
 {
     if (graphicDisabled) return;
   glEnable (GL_NORMALIZE);
@@ -1146,8 +1146,8 @@ void CGraphics::drawSphere (const float pos[3], const float R[12],
 }
 
 
-void CGraphics::drawCylinder (const float pos[3], const float R[12],
-                                float length, float radius)
+void CGraphics::drawCylinder (const dReal pos[3], const dReal R[12],
+                                dReal length, dReal radius)
 {
     if (graphicDisabled) return;
   glShadeModel (GL_SMOOTH);
@@ -1156,8 +1156,8 @@ void CGraphics::drawCylinder (const float pos[3], const float R[12],
   glPopMatrix();
 }
 
-void CGraphics::drawCylinder_TopTextured (const float pos[3], const float R[12],
-                                float length, float radius,int tex_id,bool robot)
+void CGraphics::drawCylinder_TopTextured (const dReal pos[3], const dReal R[12],
+                                dReal length, dReal radius,int tex_id,bool robot)
 {
     if (graphicDisabled) return;
   glShadeModel (GL_SMOOTH);
@@ -1166,8 +1166,8 @@ void CGraphics::drawCylinder_TopTextured (const float pos[3], const float R[12],
   glPopMatrix();
 }
 
-void CGraphics::drawCapsule (const float pos[3], const float R[12],
-                                      float length, float radius)
+void CGraphics::drawCapsule (const dReal pos[3], const dReal R[12],
+                                      dReal length, dReal radius)
 {
     if (graphicDisabled) return;
   glShadeModel (GL_SMOOTH);
@@ -1178,7 +1178,7 @@ void CGraphics::drawCapsule (const float pos[3], const float R[12],
 }
 
 
-void CGraphics::drawLine (const float pos1[3], const float pos2[3])
+void CGraphics::drawLine (const dReal pos1[3], const dReal pos2[3])
 {
     if (graphicDisabled) return;
   glDisable (GL_LIGHTING);

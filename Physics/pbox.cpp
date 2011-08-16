@@ -18,9 +18,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "pbox.h"
 
-PBox::PBox(float x,float y,float z,float w,float h,float l,float mass,float r,float g,float b)
+PBox::PBox(dReal x,dReal y,dReal z,dReal w,dReal h,dReal l,dReal mass,dReal r,dReal g,dReal b)
        : PObject(x,y,z,r,g,b,mass)
 {
+
     m_w = w;
     m_h = h;
     m_l = l;
@@ -40,18 +41,17 @@ void PBox::init()
   dSpaceAdd (space,geom);
 }
 
-void PBox::setMass(float mass)
+void PBox::setMass(dReal mass)
 {
   m_mass = mass;
   dMass m;
-  dMassSetBox (&m,1,m_w,m_h,m_l);
-  dMassAdjust (&m,m_mass);
+  dMassSetBoxTotal (&m,m_mass,m_w,m_h,m_l);
   dBodySetMass (body,&m);
 }
 
 void PBox::draw()
 {
     PObject::draw();
-    float dim[3] = {m_w,m_h,m_l};
+    dReal dim[3] = {m_w,m_h,m_l};
     g->drawBox (dGeomGetPosition(geom),dGeomGetRotation(geom),dim);
 }

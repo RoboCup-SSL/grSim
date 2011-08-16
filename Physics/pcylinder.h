@@ -24,14 +24,14 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 class PCylinder : public PObject
 {
 private:
-    float m_radius,m_length;
+    dReal m_radius,m_length;
     GLuint m_gllistid;
     int m_texid;
     bool m_robot;
 public:
-    PCylinder(float x,float y,float z,float radius,float length,float mass,float red,float green,float blue,int tex_id=-1,bool robot=false);
+    PCylinder(dReal x,dReal y,dReal z,dReal radius,dReal length,dReal mass,dReal red,dReal green,dReal blue,int tex_id=-1,bool robot=false);
     virtual ~PCylinder();
-    virtual void setMass(float mass);
+    virtual void setMass(dReal mass);
     virtual void init();
     virtual void draw();
 };

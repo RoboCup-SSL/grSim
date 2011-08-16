@@ -18,8 +18,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #ifndef POBJECT_H
 #define POBJECT_H
-
-#include "../include/ode/ode.h"
+#define dDOUBLE
+#include <ode/ode.h>
 #include "../Graphics/graphics.h"
 
 class PObject
@@ -27,8 +27,8 @@ class PObject
 private:
     bool isQSet;
 protected:
-    float m_x,m_y,m_z,m_red,m_green,m_blue;
-    float m_mass;
+    dReal m_x,m_y,m_z,m_red,m_green,m_blue;
+    dReal m_mass;
     dMatrix3 local_Rot;
     dVector3 local_Pos;
     dQuaternion q;
@@ -36,19 +36,19 @@ protected:
     void initPosGeom();
     bool visible;
 public:
-    PObject(float x,float y,float z,float red,float green,float blue,float mass);
+    PObject(dReal x,dReal y,dReal z,dReal red,dReal green,dReal blue,dReal mass);
     virtual ~PObject();
-    void setRotation(float x_axis,float y_axis,float z_axis,float ang); //Must be called before init()
-    void setBodyPosition(float x,float y,float z,bool local=false);
-    void setBodyRotation(float x_axis,float y_axis,float z_axis,float ang,bool local=false);
-    void getBodyPosition(float &x,float &y,float &z,bool local=false);
-    void getBodyDirection(float &x,float &y,float &z);
+    void setRotation(dReal x_axis,dReal y_axis,dReal z_axis,dReal ang); //Must be called before init()
+    void setBodyPosition(dReal x,dReal y,dReal z,bool local=false);
+    void setBodyRotation(dReal x_axis,dReal y_axis,dReal z_axis,dReal ang,bool local=false);
+    void getBodyPosition(dReal &x,dReal &y,dReal &z,bool local=false);
+    void getBodyDirection(dReal &x,dReal &y,dReal &z);
     void getBodyRotation(dMatrix3 r,bool local=false);
     void setVisibility(bool v);
-    void setColor(float r,float g,float b);
-    void getColor(float& r,float& g,float& b);
+    void setColor(dReal r,dReal g,dReal b);
+    void getColor(dReal& r,dReal& g,dReal& b);
     bool getVisibility();
-    virtual void setMass(float mass);
+    virtual void setMass(dReal mass);
     virtual void init()=0;
     virtual void glinit();
     virtual void draw();

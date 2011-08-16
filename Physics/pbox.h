@@ -25,11 +25,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 class PBox : public PObject
 {
 private:
-    float m_w,m_h,m_l;
+    dReal m_w,m_h,m_l;
 public:
-    PBox(float x,float y,float z,float w,float h,float l,float mass,float r,float g,float b);
+    PBox(dReal x,dReal y,dReal z,dReal w,dReal h,dReal l,dReal mass,dReal r,dReal g,dReal b);
     virtual ~PBox();
-    virtual void setMass(float mass);
+    virtual void setMass(dReal mass);
     virtual void init();
     virtual void draw();
 };

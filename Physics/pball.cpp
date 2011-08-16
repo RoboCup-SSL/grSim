@@ -18,7 +18,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "pball.h"
 
-PBall::PBall(float x,float y,float z,float radius,float mass,float red,float green,float blue)
+PBall::PBall(dReal x,dReal y,dReal z,dReal radius,dReal mass,dReal red,dReal green,dReal blue)
         : PObject(x,y,z,red,green,blue,mass)
 {
     m_radius = radius;    
@@ -38,12 +38,12 @@ void PBall::init()
     dSpaceAdd(space,geom);
 }
 
-void PBall::setMass(float mass)
+void PBall::setMass(dReal mass)
 {
+
     m_mass = mass;
     dMass m;
-    dMassSetSphere (&m,1,m_radius);
-    dMassAdjust (&m,m_mass);
+    dMassSetSphereTotal(&m,m_mass,m_radius);
     dBodySetMass (body,&m);
 }
 

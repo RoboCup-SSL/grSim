@@ -193,34 +193,34 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(glwidget->ssl, SIGNAL(fpsChanged(int)), this, SLOT(customFPS(int)));
     QObject::connect(aboutMenu, SIGNAL(triggered()), this, SLOT(showAbout()));
     //config related signals
-    QObject::connect(configwidget->v_BallMass, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallMass()));
-    QObject::connect(configwidget->v_BallBounce, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
-    QObject::connect(configwidget->v_BallBounceVel, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
-    QObject::connect(configwidget->v_BallFriction, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
-    QObject::connect(configwidget->v_BallSlip, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallGroundSurface()));
-    QObject::connect(configwidget->v_BallAngularDamp, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallDamping()));
-    QObject::connect(configwidget->v_BallLinearDamp, SIGNAL(wasEdited(VarType*)), this, SLOT(changeBallDamping()));
-    QObject::connect(configwidget->v_Gravity,  SIGNAL(wasEdited(VarType*)), this, SLOT(changeGravity()));
+    QObject::connect(configwidget->v_BallMass.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeBallMass()));
+    QObject::connect(configwidget->v_BallBounce.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeBallGroundSurface()));
+    QObject::connect(configwidget->v_BallBounceVel.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeBallGroundSurface()));
+    QObject::connect(configwidget->v_BallFriction.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeBallGroundSurface()));
+    QObject::connect(configwidget->v_BallSlip.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeBallGroundSurface()));
+    QObject::connect(configwidget->v_BallAngularDamp.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeBallDamping()));
+    QObject::connect(configwidget->v_BallLinearDamp.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeBallDamping()));
+    QObject::connect(configwidget->v_Gravity.get(),  SIGNAL(wasEdited(VarPtr)), this, SLOT(changeGravity()));
 
     //geometry config vars
-    QObject::connect(configwidget->v_DesiredFPS, SIGNAL(wasEdited(VarType*)), this, SLOT(changeTimer()));
-    QObject::connect(configwidget->v_BallRadius, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Field_Length, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Field_Margin, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Field_Width, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Field_Penalty_Line, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Field_Penalty_Point, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Field_Penalty_Rad, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Field_Rad, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_BlueTeam, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_YellowTeam, SIGNAL(wasEdited(VarType*)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DesiredFPS.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeTimer()));
+    QObject::connect(configwidget->v_BallRadius.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Length.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Width.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Penalty_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Penalty_Point.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Penalty_Rad.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Field_Rad.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_BlueTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_YellowTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
 
     //network
-    QObject::connect(configwidget->v_VisionMulticastAddr, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectVisionSocket()));
-    QObject::connect(configwidget->v_VisionMulticastPort, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectVisionSocket()));
-    QObject::connect(configwidget->v_CommandListenPort, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectCommandSocket()));
-    QObject::connect(configwidget->v_BlueStatusSendPort, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectBlueStatusSocket()));
-    QObject::connect(configwidget->v_YellowStatusSendPort, SIGNAL(wasEdited(VarType*)), this, SLOT(reconnectYellowStatusSocket()));
+    QObject::connect(configwidget->v_VisionMulticastAddr.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectVisionSocket()));
+    QObject::connect(configwidget->v_VisionMulticastPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectVisionSocket()));
+    QObject::connect(configwidget->v_CommandListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectCommandSocket()));
+    QObject::connect(configwidget->v_BlueStatusSendPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectBlueStatusSocket()));
+    QObject::connect(configwidget->v_YellowStatusSendPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectYellowStatusSocket()));
     timer->start();
 
 
@@ -276,7 +276,7 @@ void MainWindow::changeTimer()
     timer->setInterval(getInterval());
 }
 
-QString floatToStr(float a)
+QString dRealToStr(dReal a)
 {
     QString s;
     s.setNum(a,'f',3);
@@ -322,7 +322,7 @@ void MainWindow::update()
     else selectinglabel->setVisible(false);
     vanishlabel->setVisible(configwidget->vanishing());
     noiselabel->setVisible(configwidget->noise());
-    cursorlabel->setText(QString("Cursor: [X=%1;Y=%2;Z=%3]").arg(floatToStr(glwidget->ssl->cursor_x)).arg(floatToStr(glwidget->ssl->cursor_y)).arg(floatToStr(glwidget->ssl->cursor_z)));
+    cursorlabel->setText(QString("Cursor: [X=%1;Y=%2;Z=%3]").arg(dRealToStr(glwidget->ssl->cursor_x)).arg(dRealToStr(glwidget->ssl->cursor_y)).arg(dRealToStr(glwidget->ssl->cursor_z)));
     statusWidget->update();
 }
 
@@ -375,9 +375,9 @@ void MainWindow::restartSimulator()
 
 void MainWindow::ballMenuTriggered(QAction* act)
 {
-    float l = configwidget->Field_Length()/2.0;
-    float w = configwidget->Field_Width()/2.0;
-    float p = l - configwidget->Field_Penalty_Point();
+    dReal l = configwidget->Field_Length()/2.0;
+    dReal w = configwidget->Field_Width()/2.0;
+    dReal p = l - configwidget->Field_Penalty_Point();
     if (act->text()==tr("Put on Center")) glwidget->putBall(0,0);
     else if (act->text()==tr("Put on Corner 1")) glwidget->putBall(-l,-w);
     else if (act->text()==tr("Put on Corner 2")) glwidget->putBall(-l, w);
@@ -419,12 +419,12 @@ void MainWindow::setCurrentRobotPosition()
 {
     int i = robotIndex(glwidget->Current_robot,glwidget->Current_team);
     bool ok1=false,ok2=false,ok3=false;
-    float x = robotwidget->getPoseWidget->x->text().toFloat(&ok1);
-    float y = robotwidget->getPoseWidget->y->text().toFloat(&ok2);
-    float a = robotwidget->getPoseWidget->a->text().toFloat(&ok3);
-    if (!ok1) {logStatus("Invalid float for x",QColor("red"));return;}
-    if (!ok2) {logStatus("Invalid float for y",QColor("red"));return;}
-    if (!ok3) {logStatus("Invalid float for angle",QColor("red"));return;}
+    dReal x = robotwidget->getPoseWidget->x->text().toFloat(&ok1);
+    dReal y = robotwidget->getPoseWidget->y->text().toFloat(&ok2);
+    dReal a = robotwidget->getPoseWidget->a->text().toFloat(&ok3);
+    if (!ok1) {logStatus("Invalid dReal for x",QColor("red"));return;}
+    if (!ok2) {logStatus("Invalid dReal for y",QColor("red"));return;}
+    if (!ok3) {logStatus("Invalid dReal for angle",QColor("red"));return;}
     glwidget->ssl->robots[i]->setXY(x,y);
     glwidget->ssl->robots[i]->setDir(a);
     robotwidget->getPoseWidget->close();
