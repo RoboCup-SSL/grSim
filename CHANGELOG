@@ -1,0 +1,10 @@
+2011-09-03   Ali Koochakzadeh <ali.koochakzadeh@gmail.com>
+    *  Added Java client to the project. 
+    *  Created the changelog file
+    *  Solved 64-library problems
+
+2011-07-27   Verónica Raspeño <vero.uc3m@gmail.com>
+    *  Developed a client under java environment for grSim
+    
+2011-07-02   Christopher Head <chead@interchange.ubc.ca>
+    *  Created 2 patches for library compatibility problems. 
