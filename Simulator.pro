@@ -64,7 +64,7 @@ HEADERS += mainwindow.h \
 LIBS += -L$$PWD/libs/ \
     -lode \
     -lprotobuf \
-    -lVarTypes
+    -lvartypes
 MOC_DIR = $$PWD/objs
 OBJECTS_DIR = $$PWD/objs
 DESTDIR = $$PWD/bin
