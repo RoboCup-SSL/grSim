@@ -61,9 +61,9 @@ HEADERS += mainwindow.h \
     proto/grSim_Commands.pb.h \
     proto/grSim_Packet.pb.h \
     common.h
+QMAKE_CXXFLAGS += `pkg-config ode protobuf --cflags`
 LIBS += -L$$PWD/libs/ \
-    -lode \
-    -lprotobuf \
+	`pkg-config ode protobuf --libs` \
     -lvartypes
 MOC_DIR = $$PWD/objs
 OBJECTS_DIR = $$PWD/objs
