@@ -8,6 +8,6 @@ To Install grSim on your system follow these steps:
 2. cd proto/pb
    protoc *.proto --cpp_out=../
    
-3. qmake grSim.pro
+3. qmake Simulator.pro
 
 4. make
