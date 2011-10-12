@@ -1,0 +1,6 @@
+Makefile
+bin/
+objs/
+proto/*.pb.cc
+proto/*.pb.h
+qrc_textures.cpp
