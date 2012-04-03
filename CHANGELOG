@@ -1,3 +1,7 @@
+grSim is a software from developers for developers, mainly in RoboCup Small Size League domain. Commit logs can be accessed here: 
+
+https://github.com/mani-monaj/grSim/commits/master
+
 2011-09-03   Ali Koochakzadeh <ali.koochakzadeh@gmail.com>
     *  Added Java client to the project. 
     *  Created the changelog file
@@ -8,3 +12,8 @@
     
 2011-07-02   Christopher Head <chead@interchange.ubc.ca>
     *  Created 2 patches for library compatibility problems. 
+
+Pre-github migration ChangelogL
+
+July 2nd 2011 - r1354 - Initial Public Release
+June 20th 2011 - r1240 - Initial Release

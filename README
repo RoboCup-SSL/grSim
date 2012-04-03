@@ -11,25 +11,12 @@ grSim will likely run on a modern dual core PC running Ubuntu with good graphics
 
 *** INSTALLATION
 
-We developed grSim on Ubuntu 9.10+ OS. (Ubuntu 11.04 tested and is recommended)
-
-1. It is very important that the Graphics Card Driver is installed. (Ubuntu packages of nVidia and AMD(ATI) graphics cards are available)
-2. Install the dependencies
-
-sudo apt-get install libqt4-dev g++ build-essential libgl1-mesa-dev libglu1-mesa-dev
-
-3. Extract the grSim archive into a folder
-
-cd grSim
-qmake
-make
-
-the binary file will be in grSim/bin [Check the fps in status bar, if it is running on 65fps everything is ok, otherwise check the graphics card installation and OpenGL settings. If you received linker error about GL related libraries, also check your graphics card driver.
+Please refer to INSTALL file.
 
 *** USAGE
 
 Receiving data from grSim is exactly like receiving from SSL-Vision (http://code.google.com/p/ssl-vision) using Google Protobuf library
-Sending data to Simulator is also possible using Google Protobuf. A sample client is included in "client" folder. The compilation procedure is like grSim itself.
+Sending data to Simulator is also possible using Google Protobuf. A sample client is included in "client" folder. The compilation procedure is like grSim itself. There is also a Java client available in the client folder.
 
 *** Credits
 
@@ -43,7 +30,7 @@ Google ProtoBuf - Included
 
 *** Changelog
 
-July 2nd 2011 - r1354 - Initial Public Release
-June 20th 2011 - r1240 - Initial Release
+Please refer to the CHANGELOG file.
+
 
 
