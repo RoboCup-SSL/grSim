@@ -15,7 +15,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#include "constants.h"
 #include "sslworld.h"
 
 #include <QtGlobal>
@@ -298,52 +298,36 @@ QImage* createNumber(int i,int r,int g,int b,int a)
 
 void SSLWorld::glinit()
 {
-    g->loadTexture(new QImage(":/Graphics/grass001.bmp"));
-    g->loadTexture(createBlob('b',0,&robots[0]->img));
-    g->loadTexture(createBlob('b',1,&robots[1]->img));
-    g->loadTexture(createBlob('b',2,&robots[2]->img));
-    g->loadTexture(createBlob('b',3,&robots[3]->img));
-    g->loadTexture(createBlob('b',4,&robots[4]->img));
-    g->loadTexture(createBlob('b',5,&robots[4]->img));
-    g->loadTexture(createBlob('y',0,&robots[5]->img));
-    g->loadTexture(createBlob('y',1,&robots[6]->img));
-    g->loadTexture(createBlob('y',2,&robots[7]->img));
-    g->loadTexture(createBlob('y',3,&robots[8]->img));
-    g->loadTexture(createBlob('y',4,&robots[9]->img));
-    g->loadTexture(createBlob('y',5,&robots[9]->img));
-    g->loadTexture(createNumber(0,15,193,225,255));
-    g->loadTexture(createNumber(1,15,193,225,255));
-    g->loadTexture(createNumber(2,15,193,225,255));
-    g->loadTexture(createNumber(3,15,193,225,255));
-    g->loadTexture(createNumber(4,15,193,225,255));
-    g->loadTexture(createNumber(5,15,193,225,255));
-    g->loadTexture(createNumber(0,0xff,0xff,0,255));
-    g->loadTexture(createNumber(1,0xff,0xff,0,255));
-    g->loadTexture(createNumber(2,0xff,0xff,0,255));
-    g->loadTexture(createNumber(3,0xff,0xff,0,255));
-    g->loadTexture(createNumber(4,0xff,0xff,0,255));
-    g->loadTexture(createNumber(5,0xff,0xff,0,255));
-    g->loadTexture(createNumber(0,15,193,225,100));
-    g->loadTexture(createNumber(1,15,193,225,100));
-    g->loadTexture(createNumber(2,15,193,225,100));
-    g->loadTexture(createNumber(3,15,193,225,100));
-    g->loadTexture(createNumber(4,15,193,225,100));
-    g->loadTexture(createNumber(5,15,193,225,100));
-    g->loadTexture(createNumber(0,0xff,0xff,0,100));
-    g->loadTexture(createNumber(1,0xff,0xff,0,100));
-    g->loadTexture(createNumber(2,0xff,0xff,0,100));
-    g->loadTexture(createNumber(3,0xff,0xff,0,100));
-    g->loadTexture(createNumber(4,0xff,0xff,0,100));
-    g->loadTexture(createNumber(5,0xff,0xff,0,100));
-    g->loadTexture(new QImage("../Graphics/sky/neg_x.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_x.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/neg_y.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_y.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/neg_z.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_z.bmp"));
-    g->loadTexture(new QImage("../Graphics/Wheel.png"));
-    //pos_y neg_x neg_y pos_x pos_z neg_z
-    p->glinit();
+  char team = '\0';
+
+  g->loadTexture(new QImage(":/Graphics/grass001.bmp"));
+
+  for (int i=0; i<ROBOT_COUNT*2; i++ ){
+    if ( i<(ROBOT_COUNT)) team = 'b'; else team = 'y';
+
+    // Loading Robot textures for each robot
+    g->loadTexture(createBlob(team,i%ROBOT_COUNT/2,&robots[i]->img));
+  }
+
+  for (int i=0; i<ROBOT_COUNT;i++)
+      g->loadTexture(createNumber(i,15,193,225,255));
+  for (int i=0; i<ROBOT_COUNT;i++)
+      g->loadTexture(createNumber(i,0xff,0xff,0,255));
+  for (int i=0; i<ROBOT_COUNT; i++)
+      g->loadTexture(createNumber(i,15,193,225,100));
+  for (int i=0; i<ROBOT_COUNT; i++)
+      g->loadTexture(createNumber(i,0xff,0xff,0,100));
+    
+  g->loadTexture(new QImage("../Graphics/sky/neg_x.bmp"));
+  g->loadTexture(new QImage("../Graphics/sky/pos_x.bmp"));
+  g->loadTexture(new QImage("../Graphics/sky/neg_y.bmp"));
+  g->loadTexture(new QImage("../Graphics/sky/pos_y.bmp"));
+  g->loadTexture(new QImage("../Graphics/sky/neg_z.bmp"));
+  g->loadTexture(new QImage("../Graphics/sky/pos_z.bmp"));
+  g->loadTexture(new QImage("../Graphics/Wheel.png"));
+  //pos_y neg_x neg_y pos_x pos_z neg_z
+  p->glinit();
+
 }
 
 void SSLWorld::step(dReal dt)
@@ -656,44 +640,44 @@ RobotsFomation::RobotsFomation(int type)
 {
     if (type==0)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25};
+        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33, 1.22};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25, 0.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==1)
     {
-        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7};
-        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0};
+        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7, 1.6};
+        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0, 0.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==2)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 2.1};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5, 0.7};
         setAll(teamPosX,teamPosY);
     }
     if (type==3)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.1};
+        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 6.2};
         setAll(teamPosX,teamPosY);
     }
     if (type==4)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1};
+        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5};
         setAll(teamPosX,teamPosY);
     }
     if (type==-1)
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7};
+        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 2.2};
+        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7, -2.7};
         setAll(teamPosX,teamPosY);
     }
     if (type==-2)
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3};
+        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 0.22};
+        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3, -2.3};
         setAll(teamPosX,teamPosY);
     }
 }
