@@ -187,11 +187,11 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
 
     cfg->robotSettings = cfg->blueSettings;
-    for (int k=0;k<6;k++)
+    for (int k=0;k<ROBOT_COUNT;k++)
         robots[k] = new Robot(p,ball,cfg,-form1->x[k],form1->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,wheeltexid,1);
     cfg->robotSettings = cfg->yellowSettings;
-    for (int k=0;k<6;k++)
-        robots[k+6] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
+    for (int k=0;k<ROBOT_COUNT;k++)
+        robots[k+ROBOT_COUNT] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+ROBOT_COUNT,wheeltexid,-1);
 
     p->initAllObjects();
 
@@ -306,7 +306,7 @@ void SSLWorld::glinit()
     if ( i<(ROBOT_COUNT)) team = 'b'; else team = 'y';
 
     // Loading Robot textures for each robot
-    g->loadTexture(createBlob(team,i%ROBOT_COUNT/2,&robots[i]->img));
+    g->loadTexture(createBlob(team,i%ROBOT_COUNT,&robots[i]->img));
   }
 
   for (int i=0; i<ROBOT_COUNT;i++)
