@@ -1,6 +1,13 @@
-This is an incomplete README file
+grSim
+=====
 
-*** Min System Requirements
+RoboCup Small Size World Simulator
+
+**This is an incomplete README file**
+
+
+Min System Requirements
+-----------------------
 
 grSim will likely run on a modern dual core PC running Ubuntu with good graphics card. Typical configuration is:
 
@@ -9,16 +16,22 @@ grSim will likely run on a modern dual core PC running Ubuntu with good graphics
 * 256MB nVidia or ATI graphics card
 * Ubuntu Linux 9.10+ 
 
-*** INSTALLATION
+
+Installation
+------------
 
 Please refer to INSTALL file.
 
-*** USAGE
+
+Usage
+-----
 
 Receiving data from grSim is exactly like receiving from SSL-Vision (http://code.google.com/p/ssl-vision) using Google Protobuf library
 Sending data to Simulator is also possible using Google Protobuf. A sample client is included in "client" folder. The compilation procedure is like grSim itself. There is also a Java client available in the client folder.
 
-*** Credits
+
+Credits
+-------
 
 grSim uses these libraries:
 
@@ -28,9 +41,9 @@ Open Dynamics Engine (ODE) - Included
 VarTypes Library - Included
 Google ProtoBuf - Included 
 
-*** Changelog
+
+Changelog
+---------
 
 Please refer to the CHANGELOG file.
-
-
 
