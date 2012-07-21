@@ -25,9 +25,9 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "logger.h"
 
-#include "proto/grSim_Packet.pb.h"
-#include "proto/grSim_Commands.pb.h"
-#include "proto/grSim_Replacement.pb.h"
+#include "grSim_Packet.pb.h"
+#include "grSim_Commands.pb.h"
+#include "grSim_Replacement.pb.h"
 
 
 #define ROBOT_GRAY 0.4

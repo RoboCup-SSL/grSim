@@ -33,7 +33,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "Physics/pfixedbox.h"
 #include "Physics/pray.h"
 
-#include "proto/robocup_ssl_server.h"
+#include "net/robocup_ssl_server.h"
 
 #include "robot.h"
 #include "configwidget.h"

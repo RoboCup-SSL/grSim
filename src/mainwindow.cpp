@@ -492,9 +492,7 @@ void MainWindow::reconnectVisionSocket()
     if (visionServer!=NULL)
         delete visionServer;
     visionServer = new RoboCupSSLServer(
-            #ifdef Q_OS_WIN32
-                m_parent,
-            #endif
+                //this,
                 configwidget->VisionMulticastPort(),configwidget->VisionMulticastAddr());
     visionServer->open();
 }
