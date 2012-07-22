@@ -11,7 +11,7 @@ Jan Segre <jan@segre.in>
 - Refactored folder structure.
 - Formatted READMEs with markdown.
 - Tested on MacOSX 64-bit Lion.
-- Still writing this changelog entry.
+- Fixing port reusing issue. (Mac only?)
 
 
 2011-09-03
