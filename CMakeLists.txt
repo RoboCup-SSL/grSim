@@ -142,3 +142,8 @@ add_executable(${app} MACOSX_BUNDLE
 
 target_link_libraries(${app} ${libs})
 
+option(BUILD_CLIENTS "Choose this option if you want to build the example Qt client." ON)
+if(BUILD_CLIENTS)
+    add_subdirectory(clients/qt)
+endif()
+
