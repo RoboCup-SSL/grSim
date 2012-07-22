@@ -489,12 +489,12 @@ void MainWindow::reconnectCommandSocket()
 
 void MainWindow::reconnectVisionSocket()
 {
-    if (visionServer!=NULL)
-        delete visionServer;
-    visionServer = new RoboCupSSLServer(
-                //this,
-                configwidget->VisionMulticastPort(),configwidget->VisionMulticastAddr());
-    visionServer->open();
+    if (visionServer == NULL) {
+        visionServer = new RoboCupSSLServer(this);
+    }
+    visionServer->change_address(configwidget->VisionMulticastAddr());
+    visionServer->change_port(configwidget->VisionMulticastPort());
+    logStatus(QString("Vision server connected on: %1").arg(configwidget->VisionMulticastPort()),QColor("green"));
 }
 
 void MainWindow::recvActions()

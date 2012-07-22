@@ -93,7 +93,7 @@ set(SOURCES
     src/robot.cpp
     src/Physics/pbox.cpp
     src/net/robocup_ssl_server.cpp
-    src/net/netraw.cpp
+    src/net/robocup_ssl_client.cpp
     src/Physics/pray.cpp
     src/configwidget.cpp
     src/statuswidget.cpp
@@ -116,8 +116,7 @@ set(HEADERS
     src/robot.h
     src/Physics/pbox.h
     src/net/robocup_ssl_server.h
-    src/net/netraw.h
-    src/net/util.h
+    src/net/robocup_ssl_client.h
     src/Physics/pray.h
     src/configwidget.h
     src/statuswidget.h
