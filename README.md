@@ -17,6 +17,18 @@ grSim will likely run on a modern dual core PC running Ubuntu with good graphics
 * Ubuntu Linux 9.10+ 
 
 
+Software Requirements
+---------------------
+
+grSim uses these libraries:
+
+- Nokia Qt 4.6+ (development libraries will be installed with libqt4-dev)
+- OpenGL (development libraries will be installed with libqt4-dev)
+- Open Dynamics Engine (ODE)
+- VarTypes Library
+- Google ProtoBuf
+
+
 Installation
 ------------
 
@@ -28,18 +40,6 @@ Usage
 
 Receiving data from grSim is exactly like receiving from SSL-Vision (http://code.google.com/p/ssl-vision) using Google Protobuf library
 Sending data to Simulator is also possible using Google Protobuf. A sample client is included in "client" folder. The compilation procedure is like grSim itself. There is also a Java client available in the client folder.
-
-
-Credits
--------
-
-grSim uses these libraries:
-
-Nokia Qt 4.6+ (development libraries will be installed with libqt4-dev)
-OpenGL (development libraries will be installed with libqt4-dev)
-Open Dynamics Engine (ODE) - Included 
-VarTypes Library - Included
-Google ProtoBuf - Included 
 
 
 Changelog
