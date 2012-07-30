@@ -127,7 +127,7 @@ set(HEADERS
 )
 
 file(GLOB CONFIG_FILES "config/*.ini")
-set_source_files_properties(${CONFIG_FILES}  PROPERTIES MACOSX_PACKAGE_LOCATION "config/")
+set_source_files_properties(${CONFIG_FILES}  PROPERTIES MACOSX_PACKAGE_LOCATION "config")
 
 set(app grSim)
 
