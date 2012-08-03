@@ -38,7 +38,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "robot.h"
 #include "configwidget.h"
 
-#define ROBOT_COUNT 5
+#include "config.h"
 
 class RobotsFomation;
 class SendingPacket {

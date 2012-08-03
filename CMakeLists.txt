@@ -124,6 +124,7 @@ set(HEADERS
     src/robotwidget.h
     src/getpositionwidget.h
     src/common.h
+    src/config.h
 )
 
 file(GLOB CONFIG_FILES "config/*.ini")

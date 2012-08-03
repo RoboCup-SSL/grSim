@@ -87,7 +87,7 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
     dGeomID obj;
     if (o1==_w->ray->geom) obj = o2;
     else obj = o1;
-    for (int i=0;i<10;i++)
+    for (int i=0;i<ROBOT_COUNT * 2;i++)
     {
         if (_w->robots[i]->chassis->geom==obj || _w->robots[i]->dummy->geom==obj)
         {
@@ -187,11 +187,11 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
 
     cfg->robotSettings = cfg->blueSettings;
-    for (int k=0;k<5;k++)
+    for (int k=0;k<ROBOT_COUNT;k++)
         robots[k] = new Robot(p,ball,cfg,-form1->x[k],form1->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,wheeltexid,1);
     cfg->robotSettings = cfg->yellowSettings;
-    for (int k=0;k<5;k++)
-        robots[k+5] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
+    for (int k=0;k<ROBOT_COUNT;k++)
+        robots[k+ROBOT_COUNT] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+ROBOT_COUNT,wheeltexid,-1);
 
     p->initAllObjects();
 
@@ -199,7 +199,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
     p->createSurface(ray,ground)->callback = rayCallback;
     p->createSurface(ray,ball)->callback = rayCallback;
-    for (int k=0;k<10;k++)
+    for (int k=0;k<ROBOT_COUNT * 2;k++)
     {
         p->createSurface(ray,robots[k]->chassis)->callback = rayCallback;
         p->createSurface(ray,robots[k]->dummy)->callback = rayCallback;
@@ -222,7 +222,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     ballwithkicker.surface.slip1 = 5;
     for (int i=0;i<10;i++)
         p->createSurface(ball,walls[i])->surface = ballwithwall.surface;
-    for (int k=0;k<10;k++)
+    for (int k=0;k<ROBOT_COUNT * 2;k++)
     {
         p->createSurface(robots[k]->chassis,ground);
         for (int j=0;j<10;j++)
@@ -238,7 +238,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
             w_g->usefdir1=true;
             w_g->callback=wheelCallBack;
         }
-        for (int j=k+1;j<10;j++)
+        for (int j=k+1;j<ROBOT_COUNT;j++)
         {            
             if (k!=j)
             {
@@ -299,37 +299,26 @@ QImage* createNumber(int i,int r,int g,int b,int a)
 
 void SSLWorld::glinit()
 {
+    char team = '\0';
+
     g->loadTexture(new QImage(":/Graphics/grass001.bmp"));
-    g->loadTexture(createBlob('b',0,&robots[0]->img));
-    g->loadTexture(createBlob('b',1,&robots[1]->img));
-    g->loadTexture(createBlob('b',2,&robots[2]->img));
-    g->loadTexture(createBlob('b',3,&robots[3]->img));
-    g->loadTexture(createBlob('b',4,&robots[4]->img));
-    g->loadTexture(createBlob('y',0,&robots[5]->img));
-    g->loadTexture(createBlob('y',1,&robots[6]->img));
-    g->loadTexture(createBlob('y',2,&robots[7]->img));
-    g->loadTexture(createBlob('y',3,&robots[8]->img));
-    g->loadTexture(createBlob('y',4,&robots[9]->img));
-    g->loadTexture(createNumber(0,15,193,225,255));
-    g->loadTexture(createNumber(1,15,193,225,255));
-    g->loadTexture(createNumber(2,15,193,225,255));
-    g->loadTexture(createNumber(3,15,193,225,255));
-    g->loadTexture(createNumber(4,15,193,225,255));
-    g->loadTexture(createNumber(0,0xff,0xff,0,255));
-    g->loadTexture(createNumber(1,0xff,0xff,0,255));
-    g->loadTexture(createNumber(2,0xff,0xff,0,255));
-    g->loadTexture(createNumber(3,0xff,0xff,0,255));
-    g->loadTexture(createNumber(4,0xff,0xff,0,255));
-    g->loadTexture(createNumber(0,15,193,225,100));
-    g->loadTexture(createNumber(1,15,193,225,100));
-    g->loadTexture(createNumber(2,15,193,225,100));
-    g->loadTexture(createNumber(3,15,193,225,100));
-    g->loadTexture(createNumber(4,15,193,225,100));
-    g->loadTexture(createNumber(0,0xff,0xff,0,100));
-    g->loadTexture(createNumber(1,0xff,0xff,0,100));
-    g->loadTexture(createNumber(2,0xff,0xff,0,100));
-    g->loadTexture(createNumber(3,0xff,0xff,0,100));
-    g->loadTexture(createNumber(4,0xff,0xff,0,100));
+
+    for (int i=0; i<ROBOT_COUNT*2; i++ ){
+      if ( i<(ROBOT_COUNT)) team = 'b'; else team = 'y';
+
+      // Loading Robot textures for each robot
+      g->loadTexture(createBlob(team,i%ROBOT_COUNT,&robots[i]->img));
+    }
+
+    for (int i=0; i<ROBOT_COUNT;i++)
+        g->loadTexture(createNumber(i,15,193,225,255));
+    for (int i=0; i<ROBOT_COUNT;i++)
+        g->loadTexture(createNumber(i,0xff,0xff,0,255));
+    for (int i=0; i<ROBOT_COUNT; i++)
+        g->loadTexture(createNumber(i,15,193,225,100));
+    for (int i=0; i<ROBOT_COUNT; i++)
+        g->loadTexture(createNumber(i,0xff,0xff,0,100));
+
     g->loadTexture(new QImage("../Graphics/sky/neg_x.bmp"));
     g->loadTexture(new QImage("../Graphics/sky/pos_x.bmp"));
     g->loadTexture(new QImage("../Graphics/sky/neg_y.bmp"));
@@ -391,7 +380,7 @@ void SSLWorld::step(dReal dt)
                 +(by-xyz[1])*(by-xyz[1])
                 +(bz-xyz[2])*(bz-xyz[2]);
     }
-    for (int k=0;k<10;k++)
+    for (int k=0;k<ROBOT_COUNT * 2;k++)
     {
         if (robots[k]->selected)
         {
@@ -409,7 +398,7 @@ void SSLWorld::step(dReal dt)
     if (best_k>=0) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
     selected = best_k;
     ball->tag = -1;
-    for (int k=0;k<10;k++)
+    for (int k=0;k<ROBOT_COUNT * 2;k++)
     {
         robots[k]->step();
         robots[k]->selected = false;
@@ -672,44 +661,44 @@ RobotsFomation::RobotsFomation(int type)
 {
     if (type==0)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25};
+        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33, 1.22};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25, 0.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==1)
     {
-        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7};
-        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0};
+        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7, 1.6};
+        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0, 0.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==2)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 2.1};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5, 0.7};
         setAll(teamPosX,teamPosY);
     }
     if (type==3)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.1};
+        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 6.2};
         setAll(teamPosX,teamPosY);
     }
     if (type==4)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1};
+        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5};
         setAll(teamPosX,teamPosY);
     }
     if (type==-1)
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7};
+        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 2.2};
+        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7, -2.7};
         setAll(teamPosX,teamPosY);
     }
     if (type==-2)
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3};
+        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 0.22};
+        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3, -2.3};
         setAll(teamPosX,teamPosY);
     }
 }
