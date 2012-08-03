@@ -107,10 +107,14 @@ public:
   RobotSettings blueSettings;
   RobotSettings yellowSettings;
 
+  DEF_VALUE(double,Double,Field_Line_Width)
   DEF_VALUE(double,Double,Field_Length)
   DEF_VALUE(double,Double,Field_Width)
   DEF_VALUE(double,Double,Field_Rad)
-  DEF_VALUE(double,Double,Field_Penalty_Rad)
+  DEF_VALUE(double,Double,Field_Defense_Rad)
+  DEF_VALUE(double,Double,Field_Defense_Stretch)
+  DEF_VALUE(double,Double,Field_Free_Kick)
+  DEF_VALUE(double,Double,Field_Penalty_Rad)//TODO: what's this??
   DEF_VALUE(double,Double,Field_Penalty_Line)
   DEF_VALUE(double,Double,Field_Penalty_Point)
   DEF_VALUE(double,Double,Field_Margin)
@@ -134,6 +138,7 @@ public:
   DEF_VALUE(bool,Bool,SyncWithGL)
   DEF_VALUE(double,Double,DesiredFPS)
   DEF_VALUE(double,Double,DeltaTime)
+  DEF_VALUE(int,Int,sendGeometryEvery)
   DEF_VALUE(double,Double,Gravity)
   DEF_VALUE(std::string,String,VisionMulticastAddr)  
   DEF_VALUE(int,Int,VisionMulticastPort)  

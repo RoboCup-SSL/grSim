@@ -82,8 +82,9 @@ public:
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
     bool updatedCursor;
-    Robot* robots[ROBOT_COUNT*2];    
-    QTime *timer;    
+    Robot* robots[ROBOT_COUNT*2];
+    QTime *timer;
+    int sendGeomCount;
 public slots:
     void recvActions();
 signals:

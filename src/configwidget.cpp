@@ -43,9 +43,13 @@ ConfigWidget::ConfigWidget()
     VarListPtr field_vars(new VarList("Field"));
 
     geo_vars->addChild(field_vars);
-        ADD_VALUE(field_vars,Double,Field_Length,6.05,"Length")
-        ADD_VALUE(field_vars,Double,Field_Width,4.05,"Width")
-        ADD_VALUE(field_vars,Double,Field_Rad,0.5,"Radius")
+        ADD_VALUE(field_vars,Double,Field_Line_Width,0.05,"Length")
+        ADD_VALUE(field_vars,Double,Field_Length,6.00,"Length")
+        ADD_VALUE(field_vars,Double,Field_Width,4.00,"Width")
+        ADD_VALUE(field_vars,Double,Field_Rad,0.50,"Radius")
+        ADD_VALUE(field_vars,Double,Field_Defense_Rad,0.50,"Defense Radius")
+        ADD_VALUE(field_vars,Double,Field_Defense_Stretch,0.35,"Defense Stretch")
+        ADD_VALUE(field_vars,Double,Field_Free_Kick,0.70,"Free Kick Distanse From Defense Area")
         ADD_VALUE(field_vars,Double,Field_Penalty_Rad,0.50,"Penalty radius")
         ADD_VALUE(field_vars,Double,Field_Penalty_Line,0.350,"Penalty line length")
         ADD_VALUE(field_vars,Double,Field_Penalty_Point,0.450,"Penalty point")
@@ -89,6 +93,7 @@ ConfigWidget::ConfigWidget()
     ADD_VALUE(comm_vars,Int,BlueStatusSendPort,30011,"Blue Team status send port")
     ADD_VALUE(comm_vars,Int,YellowStatusSendPort,30012,"Yellow Team status send port")
     ADD_VALUE(comm_vars,Int,sendDelay,0,"Sending delay (milliseconds)")
+    ADD_VALUE(comm_vars,Int,sendGeometryEvery,120,"Send geometry every X frames")
     VarListPtr gauss_vars(new VarList("Gaussian noise"));
         comm_vars->addChild(gauss_vars);
         ADD_VALUE(gauss_vars,Bool,noise,false,"Noise")
