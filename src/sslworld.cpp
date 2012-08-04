@@ -149,21 +149,32 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
     ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),0);
     ray = new PRay(50);
-    walls[0] = new PFixedBox(0.0,((cfg->Field_Width() + cfg->Field_Margin()) / 2.0) + (cfg->Wall_Thickness() / 2.0),0.0
-                             ,(cfg->Field_Length() + cfg->Field_Margin()) / 1.0, cfg->Wall_Thickness() / 1.0, 0.4,
-                             0.7, 0.7, 0.7);
+    
+    const double thick = cfg->Wall_Thickness();
+    const double increment = cfg->Field_Margin() + cfg->Field_Referee_Margin() + thick / 2;
+    const double pos_x = cfg->Field_Length() / 2.0 + increment;
+    const double pos_y = cfg->Field_Width() / 2.0 + increment;
+    const double pos_z = 0.0;
+    const double siz_x = 2.0 * pos_x;
+    const double siz_y = 2.0 * pos_y;
+    const double siz_z = 0.4;
+    const double tone = 0.9;
+    
+    walls[0] = new PFixedBox(thick/2, pos_y, pos_z,
+                             siz_x, thick, siz_z,
+                             tone, tone, tone);
 
-    walls[1] = new PFixedBox(0.0,((cfg->Field_Width() + cfg->Field_Margin()) / -2.0) - (cfg->Wall_Thickness() / 2.0) - cfg->Field_Referee_Margin() / 1.0,0.0,
-                             (cfg->Field_Length() + cfg->Field_Margin()) / 1.0, cfg->Wall_Thickness() / 1.0, 0.4,
-                             0.7, 0.7, 0.7);
+    walls[1] = new PFixedBox(-thick/2, -pos_y, pos_z,
+                             siz_x, thick, siz_z,
+                             tone, tone, tone);
+    
+    walls[2] = new PFixedBox(pos_x, -thick/2, pos_z,
+                             thick, siz_y, siz_z,
+                             tone, tone, tone);
 
-    walls[2] = new PFixedBox(((cfg->Field_Length() + cfg->Field_Margin()) / 2.0) + (cfg->Wall_Thickness() / 2.0),-cfg->Field_Referee_Margin()/2.f ,0.0,
-                             cfg->Wall_Thickness() / 1.0 ,(cfg->Field_Width() + cfg->Field_Margin() + cfg->Field_Referee_Margin()) / 1.0, 0.4,
-                             0.7, 0.7, 0.7);
-
-    walls[3] = new PFixedBox(((cfg->Field_Length() + cfg->Field_Margin()) / -2.0) - (cfg->Wall_Thickness() / 2.0) ,-cfg->Field_Referee_Margin()/2.f ,0.0,
-                             cfg->Wall_Thickness() / 1.0 , (cfg->Field_Width() + cfg->Field_Margin() + cfg->Field_Referee_Margin()) / 1.0, 0.4,
-                             0.7, 0.7, 0.7);
+    walls[3] = new PFixedBox(-pos_x, thick/2, pos_z,
+                             thick, siz_y, siz_z,
+                             tone, tone, tone);
 
     walls[4] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth() + cfg->Goal_Thickness()*0.5f ,0.0, 0.0
                              , cfg->Goal_Thickness(), cfg->Goal_Width() + cfg->Goal_Thickness()*2.0f, cfg->Goal_Height() , 0.1, 0.9, 0.4);
