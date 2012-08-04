@@ -148,8 +148,10 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p = new PWorld(0.05,9.81f,g);
     ball = new PBall (0,0,0.5,cfg->BallRadius(),cfg->BallMass(), 1,0.7,0);
 
-    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),0);
+    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),cfg->Field_Defense_Stretch(),cfg->Field_Defense_Rad(),0);
     ray = new PRay(50);
+    
+    // Bounding walls
     
     const double thick = cfg->Wall_Thickness();
     const double increment = cfg->Field_Margin() + cfg->Field_Referee_Margin() + thick / 2;
@@ -176,6 +178,8 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     walls[3] = new PFixedBox(-pos_x, thick/2, pos_z,
                              thick, siz_y, siz_z,
                              tone, tone, tone);
+    
+    // Goal walls
     
     const double gthick = cfg->Goal_Thickness();
     const double gpos_x = (cfg->Field_Length() + gthick) / 2.0 + cfg->Goal_Depth();

@@ -625,90 +625,177 @@ void CGraphics::drawGround()
   resetState();
 }
 
-void CGraphics::drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY,dReal SSL_FIELD_LINE_LENGTH,dReal SSL_FIELD_PENALTY_POINT,dReal epsilon)
+void CGraphics::drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY_RADIUS,dReal SSL_FIELD_PENALTY_LINE,dReal SSL_FIELD_PENALTY_POINT, dReal SSL_FIELD_LINE_WIDTH, dReal SSL_FIELD_DEFENSE_STRETCH, dReal SSL_FIELD_DEFENSE_RADIUS, dReal epsilon)
 {
     if (graphicDisabled) return;
-    dReal angle,x,y,z;
-    dReal radx = (SSL_FIELD_PENALTY) / ( SSL_FIELD_LENGTH / 2.0);
-    dReal radz = (SSL_FIELD_PENALTY) / ( SSL_FIELD_WIDTH / 2.0);
-    dReal penaltyx = SSL_FIELD_PENALTY_POINT / (SSL_FIELD_LENGTH / 2.0);
+    dReal angle;
+    dReal fw = SSL_FIELD_LENGTH / 2.0;
+    dReal fh = SSL_FIELD_WIDTH / 2.0;
+    dReal lw = SSL_FIELD_LINE_WIDTH;
+    dReal rad = SSL_FIELD_RAD;
+    dReal drad = SSL_FIELD_DEFENSE_RADIUS;
+    dReal ds = SSL_FIELD_DEFENSE_STRETCH / 2.0;
+    dReal penx = SSL_FIELD_PENALTY_POINT;
+
+    glEnable(GL_DEPTH_TEST);
     glPushMatrix();
-            glScaled(SSL_FIELD_LENGTH / 2.0 ,  SSL_FIELD_WIDTH / 2.0,1);
+    glScaled(1.0, 1.0, 1);
+    //glScaled(SSL_FIELD_LENGTH / 2.0 ,  SSL_FIELD_WIDTH / 2.0,1);
+    glColor3f(1.0f,1.0f,1.0f);
 
-            GLfloat sizes[2];  // Store supported line width range
-            GLfloat step;     // Store supported line width increments
-            // Get supported line width range and step size
-            glGetFloatv(GL_LINE_WIDTH_RANGE,sizes);
-            glGetFloatv(GL_LINE_WIDTH_GRANULARITY,&step);
-            dReal fCurrSize = sizes[0];
+    //Field rectangle
 
-            glLineWidth(fCurrSize * 5);
-            glBegin(GL_LINE_LOOP);
-                    glColor3f(1.0f,1.0f,1.0f);
-                    //glNormal3f(0, 1, 0);
-                    glVertex3f(1,  1, epsilon);
-                    glVertex3f(1,  -1 , epsilon);
-                    glVertex3f(-1, -1 , epsilon);
-                    glVertex3f(-1, 1 , epsilon);
-            glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f( fw - lw,  fh     , epsilon);
+    glVertex3f( fw - lw, -fh + lw, epsilon);
+    glVertex3f( fw     , -fh + lw, epsilon);
+    glVertex3f( fw     ,  fh     , epsilon);
+    glEnd();
 
-            glBegin(GL_LINES);
-                    glColor3f(1.0f,1.0f,1.0f);
-                    glVertex3f(0.0, 1.0 , epsilon);
-                    glVertex3f(0.0, -1.0, epsilon );
-            glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f( fw     , -fh + lw, epsilon);
+    glVertex3f(-fw + lw, -fh + lw, epsilon);
+    glVertex3f(-fw + lw, -fh     , epsilon);
+    glVertex3f( fw     , -fh     , epsilon);
+    glEnd();
 
-            glBegin(GL_LINE_LOOP);
-                    z = epsilon;
-                    for(angle = 0.0f; angle <= 2.0 * M_PI; angle += (M_PI/20.0f))
-                      {
-                              x = radx * sin(angle);
-                              y = radz * cos(angle);
-                              glVertex3f(x, y, z);
-                      }
-            glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f(-fw + lw, -fh     , epsilon);
+    glVertex3f(-fw + lw,  fh - lw, epsilon);
+    glVertex3f(-fw     ,  fh - lw, epsilon);
+    glVertex3f(-fw     , -fh     , epsilon);
+    glEnd();
 
-            dReal h = SSL_FIELD_LINE_LENGTH / SSL_FIELD_WIDTH;
+    glBegin(GL_QUADS);
+    glVertex3f( fw - lw,  fh - lw, epsilon);
+    glVertex3f( fw - lw,  fh     , epsilon);
+    glVertex3f(-fw     ,  fh     , epsilon);
+    glVertex3f(-fw     ,  fh - lw, epsilon);
+    glEnd();
 
-            glBegin(GL_LINE_LOOP);
-                    z = epsilon;
-                    for(angle = 0.0f; angle <=  M_PI*0.5; angle += (M_PI/20.0f))
-                      {
-                              x = -1.0 + (radx * sin(angle));
-                              y = radz * cos(angle) + h*0.5f;
-                              glVertex3f(x, y, z);
-                      }
-                    for(angle = M_PI*0.5; angle >=  0.0f; angle -= (M_PI/20.0f))
-                      {
-                              x = -1.0 + (radx * sin(angle));
-                              y = -radz * cos(angle) - h*0.5f;
-                              glVertex3f(x, y, z);
-                      }
-                    glVertex3f(-1.0f,-h-radz,z);
-            glEnd();
+    //Middle line
 
-            glBegin(GL_LINE_LOOP);
-                    z = epsilon;
-                    for(angle = 0.0f; angle <=  M_PI*0.5; angle += (M_PI/20.0f))
-                      {
-                              x = 1.0 - (radx * sin(angle));
-                              y = radz * cos(angle) + h*0.5f;
-                              glVertex3f(x, y, z);
-                      }
-                    for(angle = M_PI*0.5; angle >= 0.0 ; angle -= (M_PI/20.0f))
-                      {
-                              x = 1.0 - (radx * sin(angle));
-                              y = -radz * cos(angle) - h*0.5f;
-                              glVertex3f(x, y, z);
-                      }
-                    glVertex3f(1.0f,-h-radz,z);
-            glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f( lw / 2,  fh - lw, epsilon);
+    glVertex3f(-lw / 2,  fh - lw, epsilon);
+    glVertex3f(-lw / 2, -fh + lw, epsilon);
+    glVertex3f( lw / 2, -fh + lw, epsilon);
+    glEnd();
 
-            drawCircle(-1+penaltyx,0,epsilon,0.005);
-            drawCircle(+1-penaltyx,0,epsilon,0.005);
-            glLineWidth(fCurrSize);
+    //Middle circle
+
+    const float anglestep = M_PI/20.f;
+    float cos1, cos2, sin1, sin2;
+
+    cos1 = cos(-anglestep);
+    sin1 = sin(-anglestep);
+    for(angle = 0.0f; angle <= 2 * M_PI; angle += anglestep) {
+        cos2 = cos(angle);
+        sin2 = sin(angle);
+
+        glBegin(GL_QUADS);
+        glVertex3f(cos1 * (rad - lw), sin1 * (rad - lw), epsilon);
+        glVertex3f(cos1 * rad       , sin1 * rad       , epsilon);
+        glVertex3f(cos2 * rad       , sin2 * rad       , epsilon);
+        glVertex3f(cos2 * (rad - lw), sin2 * (rad - lw), epsilon);
+        glEnd();
+
+        cos1 = cos2;
+        sin1 = sin2;
+    }
+
+    //Left defense area
+
+    cos1 = 0.0f, sin1 = -1.0f;
+    for(angle = -M_PI / 2.0 + anglestep; angle < anglestep; angle += anglestep) {
+        cos2 = cos(angle);
+        sin2 = sin(angle);
+
+        glBegin(GL_QUADS);
+        glVertex3f(-fw + cos1 * (drad - lw), -ds + sin1 * (drad - lw), epsilon);
+        glVertex3f(-fw + cos1 * drad       , -ds + sin1 * drad       , epsilon);
+        glVertex3f(-fw + cos2 * drad       , -ds + sin2 * drad       , epsilon);
+        glVertex3f(-fw + cos2 * (drad - lw), -ds + sin2 * (drad - lw), epsilon);
+        glEnd();
+
+        cos1 = cos2;
+        sin1 = sin2;
+    }
+
+    glBegin(GL_QUADS);
+    glVertex3f(-fw + drad     ,  ds, epsilon);
+    glVertex3f(-fw + drad - lw,  ds, epsilon);
+    glVertex3f(-fw + drad - lw, -ds, epsilon);
+    glVertex3f(-fw + drad     , -ds, epsilon);
+    glEnd();
+
+    for(; angle < M_PI / 2.0 + anglestep; angle += anglestep) {
+        cos2 = cos(angle);
+        sin2 = sin(angle);
+
+        glBegin(GL_QUADS);
+        glVertex3f(-fw + cos1 * (drad - lw), ds + sin1 * (drad - lw), epsilon);
+        glVertex3f(-fw + cos1 * drad       , ds + sin1 * drad       , epsilon);
+        glVertex3f(-fw + cos2 * drad       , ds + sin2 * drad       , epsilon);
+        glVertex3f(-fw + cos2 * (drad - lw), ds + sin2 * (drad - lw), epsilon);
+        glEnd();
+
+        cos1 = cos2;
+        sin1 = sin2;
+    }
+
+    //Right defense area
+
+    for(; angle < M_PI + anglestep; angle += anglestep) {
+        cos2 = cos(angle);
+        sin2 = sin(angle);
+
+        glBegin(GL_QUADS);
+        glVertex3f(fw + cos1 * (drad - lw), ds + sin1 * (drad - lw), epsilon);
+        glVertex3f(fw + cos1 * drad       , ds + sin1 * drad       , epsilon);
+        glVertex3f(fw + cos2 * drad       , ds + sin2 * drad       , epsilon);
+        glVertex3f(fw + cos2 * (drad - lw), ds + sin2 * (drad - lw), epsilon);
+        glEnd();
+
+        cos1 = cos2;
+        sin1 = sin2;
+    }
+
+    glBegin(GL_QUADS);
+    glVertex3f(fw - drad     , -ds, epsilon);
+    glVertex3f(fw - drad + lw, -ds, epsilon);
+    glVertex3f(fw - drad + lw,  ds, epsilon);
+    glVertex3f(fw - drad     ,  ds, epsilon);
+    glEnd();
+
+    for(; angle < 1.5 * M_PI + anglestep; angle += anglestep) {
+        cos2 = cos(angle);
+        sin2 = sin(angle);
+
+        glBegin(GL_QUADS);
+        glVertex3f(fw + cos1 * (drad - lw), -ds + sin1 * (drad - lw), epsilon);
+        glVertex3f(fw + cos1 * drad       , -ds + sin1 * drad       , epsilon);
+        glVertex3f(fw + cos2 * drad       , -ds + sin2 * drad       , epsilon);
+        glVertex3f(fw + cos2 * (drad - lw), -ds + sin2 * (drad - lw), epsilon);
+        glEnd();
+
+        cos1 = cos2;
+        sin1 = sin2;
+    }
+
+    //Penalty spots
+
+    glBegin(GL_POLYGON);
+    for(angle=0.0f; angle <= 2.0 * M_PI; angle+=anglestep)
+        glVertex3f(-fw + penx + cos(angle) * lw, 0.0f + sin(angle) * lw, epsilon);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    for(angle=0.0f; angle <= 2.0 * M_PI; angle+=anglestep)
+        glVertex3f(fw - penx + cos(angle) * lw, 0.0f + sin(angle) * lw, epsilon);
+    glEnd();
+
     glPopMatrix();
-
 }
 
 void CGraphics::_drawBox (const dReal sides[3])
