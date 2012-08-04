@@ -158,7 +158,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     const double siz_x = 2.0 * pos_x;
     const double siz_y = 2.0 * pos_y;
     const double siz_z = 0.4;
-    const double tone = 0.9;
+    const double tone = 1.0;
     
     walls[0] = new PFixedBox(thick/2, pos_y, pos_z,
                              siz_x, thick, siz_z,
@@ -175,20 +175,40 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     walls[3] = new PFixedBox(-pos_x, thick/2, pos_z,
                              thick, siz_y, siz_z,
                              tone, tone, tone);
+    
+    const double gthick = cfg->Goal_Thickness();
+    const double gpos_x = (cfg->Field_Length() + gthick) / 2.0 + cfg->Goal_Depth();
+    const double gpos_y = (cfg->Goal_Width() + gthick) / 2.0;
+    const double gpos_z = cfg->Goal_Height() / 2.0;
+    const double gsiz_x = cfg->Goal_Depth() + gthick;
+    const double gsiz_y = cfg->Goal_Width();
+    const double gsiz_z = cfg->Goal_Height();
+    const double gpos2_x = (cfg->Field_Length() + gsiz_x) / 2.0;
 
-    walls[4] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth() + cfg->Goal_Thickness()*0.5f ,0.0, 0.0
-                             , cfg->Goal_Thickness(), cfg->Goal_Width() + cfg->Goal_Thickness()*2.0f, cfg->Goal_Height() , 0.1, 0.9, 0.4);
-    walls[5] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5,-cfg->Goal_Width()*0.5f - cfg->Goal_Thickness()*0.5f,0.0
-                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height(), 0.1, 0.9, 0.4);
-    walls[6] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5,cfg->Goal_Width()*0.5f + cfg->Goal_Thickness()*0.5f, 0.0
-                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height(), 0.1, 0.9, 0.4);
+    walls[4] = new PFixedBox(gpos_x, 0.0, gpos_z,
+                             gthick, gsiz_y, gsiz_z,
+                             tone, tone, tone);
+    
+    walls[5] = new PFixedBox(gpos2_x, -gpos_y, gpos_z,
+                             gsiz_x, gthick, gsiz_z,
+                             tone, tone, tone);
+    
+    walls[6] = new PFixedBox(gpos2_x, gpos_y, gpos_z,
+                             gsiz_x, gthick, gsiz_z,
+                             tone, tone, tone);
 
-    walls[7] = new PFixedBox(- (( cfg->Field_Length() / 2.0) + cfg->Goal_Depth() + cfg->Goal_Thickness()*0.5f) ,0.0, 0.0
-                             , cfg->Goal_Thickness(), cfg->Goal_Width() + cfg->Goal_Thickness()*2.0f, cfg->Goal_Height() , 0.1, 0.9, 0.4);
-    walls[8] = new PFixedBox(- (( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5),-cfg->Goal_Width()*0.5f- cfg->Goal_Thickness()*0.5f,0.0
-                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
-    walls[9] = new PFixedBox( -(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5),cfg->Goal_Width()*0.5f+ cfg->Goal_Thickness()*0.5f, 0.0
-                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
+    walls[7] = new PFixedBox(-gpos_x, 0.0, gpos_z,
+                             gthick, gsiz_y, gsiz_z,
+                             tone, tone, tone);
+    
+    walls[8] = new PFixedBox(-gpos2_x, -gpos_y, gpos_z,
+                             gsiz_x, gthick, gsiz_z,
+                             tone, tone, tone);
+    
+    walls[9] = new PFixedBox(-gpos2_x, gpos_y, gpos_z,
+                             gsiz_x, gthick, gsiz_z,
+                             tone, tone, tone);
+    
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
