@@ -31,6 +31,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 
 #define ROBOT_GRAY 0.4
+#define WHEEL_COUNT 4
 
 SSLWorld* _w;
 dReal randn_notrig(dReal mu=0.0, dReal sigma=1.0);
@@ -251,17 +252,19 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     ballwithkicker.surface.mode = dContactApprox1;
     ballwithkicker.surface.mu = fric(cfg->robotSettings.Kicker_Friction);
     ballwithkicker.surface.slip1 = 5;
-    for (int i=0;i<10;i++)
-        p->createSurface(ball,walls[i])->surface = ballwithwall.surface;
-    for (int k=0;k<ROBOT_COUNT * 2;k++)
+    
+    for (int i = 0; i < WALL_COUNT; i++)
+        p->createSurface(ball, walls[i])->surface = ballwithwall.surface;
+    
+    for (int k = 0; k < 2 * ROBOT_COUNT; k++)
     {
         p->createSurface(robots[k]->chassis,ground);
-        for (int j=0;j<10;j++)
+        for (int j = 0; j < WALL_COUNT; j++)
             p->createSurface(robots[k]->chassis,walls[j]);
         p->createSurface(robots[k]->dummy,ball);
         //p->createSurface(robots[k]->chassis,ball);
         p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
-        for (int j=0;j<4;j++)
+        for (int j = 0; j < WHEEL_COUNT; j++)
         {
             p->createSurface(robots[k]->wheels[j]->cyl,ball);
             PSurface* w_g = p->createSurface(robots[k]->wheels[j]->cyl,ground);
@@ -269,9 +272,9 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
             w_g->usefdir1=true;
             w_g->callback=wheelCallBack;
         }
-        for (int j=k+1;j<ROBOT_COUNT;j++)
+        for (int j = k + 1; j < 2 * ROBOT_COUNT; j++)
         {            
-            if (k!=j)
+            if (k != j)
             {
                 p->createSurface(robots[k]->dummy,robots[j]->dummy); //seams ode doesn't understand cylinder-cylinder contacts, so I used spheres
                 p->createSurface(robots[k]->chassis,robots[j]->kicker->box);

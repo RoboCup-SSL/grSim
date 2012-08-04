@@ -40,6 +40,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "config.h"
 
+#define WALL_COUNT 10
+
 class RobotsFomation;
 class SendingPacket {
     public:
@@ -73,7 +75,7 @@ public:
     PBall* ball;
     PGround* ground;
     PRay* ray;
-    PFixedBox* walls[10];
+    PFixedBox* walls[WALL_COUNT];
     int selected;
     bool show3DCursor;
     dReal cursor_x,cursor_y,cursor_z;
