@@ -355,8 +355,8 @@ void SSLWorld::glinit()
     // Loading sky textures
     // XXX: for some reason they are loaded twice otherwise the wheel texture is wrong
     for (int i=0; i<6; i++) {
-        g->loadTexture(new QImage(QString(":/sky/neg_%1").arg(i%3==0?'x':i%3==1?'y':'z')+QString(".bmp")));
-        g->loadTexture(new QImage(QString(":/sky/pos_%1").arg(i%3==0?'x':i%3==1?'y':'z')+QString(".bmp")));
+        g->loadTexture(new QImage(QString(":/sky/neg_%1").arg(i%3==0?'x':i%3==1?'y':'z')+QString(".jpg")));
+        g->loadTexture(new QImage(QString(":/sky/pos_%1").arg(i%3==0?'x':i%3==1?'y':'z')+QString(".jpg")));
     }
 
     // The wheel texture
