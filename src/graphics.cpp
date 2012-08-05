@@ -584,7 +584,7 @@ void CGraphics::drawSky ()
   glVertex3f (ssize+view_xyz[0],-ssize+view_xyz[1],z);
   glEnd();
 
-  if (offset > 1) offset -= 1;
+  //if (offset > 1) offset -= 1;//never read
 
   glDepthFunc (GL_LESS);
   glDepthRange (0,1);
@@ -1139,7 +1139,6 @@ void CGraphics::_drawCylinder_TopTextured (dReal l, dReal r, dReal zoffset,int t
 
   // draw cylinder body
   ny=1; nz=0;		  // normal vector = (0,ny,nz)
-  dReal nny,nnz;
   glBegin (GL_TRIANGLE_STRIP);
   for (i=0; i<=n; i++) {
       if ((i>2 && i<n-2) || (!robot)) {

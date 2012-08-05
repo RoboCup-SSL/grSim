@@ -53,16 +53,17 @@ bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
 {
     //s->id2 is ground
     const dReal* r; //wheels rotation matrix
-    const dReal* p; //wheels rotation matrix
-    if ((o1==s->id1) && (o2==s->id2))
-    {
+    //const dReal* p; //wheels rotation matrix
+    if ((o1==s->id1) && (o2==s->id2)) {
         r=dBodyGetRotation(dGeomGetBody(o1));
-        p=dGeomGetPosition(o1);
-    }
-    if ((o1==s->id2) && (o2==s->id1))
-    {
+        //p=dGeomGetPosition(o1);//never read
+    } else if ((o1==s->id2) && (o2==s->id1)) {
         r=dBodyGetRotation(dGeomGetBody(o2));
-        p=dGeomGetPosition(o2);
+        //p=dGeomGetPosition(o2);//never read
+    } else {
+        //XXX: in this case we dont have the rotation
+        //     matrix, thus we must return
+        return false;
     }
 
     s->surface.mode = dContactFDir1 | dContactMu2  | dContactApprox1 | dContactSoftCFM;
@@ -383,7 +384,8 @@ void SSLWorld::step(dReal dt)
         dReal balltx=0,ballty=0,balltz=0;
         if (ballspeed<0.01)
         {
-            const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
+            ;//const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
+            //TODO: what was supposed to be here?
         }
         else {
             dReal fk = cfg->BallFriction()*cfg->BallMass()*cfg->Gravity();

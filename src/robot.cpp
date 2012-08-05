@@ -119,8 +119,8 @@ void Robot::Kicker::step()
             rob->getBall()->getBodyPosition(bx,by,bz);
             box->getBodyPosition(kx,ky,kz);
             dReal yy = -((-(kx-bx)*vy + (ky-by)*vx)) / rob->cfg->robotSettings.KickerWidth;
-            dReal dir = 1;
-            if (yy>0) dir = -1.0f;
+            //dReal dir = 1;
+            //if (yy>0) dir = -1.0f;//never read
             dBodySetAngularVel(rob->getBall()->body,fy*rob->cfg->robotSettings.RollerTorqueFactor*1400,-fx*rob->cfg->robotSettings.RollerTorqueFactor*1400,0);
             //dBodyAddTorque(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR(),-fx*rob->cfg->ROLLERTORQUEFACTOR(),0);
             dBodyAddTorque(rob->getBall()->body,yy*fx*rob->cfg->robotSettings.RollerPerpendicularTorqueFactor,yy*fy*rob->cfg->robotSettings.RollerPerpendicularTorqueFactor,0);
@@ -174,13 +174,13 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
         dlen = sqrt(dlen);
         vx = dx*kickspeedx/dlen;
         vy = dy*kickspeedx/dlen;
-        vz = 0;
+        vz = zf;
         const dReal* vball = dBodyGetLinearVel(rob->getBall()->body);
         dReal vn = -(vball[0]*dx + vball[1]*dy)*rob->cfg->robotSettings.KickerDampFactor;
         dReal vt = -(vball[0]*dy - vball[1]*dx);
         vx += vn * dx - vt * dy;
         vy += vn * dy + vt * dx;
-        dBodySetLinearVel(rob->getBall()->body,vx,vy,kickspeedz);
+        dBodySetLinearVel(rob->getBall()->body,vx,vy,vz);
     }
     kicking = true;
     kickstate = 10;
