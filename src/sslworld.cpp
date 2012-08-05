@@ -299,7 +299,7 @@ SSLWorld::~SSLWorld()
 
 QImage* createBlob(char yb,int i,QImage** res)
 {
-    *res = new QImage(QString(":/Graphics/%1%2").arg(yb).arg(i)+QString(".png"));
+    *res = new QImage(QString(":/%1%2").arg(yb).arg(i)+QString(".png"));
     return *res;
 }
 
@@ -336,7 +336,7 @@ QImage* createNumber(int i,int r,int g,int b,int a)
 
 void SSLWorld::glinit()
 {
-    g->loadTexture(new QImage(":/Graphics/grass.png"));
+    g->loadTexture(new QImage(":/grass.png"));
 
     // Loading Robot textures for each robot
     for (int i = 0; i < ROBOT_COUNT; i++)
@@ -354,13 +354,13 @@ void SSLWorld::glinit()
     for (int i=0; i<ROBOT_COUNT; i++)
         g->loadTexture(createNumber(i,0xff,0xff,0,100));
 
-    g->loadTexture(new QImage(":/Graphics/wheel.png"));
-    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/neg_x.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/pos_x.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/neg_y.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/pos_y.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/neg_z.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/pos_z.bmp"));
+    g->loadTexture(new QImage(":/wheel.png"));
+    //g->loadTextureSkyBox(new QImage(":/sky/neg_x.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/sky/pos_x.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/sky/neg_y.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/sky/pos_y.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/sky/neg_z.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/sky/pos_z.bmp"));
 
     //pos_y neg_x neg_y pos_x pos_z neg_z
     p->glinit();

@@ -1,36 +1,37 @@
+<!DOCTYPE RCC>
 <RCC>
-    <qresource prefix="/" >
-        <file>Graphics/y0.png</file>
-        <file>Graphics/y1.png</file>
-        <file>Graphics/y2.png</file>
-        <file>Graphics/y3.png</file>
-        <file>Graphics/y4.png</file>
-        <file>Graphics/y5.png</file>
-        <file>Graphics/y6.png</file>
-        <file>Graphics/y7.png</file>
-        <file>Graphics/y8.png</file>
-        <file>Graphics/y9.png</file>
-        <file>Graphics/y10.png</file>
-        <file>Graphics/y11.png</file>
-        <file>Graphics/b0.png</file>
-        <file>Graphics/b1.png</file>
-        <file>Graphics/b2.png</file>
-        <file>Graphics/b3.png</file>
-        <file>Graphics/b4.png</file>
-        <file>Graphics/b5.png</file>
-        <file>Graphics/b6.png</file>
-        <file>Graphics/b7.png</file>
-        <file>Graphics/b8.png</file>
-        <file>Graphics/b9.png</file>
-        <file>Graphics/b10.png</file>
-        <file>Graphics/b11.png</file>
-        <file>Graphics/wheel.png</file>
-        <file>Graphics/grass.png</file>
-        <file>Graphics/sky/neg_x.bmp</file>
-        <file>Graphics/sky/neg_y.bmp</file>
-        <file>Graphics/sky/neg_z.bmp</file>
-        <file>Graphics/sky/pos_x.bmp</file>
-        <file>Graphics/sky/pos_y.bmp</file>
-        <file>Graphics/sky/pos_z.bmp</file>
+    <qresource>
+        <file alias="y0.png">Graphics/y0.png</file>
+        <file alias="y1.png">Graphics/y1.png</file>
+        <file alias="y2.png">Graphics/y2.png</file>
+        <file alias="y3.png">Graphics/y3.png</file>
+        <file alias="y4.png">Graphics/y4.png</file>
+        <file alias="y5.png">Graphics/y5.png</file>
+        <file alias="y6.png">Graphics/y6.png</file>
+        <file alias="y7.png">Graphics/y7.png</file>
+        <file alias="y8.png">Graphics/y8.png</file>
+        <file alias="y9.png">Graphics/y9.png</file>
+        <file alias="y10.png">Graphics/y10.png</file>
+        <file alias="y11.png">Graphics/y11.png</file>
+        <file alias="b0.png">Graphics/b0.png</file>
+        <file alias="b1.png">Graphics/b1.png</file>
+        <file alias="b2.png">Graphics/b2.png</file>
+        <file alias="b3.png">Graphics/b3.png</file>
+        <file alias="b4.png">Graphics/b4.png</file>
+        <file alias="b5.png">Graphics/b5.png</file>
+        <file alias="b6.png">Graphics/b6.png</file>
+        <file alias="b7.png">Graphics/b7.png</file>
+        <file alias="b8.png">Graphics/b8.png</file>
+        <file alias="b9.png">Graphics/b9.png</file>
+        <file alias="b10.png">Graphics/b10.png</file>
+        <file alias="b11.png">Graphics/b11.png</file>
+        <file alias="wheel.png">Graphics/wheel.png</file>
+        <file alias="grass.png">Graphics/grass.png</file>
+        <file alias="neg_x.bmp">Graphics/sky/neg_x.bmp</file>
+        <file alias="neg_y.bmp">Graphics/sky/neg_y.bmp</file>
+        <file alias="neg_z.bmp">Graphics/sky/neg_z.bmp</file>
+        <file alias="pos_x.bmp">Graphics/sky/pos_x.bmp</file>
+        <file alias="pos_y.bmp">Graphics/sky/pos_y.bmp</file>
+        <file alias="pos_z.bmp">Graphics/sky/pos_z.bmp</file>
     </qresource>
 </RCC>
