@@ -27,14 +27,14 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 RobotWidget::RobotWidget(QWidget* parent)
     : QDockWidget("Current Robot",parent)
-{    
-    QGridLayout *layout = new QGridLayout;    
+{
+    QGridLayout *layout = new QGridLayout;
     robotpic = new QLabel;
     teamCombo = new QComboBox(this);
     teamCombo->addItem("Blue");
     teamCombo->addItem("Yellow");
     robotCombo = new QComboBox(this);
-    
+
     // Add items to the combo box dynamically 
     for (int i=0; i<ROBOT_COUNT; i++){
       QString item=QString::number(i);
@@ -59,22 +59,22 @@ RobotWidget::RobotWidget(QWidget* parent)
     layout->addWidget(new QLabel("Index"),1,1);
     layout->addWidget(robotCombo,1,2);
     layout->addWidget(new QLabel("Velocity"),2,1);
-    layout->addWidget(vellabel,2,2);    
+    layout->addWidget(vellabel,2,2);
     layout->addWidget(resetBtn,3,1);
     layout->addWidget(locateBtn,3,2);
     layout->addWidget(onOffBtn,4,1);
     layout->addWidget(setPoseBtn,4,2);
-    QWidget *widget = new QWidget(this);        
-    widget->setLayout(layout);    
+    QWidget *widget = new QWidget(this);
+    widget->setLayout(layout);
     widget->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
-    setWidget(widget);    
+    setWidget(widget);
     getPoseWidget = new GetPositionWidget();
     QObject::connect(setPoseBtn,SIGNAL(clicked()),this,SLOT(setPoseBtnClicked()));
 }
 
 void RobotWidget::setPicture(QImage* img)
 {
-    robotpic->setPixmap(QPixmap::fromImage(*img));
+    robotpic->setPixmap(QPixmap::fromImage(*img).scaled(128, 128, Qt::IgnoreAspectRatio, Qt::FastTransformation));
 }
 
 void RobotWidget::changeRobotOnOff(int _id,bool a)

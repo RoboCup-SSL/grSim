@@ -1,17 +1,36 @@
 <RCC>
     <qresource prefix="/" >
-        <file>Graphics/y1.bmp</file>
-        <file>Graphics/y2.bmp</file>
-        <file>Graphics/y3.bmp</file>
-        <file>Graphics/y4.bmp</file>
-        <file>Graphics/y5.bmp</file>
-        <file>Graphics/y6.bmp</file>
-        <file>Graphics/b1.bmp</file>
-        <file>Graphics/b2.bmp</file>
-        <file>Graphics/b3.bmp</file>
-        <file>Graphics/b4.bmp</file>
-        <file>Graphics/b5.bmp</file>
-        <file>Graphics/b6.bmp</file>
-        <file>Graphics/grass001.bmp</file>
+        <file>Graphics/y0.png</file>
+        <file>Graphics/y1.png</file>
+        <file>Graphics/y2.png</file>
+        <file>Graphics/y3.png</file>
+        <file>Graphics/y4.png</file>
+        <file>Graphics/y5.png</file>
+        <file>Graphics/y6.png</file>
+        <file>Graphics/y7.png</file>
+        <file>Graphics/y8.png</file>
+        <file>Graphics/y9.png</file>
+        <file>Graphics/y10.png</file>
+        <file>Graphics/y11.png</file>
+        <file>Graphics/b0.png</file>
+        <file>Graphics/b1.png</file>
+        <file>Graphics/b2.png</file>
+        <file>Graphics/b3.png</file>
+        <file>Graphics/b4.png</file>
+        <file>Graphics/b5.png</file>
+        <file>Graphics/b6.png</file>
+        <file>Graphics/b7.png</file>
+        <file>Graphics/b8.png</file>
+        <file>Graphics/b9.png</file>
+        <file>Graphics/b10.png</file>
+        <file>Graphics/b11.png</file>
+        <file>Graphics/wheel.png</file>
+        <file>Graphics/grass.png</file>
+        <file>Graphics/sky/neg_x.bmp</file>
+        <file>Graphics/sky/neg_y.bmp</file>
+        <file>Graphics/sky/neg_z.bmp</file>
+        <file>Graphics/sky/pos_x.bmp</file>
+        <file>Graphics/sky/pos_y.bmp</file>
+        <file>Graphics/sky/pos_z.bmp</file>
     </qresource>
 </RCC>

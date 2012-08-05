@@ -299,9 +299,8 @@ SSLWorld::~SSLWorld()
 
 QImage* createBlob(char yb,int i,QImage** res)
 {
-    QImage* img = new QImage(QString(":/Graphics/%1%2").arg(yb).arg(i+1)+QString(".bmp"));
-    (*res) = img;
-    return img;
+    *res = new QImage(QString(":/Graphics/%1%2").arg(yb).arg(i)+QString(".png"));
+    return *res;
 }
 
 QImage* createNumber(int i,int r,int g,int b,int a)
@@ -309,7 +308,7 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     QImage* img = new QImage(32,32,QImage::Format_ARGB32);
     QPainter *p = new QPainter();
     QBrush br;
-    p->begin(img);    
+    p->begin(img);
     QColor black(0,0,0,0);
     for (int i=0;i<img->width();i++)
         for (int j=0;j<img->height();j++)
@@ -324,7 +323,7 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
     p->setPen(pen);
-    QFont f;    
+    QFont f;
     f.setBold(true);
     f.setPointSize(26);
     p->setFont(f);
@@ -337,15 +336,13 @@ QImage* createNumber(int i,int r,int g,int b,int a)
 
 void SSLWorld::glinit()
 {
-    char team = '\0';
+    g->loadTexture(new QImage(":/Graphics/grass.png"));
 
-    g->loadTexture(new QImage(":/Graphics/grass001.bmp"));
-
-    for (int i=0; i<ROBOT_COUNT*2; i++ ){
-      if ( i<(ROBOT_COUNT)) team = 'b'; else team = 'y';
-
+    for (int i = 0; i < ROBOT_COUNT * 2; i++ ) {
+      const char team = i < ROBOT_COUNT ? 'b' : 'y';
+      const int k = i < ROBOT_COUNT ? i : i - ROBOT_COUNT;
       // Loading Robot textures for each robot
-      g->loadTexture(createBlob(team,i%ROBOT_COUNT,&robots[i]->img));
+      g->loadTexture(createBlob(team, k, &robots[i]->img));
     }
 
     for (int i=0; i<ROBOT_COUNT;i++)
@@ -357,24 +354,25 @@ void SSLWorld::glinit()
     for (int i=0; i<ROBOT_COUNT; i++)
         g->loadTexture(createNumber(i,0xff,0xff,0,100));
 
-    g->loadTexture(new QImage("../Graphics/sky/neg_x.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_x.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/neg_y.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_y.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/neg_z.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_z.bmp"));
-    g->loadTexture(new QImage("../Graphics/Wheel.png"));
+    g->loadTexture(new QImage(":/Graphics/wheel.png"));
+    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/neg_x.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/pos_x.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/neg_y.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/pos_y.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/neg_z.bmp"));
+    //g->loadTextureSkyBox(new QImage(":/Graphics/sky/pos_z.bmp"));
+
     //pos_y neg_x neg_y pos_x pos_z neg_z
     p->glinit();
 }
 
 void SSLWorld::step(dReal dt)
-{    
+{
     if (!isGLEnabled) g->disableGraphics();
     else g->enableGraphics();
 
     if (customDT > 0)
-        dt = customDT;    
+        dt = customDT;
     g->initScene(m_parent->width(),m_parent->height(),0,0.7,1);//true,0.7,0.7,0.7,0.8);
     for (int kk=0;kk<5;kk++)
     {
@@ -469,7 +467,7 @@ void SSLWorld::step(dReal dt)
 void SSLWorld::recvActions()
 {
     QHostAddress sender;
-    quint16 port;    
+    quint16 port;
     grSim_Packet packet;
     while (commandSocket->hasPendingDatagrams())
     {

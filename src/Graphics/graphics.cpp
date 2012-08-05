@@ -464,7 +464,6 @@ void CGraphics::initScene(int width,int height,dReal rc,dReal gc,dReal bc,bool f
   glCullFace (GL_BACK);
   glFrontFace (GL_CCW);
 
-
   // setup viewport
   glViewport (0,0,width,height);
   glMatrixMode (GL_PROJECTION);
@@ -527,7 +526,18 @@ void CGraphics::initScene(int width,int height,dReal rc,dReal gc,dReal bc,bool f
         glFogf (GL_FOG_DENSITY, fogdensity); //set the density to the value above
         //glHint (GL_FOG_HINT, GL_NICEST); // set the fog to look the nicest, may slow down on older cards
     }
-
+    
+  /*glEnable(GL_POLYGON_SMOOTH);
+  glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_POINT_SMOOTH);
+  int buf,sbuf;
+  glGetIntegerv(GL_SAMPLE_BUFFERS, &buf);
+  glGetIntegerv(GL_SAMPLES, &sbuf);
+  glHint(GL_POINT_SMOOTH_HINT,GL_NICEST);
+  glHint(GL_POLYGON_SMOOTH_HINT,GL_NICEST);
+  glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);*/
 }
 
 int CGraphics::getWidth()
