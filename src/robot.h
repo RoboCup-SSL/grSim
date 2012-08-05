@@ -19,10 +19,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef ROBOT_H
 #define ROBOT_H
 
-#include "Physics/pworld.h"
-#include "Physics/pcylinder.h"
-#include "Physics/pbox.h"
-#include "Physics/pball.h"
+#include "physics/pworld.h"
+#include "physics/pcylinder.h"
+#include "physics/pbox.h"
+#include "physics/pball.h"
 #include "configwidget.h"
 
 

@@ -31,6 +31,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 
 #define ROBOT_GRAY 0.4
+#define WHEEL_COUNT 4
 
 SSLWorld* _w;
 dReal randn_notrig(dReal mu=0.0, dReal sigma=1.0);
@@ -87,7 +88,7 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s)
     dGeomID obj;
     if (o1==_w->ray->geom) obj = o2;
     else obj = o1;
-    for (int i=0;i<10;i++)
+    for (int i=0;i<ROBOT_COUNT * 2;i++)
     {
         if (_w->robots[i]->chassis->geom==obj || _w->robots[i]->dummy->geom==obj)
         {
@@ -147,37 +148,72 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p = new PWorld(0.05,9.81f,g);
     ball = new PBall (0,0,0.5,cfg->BallRadius(),cfg->BallMass(), 1,0.7,0);
 
-    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),0);
+    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),cfg->Field_Defense_Stretch(),cfg->Field_Defense_Rad(),0);
     ray = new PRay(50);
-    walls[0] = new PFixedBox(0.0,((cfg->Field_Width() + cfg->Field_Margin()) / 2.0) + (cfg->Wall_Thickness() / 2.0),0.0
-                             ,(cfg->Field_Length() + cfg->Field_Margin()) / 1.0, cfg->Wall_Thickness() / 1.0, 0.4,
-                             0.7, 0.7, 0.7);
+    
+    // Bounding walls
+    
+    const double thick = cfg->Wall_Thickness();
+    const double increment = cfg->Field_Margin() + cfg->Field_Referee_Margin() + thick / 2;
+    const double pos_x = cfg->Field_Length() / 2.0 + increment;
+    const double pos_y = cfg->Field_Width() / 2.0 + increment;
+    const double pos_z = 0.0;
+    const double siz_x = 2.0 * pos_x;
+    const double siz_y = 2.0 * pos_y;
+    const double siz_z = 0.4;
+    const double tone = 1.0;
+    
+    walls[0] = new PFixedBox(thick/2, pos_y, pos_z,
+                             siz_x, thick, siz_z,
+                             tone, tone, tone);
 
-    walls[1] = new PFixedBox(0.0,((cfg->Field_Width() + cfg->Field_Margin()) / -2.0) - (cfg->Wall_Thickness() / 2.0) - cfg->Field_Referee_Margin() / 1.0,0.0,
-                             (cfg->Field_Length() + cfg->Field_Margin()) / 1.0, cfg->Wall_Thickness() / 1.0, 0.4,
-                             0.7, 0.7, 0.7);
+    walls[1] = new PFixedBox(-thick/2, -pos_y, pos_z,
+                             siz_x, thick, siz_z,
+                             tone, tone, tone);
+    
+    walls[2] = new PFixedBox(pos_x, -thick/2, pos_z,
+                             thick, siz_y, siz_z,
+                             tone, tone, tone);
 
-    walls[2] = new PFixedBox(((cfg->Field_Length() + cfg->Field_Margin()) / 2.0) + (cfg->Wall_Thickness() / 2.0),-cfg->Field_Referee_Margin()/2.f ,0.0,
-                             cfg->Wall_Thickness() / 1.0 ,(cfg->Field_Width() + cfg->Field_Margin() + cfg->Field_Referee_Margin()) / 1.0, 0.4,
-                             0.7, 0.7, 0.7);
+    walls[3] = new PFixedBox(-pos_x, thick/2, pos_z,
+                             thick, siz_y, siz_z,
+                             tone, tone, tone);
+    
+    // Goal walls
+    
+    const double gthick = cfg->Goal_Thickness();
+    const double gpos_x = (cfg->Field_Length() + gthick) / 2.0 + cfg->Goal_Depth();
+    const double gpos_y = (cfg->Goal_Width() + gthick) / 2.0;
+    const double gpos_z = cfg->Goal_Height() / 2.0;
+    const double gsiz_x = cfg->Goal_Depth() + gthick;
+    const double gsiz_y = cfg->Goal_Width();
+    const double gsiz_z = cfg->Goal_Height();
+    const double gpos2_x = (cfg->Field_Length() + gsiz_x) / 2.0;
 
-    walls[3] = new PFixedBox(((cfg->Field_Length() + cfg->Field_Margin()) / -2.0) - (cfg->Wall_Thickness() / 2.0) ,-cfg->Field_Referee_Margin()/2.f ,0.0,
-                             cfg->Wall_Thickness() / 1.0 , (cfg->Field_Width() + cfg->Field_Margin() + cfg->Field_Referee_Margin()) / 1.0, 0.4,
-                             0.7, 0.7, 0.7);
+    walls[4] = new PFixedBox(gpos_x, 0.0, gpos_z,
+                             gthick, gsiz_y, gsiz_z,
+                             tone, tone, tone);
+    
+    walls[5] = new PFixedBox(gpos2_x, -gpos_y, gpos_z,
+                             gsiz_x, gthick, gsiz_z,
+                             tone, tone, tone);
+    
+    walls[6] = new PFixedBox(gpos2_x, gpos_y, gpos_z,
+                             gsiz_x, gthick, gsiz_z,
+                             tone, tone, tone);
 
-    walls[4] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth() + cfg->Goal_Thickness()*0.5f ,0.0, 0.0
-                             , cfg->Goal_Thickness(), cfg->Goal_Width() + cfg->Goal_Thickness()*2.0f, cfg->Goal_Height() , 0.1, 0.9, 0.4);
-    walls[5] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5,-cfg->Goal_Width()*0.5f - cfg->Goal_Thickness()*0.5f,0.0
-                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height(), 0.1, 0.9, 0.4);
-    walls[6] = new PFixedBox(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5,cfg->Goal_Width()*0.5f + cfg->Goal_Thickness()*0.5f, 0.0
-                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height(), 0.1, 0.9, 0.4);
-
-    walls[7] = new PFixedBox(- (( cfg->Field_Length() / 2.0) + cfg->Goal_Depth() + cfg->Goal_Thickness()*0.5f) ,0.0, 0.0
-                             , cfg->Goal_Thickness(), cfg->Goal_Width() + cfg->Goal_Thickness()*2.0f, cfg->Goal_Height() , 0.1, 0.9, 0.4);
-    walls[8] = new PFixedBox(- (( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5),-cfg->Goal_Width()*0.5f- cfg->Goal_Thickness()*0.5f,0.0
-                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
-    walls[9] = new PFixedBox( -(( cfg->Field_Length() / 2.0) + cfg->Goal_Depth()*0.5),cfg->Goal_Width()*0.5f+ cfg->Goal_Thickness()*0.5f, 0.0
-                             , cfg->Goal_Depth(), cfg->Goal_Thickness(), cfg->Goal_Height() , 0.1, 0.9, 0.4);
+    walls[7] = new PFixedBox(-gpos_x, 0.0, gpos_z,
+                             gthick, gsiz_y, gsiz_z,
+                             tone, tone, tone);
+    
+    walls[8] = new PFixedBox(-gpos2_x, -gpos_y, gpos_z,
+                             gsiz_x, gthick, gsiz_z,
+                             tone, tone, tone);
+    
+    walls[9] = new PFixedBox(-gpos2_x, gpos_y, gpos_z,
+                             gsiz_x, gthick, gsiz_z,
+                             tone, tone, tone);
+    
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
@@ -187,11 +223,11 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
 
     cfg->robotSettings = cfg->blueSettings;
-    for (int k=0;k<5;k++)
+    for (int k=0;k<ROBOT_COUNT;k++)
         robots[k] = new Robot(p,ball,cfg,-form1->x[k],form1->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,wheeltexid,1);
     cfg->robotSettings = cfg->yellowSettings;
-    for (int k=0;k<5;k++)
-        robots[k+5] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+6,wheeltexid,-1);
+    for (int k=0;k<ROBOT_COUNT;k++)
+        robots[k+ROBOT_COUNT] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+ROBOT_COUNT+1,wheeltexid,-1);//XXX
 
     p->initAllObjects();
 
@@ -199,7 +235,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
     p->createSurface(ray,ground)->callback = rayCallback;
     p->createSurface(ray,ball)->callback = rayCallback;
-    for (int k=0;k<10;k++)
+    for (int k=0;k<ROBOT_COUNT * 2;k++)
     {
         p->createSurface(ray,robots[k]->chassis)->callback = rayCallback;
         p->createSurface(ray,robots[k]->dummy)->callback = rayCallback;
@@ -220,17 +256,19 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     ballwithkicker.surface.mode = dContactApprox1;
     ballwithkicker.surface.mu = fric(cfg->robotSettings.Kicker_Friction);
     ballwithkicker.surface.slip1 = 5;
-    for (int i=0;i<10;i++)
-        p->createSurface(ball,walls[i])->surface = ballwithwall.surface;
-    for (int k=0;k<10;k++)
+    
+    for (int i = 0; i < WALL_COUNT; i++)
+        p->createSurface(ball, walls[i])->surface = ballwithwall.surface;
+    
+    for (int k = 0; k < 2 * ROBOT_COUNT; k++)
     {
         p->createSurface(robots[k]->chassis,ground);
-        for (int j=0;j<10;j++)
+        for (int j = 0; j < WALL_COUNT; j++)
             p->createSurface(robots[k]->chassis,walls[j]);
         p->createSurface(robots[k]->dummy,ball);
         //p->createSurface(robots[k]->chassis,ball);
         p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
-        for (int j=0;j<4;j++)
+        for (int j = 0; j < WHEEL_COUNT; j++)
         {
             p->createSurface(robots[k]->wheels[j]->cyl,ball);
             PSurface* w_g = p->createSurface(robots[k]->wheels[j]->cyl,ground);
@@ -238,9 +276,9 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
             w_g->usefdir1=true;
             w_g->callback=wheelCallBack;
         }
-        for (int j=k+1;j<10;j++)
+        for (int j = k + 1; j < 2 * ROBOT_COUNT; j++)
         {            
-            if (k!=j)
+            if (k != j)
             {
                 p->createSurface(robots[k]->dummy,robots[j]->dummy); //seams ode doesn't understand cylinder-cylinder contacts, so I used spheres
                 p->createSurface(robots[k]->chassis,robots[j]->kicker->box);
@@ -261,9 +299,8 @@ SSLWorld::~SSLWorld()
 
 QImage* createBlob(char yb,int i,QImage** res)
 {
-    QImage* img = new QImage(QString(":/Graphics/%1%2").arg(yb).arg(i+1)+QString(".bmp"));
-    (*res) = img;
-    return img;
+    *res = new QImage(QString(":/%1%2").arg(yb).arg(i)+QString(".png"));
+    return *res;
 }
 
 QImage* createNumber(int i,int r,int g,int b,int a)
@@ -271,7 +308,7 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     QImage* img = new QImage(32,32,QImage::Format_ARGB32);
     QPainter *p = new QPainter();
     QBrush br;
-    p->begin(img);    
+    p->begin(img);
     QColor black(0,0,0,0);
     for (int i=0;i<img->width();i++)
         for (int j=0;j<img->height();j++)
@@ -286,7 +323,7 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
     p->setPen(pen);
-    QFont f;    
+    QFont f;
     f.setBold(true);
     f.setPointSize(26);
     p->setFont(f);
@@ -299,55 +336,43 @@ QImage* createNumber(int i,int r,int g,int b,int a)
 
 void SSLWorld::glinit()
 {
-    g->loadTexture(new QImage(":/Graphics/grass001.bmp"));
-    g->loadTexture(createBlob('b',0,&robots[0]->img));
-    g->loadTexture(createBlob('b',1,&robots[1]->img));
-    g->loadTexture(createBlob('b',2,&robots[2]->img));
-    g->loadTexture(createBlob('b',3,&robots[3]->img));
-    g->loadTexture(createBlob('b',4,&robots[4]->img));
-    g->loadTexture(createBlob('y',0,&robots[5]->img));
-    g->loadTexture(createBlob('y',1,&robots[6]->img));
-    g->loadTexture(createBlob('y',2,&robots[7]->img));
-    g->loadTexture(createBlob('y',3,&robots[8]->img));
-    g->loadTexture(createBlob('y',4,&robots[9]->img));
-    g->loadTexture(createNumber(0,15,193,225,255));
-    g->loadTexture(createNumber(1,15,193,225,255));
-    g->loadTexture(createNumber(2,15,193,225,255));
-    g->loadTexture(createNumber(3,15,193,225,255));
-    g->loadTexture(createNumber(4,15,193,225,255));
-    g->loadTexture(createNumber(0,0xff,0xff,0,255));
-    g->loadTexture(createNumber(1,0xff,0xff,0,255));
-    g->loadTexture(createNumber(2,0xff,0xff,0,255));
-    g->loadTexture(createNumber(3,0xff,0xff,0,255));
-    g->loadTexture(createNumber(4,0xff,0xff,0,255));
-    g->loadTexture(createNumber(0,15,193,225,100));
-    g->loadTexture(createNumber(1,15,193,225,100));
-    g->loadTexture(createNumber(2,15,193,225,100));
-    g->loadTexture(createNumber(3,15,193,225,100));
-    g->loadTexture(createNumber(4,15,193,225,100));
-    g->loadTexture(createNumber(0,0xff,0xff,0,100));
-    g->loadTexture(createNumber(1,0xff,0xff,0,100));
-    g->loadTexture(createNumber(2,0xff,0xff,0,100));
-    g->loadTexture(createNumber(3,0xff,0xff,0,100));
-    g->loadTexture(createNumber(4,0xff,0xff,0,100));
-    g->loadTexture(new QImage("../Graphics/sky/neg_x.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_x.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/neg_y.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_y.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/neg_z.bmp"));
-    g->loadTexture(new QImage("../Graphics/sky/pos_z.bmp"));
-    g->loadTexture(new QImage("../Graphics/Wheel.png"));
-    //pos_y neg_x neg_y pos_x pos_z neg_z
+    g->loadTexture(new QImage(":/grass.png"));
+
+    // Loading Robot textures for each robot
+    for (int i = 0; i < ROBOT_COUNT; i++)
+        g->loadTexture(createBlob('b', i, &robots[i]->img));
+
+    for (int i = 0; i < ROBOT_COUNT; i++)
+        g->loadTexture(createBlob('y', i, &robots[ROBOT_COUNT + i]->img));
+
+    // Creating number textures
+    for (int i=0; i<ROBOT_COUNT;i++)
+        g->loadTexture(createNumber(i,15,193,225,255));
+
+    for (int i=0; i<ROBOT_COUNT;i++)
+        g->loadTexture(createNumber(i,0xff,0xff,0,255));
+
+    // Loading sky textures
+    // XXX: for some reason they are loaded twice otherwise the wheel texture is wrong
+    for (int i=0; i<6; i++) {
+        g->loadTexture(new QImage(QString(":/sky/neg_%1").arg(i%3==0?'x':i%3==1?'y':'z')+QString(".bmp")));
+        g->loadTexture(new QImage(QString(":/sky/pos_%1").arg(i%3==0?'x':i%3==1?'y':'z')+QString(".bmp")));
+    }
+
+    // The wheel texture
+    g->loadTexture(new QImage(":/wheel.png"));
+
+    // Init at last
     p->glinit();
 }
 
 void SSLWorld::step(dReal dt)
-{    
+{
     if (!isGLEnabled) g->disableGraphics();
     else g->enableGraphics();
 
     if (customDT > 0)
-        dt = customDT;    
+        dt = customDT;
     g->initScene(m_parent->width(),m_parent->height(),0,0.7,1);//true,0.7,0.7,0.7,0.8);
     for (int kk=0;kk<5;kk++)
     {
@@ -391,7 +416,7 @@ void SSLWorld::step(dReal dt)
                 +(by-xyz[1])*(by-xyz[1])
                 +(bz-xyz[2])*(bz-xyz[2]);
     }
-    for (int k=0;k<10;k++)
+    for (int k=0;k<ROBOT_COUNT * 2;k++)
     {
         if (robots[k]->selected)
         {
@@ -409,7 +434,7 @@ void SSLWorld::step(dReal dt)
     if (best_k>=0) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
     selected = best_k;
     ball->tag = -1;
-    for (int k=0;k<10;k++)
+    for (int k=0;k<ROBOT_COUNT * 2;k++)
     {
         robots[k]->step();
         robots[k]->selected = false;
@@ -442,7 +467,7 @@ void SSLWorld::step(dReal dt)
 void SSLWorld::recvActions()
 {
     QHostAddress sender;
-    quint16 port;    
+    quint16 port;
     grSim_Packet packet;
     while (commandSocket->hasPendingDatagrams())
     {
@@ -672,44 +697,44 @@ RobotsFomation::RobotsFomation(int type)
 {
     if (type==0)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25};
+        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33, 1.22};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25, 0.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==1)
     {
-        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7};
-        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0};
+        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7, 2.4};
+        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0, 0.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==2)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.8};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5, -1.5};
         setAll(teamPosX,teamPosY);
     }
     if (type==3)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.1};
+        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 6.2};
         setAll(teamPosX,teamPosY);
     }
     if (type==4)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5};
+        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1};
+        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5};
         setAll(teamPosX,teamPosY);
     }
     if (type==-1)
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7};
+        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 2.2};
+        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7, -2.7};
         setAll(teamPosX,teamPosY);
     }
     if (type==-2)
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3};
+        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 0.22};
+        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3, -2.3};
         setAll(teamPosX,teamPosY);
     }
 }

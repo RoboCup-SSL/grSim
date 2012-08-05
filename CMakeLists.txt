@@ -82,19 +82,19 @@ set(SOURCES
     src/main.cpp
     src/mainwindow.cpp
     src/glwidget.cpp
-    src/Graphics/graphics.cpp
-    src/Physics/pworld.cpp
-    src/Physics/pobject.cpp
-    src/Physics/pball.cpp
-    src/Physics/pground.cpp
-    src/sslworld.cpp
-    src/Physics/pfixedbox.cpp
-    src/Physics/pcylinder.cpp
-    src/robot.cpp
-    src/Physics/pbox.cpp
+    src/graphics.cpp
+    src/physics/pworld.cpp
+    src/physics/pobject.cpp
+    src/physics/pball.cpp
+    src/physics/pground.cpp
+    src/physics/pfixedbox.cpp
+    src/physics/pcylinder.cpp
+    src/physics/pbox.cpp
+    src/physics/pray.cpp
     src/net/robocup_ssl_server.cpp
     src/net/robocup_ssl_client.cpp
-    src/Physics/pray.cpp
+    src/sslworld.cpp
+    src/robot.cpp
     src/configwidget.cpp
     src/statuswidget.cpp
     src/logger.cpp
@@ -105,25 +105,26 @@ set(SOURCES
 set(HEADERS
     src/mainwindow.h
     src/glwidget.h
-    src/Graphics/graphics.h
-    src/Physics/pworld.h
-    src/Physics/pobject.h
-    src/Physics/pball.h
-    src/Physics/pground.h
-    src/sslworld.h
-    src/Physics/pfixedbox.h
-    src/Physics/pcylinder.h
-    src/robot.h
-    src/Physics/pbox.h
+    src/graphics.h
+    src/physics/pworld.h
+    src/physics/pobject.h
+    src/physics/pball.h
+    src/physics/pground.h
+    src/physics/pfixedbox.h
+    src/physics/pcylinder.h
+    src/physics/pbox.h
+    src/physics/pray.h
     src/net/robocup_ssl_server.h
     src/net/robocup_ssl_client.h
-    src/Physics/pray.h
+    src/sslworld.h
+    src/robot.h
     src/configwidget.h
     src/statuswidget.h
     src/logger.h
     src/robotwidget.h
     src/getpositionwidget.h
     src/common.h
+    src/config.h
 )
 
 file(GLOB CONFIG_FILES "config/*.ini")

@@ -19,7 +19,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef POBJECT_H
 #define POBJECT_H
 #include <ode/ode.h>
-#include "../Graphics/graphics.h"
+#include "graphics.h"
 
 class PObject
 {
