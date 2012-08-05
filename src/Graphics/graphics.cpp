@@ -1125,9 +1125,9 @@ void CGraphics::_drawCylinder (dReal l, dReal r, dReal zoffset)
 
 void CGraphics::_drawCylinder_TopTextured (dReal l, dReal r, dReal zoffset,int tex_id,bool robot)
 {
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_COLOR);
-    if (graphicDisabled) return;
+  //glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_COLOR);
+  if (graphicDisabled) return;
   int i;
   dReal tmp,ny,nz,a,ca,sa;
   const int n = 24;	// number of sides to the cylinder (divisible by 4)
@@ -1142,21 +1142,19 @@ void CGraphics::_drawCylinder_TopTextured (dReal l, dReal r, dReal zoffset,int t
   dReal nny,nnz;
   glBegin (GL_TRIANGLE_STRIP);
   for (i=0; i<=n; i++) {
-      if ((i>2 && i<n-2) || (!robot))
-      {
-    glNormal3d (ny,nz,0);
-    glVertex3d (ny*r,nz*r,l+zoffset);
-    glNormal3d (ny,nz,0);
-    glVertex3d (ny*r,nz*r,-l+zoffset);    
-    }
-    // rotate ny,nz
-    tmp = ca*ny - sa*nz;
-    nz = sa*ny + ca*nz;
-    ny = tmp;
+      if ((i>2 && i<n-2) || (!robot)) {
+          glNormal3d (ny,nz,0);
+          glVertex3d (ny*r,nz*r,l+zoffset);
+          glNormal3d (ny,nz,0);
+          glVertex3d (ny*r,nz*r,-l+zoffset);
+      }
+      // rotate ny,nz
+      tmp = ca*ny - sa*nz;
+      nz = sa*ny + ca*nz;
+      ny = tmp;
   }
 
-  for (i=0;i<=1;i++)
-  {
+  for (i=0;i<=1;i++) {
       tmp = ca*ny - sa*nz;
       nz = sa*ny + ca*nz;
       ny = tmp;
@@ -1177,17 +1175,15 @@ void CGraphics::_drawCylinder_TopTextured (dReal l, dReal r, dReal zoffset,int t
   glBegin (GL_TRIANGLE_FAN);
 
   for (i=0; i<n; i++) {
-      if ((i>2 && i<n-2)  || (!robot))
-      {
-
-    glNormal3d (0,0,1);
-    glTexCoord2f(-0.5*nz+0.5,0.5*ny+0.5);
-    glVertex3d (ny*r,nz*r,l+zoffset);
-}
-    // rotate ny,nz
-    tmp = ca*ny - sa*nz;
-    nz = sa*ny + ca*nz;
-    ny = tmp;
+      if ((i>2 && i<n-2)  || (!robot)) {
+          glNormal3d (0,0,1);
+          glTexCoord2f(-0.5*nz+0.5,0.5*ny+0.5);
+          glVertex3d (ny*r,nz*r,l+zoffset);
+      }
+      // rotate ny,nz
+      tmp = ca*ny - sa*nz;
+      nz = sa*ny + ca*nz;
+      ny = tmp;
   }
   glEnd();
   noTexture();
@@ -1199,19 +1195,17 @@ void CGraphics::_drawCylinder_TopTextured (dReal l, dReal r, dReal zoffset,int t
   glNormal3d (0,0,-1);
   glVertex3d (0,0,-l+zoffset);
   for (i=0; i<=n; i++) {
-      if ((i>=2 && i<n-2)  || (!robot))
-      {
-
-    glNormal3d (0,0,-1);
-    glVertex3d (ny*r,nz*r,-l+zoffset);
-}
-    // rotate ny,nz
-    tmp = ca*ny + sa*nz;
-    nz = -sa*ny + ca*nz;
-    ny = tmp;
+      if ((i>=2 && i<n-2)  || (!robot)) {
+          glNormal3d (0,0,-1);
+          glVertex3d (ny*r,nz*r,-l+zoffset);
+      }
+      // rotate ny,nz
+      tmp = ca*ny + sa*nz;
+      nz = -sa*ny + ca*nz;
+      ny = tmp;
   }
   glEnd();
-//    glDisable(GL_BLEND);
+  //glDisable(GL_BLEND);
 }
 
 

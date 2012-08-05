@@ -227,7 +227,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         robots[k] = new Robot(p,ball,cfg,-form1->x[k],form1->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+1,wheeltexid,1);
     cfg->robotSettings = cfg->yellowSettings;
     for (int k=0;k<ROBOT_COUNT;k++)
-        robots[k+ROBOT_COUNT] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+ROBOT_COUNT,wheeltexid,-1);
+        robots[k+ROBOT_COUNT] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+ROBOT_COUNT+1,wheeltexid,-1);//XXX
 
     p->initAllObjects();
 
@@ -338,12 +338,12 @@ void SSLWorld::glinit()
 {
     g->loadTexture(new QImage(":/Graphics/grass.png"));
 
-    for (int i = 0; i < ROBOT_COUNT * 2; i++ ) {
-      const char team = i < ROBOT_COUNT ? 'b' : 'y';
-      const int k = i < ROBOT_COUNT ? i : i - ROBOT_COUNT;
-      // Loading Robot textures for each robot
-      g->loadTexture(createBlob(team, k, &robots[i]->img));
-    }
+    // Loading Robot textures for each robot
+    for (int i = 0; i < ROBOT_COUNT; i++)
+        g->loadTexture(createBlob('b', i, &robots[i]->img));
+    
+    for (int i = 0; i < ROBOT_COUNT; i++)
+        g->loadTexture(createBlob('y', i, &robots[ROBOT_COUNT + i]->img));
 
     for (int i=0; i<ROBOT_COUNT;i++)
         g->loadTexture(createNumber(i,15,193,225,255));
