@@ -2,6 +2,18 @@ grSim is a software from developers for developers, mainly
 in RoboCup Small Size League domain. Commit logs can be
 accessed [here](https://github.com/mani-monaj/grSim/commits/master)
 
+2012-08-05
+----------
+
+Jan Segre <jan@segre.in>
+
+- Using standard pattern textures.
+- Improved grass texture.
+- Send geometry packets once in X frames.
+- Standard field layout compliant.
+- Field lines have thickness.
+
+
 2012-07-21
 ----------
 
