@@ -20,8 +20,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include <QPainter>
 #include "glwidget.h"
-#include "Physics/pball.h"
-#include "Physics/pground.h"
+#include "physics/pball.h"
+#include "physics/pground.h"
 #include "logger.h"
 #include <QLabel>
 

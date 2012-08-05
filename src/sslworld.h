@@ -27,11 +27,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 
 #include "Graphics/graphics.h"
-#include "Physics/pworld.h"
-#include "Physics/pball.h"
-#include "Physics/pground.h"
-#include "Physics/pfixedbox.h"
-#include "Physics/pray.h"
+#include "physics/pworld.h"
+#include "physics/pball.h"
+#include "physics/pground.h"
+#include "physics/pfixedbox.h"
+#include "physics/pray.h"
 
 #include "net/robocup_ssl_server.h"
 
