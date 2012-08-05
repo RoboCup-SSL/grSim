@@ -44,7 +44,7 @@ void PGround::draw()
     g->useTexture(tex);
     g->drawGround();
     g->noTexture();
-    g->drawSSLGround(rad,len,wid,prad,plen,ppoint,lwidth,dstretch,dradius,0.005);
+    g->drawSSLGround(rad,len,wid,prad,plen,ppoint,lwidth,dstretch,dradius,0.0001);
 }
 
 PGround::~PGround()
