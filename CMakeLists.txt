@@ -82,7 +82,7 @@ set(SOURCES
     src/main.cpp
     src/mainwindow.cpp
     src/glwidget.cpp
-    src/Graphics/graphics.cpp
+    src/graphics.cpp
     src/physics/pworld.cpp
     src/physics/pobject.cpp
     src/physics/pball.cpp
@@ -105,7 +105,7 @@ set(SOURCES
 set(HEADERS
     src/mainwindow.h
     src/glwidget.h
-    src/Graphics/graphics.h
+    src/graphics.h
     src/physics/pworld.h
     src/physics/pobject.h
     src/physics/pball.h
