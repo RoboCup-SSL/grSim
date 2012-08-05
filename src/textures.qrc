@@ -1,5 +1,5 @@
 <!DOCTYPE RCC>
-<RCC>
+<RCC version="1.0">
     <qresource>
         <file    alias="y0.png">../resources/textures/y0.png</file>
         <file    alias="y1.png">../resources/textures/y1.png</file>
@@ -35,3 +35,4 @@
         <file alias="sky/pos_z.jpg">../resources/textures/sky/arabian_nights_up.jpg</file>
     </qresource>
 </RCC>
+
