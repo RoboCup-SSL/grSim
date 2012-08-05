@@ -341,28 +341,28 @@ void SSLWorld::glinit()
     // Loading Robot textures for each robot
     for (int i = 0; i < ROBOT_COUNT; i++)
         g->loadTexture(createBlob('b', i, &robots[i]->img));
-    
+
     for (int i = 0; i < ROBOT_COUNT; i++)
         g->loadTexture(createBlob('y', i, &robots[ROBOT_COUNT + i]->img));
 
+    // Creating number textures
     for (int i=0; i<ROBOT_COUNT;i++)
         g->loadTexture(createNumber(i,15,193,225,255));
+
     for (int i=0; i<ROBOT_COUNT;i++)
         g->loadTexture(createNumber(i,0xff,0xff,0,255));
-    for (int i=0; i<ROBOT_COUNT; i++)
-        g->loadTexture(createNumber(i,15,193,225,100));
-    for (int i=0; i<ROBOT_COUNT; i++)
-        g->loadTexture(createNumber(i,0xff,0xff,0,100));
 
+    // Loading sky textures
+    // XXX: for some reason they are loaded twice otherwise the wheel texture is wrong
+    for (int i=0; i<6; i++) {
+        g->loadTexture(new QImage(QString(":/sky/neg_%1").arg(i%3==0?'x':i%3==1?'y':'z')+QString(".bmp")));
+        g->loadTexture(new QImage(QString(":/sky/pos_%1").arg(i%3==0?'x':i%3==1?'y':'z')+QString(".bmp")));
+    }
+
+    // The wheel texture
     g->loadTexture(new QImage(":/wheel.png"));
-    //g->loadTextureSkyBox(new QImage(":/sky/neg_x.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/sky/pos_x.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/sky/neg_y.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/sky/pos_y.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/sky/neg_z.bmp"));
-    //g->loadTextureSkyBox(new QImage(":/sky/pos_z.bmp"));
 
-    //pos_y neg_x neg_y pos_x pos_z neg_z
+    // Init at last
     p->glinit();
 }
 
