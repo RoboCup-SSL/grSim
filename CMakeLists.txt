@@ -148,3 +148,14 @@ if(BUILD_CLIENTS)
     add_subdirectory(clients/qt)
 endif()
 
+option(BUILD_PACKAGE "Generate a target to build a grSim package?" OFF)
+if(BUILD_PACKAGE)
+    install(TARGETS ${app} DESTINATION .)
+    set(CPACK_PACKAGE_CONTACT "Jan Segre <jan@segre.in>")
+    if(APPLE)
+        set(CPACK_GENERATOR "DragNDrop")
+    endif()
+    include(CPack)
+endif()
+
+
