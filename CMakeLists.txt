@@ -151,9 +151,19 @@ endif()
 option(BUILD_PACKAGE "Generate a target to build a grSim package?" OFF)
 if(BUILD_PACKAGE)
     install(TARGETS ${app} DESTINATION .)
+    # Note that we're prefixing it with roboime so one doesn't mistake this
+    # with the official version, this should be properly fixed if the pull
+    # request gets accepted, also should the CONTACT be fixed.
     set(CPACK_PACKAGE_CONTACT "Jan Segre <jan@segre.in>")
+    set(CPACK_PACKAGE_NAME "roboime-grSim")
+    set(CPACK_PACKAGE_VENDOR "RoboIME")
+    # TODO: is this easy enough to maintain?
+    # There doesn't seems to be any version so far.
+    # As this fork has possibly incompatible modifications, and assuming the original
+    # version was 0.X.X then by the semver principles this should be 1.0.0 when released
+    set(CPACK_PACKAGE_VERSION "1.0.0-pre")
     if(APPLE)
-        set(CPACK_GENERATOR "DragNDrop")
+        set(CPACK_GENERATOR "DragNDrop" "TGZ")
     endif()
     include(CPack)
 endif()
