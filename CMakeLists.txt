@@ -165,9 +165,12 @@ if(BUILD_PACKAGE)
     # As this fork has possibly incompatible modifications, and assuming the original
     # version was 0.X.X then by the semver principles this should be 1.0.0 when released
     set(CPACK_PACKAGE_VERSION "1.0.0-pre")
+    # Mac OSX specific:
     if(APPLE)
         set(CPACK_GENERATOR "DragNDrop" "TGZ")
     endif()
+    # Debian based specific
+    # TODO set(CPACK_DEBIAN_PACKAGE_DEPENDS "yui-compressor (>= 2.4.2), python (>= 2.6), python-pip")
     include(CPack)
 endif()
 
