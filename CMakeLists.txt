@@ -148,30 +148,30 @@ if(BUILD_CLIENTS)
     add_subdirectory(clients/qt)
 endif()
 
-option(BUILD_PACKAGE "Generate a target to build a grSim package?" OFF)
-if(BUILD_PACKAGE)
-    install(TARGETS ${app} DESTINATION .)
-    # Note that we're prefixing it with roboime so one doesn't mistake this
-    # with the official version, this should be properly fixed if the pull
-    # request gets accepted, also should the CONTACT be fixed.
-    set(CPACK_PACKAGE_CONTACT "Jan Segre <jan@segre.in>")
-    set(CPACK_PACKAGE_NAME "roboime-grSim")
-    set(CPACK_PACKAGE_VENDOR "RoboIME")
-    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.md")
-    set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
-    #set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/WELCOME.txt")
-    # TODO: is this easy enough to maintain?
-    # There doesn't seems to be any version so far.
-    # As this fork has possibly incompatible modifications, and assuming the original
-    # version was 0.X.X then by the semver principles this should be 1.0.0 when released
-    set(CPACK_PACKAGE_VERSION "1.0.0-pre")
-    # Mac OSX specific:
-    if(APPLE)
-        set(CPACK_GENERATOR "DragNDrop" "TGZ")
-    endif()
-    # Debian based specific
-    # TODO set(CPACK_DEBIAN_PACKAGE_DEPENDS "yui-compressor (>= 2.4.2), python (>= 2.6), python-pip")
-    include(CPack)
+install(TARGETS ${app} DESTINATION bin)
+
+## Packaging
+set(CPACK_OUTPUT_FILE_PREFIX ${PROJECT_SOURCE_DIR}/dist)
+set(CPACK_PACKAGE_CONTACT "Jan Segre <jan@segre.in>")
+set(CPACK_PACKAGE_NAME "grsim")
+set(CPACK_PACKAGE_VENDOR "RoboIME")
+string(TOLOWER ${CPACK_PACKAGE_VENDOR} FLAVOR)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.md")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+#set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/WELCOME.txt")
+# TODO: is this easy enough to maintain?
+# There doesn't seems to be any version so far.
+# As this fork has possibly incompatible modifications, and assuming the original
+# version was 0.X.X then by the semver principles this should be 1.0.0 when released
+set(CPACK_PACKAGE_VERSION "1.0.0a")
+# Mac OSX specific:
+if(APPLE)
+  set(CPACK_GENERATOR "DragNDrop" "TGZ")
+  install(TARGETS ${app} DESTINATION .)
 endif()
+# Debian based specific
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libode1 (>=0.11), vartypes (>=0.7.0), libqt4-network (>=4.8.0), libqt4-core, libqt4-gui, libqt4-opengl")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}-${FLAVOR}_${ARCH}")
+include(CPack)
 
 

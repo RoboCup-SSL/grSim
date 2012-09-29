@@ -1,5 +1,6 @@
 .DS_STORE
 build*/*
+dist/*
 bin*/*
 *.user
 *.swp

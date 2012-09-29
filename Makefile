@@ -4,6 +4,11 @@ BUILDDIR=build
 BUILDTYPE=Release
 #BUILDTYPE=Debug
 
+PACKAGE=grsim
+VERSION=1.0.0a
+DEBARCH=$(shell dpkg --print-architecture)
+FLAVOR=roboime
+
 all: build
 
 mkbuilddir:
@@ -15,18 +20,18 @@ cmake: mkbuilddir CMakeLists.txt
 build: cmake
 	$(MAKE) -C $(BUILDDIR)
 
-clean: mkbuilddir
-	$(MAKE) -C $(BUILDDIR) clean
-
 package: cmake
 	$(MAKE) -C $(BUILDDIR) package
 
 deb: cmake
-	cd $(BUILDDIR) && cpack -G DEB
+	cd $(BUILDDIR) && cpack -G DEB -D CPACK_PACKAGE_FILE_NAME="$(PACKAGE)_$(VERSION)-$(FLAVOR)_$(DEBARCH)"
 
-install: mkbuilddir
+install: cmake
 	$(MAKE) -C $(BUILDDIR) install
+
+clean: mkbuilddir
+	$(MAKE) -C $(BUILDDIR) clean
 	
-cleanup_cache: mkbuilddir
+clean-all:
 	cd $(BUILDDIR) && rm -rf *
-	
+
