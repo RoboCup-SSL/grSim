@@ -157,6 +157,9 @@ if(BUILD_PACKAGE)
     set(CPACK_PACKAGE_CONTACT "Jan Segre <jan@segre.in>")
     set(CPACK_PACKAGE_NAME "roboime-grSim")
     set(CPACK_PACKAGE_VENDOR "RoboIME")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.md")
+    set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+    #set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/WELCOME.txt")
     # TODO: is this easy enough to maintain?
     # There doesn't seems to be any version so far.
     # As this fork has possibly incompatible modifications, and assuming the original
