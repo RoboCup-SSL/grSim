@@ -150,6 +150,7 @@ endif()
 
 install(TARGETS ${app} DESTINATION bin)
 install(DIRECTORY config DESTINATION share/${app})
+install(FILES resources/grsim.desktop DESTINATION share/applications)
 
 ## Packaging
 set(CPACK_OUTPUT_FILE_PREFIX ${PROJECT_SOURCE_DIR}/dist)
