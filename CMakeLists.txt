@@ -132,7 +132,7 @@ set_source_files_properties(${CONFIG_FILES}  PROPERTIES MACOSX_PACKAGE_LOCATION 
 
 set(app grsim)
 
-add_executable(${app} MACOSX_BUNDLE
+set(srcs
     ${CONFIG_FILES}
     ${PROTO_CPP}
     ${PROTO_H}
@@ -141,40 +141,57 @@ add_executable(${app} MACOSX_BUNDLE
     ${SOURCES}
 )
 
-target_link_libraries(${app} ${libs})
+if(APPLE)
+  option(DRAGNDROP "Make an OS X bundle app?" ON)
+endif()
+
+if(DRAGNDROP)
+  add_executable(${app} MACOSX_BUNDLE ${srcs})
+  target_link_libraries(${app} ${libs})
+  install(TARGETS ${app} DESTINATION .)
+  set(CPACK_GENERATOR "DragNDrop" "TGZ")
+elseif(WIN32)
+  add_executable(${app} WIN32 ${srcs})
+  install(TARGETS ${app} DESTINATION .)
+  target_link_libraries(${app} ${libs})
+else()
+  add_executable(${app} ${srcs})
+  target_link_libraries(${app} ${libs})
+  install(TARGETS ${app} DESTINATION bin)
+  install(DIRECTORY config DESTINATION share/${app})
+  install(FILES resources/grsim.desktop DESTINATION share/applications)
+endif()
 
 option(BUILD_CLIENTS "Choose this option if you want to build the example Qt client." ON)
 if(BUILD_CLIENTS)
     add_subdirectory(clients/qt)
 endif()
 
-install(TARGETS ${app} DESTINATION bin)
-install(DIRECTORY config DESTINATION share/${app})
-install(FILES resources/grsim.desktop DESTINATION share/applications)
+file(COPY README.md LICENSE.md DESTINATION ${CMAKE_BINARY_DIR})
+file(RENAME ${CMAKE_BINARY_DIR}/README.md ${CMAKE_BINARY_DIR}/README.txt)
+file(RENAME ${CMAKE_BINARY_DIR}/LICENSE.md ${CMAKE_BINARY_DIR}/LICENSE.txt)
 
 ## Packaging
 if(UNIX)
-  execute_process(COMMAND uname -i OUTPUT_VARIABLE ARCH)
+  execute_process(COMMAND uname -p OUTPUT_VARIABLE ARCH)
   string(STRIP ${ARCH} ARCH)
+  if(APPLE)
+    set(ARCH "osx-universal")
+  endif()
 endif()
 set(CPACK_OUTPUT_FILE_PREFIX ${PROJECT_SOURCE_DIR}/dist)
 set(CPACK_PACKAGE_CONTACT "Jan Segre <jan@segre.in>")
 set(CPACK_PACKAGE_NAME "grsim")
 set(CPACK_PACKAGE_VENDOR "RoboIME")
 string(TOLOWER ${CPACK_PACKAGE_VENDOR} FLAVOR)
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.md")
-set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_BINARY_DIR}/LICENSE.txt")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.txt")
 #set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/WELCOME.txt")
 # TODO: is this easy enough to maintain?
 # There doesn't seems to be any version so far.
 # As this fork has possibly incompatible modifications, and assuming the original
 # version was 0.X.X then by the semver principles this should be 1.0.0 when released
 set(CPACK_PACKAGE_VERSION "1.0.0a")
-# Mac OSX specific:
-if(APPLE)
-  set(CPACK_GENERATOR "DragNDrop" "TGZ")
-  install(TARGETS ${app} DESTINATION .)
-endif()
 # Debian based specific
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libode1 (>=0.11), vartypes (>=0.7.0), libqt4-network (>=4.8.0), libqt4-core, libqt4-gui, libqt4-opengl")
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}-${FLAVOR}_${ARCH}")
