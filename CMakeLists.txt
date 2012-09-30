@@ -153,6 +153,10 @@ install(DIRECTORY config DESTINATION share/${app})
 install(FILES resources/grsim.desktop DESTINATION share/applications)
 
 ## Packaging
+if(UNIX)
+  execute_process(COMMAND uname -i OUTPUT_VARIABLE ARCH)
+  string(STRIP ${ARCH} ARCH)
+endif()
 set(CPACK_OUTPUT_FILE_PREFIX ${PROJECT_SOURCE_DIR}/dist)
 set(CPACK_PACKAGE_CONTACT "Jan Segre <jan@segre.in>")
 set(CPACK_PACKAGE_NAME "grsim")
