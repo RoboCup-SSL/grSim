@@ -130,7 +130,7 @@ set(HEADERS
 file(GLOB CONFIG_FILES "config/*.ini")
 set_source_files_properties(${CONFIG_FILES}  PROPERTIES MACOSX_PACKAGE_LOCATION "config")
 
-set(app grSim)
+set(app grsim)
 
 add_executable(${app} MACOSX_BUNDLE
     ${CONFIG_FILES}
@@ -149,6 +149,7 @@ if(BUILD_CLIENTS)
 endif()
 
 install(TARGETS ${app} DESTINATION bin)
+install(DIRECTORY config DESTINATION share/${app})
 
 ## Packaging
 set(CPACK_OUTPUT_FILE_PREFIX ${PROJECT_SOURCE_DIR}/dist)

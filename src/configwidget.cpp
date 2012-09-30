@@ -106,7 +106,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
         ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
-    world=VarXML::read(world,(qApp->applicationDirPath() + QString("/settings.xml")).toStdString());
+    world=VarXML::read(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 
 
     QDir dir;
@@ -118,18 +118,32 @@ ConfigWidget::ConfigWidget()
 
     ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
     ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
+
     dir.setCurrent(qApp->applicationDirPath()+"/../config/");
     dir.setNameFilters(QStringList() << "*.ini");
     dir.setSorting(QDir::Size | QDir::Reversed);
     QFileInfoList list = dir.entryInfoList();
     for (int i = 0; i < list.size(); ++i) {
-    QFileInfo fileInfo = list.at(i);
-    QStringList s = fileInfo.fileName().split(".");
-    QString str;
-    if (s.count() > 0) str = s[0];
+        QFileInfo fileInfo = list.at(i);
+        QStringList s = fileInfo.fileName().split(".");
+        QString str;
+        if (s.count() > 0) str = s[0];
         ADD_TO_ENUM(BlueTeam,str.toStdString())
         ADD_TO_ENUM(YellowTeam,str.toStdString())
     }
+    dir.setCurrent(qApp->applicationDirPath()+"/../share/grsim/config/");
+    dir.setNameFilters(QStringList() << "*.ini");
+    dir.setSorting(QDir::Size | QDir::Reversed);
+    list = dir.entryInfoList();
+    for (int i = 0; i < list.size(); ++i) {
+        QFileInfo fileInfo = list.at(i);
+        QStringList s = fileInfo.fileName().split(".");
+        QString str;
+        if (s.count() > 0) str = s[0];
+        ADD_TO_ENUM(BlueTeam,str.toStdString())
+        ADD_TO_ENUM(YellowTeam,str.toStdString())
+    }
+
     END_ENUM(geo_vars,BlueTeam)
     END_ENUM(geo_vars,YellowTeam)
 
@@ -151,7 +165,7 @@ ConfigWidget::ConfigWidget()
 }
 
 ConfigWidget::~ConfigWidget() {  
-   VarXML::write(world,(qApp->applicationDirPath() + QString("/settings.xml")).toStdString());
+   VarXML::write(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 }
 
 
