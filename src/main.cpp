@@ -58,6 +58,7 @@ refactor variable names
 
 #include <QtGui/QApplication>
 #include "mainwindow.h"
+#include "winmain.h"
 
 int main(int argc, char *argv[])
 {
