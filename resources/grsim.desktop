@@ -4,6 +4,6 @@ Version=1.0.0
 Name=grSim
 Comment=Robocup Small Size League Simulator
 Exec=grsim
-#Icon=TODO
+Icon=grsim
 Terminal=false
 Categories=Utility;Physics;Robotics
