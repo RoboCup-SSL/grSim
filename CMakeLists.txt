@@ -160,6 +160,7 @@ else()
   install(TARGETS ${app} DESTINATION bin)
   install(DIRECTORY config DESTINATION share/${app})
   install(FILES resources/grsim.desktop DESTINATION share/applications)
+  install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)
 endif()
 
 option(BUILD_CLIENTS "Choose this option if you want to build the example Qt client." ON)
