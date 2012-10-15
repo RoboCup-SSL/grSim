@@ -9,16 +9,14 @@ VERSION=1.0.0a
 DEBARCH=$(shell dpkg --print-architecture)
 FLAVOR=roboime
 
-all: build
+all: cmake
+	$(MAKE) -C $(BUILDDIR)
 
 mkbuilddir:
 	[ -d $(BUILDDIR) ] || mkdir $(BUILDDIR)
 
 cmake: mkbuilddir CMakeLists.txt
 	cd $(BUILDDIR) && cmake -DCMAKE_BUILD_TYPE=$(BUILDTYPE) ..
-
-build: cmake
-	$(MAKE) -C $(BUILDDIR)
 
 package: cmake
 	$(MAKE) -C $(BUILDDIR) package
