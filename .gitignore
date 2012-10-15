@@ -4,4 +4,4 @@ dist/*
 bin*/*
 *.user
 *.swp
-
+Thumbs.db
