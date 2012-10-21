@@ -104,6 +104,7 @@ set(SOURCES
     src/logger.cpp
     src/robotwidget.cpp
     src/getpositionwidget.cpp
+    resources/grsim.rc
 )
 
 set(HEADERS
