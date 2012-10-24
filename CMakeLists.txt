@@ -204,7 +204,7 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.txt")
 # There doesn't seems to be any version so far.
 # As this fork has possibly incompatible modifications, and assuming the original
 # version was 0.X.X then by the semver principles this should be 1.0.0 when released
-set(CPACK_PACKAGE_VERSION "1.0.0a")
+set(CPACK_PACKAGE_VERSION "1.0.0a2")
 # Debian based specific
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libode1 (>=0.11), vartypes (>=0.7.0), libqt4-network (>=4.8.0), libqt4-core, libqt4-gui, libqt4-opengl")
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}-${FLAVOR}_${ARCH}")
