@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 project(grSim)
 
+set(VERSION "1.0.0a2")
+set(MAINTAINER "Jan Segre <jan@segre.in>")
+set(VENDOR "RoboIME")
+
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 
@@ -9,11 +13,11 @@ standard_config()
 standard_paths(${PROJECT_SOURCE_DIR} bin lib)
 
 if(MSVC)
-	add_definitions(-DHAVE_MSVC)
+    add_definitions(-DHAVE_MSVC)
 endif()
 
 if(WIN32)
-	add_definitions(-DHAVE_WINDOWS)
+    add_definitions(-DHAVE_WINDOWS)
 endif()
 
 if(UNIX)
@@ -135,8 +139,6 @@ set(HEADERS
 file(GLOB CONFIG_FILES "config/*.ini")
 set_source_files_properties(${CONFIG_FILES}  PROPERTIES MACOSX_PACKAGE_LOCATION "config")
 
-set(app grsim)
-
 set(srcs
     ${CONFIG_FILES}
     ${PROTO_CPP}
@@ -147,15 +149,24 @@ set(srcs
 )
 
 if(APPLE)
-  option(DRAGNDROP "Make an OS X bundle app?" ON)
-endif()
-
-if(DRAGNDROP)
+  set(app grSim)
   add_executable(${app} MACOSX_BUNDLE ${srcs})
   target_link_libraries(${app} ${libs})
   install(TARGETS ${app} DESTINATION .)
+  set(MACOSX_BUNDLE_ICON_FILE "${PROJECT_SOURCE_DIR}/resources/icons/grsim.icns")
+  set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
+  set(MACOSX_BUNDLE_VERSION ${VERSION})
+  set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${VERSION}")
+  #set(CMAKE_OSX_ARCHITECTURES x86_64 i386 ppc)
+  set(BUNDLE_APP ${PROJECT_SOURCE_DIR}/bin/${app}.app)
+  install(
+      CODE "
+      include(BundleUtilities)
+      fixup_bundle(\"${BUNDLE_APP}\"   \"\"   \"/opt/local/lib;/usr/local/lib\")"
+      COMPONENT Runtime)
   set(CPACK_GENERATOR "DragNDrop" "TGZ")
 elseif(WIN32)
+  set(app grSim)
   add_executable(${app} WIN32 ${srcs})
   target_link_libraries(${app} ${libs})
   install(TARGETS ${app} DESTINATION bin)
@@ -164,6 +175,7 @@ elseif(WIN32)
           FILES_MATCHING PATTERN "*.dll")
   set(CPACK_PACKAGE_EXECUTABLES ${app} grSim)
 else()
+  set(app grsim)
   add_executable(${app} ${srcs})
   target_link_libraries(${app} ${libs})
   install(TARGETS ${app} DESTINATION bin)
@@ -193,9 +205,9 @@ elseif(WIN32)
   set(CPACK_GENERATOR ZIP NSIS)
 endif()
 set(CPACK_OUTPUT_FILE_PREFIX ${PROJECT_SOURCE_DIR}/dist)
-set(CPACK_PACKAGE_CONTACT "Jan Segre <jan@segre.in>")
+set(CPACK_PACKAGE_CONTACT ${MAINTAINER})
 set(CPACK_PACKAGE_NAME "grsim")
-set(CPACK_PACKAGE_VENDOR "RoboIME")
+set(CPACK_PACKAGE_VENDOR ${VENDOR})
 string(TOLOWER ${CPACK_PACKAGE_VENDOR} FLAVOR)
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_BINARY_DIR}/LICENSE.txt")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.txt")
@@ -204,7 +216,7 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.txt")
 # There doesn't seems to be any version so far.
 # As this fork has possibly incompatible modifications, and assuming the original
 # version was 0.X.X then by the semver principles this should be 1.0.0 when released
-set(CPACK_PACKAGE_VERSION "1.0.0a")
+set(CPACK_PACKAGE_VERSION ${VERSION})
 # Debian based specific
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libode1 (>=0.11), vartypes (>=0.7.0), libqt4-network (>=4.8.0), libqt4-core, libqt4-gui, libqt4-opengl")
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}-${FLAVOR}_${ARCH}")
