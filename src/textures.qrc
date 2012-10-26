@@ -27,12 +27,12 @@
         <file   alias="b11.png">../resources/textures/b11.png</file>
         <file alias="wheel.png">../resources/textures/wheel.png</file>
         <file alias="grass.png">../resources/textures/grass.png</file>
-        <file alias="sky/neg_x.jpg">../resources/textures/sky/arabian_nights_rt.jpg</file>
-        <file alias="sky/neg_y.jpg">../resources/textures/sky/arabian_nights_bk.jpg</file>
-        <file alias="sky/neg_z.jpg">../resources/textures/sky/arabian_nights_dn.jpg</file>
-        <file alias="sky/pos_x.jpg">../resources/textures/sky/arabian_nights_lf.jpg</file>
-        <file alias="sky/pos_y.jpg">../resources/textures/sky/arabian_nights_ft.jpg</file>
-        <file alias="sky/pos_z.jpg">../resources/textures/sky/arabian_nights_up.jpg</file>
+        <file alias="sky/neg_x.png">../resources/textures/sky/arabian_nights_rt.png</file>
+        <file alias="sky/neg_y.png">../resources/textures/sky/arabian_nights_bk.png</file>
+        <file alias="sky/neg_z.png">../resources/textures/sky/arabian_nights_dn.png</file>
+        <file alias="sky/pos_x.png">../resources/textures/sky/arabian_nights_lf.png</file>
+        <file alias="sky/pos_y.png">../resources/textures/sky/arabian_nights_ft.png</file>
+        <file alias="sky/pos_z.png">../resources/textures/sky/arabian_nights_up.png</file>
     </qresource>
 </RCC>
 
