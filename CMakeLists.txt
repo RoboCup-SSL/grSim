@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 2.8)
 ## Project branding, version and package mantainer
 project(grSim)
 set(VERSION "1.0.0a2")
-set(VENDOR "RoboIME")
-set(MAINTAINER "Jan Segre <jan@segre.in>")
+#set(VENDOR "Parsian")
+set(MAINTAINER "Mani Monajjemi <mani.monajjemi@gmail.com>")
 
 
 # some utils and helper vars

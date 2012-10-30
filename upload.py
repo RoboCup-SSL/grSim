@@ -8,7 +8,7 @@ from sys import argv
 # pip install pygithub3
 from pygithub3 import Github
 
-USER = 'roboime'
+USER = 'mani-monaj'
 REPO = 'grSim'
 GH = None
 
