@@ -1,7 +1,7 @@
 grSim
 =====
 
-RoboCup Small Size World Simulator
+RoboCup Small Size League Simulator
 
 **This is an incomplete README file**
 
