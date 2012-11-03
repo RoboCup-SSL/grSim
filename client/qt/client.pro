@@ -12,10 +12,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    ../proto/netraw.cpp \
-    ../proto/grSim_Replacement.pb.cc \
-    ../proto/grSim_Commands.pb.cc \
-    ../proto/grSim_Packet.pb.cc
+    ../../proto/netraw.cpp \
+    ../../proto/grSim_Replacement.pb.cc \
+    ../../proto/grSim_Commands.pb.cc \
+    ../../proto/grSim_Packet.pb.cc
 
 HEADERS  += mainwindow.h
 INCLUDEPATH += ../include

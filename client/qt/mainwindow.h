@@ -10,10 +10,10 @@
 #include <QComboBox>
 #include <QTextEdit>
 #include <QPushButton>
-#include "../proto/netraw.h"
-#include "../proto/grSim_Packet.pb.h"
-#include "../proto/grSim_Commands.pb.h"
-#include "../proto/grSim_Replacement.pb.h"
+#include "../../proto/netraw.h"
+#include "../../proto/grSim_Packet.pb.h"
+#include "../../proto/grSim_Commands.pb.h"
+#include "../../proto/grSim_Replacement.pb.h"
 
 
 class MainWindow : public QDialog
