@@ -19,4 +19,4 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h
 INCLUDEPATH += ../include
-LIBS += -L../libs/ -lprotobuf-2.4.0
+LIBS += -L../libs/ `pkg-config protobuf --libs`
