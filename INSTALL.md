@@ -8,9 +8,9 @@ grSim has dependcies on these external libraries in order to get compiled.
 - VarTypes Library 
 - Google Protobuf
 
-Except VarTypes, all other libraries can be installed using most Linux distributions' package manager.
+Except VarTypes, all other libraries can be installed using most Linux distributions' package managers.
 
-In order to compile grSim on Ubuntu 12.10, follow the following steps:
+In order to compile grSim on Ubuntu 12.04+, follow the following steps:
 
 1. Download and install these packages:
 
@@ -34,6 +34,7 @@ sudo make install
 3. Compile grSim
 
 ```
+[In grSim folder]
 mkdir build
 cd build
 cmake ..
@@ -42,5 +43,4 @@ make
 
 you may want to use a cmake-gui instead of cmake, or maybe ccmake for ncurses fans.
 
-The binary file will be in grSim/bin [Check the fps in status bar, if it is running on 65fps everything is ok, otherwise check the graphics card installation and OpenGL settings. If you received linker error about GL related libraries, also check your graphics card driver.
-
+The binary files (grSim and sample client)  will be placed in `grSim/bin`. Check the fps in status bar, if it is running on 65fps everything is ok, otherwise check the graphics card installation and OpenGL settings. If you received linker error about GL related libraries, also check your graphics card driver
