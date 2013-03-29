@@ -3,8 +3,6 @@ grSim
 
 RoboCup Small Size League Simulator
 
-**This is an incomplete README file**
-
 
 System Requirements
 -----------------------
@@ -40,8 +38,7 @@ Usage
 -----
 
 Receiving data from grSim is exactly like receiving from [SSL-Vision](http://code.google.com/p/ssl-vision) using Google Protobuf library
-Sending data to Simulator is also possible using Google Protobuf. Sample clients are included in [clients](./clients) folder. The compilation procedure is like grSim itself. There is also a Java client available in the client folder.
-
+Sending data to Simulator is also possible using Google Protobuf. Sample clients are included in [clients](./clients) folder. There are two clients available, qt-based and Java-based. The native client is compiled during the grSim compilation. To compile the Java client, please consult client's `README` file.
 
 Changelog
 ---------
