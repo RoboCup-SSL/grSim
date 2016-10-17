@@ -68,6 +68,10 @@ public:
     void glinit();
     void step(dReal dt=-1);
     SSL_WrapperPacket* generatePacket();
+    void addFieldLinesArcs(SSL_GeometryFieldSize *field);
+    Vector2f* allocVector(float x, float y);
+    void addFieldLine(SSL_GeometryFieldSize *field, const std::string &name, float p1_x, float p1_y, float p2_x, float p2_y, float thickness);
+    void addFieldArc(SSL_GeometryFieldSize *field, const string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness);
     void sendVisionBuffer();
     ConfigWidget* cfg;
     CGraphics* g;
