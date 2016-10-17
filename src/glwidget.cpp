@@ -25,6 +25,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "logger.h"
 #include <QLabel>
 
+#include <iostream>
+
 GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     : QGLWidget(parent)
 {
