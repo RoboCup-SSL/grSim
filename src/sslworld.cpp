@@ -731,15 +731,18 @@ Vector2f* SSLWorld::allocVector(float x, float y) {
 void SSLWorld::addFieldLine(SSL_GeometryFieldSize *field, const std::string &name, float p1_x, float p1_y, float p2_x, float p2_y, float thickness) {
     SSL_FieldLineSegment *line = field->add_field_lines();
     line->set_name(name.c_str());
-    line->set_allocated_p1(allocVector(p1_x, p1_y));
-    line->set_allocated_p2(allocVector(p2_x, p2_y));
+	line->mutable_p1()->set_x(p1_x);
+	line->mutable_p1()->set_y(p1_y);
+	line->mutable_p2()->set_x(p2_x);
+	line->mutable_p2()->set_y(p2_y);
     line->set_thickness(thickness);
 }
 
 void SSLWorld::addFieldArc(SSL_GeometryFieldSize *field, const std::string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness) {
     SSL_FieldCicularArc *arc = field->add_field_arcs();
-    arc->set_name(name.c_str());
-    arc->set_allocated_center(allocVector(c_x, c_y));
+	arc->set_name(name.c_str());
+	arc->mutable_center()->set_x(c_x);
+	arc->mutable_center()->set_y(c_y);
     arc->set_radius(radius);
     arc->set_a1(a1);
     arc->set_a2(a2);
