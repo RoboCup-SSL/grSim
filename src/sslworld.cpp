@@ -28,6 +28,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
 #include "grSim_Replacement.pb.h"
+#include "messages_robocup_ssl_detection.pb.h"
+#include "messages_robocup_ssl_geometry.pb.h"
+#include "messages_robocup_ssl_refbox_log.pb.h"
+#include "messages_robocup_ssl_wrapper.pb.h"
 
 
 #define ROBOT_GRAY 0.4
@@ -603,21 +607,31 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
     {
         SSL_GeometryData* geom = packet->mutable_geometry();
         SSL_GeometryFieldSize* field = geom->mutable_field();
-        field->set_line_width(CONVUNIT(cfg->Field_Line_Width()));
+
+
+        // Old protocol
+//        field->set_line_width(CONVUNIT(cfg->Field_Line_Width()));
+//        field->set_referee_width(CONVUNIT(cfg->Field_Referee_Margin()));
+//        field->set_goal_wall_width(CONVUNIT(cfg->Goal_Thickness()));
+//        field->set_center_circle_radius(CONVUNIT(cfg->Field_Rad()));
+//        field->set_defense_radius(CONVUNIT(cfg->Field_Defense_Rad()));
+//        field->set_defense_stretch(CONVUNIT(cfg->Field_Defense_Stretch()));
+//        field->set_free_kick_from_defense_dist(CONVUNIT(cfg->Field_Free_Kick()));
+        //TODO: verify if these fields are correct:
+//        field->set_penalty_line_from_spot_dist(CONVUNIT(cfg->Field_Penalty_Line()));
+//        field->set_penalty_spot_from_field_line_dist(CONVUNIT(cfg->Field_Penalty_Point()));
+
+        // Current protocol (2015+)
+        // Field general info
         field->set_field_length(CONVUNIT(cfg->Field_Length()));
         field->set_field_width(CONVUNIT(cfg->Field_Width()));
         field->set_boundary_width(CONVUNIT(cfg->Field_Margin()));
-        field->set_referee_width(CONVUNIT(cfg->Field_Referee_Margin()));
         field->set_goal_width(CONVUNIT(cfg->Goal_Width()));
         field->set_goal_depth(CONVUNIT(cfg->Goal_Depth()));
-        field->set_goal_wall_width(CONVUNIT(cfg->Goal_Thickness()));
-        field->set_center_circle_radius(CONVUNIT(cfg->Field_Rad()));
-        field->set_defense_radius(CONVUNIT(cfg->Field_Defense_Rad()));
-        field->set_defense_stretch(CONVUNIT(cfg->Field_Defense_Stretch()));
-        field->set_free_kick_from_defense_dist(CONVUNIT(cfg->Field_Free_Kick()));
-        //TODO: verify if these fields are correct:
-        field->set_penalty_line_from_spot_dist(CONVUNIT(cfg->Field_Penalty_Line()));
-        field->set_penalty_spot_from_field_line_dist(CONVUNIT(cfg->Field_Penalty_Point()));
+
+        // Field lines and arcs
+        addFieldLinesArcs(field);
+
     }
     if (cfg->noise()==false) {dev_x = 0;dev_y = 0;dev_a = 0;}
     if ((cfg->vanishing()==false) || (rand0_1() > cfg->ball_vanishing()))
@@ -665,6 +679,76 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
     return packet;
 }
 
+void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
+    const double kFieldLength = CONVUNIT(cfg->Field_Length());
+    const double kFieldWidth = CONVUNIT(cfg->Field_Width());
+    const double kGoalWidth = CONVUNIT(cfg->Goal_Width());
+    const double kGoalDepth = CONVUNIT(cfg->Goal_Depth());
+    const double kBoundaryWidth = CONVUNIT(cfg->Field_Referee_Margin());
+    const double kCenterRadius = CONVUNIT(cfg->Field_Rad());
+    const double kDefenseRadius = CONVUNIT(cfg->Field_Defense_Rad());
+    const double kDefenseStretch = CONVUNIT(cfg->Field_Defense_Stretch());
+    const double kLineThickness = CONVUNIT(cfg->Field_Line_Width());
+
+    const double kXMax = (kFieldLength-2*kLineThickness)/2;
+    const double kXMin = -kXMax;
+    const double kYMax = (kFieldWidth-kLineThickness)/2;
+    const double kYMin = -kYMax;
+
+    // Field lines
+    addFieldLine(field, "TopTouchLine", kXMin-kLineThickness/2, kYMax, kXMax+kLineThickness/2, kYMax, kLineThickness);
+    addFieldLine(field, "BottomTouchLine", kXMin-kLineThickness/2, kYMin, kXMax+kLineThickness/2, kYMin, kLineThickness);
+    addFieldLine(field, "LeftGoalLine", kXMin, kYMin, kXMin, kYMax, kLineThickness);
+    addFieldLine(field, "RightGoalLine", kXMax, kYMin, kXMax, kYMax, kLineThickness);
+    addFieldLine(field, "HalfwayLine", 0, kYMin, 0, kYMax, kLineThickness);
+    addFieldLine(field, "CenterLine", kXMin, 0, kXMax, 0, kLineThickness);
+    addFieldLine(field, "LeftPenaltyStretch", kXMin+kDefenseRadius-kLineThickness/2, -kDefenseStretch/2, kXMin+kDefenseRadius-kLineThickness/2, kDefenseStretch/2, kLineThickness);
+    addFieldLine(field, "RightPenaltyStretch", kXMax-kDefenseRadius+kLineThickness/2, -kDefenseStretch/2, kXMax-kDefenseRadius+kLineThickness/2, kDefenseStretch/2, kLineThickness);
+
+    addFieldLine(field, "RightGoalTopLine", kXMax, kGoalWidth/2, kXMax+kGoalDepth, kGoalWidth/2, kLineThickness);
+    addFieldLine(field, "RightGoalBottomLine", kXMax, -kGoalWidth/2, kXMax+kGoalDepth, -kGoalWidth/2, kLineThickness);
+    addFieldLine(field, "RightGoalDepthLine", kXMax+kGoalDepth-kLineThickness/2, -kGoalWidth/2, kXMax+kGoalDepth-kLineThickness/2, kGoalWidth/2, kLineThickness);
+
+    addFieldLine(field, "LeftGoalTopLine", -kXMax, kGoalWidth/2, -kXMax-kGoalDepth, kGoalWidth/2, kLineThickness);
+    addFieldLine(field, "LeftGoalBottomLine", -kXMax, -kGoalWidth/2, -kXMax-kGoalDepth, -kGoalWidth/2, kLineThickness);
+    addFieldLine(field, "LeftGoalDepthLine", -kXMax-kGoalDepth+kLineThickness/2, -kGoalWidth/2, -kXMax-kGoalDepth+kLineThickness/2, kGoalWidth/2, kLineThickness);
+
+    // Field arcs
+    addFieldArc(field, "LeftFieldLeftPenaltyArc",   kXMin, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, 0,        M_PI/2,   kLineThickness);
+    addFieldArc(field, "LeftFieldRightPenaltyArc",  kXMin, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, 1.5*M_PI, 2*M_PI,   kLineThickness);
+    addFieldArc(field, "RightFieldLeftPenaltyArc",  kXMax, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, M_PI,     1.5*M_PI, kLineThickness);
+    addFieldArc(field, "RightFieldRightPenaltyArc", kXMax, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, M_PI/2,   M_PI,     kLineThickness);
+    addFieldArc(field, "CenterCircle",              0,     0,                  kCenterRadius-kLineThickness/2,  0,        2*M_PI,   kLineThickness);
+}
+
+Vector2f* SSLWorld::allocVector(float x, float y) {
+    Vector2f *vec = new Vector2f();
+    vec->set_x(x);
+    vec->set_y(y);
+    return vec;
+}
+
+void SSLWorld::addFieldLine(SSL_GeometryFieldSize *field, const std::string &name, float p1_x, float p1_y, float p2_x, float p2_y, float thickness) {
+    SSL_FieldLineSegment *line = field->add_field_lines();
+    line->set_name(name.c_str());
+	line->mutable_p1()->set_x(p1_x);
+	line->mutable_p1()->set_y(p1_y);
+	line->mutable_p2()->set_x(p2_x);
+	line->mutable_p2()->set_y(p2_y);
+    line->set_thickness(thickness);
+}
+
+void SSLWorld::addFieldArc(SSL_GeometryFieldSize *field, const std::string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness) {
+    SSL_FieldCicularArc *arc = field->add_field_arcs();
+	arc->set_name(name.c_str());
+	arc->mutable_center()->set_x(c_x);
+	arc->mutable_center()->set_y(c_y);
+    arc->set_radius(radius);
+    arc->set_a1(a1);
+    arc->set_a2(a2);
+    arc->set_thickness(thickness);
+}
+
 SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
 {
     packet = _packet;
@@ -699,26 +783,26 @@ RobotsFomation::RobotsFomation(int type)
 {
     if (type==0)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33, 1.22};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25, 0.0};
+        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0,   1.0, 1.0,  0.33, 1.22};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75, 0.0, 0.75, 0.25, 0.0};
         setAll(teamPosX,teamPosY);
     }
-    if (type==1)
+    if (type==1) // formation 1
     {
-        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7, 2.4};
-        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0, 0.0};
+        dReal teamPosX[ROBOT_COUNT] = {1.5,  1.5, 1.5,   0.5,   2.5, 3.6};
+        dReal teamPosY[ROBOT_COUNT] = {1.12, 0.0, -1.12, -0.37, 0.0, 0.0};
         setAll(teamPosX,teamPosY);
     }
-    if (type==2)
+    if (type==2) // formation 2
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5, -1.5};
+        dReal teamPosX[ROBOT_COUNT] = {4.2, 3.40,  3.40, 0.7, 0.7,  0.7};
+        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.20, 0.20, 0.0, 2.25, -2.25};
         setAll(teamPosX,teamPosY);
     }
-    if (type==3)
+    if (type==3) // outside field
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.1};
-        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 6.2};
+        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
+        dReal teamPosY[ROBOT_COUNT] = {-4.0, -4.0, -4.0, -4.0, -4.0, -4.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==4)
@@ -727,16 +811,16 @@ RobotsFomation::RobotsFomation(int type)
         dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5};
         setAll(teamPosX,teamPosY);
     }
-    if (type==-1)
+    if (type==-1) // blue outside
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 2.2};
-        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7, -2.7};
+        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
+        dReal teamPosY[ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
         setAll(teamPosX,teamPosY);
     }
-    if (type==-2)
+    if (type==-2) // yellow outside
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 0.22};
-        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3, -2.3};
+        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
+        dReal teamPosY[ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
         setAll(teamPosX,teamPosY);
     }
 }
