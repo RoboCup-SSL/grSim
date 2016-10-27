@@ -19,7 +19,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "configwidget.h"
 
 #define ADD_ENUM(type,name,Defaultvalue,namestring) \
-    v_##name = shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
+    v_##name = std::tr1::shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
 #define END_ENUM(parents, name) \
 parents->addChild(v_##name);
 #define ADD_TO_ENUM(name,str) \
@@ -27,7 +27,7 @@ v_##name->addItem(str);
 
 
 #define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
-    v_##name = shared_ptr<Var##type>(new Var##type(namestring,defaultvalue)); \
+    v_##name = std::tr1::shared_ptr<Var##type>(new Var##type(namestring,defaultvalue)); \
     parent->addChild(v_##name);
 
 #include<QDir>
@@ -44,21 +44,21 @@ ConfigWidget::ConfigWidget()
 
     geo_vars->addChild(field_vars);
         ADD_VALUE(field_vars,Double,Field_Line_Width,0.010,"Line Thickness")
-        ADD_VALUE(field_vars,Double,Field_Length,6.000,"Length")
-        ADD_VALUE(field_vars,Double,Field_Width,4.000,"Width")
+        ADD_VALUE(field_vars,Double,Field_Length,9.000,"Length")
+        ADD_VALUE(field_vars,Double,Field_Width,6.000,"Width")
         ADD_VALUE(field_vars,Double,Field_Rad,0.500,"Radius")
-        ADD_VALUE(field_vars,Double,Field_Defense_Rad,0.500,"Defense Radius")
-        ADD_VALUE(field_vars,Double,Field_Defense_Stretch,0.350,"Defense Stretch")
+        ADD_VALUE(field_vars,Double,Field_Defense_Rad,1.000,"Defense Radius")
+        ADD_VALUE(field_vars,Double,Field_Defense_Stretch,0.500,"Defense Stretch")
         ADD_VALUE(field_vars,Double,Field_Free_Kick,0.700,"Free Kick Distanse From Defense Area")
         ADD_VALUE(field_vars,Double,Field_Penalty_Rad,0.50,"Penalty radius")
         ADD_VALUE(field_vars,Double,Field_Penalty_Line,0.350,"Penalty line length")
-        ADD_VALUE(field_vars,Double,Field_Penalty_Point,0.450,"Penalty point")
+        ADD_VALUE(field_vars,Double,Field_Penalty_Point,0.950,"Penalty point")
         ADD_VALUE(field_vars,Double,Field_Margin,0.250,"Margin")
-        ADD_VALUE(field_vars,Double,Field_Referee_Margin,0.425,"Referee margin")
+        ADD_VALUE(field_vars,Double,Field_Referee_Margin,0.455,"Referee margin")
         ADD_VALUE(field_vars,Double,Wall_Thickness,0.050,"Wall thickness")
         ADD_VALUE(field_vars,Double,Goal_Thickness,0.020,"Goal thickness")
-        ADD_VALUE(field_vars,Double,Goal_Depth,0.180,"Goal depth")
-        ADD_VALUE(field_vars,Double,Goal_Width,0.700,"Goal width")
+        ADD_VALUE(field_vars,Double,Goal_Depth,0.200,"Goal depth")
+        ADD_VALUE(field_vars,Double,Goal_Width,1.000,"Goal width")
         ADD_VALUE(field_vars,Double,Goal_Height,0.160,"Goal height")
     ADD_ENUM(StringEnum,YellowTeam,"Parsian","Yellow Team");
     END_ENUM(geo_vars,YellowTeam)
@@ -74,7 +74,7 @@ ConfigWidget::ConfigWidget()
     phys_vars->addChild(worldp_vars);  
         ADD_VALUE(worldp_vars,Double,DesiredFPS,65,"Desired FPS")
         ADD_VALUE(worldp_vars,Bool,SyncWithGL,false,"Synchronize ODE with OpenGL")
-        ADD_VALUE(worldp_vars,Double,DeltaTime,0.015,"ODE time step")
+        ADD_VALUE(worldp_vars,Double,DeltaTime,0.016,"ODE time step")
         ADD_VALUE(worldp_vars,Double,Gravity,9.8,"Gravity")
   VarListPtr ballp_vars(new VarList("Ball"));
     phys_vars->addChild(ballp_vars);

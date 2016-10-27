@@ -45,17 +45,17 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 using namespace VarTypes;
 
 #define DEF_VALUE(type,Type,name)  \
-            shared_ptr<VarTypes::Var##Type> v_##name; \
+            std::tr1::shared_ptr<VarTypes::Var##Type> v_##name; \
             inline type name() {return v_##name->get##Type();}
 
 #define DEF_ENUM(type,name)  \
-            shared_ptr<VarTypes::VarStringEnum> v_##name; \
+            std::tr1::shared_ptr<VarTypes::VarStringEnum> v_##name; \
             type name() {if(v_##name!=NULL) return v_##name->getString();return * (new type);}
 
 #define DEF_TREE(name)  \
-            shared_ptr<VarTypes::VarList> name;
+            std::tr1::shared_ptr<VarTypes::VarList> name;
 #define DEF_PTREE(parents, name)  \
-            shared_ptr<VarTypes::VarList> parents##_##name;
+            std::tr1::shared_ptr<VarTypes::VarList> parents##_##name;
 
 
 
