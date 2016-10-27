@@ -822,8 +822,8 @@ RobotsFomation::RobotsFomation(int type)
     }
     if (type==1) // formation 1
     {
-        dReal teamPosX[ROBOT_COUNT] = {1.5,  1.5, 1.5,   0.5,   2.5, 3.6};
-        dReal teamPosY[ROBOT_COUNT] = {1.12, 0.0, -1.12, -0.37, 0.0, 0.0};
+        dReal teamPosX[ROBOT_COUNT] = {1.5,  1.5, 1.5,   0.55,   2.5, 3.6};
+        dReal teamPosY[ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==2) // formation 2
