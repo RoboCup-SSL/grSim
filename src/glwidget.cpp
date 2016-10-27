@@ -464,6 +464,9 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     const dReal S = 1.00;
     const dReal BallForce = 2.0;
     int R = robotIndex(Current_robot,Current_team);
+    if (R < 0) return;
+    bool flag=false;
+
     switch (cmd) {
     case 't': case 'T': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,S);break;
     case 'g': case 'G': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,-S);break;
