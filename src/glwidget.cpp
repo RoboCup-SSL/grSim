@@ -114,6 +114,9 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     alt = false;
     kickingball = false;
     kickpower = 3.0;
+    altTrigger = false;
+    chipAngle = M_PI/4;
+    chiping = false;
 }
 
 GLWidget::~GLWidget()
@@ -126,6 +129,14 @@ void GLWidget::moveRobot()
     ssl->cursor_radius = cfg->robotSettings.RobotRadius;
     state = 1;
     moving_robot_id = clicked_robot;
+}
+
+void GLWidget::unselectRobot()
+{
+    ssl->show3DCursor = false;
+    ssl->cursor_radius = cfg->robotSettings.RobotRadius;
+    state = 0;
+    moving_robot_id= robotIndex(Current_robot,Current_team);
 }
 
 void GLWidget::selectRobot()
@@ -226,9 +237,23 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
                 y *= kickpower;
                 dBodySetLinearVel(ssl->ball->body,x,y,0);
                 dBodySetAngularVel(ssl->ball->body,-y/cfg->BallRadius(),x/cfg->BallRadius(),0);
+            }
+            else if (chiping) {
+                dReal x,y,z;
+                ssl->ball->getBodyPosition(x,y,z);
+                x = ssl->cursor_x - x;
+                y = ssl->cursor_y - y;
+                dReal lxy = hypot(x,y);
+                x /= lxy;
+                y /= lxy;
+                x *= kickpower;
+                y *= kickpower;
+                z = kickpower*tan(chipAngle);
 
-}
-          
+                dBodySetLinearVel(ssl->ball->body,x,y,z);
+                dBodySetAngularVel(ssl->ball->body,-y/cfg->BallRadius(),x/cfg->BallRadius(),z);    
+            }
+        
         }
     }
     if (event->buttons() & Qt::RightButton)
@@ -419,8 +444,12 @@ void GLWidget::keyReleaseEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Control) ctrl = false;
     if (event->key() == Qt::Key_Alt) {
+        if (!ssl->show3DCursor)
+            moveCurrentRobot();
+        else {
+            unselectRobot();
+        }
         alt = false;
-        moveCurrentRobot();
     }
 }
 
@@ -444,18 +473,34 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     case 's': case 'S':dBodyAddForce(ssl->ball->body,0,-BallForce,0);break;
     case 'd': case 'D':dBodyAddForce(ssl->ball->body, BallForce,0,0);break;
     case 'a': case 'A':dBodyAddForce(ssl->ball->body,-BallForce,0,0);break;
-    case 'k':case 'K': ssl->robots[R]->kicker->kick(8,0);break;
-    case 'l':case 'L': ssl->robots[R]->kicker->kick(3,3);break;
-    case 'j':case 'J': ssl->robots[R]->kicker->toggleRoller();break;
-    case 'i':case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BallRadius(),0);break;
+    case 'k': case 'K': ssl->robots[R]->kicker->kick(8,0);break;
+    case 'l': case 'L': ssl->robots[R]->kicker->kick(3,3);break;
+    case 'j': case 'J': ssl->robots[R]->kicker->toggleRoller();break;
+    case 'i': case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BallRadius(),0);break;
     case ';':
         if (kickingball==false)
         {
             kickingball = true; logStatus(QString("Kick mode On"),QColor("blue"));
+            chiping = false;
         }
         else
         {
             kickingball = false; logStatus(QString("Kick mode Off"),QColor("red"));
+            chiping = false;
+        }
+        break;
+    case '\'':
+        if (chiping==false)
+        {
+            logStatus(QString("Chip mode On"),QColor("blue"));
+            chiping = true;
+            kickingball = false;
+        }
+        else
+        {
+            logStatus(QString("Chip mode Off"),QColor("red"));
+            chiping = false;
+            kickingball = false;
         }
         break;
     case ']': kickpower += 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("orange"));break;
