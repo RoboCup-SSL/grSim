@@ -64,9 +64,9 @@ list(APPEND libs ${ODE_LIBRARIES})
 #TODO: make this an option
 option(DOUBLE_PRECISION "Use double precision? If not single precision will be used." ON)
 if(DOUBLE_PRECISION)
-    add_definitions(-DdDOUBLE)
+    add_definitions(-DdIDEDOUBLE)
 else()
-    add_definitions(-DdSINGLE)
+    add_definitions(-DdIDESINGLE)
 endif()
 
 # VarTypes
