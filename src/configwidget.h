@@ -44,6 +44,9 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 using namespace VarTypes;
 
+
+#ifdef HAVE_MACOSX
+
 #define DEF_VALUE(type,Type,name)  \
             std::shared_ptr<VarTypes::Var##Type> v_##name; \
             inline type name() {return v_##name->get##Type();}
@@ -57,6 +60,22 @@ using namespace VarTypes;
 #define DEF_PTREE(parents, name)  \
             std::shared_ptr<VarTypes::VarList> parents##_##name;
 
+#else
+
+#define DEF_VALUE(type,Type,name)  \
+            std::tr1::shared_ptr<VarTypes::Var##Type> v_##name; \
+            inline type name() {return v_##name->get##Type();}
+
+#define DEF_ENUM(type,name)  \
+            std::tr1::shared_ptr<VarTypes::VarStringEnum> v_##name; \
+            type name() {if(v_##name!=NULL) return v_##name->getString();return * (new type);}
+
+#define DEF_TREE(name)  \
+            std::tr1::shared_ptr<VarTypes::VarList> name;
+#define DEF_PTREE(parents, name)  \
+            std::tr1::shared_ptr<VarTypes::VarList> parents##_##name;
+
+#endif
 
 
 class RobotSettings {
