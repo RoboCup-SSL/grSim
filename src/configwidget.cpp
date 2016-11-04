@@ -18,17 +18,29 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "configwidget.h"
 
+#ifdef HAVE_MACOSX
+
+#define ADD_ENUM(type,name,Defaultvalue,namestring) \
+    v_##name = std::shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
+#define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
+    v_##name = std::shared_ptr<Var##type>(new Var##type(namestring,defaultvalue)); \
+    parent->addChild(v_##name);
+
+#else
+
 #define ADD_ENUM(type,name,Defaultvalue,namestring) \
     v_##name = std::tr1::shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
-#define END_ENUM(parents, name) \
-parents->addChild(v_##name);
-#define ADD_TO_ENUM(name,str) \
-v_##name->addItem(str);
-
-
 #define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
     v_##name = std::tr1::shared_ptr<Var##type>(new Var##type(namestring,defaultvalue)); \
     parent->addChild(v_##name);
+
+#endif
+
+#define END_ENUM(parents, name) \
+    parents->addChild(v_##name);
+#define ADD_TO_ENUM(name,str) \
+    v_##name->addItem(str);
+
 
 #include<QDir>
 
