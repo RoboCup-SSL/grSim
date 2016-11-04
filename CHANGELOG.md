@@ -2,6 +2,16 @@ grSim is a software from developers for developers, mainly
 in RoboCup Small Size League domain. Commit logs can be
 accessed [here](https://github.com/mani-monaj/grSim/commits/master)
 
+2016-11-05
+----------
+
+Mohammad Mahdi Rahimi <mohammadmahdi76@gmail.com>
+
+- Fix png texture chunks
+- Send data in 4 camera packet.
+- Make it full compatible with both Linux and Mac-osx
+- Add Commands for more control on the ball and robots.
+
 2013-03-28
 ----------
 
