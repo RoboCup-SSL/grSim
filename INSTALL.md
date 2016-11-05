@@ -18,6 +18,8 @@ GrSim depends on:
 We use CMake <http://www.cmake.org/> to build and install GrSim.
 
 
+> It's neccessery to use ode double percision so if you'r using source code, please attention to use `./configure --enable-double-precision` for configuration.
+
 ## Linux/Unix Installation
 
 If you run a Debian system, or derivative, first ensure that these dependencies are there:
@@ -26,7 +28,7 @@ If you run a Debian system, or derivative, first ensure that these dependencies 
 sudo apt-get install build-essential cmake libqt4-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev
 ```
 
-Next we need to install VarTypes manually, which itself has a number of dependencies:
+Next we need to install VarTypes manually, which itself depends on Qt4 so please make sure that you installed Qt4 first :
 
     $ (Get VarTypes)
     $ cd ./vartypes
@@ -58,11 +60,11 @@ The program is now under ../bin directory with the name grSim. You can run it fr
 
 ## Mac OS X Installation
 
-To make it easier to install the dpendencies, you can use a package manager like Homebrew.
+To make it easier to install the dependencies, you can use a package manager like Homebrew.
 First ensure the dependencies are there:
 
     $ brew install cmake
-    $ brew install ode
+    $ brew install ode --enable-double-precision
     $ brew install qt4
     $ brew install protobuf
 
@@ -71,9 +73,7 @@ If you run into build issues, you may need to run this first:
     $ brew update
     $ brew doctor
 
-Next we need to install VarTypes manually, which itself has a number of dependencies:
-
-
+Next we need to install VarTypes manually :
 
 > Note : the vartypes need some edits to be compatible with mac-osx so it's recommanded to use  :
 > <https://github.com/lordhippo/vartypes.git> (branch -> osx-fix)
