@@ -33,12 +33,13 @@ if(UNIX)
     endif()
 endif()
 
-
 # set explicitly the c++ standard to use
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++03")
 
 # add src dir to included directories
-include_directories(src)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include/net)
+include_directories(${PROJECT_SOURCE_DIR}/include/physics)
 
 
 ## Handling depenendcies
@@ -134,28 +135,28 @@ set(SOURCES
 )
 
 set(HEADERS
-    src/mainwindow.h
-    src/glwidget.h
-    src/graphics.h
-    src/physics/pworld.h
-    src/physics/pobject.h
-    src/physics/pball.h
-    src/physics/pground.h
-    src/physics/pfixedbox.h
-    src/physics/pcylinder.h
-    src/physics/pbox.h
-    src/physics/pray.h
-    src/net/robocup_ssl_server.h
-    src/net/robocup_ssl_client.h
-    src/sslworld.h
-    src/robot.h
-    src/configwidget.h
-    src/statuswidget.h
-    src/logger.h
-    src/robotwidget.h
-    src/getpositionwidget.h
-    src/common.h
-    src/config.h
+    include/mainwindow.h
+    include/glwidget.h
+    include/graphics.h
+    include/physics/pworld.h
+    include/physics/pobject.h
+    include/physics/pball.h
+    include/physics/pground.h
+    include/physics/pfixedbox.h
+    include/physics/pcylinder.h
+    include/physics/pbox.h
+    include/physics/pray.h
+    include/net/robocup_ssl_server.h
+    include/net/robocup_ssl_client.h
+    include/sslworld.h
+    include/robot.h
+    include/configwidget.h
+    include/statuswidget.h
+    include/logger.h
+    include/robotwidget.h
+    include/getpositionwidget.h
+    include/common.h
+    include/config.h
 )
 
 # files to be compiled
