@@ -34,6 +34,9 @@ if(UNIX)
 endif()
 
 
+# set explicitly the c++ standard to use
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++03")
+
 # add src dir to included directories
 include_directories(src)
 
