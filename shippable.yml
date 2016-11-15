@@ -1,0 +1,46 @@
+language: none
+compiler:
+  - gcc
+
+env:
+  global:
+    - GRSIM_WS=$HOME/grsim_ws
+  matrix:
+    - UBUNTU_DISTRO="trusty"
+    - UBUNTU_DISTRO="xenial"
+
+build:
+  pre_ci_boot:
+    image_name: ubuntu
+    image_tag: ${UBUNTU_DISTRO}
+    pull: true
+
+  ci:
+    - env  # debug
+    # OS level dependencies
+    - sudo apt-get update -qq
+    # libboost-dev is for vartypes
+    - sudo apt-get install -qq -y git build-essential cmake libqt4-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
+    - mkdir -p $GRSIM_WS
+    - ln -s $SHIPPABLE_BUILD_DIR $GRSIM_WS/grSim
+    # Compile vartypes
+    - cd $GRSIM_WS
+    - git clone https://github.com/szi/vartypes.git
+    - cd vartypes
+    - mkdir build && cd build
+    - cmake ..
+    - make
+    - sudo make install
+    # compile grSim
+    - cd $GRSIM_WS/grSim
+    - mkdir build && cd build
+    - cmake ..
+    - make
+    - sudo make install
+
+integrations:
+  notifications:
+    - integrationName: email
+      type: email
+      on_success: change
+      on_failure: always
