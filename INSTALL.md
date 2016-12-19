@@ -1,7 +1,8 @@
 # GrSim - INSTALL
+
 ## Overview
 
-We developed grSim on Ubuntu 9.10+ OS. (Ubuntu 14.04+ tested and is recommended). It is very important that the Graphics Card Driver is installed. (Ubuntu packages of nVidia and AMD(ATI) graphics cards are available). grSim will compile and run in both 32 and 64 bits Linux and Mac-osx.
+We developed grSim on Ubuntu OS. (Ubuntu 14.04+ tested and is recommended). It is  important that the graphics card driver is installed properly (the official Ubuntu packages for nVidia and AMD(ATI) graphics cards are available). grSim will compile and run in both 32 and 64 bits Linux and Mac OS.
 
 GrSim is written in C++, in order to compile it, you will need a working toolchain and a c++ compiler.
 
@@ -9,105 +10,105 @@ GrSim is written in C++, in order to compile it, you will need a working toolcha
 
 GrSim depends on:
 
-- OpenGL <https://www.opengl.org>
-- Qt4 Development Libraries <https://www.qt.io>
-- Open Dynamics Engine (ODE) <http://www.ode.org>
-- VarTypes Library <https://github.com/szi/vartypes>
-- Google Protobuf <https://github.com/google/protobuf>
+- [CMake](https://cmake.org/) version 2.8+ 
+- [OpenGL](https://www.opengl.org)
+- [Qt4 Development Libraries](https://www.qt.io) version 4.8+
+- [Open Dynamics Engine (ODE)](http://www.ode.org)
+- [VarTypes Library](https://github.com/szi/vartypes)
+- [Google Protobuf](https://github.com/google/protobuf)
+- [Boost development libraries](http://www.boost.org/) (needed by VarTypes)
 
-We use CMake <http://www.cmake.org/> to build and install GrSim.
+**Note:** It's necessary to use compile ODE in double precision. This is default when installing the ODE binaries in Ubuntu. However, if you are compiling ODE from source (e.g on Mac OS), please make sure to enable the double precision during the configuration step: `./configure --enable-double-precision`.
 
-
-> It's neccessery to use ode double percision so if you'r using source code, please attention to use `./configure --enable-double-precision` for configuration.
-
-## Linux/Unix Installation
+### Linux/Unix Installation
 
 If you run a Debian system, or derivative, first ensure that these dependencies are there:
 
 ```bash
-sudo apt-get install build-essential cmake libqt4-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev
+$ sudo apt-get install git build-essential cmake libqt4-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
 ```
 
-Next we need to install VarTypes manually, which itself depends on Qt4 so please make sure that you installed Qt4 first :
+Next we need to compile and install VarTypes from source, which itself depends on Qt4 (please make sure that you install Qt4 development libraries first). In the following we install VarTypes from source using `git`.
 
-    $ (Get VarTypes)
-    $ cd ./vartypes
-    $ mkdir build
-    $ cd build
-    $ cmake ..
-    $ make
-    $ sudo make install
+```bash
+$ cd /tmp
+$ git clone https://github.com/szi/vartypes.git 
+$ cd vartypes
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ sudo make install
+```
 
-Next, pull down the project:
+Next, clone grSim into your preferred location.
 
-    $ git clone https://github.com/mani-monaj/grSim.git
-    $ cd ./grSim
+```bash
+$ cd /path/to/grsim_ws
+$ git clone https://github.com/mani-monaj/grSim.git
+$ cd grSim
+```
 
 Create a build directory within the project (this is ignored by .gitignore):
 
-    $ mkdir build
-    $ cd build
+```bash
+$ mkdir build
+$ cd build
+```
 
 Run CMake to generate the makefiles:
 
-    $ cmake ..
+```bash
+$ cmake ..
+```
 
 Then compile the program:
 
-    $ make
+```bash
+$ make
+```
 
-The program is now under ../bin directory with the name grSim. You can run it from here just by typing "../bin/grSim"
+The binary is copied to the `../bin` folder after a successful compilation. You can run it from here by typing "../bin/grSim"
 
-## Mac OS X Installation
+### Mac OS X Installation
 
-To make it easier to install the dependencies, you can use a package manager like Homebrew.
+To facilitate the compilation on Mac OS, we use the [Homebrew](http://brew.sh/) package manager. Please install *Homebrew* first.
+
 First ensure the dependencies are there:
 
-    $ brew install cmake
-    $ brew install ode --enable-double-precision
-    $ brew install qt4
-    $ brew install protobuf
+```bash
+$ brew install cmake
+$ brew install ode --enable-double-precision
+$ brew install qt4
+$ brew install protobuf
+```
 
 If you run into build issues, you may need to run this first:
 
-    $ brew update
-    $ brew doctor
+```bash
+$ brew update
+$ brew doctor
+```
 
-Next we need to install VarTypes manually :
+Next we need to install VarTypes manually. Please refer to the documentation above for the procedure. 
 
-> Note : the vartypes need some edits to be compatible with mac-osx so it's recommanded to use  :
-> <https://github.com/lordhippo/vartypes.git> (branch -> osx-fix)
+**IMPORTANT NOTE:** VarTypes currently does not compile on MacOS. Please use the following fork of Vartypes instead of the official repository: `https://github.com/lordhippo/vartypes.git> (branch: osx-fix)`
 
-
-    $ (Get VarTypes)
-    $ cd ./vartypes
-    $ mkdir build
-    $ cd build
-    $ cmake ..
-    $ make
-    $ sudo make install
-
-Next, pull down the project:
-
-    $ git clone https://github.com/mani-monaj/grSim.git
-    $ cd ./grSim
-
-Create a build directory within the project (this is ignored by .gitignore):
-
-    $ mkdir build
-    $ cd build
-
-Run CMake to generate the makefiles:
-
-    $ cmake ..
-
-Then compile the program:
-
-    $ make
-
-The program is now under `../bin` directory with the name grSim. You can run it from here just by typing `../bin/grSim`;
+The steps to compile grSim is similar to the steps outlines above for Linux:
 
 
-you may want to use a cmake-gui instead of cmake, or maybe ccmake for ncurses fans.
+```bash
+$ cd /path/to/grsim_ws
+$ git clone https://github.com/mani-monaj/grSim.git
+$ cd ./grSim
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+```
 
-The binary files (grSim and sample client) will be placed in `./bin`. Check the fps in status bar, if it is running on 65fps everything is ok, otherwise check the graphics card installation and OpenGL settings. If you received linker error about GL related libraries, also check your graphics card driver
+The binary files (grSim and the sample client) will be placed in `../bin`. 
+
+## Notes on the performance
+
+When running grSim, check the FPS in the status bar. If it is running at **60 FPS** or higher everything is ok. Otherwise check the graphics card's driver installation and OpenGL settings.
