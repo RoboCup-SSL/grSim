@@ -18,7 +18,7 @@ GrSim depends on:
 - [Google Protobuf](https://github.com/google/protobuf)
 - [Boost development libraries](http://www.boost.org/) (needed by VarTypes)
 
-**Note:** It's necessary to use compile ODE in double precision. This is default when installing the ODE binaries in Ubuntu. However, if you are compiling ODE from source (e.g on Mac OS), please make sure to enable the double precision during the configuration step: `./configure --enable-double-precision`.
+**Note:** It's necessary to compile ODE in double precision. This is default when installing the ODE binaries in Ubuntu. However, if you are compiling ODE from source (e.g on Mac OS), please make sure to enable the double precision during the configuration step: `./configure --enable-double-precision`.
 
 ### Linux/Unix Installation
 
@@ -28,7 +28,7 @@ If you run a Debian system, or derivative, first ensure that these dependencies 
 $ sudo apt-get install git build-essential cmake libqt4-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
 ```
 
-Next we need to compile and install VarTypes from source, which itself depends on Qt4 (please make sure that you install Qt4 development libraries first). In the following we install VarTypes from source using `git`.
+Next compile and install VarTypes from source. In the following we install VarTypes from source using `git`.
 
 ```bash
 $ cd /tmp
@@ -68,11 +68,11 @@ Then compile the program:
 $ make
 ```
 
-The binary is copied to the `../bin` folder after a successful compilation. You can run it from here by typing "../bin/grSim"
+The binary is copied to the `../bin` folder after a successful compilation.
 
 ### Mac OS X Installation
 
-To facilitate the compilation on Mac OS, we use the [Homebrew](http://brew.sh/) package manager. Please install *Homebrew* first.
+To facilitate the compilation on Mac OS, we use the [Homebrew](http://brew.sh/) package manager.
 
 First ensure the dependencies are there:
 
@@ -92,9 +92,9 @@ $ brew doctor
 
 Next we need to install VarTypes manually. Please refer to the documentation above for the procedure. 
 
-**IMPORTANT NOTE:** VarTypes currently does not compile on MacOS. Please use the following fork of Vartypes instead of the official repository: `https://github.com/lordhippo/vartypes.git> (branch: osx-fix)`
+**IMPORTANT NOTE:** VarTypes currently does not compile on MacOS. Please use the following fork of Vartypes instead of the official repository: `https://github.com/lordhippo/vartypes.git (branch: osx-fix)`
 
-The steps to compile grSim is similar to the steps outlines above for Linux:
+The steps to compile grSim on Mac OS is similar to the steps outlines above for Linux:
 
 
 ```bash
@@ -111,4 +111,4 @@ The binary files (grSim and the sample client) will be placed in `../bin`.
 
 ## Notes on the performance
 
-When running grSim, check the FPS in the status bar. If it is running at **60 FPS** or higher everything is ok. Otherwise check the graphics card's driver installation and OpenGL settings.
+When running grSim, check the FPS in the status bar. If it is running at **60 FPS** or higher, everything is ok. Otherwise check the graphics card's driver installation and OpenGL settings.

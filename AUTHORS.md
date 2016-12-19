@@ -1,12 +1,9 @@
-# Head Developer
-- Ali Koochakzadeh - Amirkabir University of Technology (ali.koochakzade@gmail.com)
+## Authors
 
+grSim was originally developed by [Ali Koochakzadeh](https://github.com/ali-k) and [Mani Monajjemu](https://mani.im) from [Parsian RoboCup Small Size Team](http://wiki.robocup.org/Small_Size_League/Teams#Parsian) of [Amirkabir University of Technology](http://www.aut.ac.ir/aut/). Since 2011, it has received numerous contributions from the RoboCup SSL community and Parsian team members (listed below). grSim is Currently maintained by Mohammad Mahdi Rahimi (https://github.com/Mahi97).
 
-# Project Manager
-- Mani Monajjemi - Simon Fraser University (https://github.com/mani-monaj)
+# Contributers
 
-
-# Other Contributers
 - Christopher Head - University of British Coloumbia (https://github.com/Hawk777)
 - Jonathan Fraser - University of British Coloumbia (https://github.com/Binaryblade)
 - Verónica Raspeño - University Carlos III of Madrid- (vero.uc3m@gmail.com)
@@ -14,7 +11,8 @@
 - Jan Segre - RoboIME Team (jan@segre.in)
 - Henrique Bonini de Britto Menezes - Universidade de São Paulo - (henrique.menezes@usp.br)
 
-# Contributers from Parsian Small Size Team from Amirkabir University of Technology
+# Contributers from Parsian SSL 
+
 - Sepehr Mohaimanianpour (s.mehdi.mohaimanianpour@gmail.com)
 - Arash Behmand (arashbehmand@gmail.com)
 - Mohammad Mahdi Rahimi (https://github.com/Mahi97)
