@@ -1,10 +1,10 @@
-[![Run Status](https://api.shippable.com/projects/5620224e1895ca44741e0b4d/badge?branch=2.0-dev)](https://app.shippable.com/projects/5620224e1895ca44741e0b4d)
 
-grSim
-=====
+[grSim](http://github.com/mani-monaj/grSim) [![Run Status](https://api.shippable.com/projects/5620224e1895ca44741e0b4d/badge?branch=2.0-dev)](https://app.shippable.com/projects/5620224e1895ca44741e0b4d)
+=======================
 
 RoboCup Small Size League Simulator
 
+![grSim on Ubuntu](docs/img/screenshot01.jpg?raw=true "grSim on Ubuntu")
 
 System Requirements
 -----------------------
@@ -21,9 +21,9 @@ Note that it may run on lower end equipment though good performance is not guara
 Software Requirements
 ---------------------
 
-grSim uses these libraries:
+grSim can be compiled on Linux (tested on Ubuntu variants only) and Mac OS and depends on the following libraries:
 
-- Qt 4.8+ (provided by libqt4-dev on debian based distros)
+- Qt 4.8+ (provided by libqt4-dev on Debian based distributions)
 - OpenGL
 - Open Dynamics Engine (ODE)
 - VarTypes Library
