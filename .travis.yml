@@ -2,14 +2,19 @@ language: cpp
 
 os:
   - linux
-    dist: trusty
-    sudo: required
   - osx
 
 compiler:
   - gcc
   - clang
 
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+    - os: osx
+      
 addons:
   apt:
     packages:
