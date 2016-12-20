@@ -7,7 +7,7 @@ grSim was originally developed by [Ali Koochakzadeh](https://github.com/ali-k) a
 - [Christopher Head](https://github.com/Hawk777) - Thunderbots (University of British Coloumbia)
 - [Jonathan Fraser](https://github.com/Binaryblade) - Thunderbots (University of British Coloumbia)
 - [Verónica Raspeño](vero.uc3m@gmail.com) - University Carlos III of Madrid
-- pAlejandro Caparrós](alexcap.uc3m@gmail.com) - University Carlos III of Madrid
+- [Alejandro Caparrós](alexcap.uc3m@gmail.com) - University Carlos III of Madrid
 - [Jan Segre](jan@segre.in) - RoboIME
 - [Henrique Bonini de Britto Menezes](henrique.menezes@usp.br) - Universidade de São Paulo
 
