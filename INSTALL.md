@@ -72,13 +72,16 @@ The binary is copied to the `../bin` folder after a successful compilation.
 
 ### Mac OS X Installation
 
-To facilitate the compilation on Mac OS, we use the [Homebrew](http://brew.sh/) package manager.
+Pre-requirements:
+
+- [Xcode](https://developer.apple.com/xcode/) or Xcode Command Line Tools 8.0 or newer
+- [Homebrew](http://brew.sh/) package manager.
 
 First ensure the dependencies are there:
 
 ```bash
 $ brew install cmake
-$ brew install ode --enable-double-precision
+$ brew install ode --with-double-precision
 $ brew install qt4
 $ brew install protobuf
 ```

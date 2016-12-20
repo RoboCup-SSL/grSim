@@ -3,6 +3,9 @@ language: cpp
 compiler:
   - gcc
 
+# by default Ubuntu Precise is included
+# this results on 3 build configurations:
+# Ubuntu Precise and Trusty + Latest OSX image
 matrix:
   include:
     - os: linux
@@ -27,7 +30,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update           ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt4      ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install protobuf ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ode --enable-double-precision    ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ode --with-double-precision    ; fi
 
 install:
   # vartypes
