@@ -40,6 +40,7 @@ install:
   - sudo make install
 
 script:
+  # grsim
   - cd $TRAVIS_BUILD_DIR
   - mkdir build && cd build
   - cmake ..
