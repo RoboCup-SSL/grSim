@@ -1,5 +1,5 @@
 
-[grSim](http://github.com/mani-monaj/grSim) [![Run Status](https://api.shippable.com/projects/5620224e1895ca44741e0b4d/badge?branch=2.0-dev)](https://app.shippable.com/projects/5620224e1895ca44741e0b4d)
+[grSim](http://github.com/mani-monaj/grSim) [![Build Status (Ubuntu 12.04, 16.04 and OSX w/ Xcode 8+)](https://travis-ci.org/mani-monaj/grSim.svg?branch=master)](https://travis-ci.org/mani-monaj/grSim)
 =======================
 
 [RoboCup Small Size League](http://wiki.robocup.org/Small_Size_League) Simulator.
@@ -28,12 +28,15 @@ Software Requirements
 
 grSim compiles on Linux (tested on Ubuntu variants only) and Mac OS. It depends on the following libraries:
 
-- Qt 4.8+ (provided by libqt4-dev on Debian based distributions)
-- OpenGL
-- Open Dynamics Engine (ODE)
-- VarTypes Library
-- Google ProtoBuf
+- [CMake](https://cmake.org/) version 2.8+ 
+- [OpenGL](https://www.opengl.org)
+- [Qt4 Development Libraries](https://www.qt.io) version 4.8+
+- [Open Dynamics Engine (ODE)](http://www.ode.org)
+- [VarTypes Library](https://github.com/szi/vartypes)
+- [Google Protobuf](https://github.com/google/protobuf)
+- [Boost development libraries](http://www.boost.org/) (needed by VarTypes)
 
+Please consult the [install instructions](INSTALL.md) for more details.
 
 Usage
 -----
