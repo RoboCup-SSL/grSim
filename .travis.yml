@@ -1,0 +1,51 @@
+language: cpp
+
+compiler:
+  - gcc
+
+# by default Ubuntu Precise is included
+# this results on 3 build configurations:
+# Ubuntu Precise and Trusty + Latest OSX image
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+    - os: osx
+      osx_image: xcode8
+
+addons:
+  apt:
+    packages:
+      - cmake
+      - libqt4-dev
+      - libgl1-mesa-dev
+      - libglu1-mesa-dev
+      - libprotobuf-dev 
+      - protobuf-compiler 
+      - libode-dev
+      - libboost-dev
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update           ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt4      ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install protobuf ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ode --with-double-precision    ; fi
+
+install:
+  # vartypes
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git clone https://github.com/szi/vartypes.git ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then git clone https://github.com/lordhippo/vartypes.git -b osx-fix; fi
+  - cd vartypes
+  - mkdir build && cd build
+  - cmake ..
+  - make
+  - sudo make install
+
+script:
+  # grsim
+  - cd $TRAVIS_BUILD_DIR
+  - mkdir build && cd build
+  - cmake ..
+  - make
+  - sudo make install
