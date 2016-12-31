@@ -28,7 +28,9 @@ addons:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update           ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt4      ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap cartr/qt4         ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap-pin cartr/qt4     ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt            ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install protobuf ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ode --with-double-precision    ; fi
 
