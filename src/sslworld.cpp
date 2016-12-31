@@ -591,28 +591,6 @@ dReal normalizeAngle(dReal a)
     return a;
 }
 
-bool SSLWorld::visibleInCam(int id, double x, double y)
-{
-    id %= 4;
-    if (id==0)
-    {
-        if (x>-0.2 && y>-0.2) return true;
-    }
-    if (id==1)
-    {
-        if (x>-0.2 && y<0.2) return true;
-    }
-    if (id==2)
-    {
-        if (x<0.2 && y<0.2) return true;
-    }
-    if (id==3)
-    {
-        if (x<0.2 && y>-0.2) return true;
-    }
-    return false;
-}
-
 #define CONVUNIT(x) ((int)(1000*(x)))
 SSL_WrapperPacket** SSLWorld::generatePacket()
 {
