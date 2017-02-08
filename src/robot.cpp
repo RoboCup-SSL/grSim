@@ -96,13 +96,13 @@ void Robot::Kicker::step()
 {
     if (kicking)
     {
-        box->setColor(1,0.3,0);
+        box->setColor(1,0,0); // red
         kickstate--;
         if (kickstate<=0) kicking = false;
     }
     else if (rolling!=0)
     {
-        box->setColor(1,0.7,0);
+        box->setColor(0,1,0); // green
         if (isTouchingBall())
         {
             dReal fx,fy,fz;
@@ -126,7 +126,7 @@ void Robot::Kicker::step()
             dBodyAddTorque(rob->getBall()->body,yy*fx*rob->cfg->robotSettings.RollerPerpendicularTorqueFactor,yy*fy*rob->cfg->robotSettings.RollerPerpendicularTorqueFactor,0);
         }
     }
-    else box->setColor(0.9,0.9,0.9);
+    else box->setColor(0,0,1); // blue
 }
 
 bool Robot::Kicker::isTouchingBall()

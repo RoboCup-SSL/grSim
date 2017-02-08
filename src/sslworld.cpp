@@ -526,8 +526,31 @@ void SSLWorld::recvActions()
                         kick = true;
                         kickz = packet.commands().robot_commands(i).kickspeedz();
                     }
+
+                    if (packet.commands().robot_commands(i).has_triggermode())
+                    {
+                        grSim_Robot_Command_TriggerMode mode = packet.commands().robot_commands(i).triggermode();
+                        switch (mode) {
+                            case grSim_Robot_Command_TriggerMode_STAND_DOWN:
+                                kick = false;
+                                kickx = 0;
+                                kickz = 0;
+                                break;
+                            case grSim_Robot_Command_TriggerMode_IMMEDIATE:
+                                break;
+                            case grSim_Robot_Command_TriggerMode_ON_BREAK_BEAM:
+                                if (!robots[id]->kicker->isTouchingBall()) {
+                                    kickx = 0;
+                                    kickz = 0;
+                                    kick = false;
+                                } 
+                                break;
+                        }
+                    }
+                        
                     if (kick && ((kickx>0.0001) || (kickz>0.0001)))
                         robots[id]->kicker->kick(kickx,kickz);
+
                     int rolling = 0;
                     if (packet.commands().robot_commands(i).has_spinner())
                     {
