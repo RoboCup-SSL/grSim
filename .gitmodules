@@ -1,0 +1,3 @@
+[submodule "external/vartypes"]
+	path = external/vartypes
+	url = https://github.com/szi/vartypes
