@@ -11,7 +11,7 @@ string(TOLOWER ${CMAKE_PROJECT_NAME} CMAKE_PROJECT_NAME_LOWER)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 standard_config()
-standard_paths(${PROJECT_SOURCE_DIR} bin lib)
+#standard_paths(${PROJECT_SOURCE_DIR} bin lib)
 
 
 # definitions for knowing the OS from the code
@@ -200,11 +200,13 @@ elseif(WIN32)
 else()
     set(app ${CMAKE_PROJECT_NAME_LOWER})
     add_executable(${app} ${srcs})
+    set_target_properties(${app} 
+        PROPERTIES OUTPUT_NAME "grsim")
     target_link_libraries(${app} ${libs})
-    install(TARGETS ${app} DESTINATION bin)
-    install(DIRECTORY config DESTINATION share/${app})
-    install(FILES resources/grsim.desktop DESTINATION share/applications)
-    install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)
+    #install(TARGETS ${app} DESTINATION bin)
+    #install(DIRECTORY config DESTINATION share/${app})
+    #install(FILES resources/grsim.desktop DESTINATION share/applications)
+    #install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)
 endif()
 
 option(BUILD_CLIENTS "Choose this option if you want to build the example Qt client." ON)
