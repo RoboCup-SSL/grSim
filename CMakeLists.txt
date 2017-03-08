@@ -84,20 +84,14 @@ set(CMAKE_AUTOMOC OFF)
 add_subdirectory(${PROJECT_SOURCE_DIR}/external/vartypes)
 set(CMAKE_AUTOMOC ON)
 
-include_directories(${PROJECT_SOURCE_DIR}/external/)
+include_directories(${PROJECT_SOURCE_DIR}/external/vartypes)
 include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/)
 include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/vartypes/)
 include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/vartypes/gui/)
 include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/vartypes/primitives/)
 include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/vartypes/xml/)
 
-get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-foreach(dir ${dirs})
-  message(STATUS "include_dir='${dir}'")
-endforeach()
-
 list(APPEND libs vartypes)
-include_directories(vartypes)
 
 # Protobuf
 find_package(Protobuf REQUIRED)

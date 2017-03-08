@@ -30,16 +30,15 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <stdint.h>
 #include <stdio.h>
 
-#include "vartypes/VarTreeModel.h"
-#include "vartypes/VarItem.h"
-#include "vartypes/VarTreeView.h"
+#include "vartypes/gui/VarTreeModel.h"
+#include "vartypes/gui/VarItem.h"
+#include "vartypes/gui/VarTreeView.h"
 #include "vartypes/VarXML.h"
-#include "vartypes/VarList.h"
-#include "vartypes/VarDouble.h"
-#include "vartypes/VarBool.h"
-#include "vartypes/VarInt.h"
-#include "vartypes/VarTrigger.h"
-#include "vartypes/VarXML.h"
+#include "vartypes/primitives/VarList.h"
+#include "vartypes/primitives/VarDouble.h"
+#include "vartypes/primitives/VarBool.h"
+#include "vartypes/primitives/VarInt.h"
+#include "vartypes/primitives/VarTrigger.h"
 #include "vartypes/VarTypes.h"
 
 using namespace VarTypes;
