@@ -131,22 +131,10 @@ ConfigWidget::ConfigWidget()
     ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
     ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
 
-    dir.setCurrent(qApp->applicationDirPath()+"/../config/");
+    dir.setCurrent(qApp->applicationDirPath());
     dir.setNameFilters(QStringList() << "*.ini");
     dir.setSorting(QDir::Size | QDir::Reversed);
     QFileInfoList list = dir.entryInfoList();
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo fileInfo = list.at(i);
-        QStringList s = fileInfo.fileName().split(".");
-        QString str;
-        if (s.count() > 0) str = s[0];
-        ADD_TO_ENUM(BlueTeam,str.toStdString())
-        ADD_TO_ENUM(YellowTeam,str.toStdString())
-    }
-    dir.setCurrent(qApp->applicationDirPath()+"/../share/grsim/config/");
-    dir.setNameFilters(QStringList() << "*.ini");
-    dir.setSorting(QDir::Size | QDir::Reversed);
-    list = dir.entryInfoList();
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
         QStringList s = fileInfo.fileName().split(".");
