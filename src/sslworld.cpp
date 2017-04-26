@@ -593,13 +593,18 @@ void SSLWorld::recvActions()
                 }
                 if (packet.replacement().has_ball())
                 {
-                    dReal x = 0, y = 0, vx = 0, vy = 0;
-                    if (packet.replacement().ball().has_x())  x  = packet.replacement().ball().x();
-                    if (packet.replacement().ball().has_y())  y  = packet.replacement().ball().y();
-                    if (packet.replacement().ball().has_vx()) vx = packet.replacement().ball().vx();
-                    if (packet.replacement().ball().has_vy()) vy = packet.replacement().ball().vy();
-                    ball->setBodyPosition(x,y,cfg->BallRadius()*1.2);
-                    dBodySetLinearVel(ball->body,vx,vy,0);
+                    if (packet.replacement().ball().has_pos()) 
+                    {
+                        dReal x = packet.replacement().ball().pos().x();
+                        dReal y = packet.replacement().ball().pos().y();
+                        ball->setBodyPosition(x,y,cfg->BallRadius()*1.2);
+                    }
+                    if (packet.replacement().ball().has_vel())
+                    {
+                        dReal vx = packet.replacement().ball().vel().x();
+                        dReal vy = packet.replacement().ball().vel().y();
+                        dBodySetLinearVel(ball->body,vx,vy,0);
+                    }
                     dBodySetAngularVel(ball->body,0,0,0);
                 }
             }

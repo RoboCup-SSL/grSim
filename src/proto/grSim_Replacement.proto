@@ -1,3 +1,5 @@
+syntax = "proto2"
+
 message grSim_RobotReplacement {
 required double x=1;
 required double y=2;
@@ -7,13 +9,16 @@ required bool yellowteam=5;
 }
 
 message grSim_BallReplacement {
+optional point pos=1;
+optional point vel=2;
+}
+
+message point {
 required double x=1;
 required double y=2;
-required double vx=3;
-required double vy=4;
 }
 
 message grSim_Replacement {
-optional grSim_BallReplacement ball = 1;
-repeated grSim_RobotReplacement robots = 2;
+optional grSim_BallReplacement ball=1;
+repeated grSim_RobotReplacement robots=2;
 }

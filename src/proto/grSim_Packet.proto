@@ -1,3 +1,5 @@
+syntax = "proto2"
+
 import "grSim_Commands.proto";
 import "grSim_Replacement.proto";
 message grSim_Packet {
