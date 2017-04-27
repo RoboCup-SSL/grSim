@@ -1,4 +1,4 @@
-syntax = "proto2"
+syntax = "proto2";
 
 // A 2D float vector.
 message Vector2f {
