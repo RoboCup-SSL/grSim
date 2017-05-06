@@ -90,10 +90,15 @@ Robot::Kicker::Kicker(Robot* robot)
 
     rolling = 0;
     kicking = false;
+
+    kickerChargingCountdown = 0;
 }
 
 void Robot::Kicker::step()
 {
+    // simulate capacitors recharging after a kick
+    if (kickerChargingCountdown > 0) --kickerChargingCountdown;
+
     if (kicking)
     {
         box->setColor(1,0,0); // red
@@ -145,6 +150,11 @@ bool Robot::Kicker::isTouchingBall()
     return ((xx<rob->cfg->robotSettings.KickerThickness*2.0f+rob->cfg->BallRadius()) && (yy<rob->cfg->robotSettings.KickerWidth*0.5f) && (zz<rob->cfg->robotSettings.KickerHeight*0.5f));
 }
 
+bool Robot::Kicker::justKicked()
+{
+    return kickerChargingCountdown > 0;
+}
+
 void Robot::Kicker::setRoller(int roller)
 {
     rolling = roller;
@@ -184,6 +194,8 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
     }
     kicking = true;
     kickstate = 10;
+
+    kickerChargingCountdown = 100; // we should tune for actual robot capacitor charging time
 }
 
 Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir)

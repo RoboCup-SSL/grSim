@@ -66,6 +66,7 @@ public:
         bool kicking;
         int rolling;
         int kickstate;
+        int kickerChargingCountdown;
         dReal m_kickspeed,m_kicktime;
       public:
         Kicker(Robot* robot);
@@ -75,6 +76,7 @@ public:
         int getRoller();
         void toggleRoller();
         bool isTouchingBall();
+        bool justKicked();
         dJointID joint;
         PBox* box;
         Robot* rob;

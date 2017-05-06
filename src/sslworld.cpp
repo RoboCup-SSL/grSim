@@ -558,14 +558,6 @@ void SSLWorld::recvActions()
                     }
                     robots[id]->kicker->setRoller(rolling);
 
-                    char status = 0;
-                    status = k;
-                    if (robots[id]->kicker->isTouchingBall()) status = status | 8;
-                    if (robots[id]->on) status = status | 240;
-                    if (team == 0)
-                        blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
-                    else
-                        yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
 
                 }
             }
@@ -608,6 +600,27 @@ void SSLWorld::recvActions()
                     dBodySetAngularVel(ball->body,0,0,0);
                 }
             }
+        }
+    }
+
+    // send status regardless of whether or not we received any commands
+    for (int team = 0; team < 1; ++team) {
+        for (int id = 0; id < ROBOT_COUNT; ++id) {
+            char status = 0;
+            status = robotIndex(id, team);
+            
+            const uint8_t touching_ball = 0x1 << 3;
+            const uint8_t just_kicked = 0x1 << 4;
+            const uint8_t robot_on = 0x1 << 5;
+
+            if (robots[id]->kicker->isTouchingBall()) status = status | touching_ball;
+            if (robots[id]->kicker->justKicked()) status |= just_kicked;
+            if (robots[id]->on) status = status |= robot_on;
+
+            if (team == 0)
+                blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
+            else
+                yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
         }
     }
 }
