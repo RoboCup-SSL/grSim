@@ -816,46 +816,52 @@ RobotsFomation::RobotsFomation(int type)
 {
     if (type==0)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0,   1.0, 1.0,  0.33, 1.22};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75, 0.0, 0.75, 0.25, 0.0};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {2.2, 1.0, 1.0, 1.0, 0.33, 1.22,
+                                           3, 3.2, 3.4, 3.6, 3.8, 4.0};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {0.0, -0.75, 0.0, 0.75, 0.25, 0.0,
+                                           1, 1, 1, 1, 1, 1};
         setAll(teamPosX,teamPosY);
     }
     if (type==1) // formation 1
     {
-        dReal teamPosX[ROBOT_COUNT] = {1.5,  1.5, 1.5,   0.55,   2.5, 3.6};
-        dReal teamPosY[ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {1.5, 1.5, 1.5, 0.55, 2.5, 3.6,
+                                           3.2, 3.2, 3.2, 3.2, 3.2, 3.2};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0,
+                                           0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
         setAll(teamPosX,teamPosY);
     }
     if (type==2) // formation 2
     {
-        dReal teamPosX[ROBOT_COUNT] = {4.2, 3.40,  3.40, 0.7, 0.7,  0.7};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.20, 0.20, 0.0, 2.25, -2.25};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {4.2, 3.40,  3.40, 0.7, 0.7,  0.7,
+                                           2, 2, 2, 2, 2, 2};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {0.0, -0.20, 0.20, 0.0, 2.25, -2.25,
+                                           0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
         setAll(teamPosX,teamPosY);
     }
     if (type==3) // outside field
     {
-        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
-        dReal teamPosY[ROBOT_COUNT] = {-4.0, -4.0, -4.0, -4.0, -4.0, -4.0};
+        qDebug() << "type3";
+        dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
+                                           2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {-4.0, -4.0, -4.0, -4.0, -4.0, -4.0,
+                                           -4.0, -4.0, -4.0, -4.0, -4.0, -4.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==4)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1};
-        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1, 3, 3.2, 3.4, 3.6, 3.8, 4.0};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5, 1, 1, 1, 1, 1, 1};
         setAll(teamPosX,teamPosY);
     }
-    if (type==-1) // blue outside
+    if (type==-1) // outside
     {
-        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
-        dReal teamPosY[ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
+                                           2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4,
+                                           -3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
         setAll(teamPosX,teamPosY);
     }
-    if (type==-2) // yellow outside
-    {
-        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
-        dReal teamPosY[ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
-        setAll(teamPosX,teamPosY);
-    }
+
 }
 
 void RobotsFomation::loadFromFile(const QString& filename)
