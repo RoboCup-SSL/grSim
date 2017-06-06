@@ -138,16 +138,16 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s)
 
 SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2)
     : QObject(parent)
-{    
+{
     isGLEnabled = true;
-    customDT = -1;    
+    customDT = -1;
     _w = this;
     cfg = _cfg;
     m_parent = parent;
     show3DCursor = false;
     updatedCursor = false;
     framenum = 0;
-    last_dt = -1;    
+    last_dt = -1;
     g = new CGraphics(parent);
     g->setSphereQuality(1);
     g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,90,-45,0);
@@ -156,9 +156,9 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
     ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),cfg->Field_Defense_Stretch(),cfg->Field_Defense_Rad(),0);
     ray = new PRay(50);
-    
+
     // Bounding walls
-    
+
     const double thick = cfg->Wall_Thickness();
     const double increment = cfg->Field_Margin() + cfg->Field_Referee_Margin() + thick / 2;
     const double pos_x = cfg->Field_Length() / 2.0 + increment;
@@ -168,7 +168,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     const double siz_y = 2.0 * pos_y;
     const double siz_z = 0.4;
     const double tone = 1.0;
-    
+
     walls[0] = new PFixedBox(thick/2, pos_y, pos_z,
                              siz_x, thick, siz_z,
                              tone, tone, tone);
@@ -176,7 +176,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     walls[1] = new PFixedBox(-thick/2, -pos_y, pos_z,
                              siz_x, thick, siz_z,
                              tone, tone, tone);
-    
+
     walls[2] = new PFixedBox(pos_x, -thick/2, pos_z,
                              thick, siz_y, siz_z,
                              tone, tone, tone);
@@ -184,9 +184,9 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     walls[3] = new PFixedBox(-pos_x, thick/2, pos_z,
                              thick, siz_y, siz_z,
                              tone, tone, tone);
-    
+
     // Goal walls
-    
+
     const double gthick = cfg->Goal_Thickness();
     const double gpos_x = (cfg->Field_Length() + gthick) / 2.0 + cfg->Goal_Depth();
     const double gpos_y = (cfg->Goal_Width() + gthick) / 2.0;
@@ -199,11 +199,11 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     walls[4] = new PFixedBox(gpos_x, 0.0, gpos_z,
                              gthick, gsiz_y, gsiz_z,
                              tone, tone, tone);
-    
+
     walls[5] = new PFixedBox(gpos2_x, -gpos_y, gpos_z,
                              gsiz_x, gthick, gsiz_z,
                              tone, tone, tone);
-    
+
     walls[6] = new PFixedBox(gpos2_x, gpos_y, gpos_z,
                              gsiz_x, gthick, gsiz_z,
                              tone, tone, tone);
@@ -211,15 +211,15 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     walls[7] = new PFixedBox(-gpos_x, 0.0, gpos_z,
                              gthick, gsiz_y, gsiz_z,
                              tone, tone, tone);
-    
+
     walls[8] = new PFixedBox(-gpos2_x, -gpos_y, gpos_z,
                              gsiz_x, gthick, gsiz_z,
                              tone, tone, tone);
-    
+
     walls[9] = new PFixedBox(-gpos2_x, gpos_y, gpos_z,
                              gsiz_x, gthick, gsiz_z,
                              tone, tone, tone);
-    
+
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
@@ -262,10 +262,10 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     ballwithkicker.surface.mode = dContactApprox1;
     ballwithkicker.surface.mu = fric(cfg->robotSettings.Kicker_Friction);
     ballwithkicker.surface.slip1 = 5;
-    
+
     for (int i = 0; i < WALL_COUNT; i++)
         p->createSurface(ball, walls[i])->surface = ballwithwall.surface;
-    
+
     for (int k = 0; k < 2 * ROBOT_COUNT; k++)
     {
         p->createSurface(robots[k]->chassis,ground);
@@ -283,7 +283,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
             w_g->callback=wheelCallBack;
         }
         for (int j = k + 1; j < 2 * ROBOT_COUNT; j++)
-        {            
+        {
             if (k != j)
             {
                 p->createSurface(robots[k]->dummy,robots[j]->dummy); //seams ode doesn't understand cylinder-cylinder contacts, so I used spheres
@@ -618,9 +618,9 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
 {
     SSL_WrapperPacket* packet = new SSL_WrapperPacket;
     dReal x,y,z,dir;
-    ball->getBodyPosition(x,y,z);    
+    ball->getBodyPosition(x,y,z);
     packet->mutable_detection()->set_camera_id(cam_id);
-    packet->mutable_detection()->set_frame_number(framenum);    
+    packet->mutable_detection()->set_frame_number(framenum);
     dReal t_elapsed = timer->elapsed()/1000.0;
     packet->mutable_detection()->set_t_capture(t_elapsed);
     packet->mutable_detection()->set_t_sent(t_elapsed);
@@ -788,7 +788,7 @@ SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
 void SSLWorld::sendVisionBuffer()
 {
     int t = timer->elapsed();
-    sendQueue.push_back(new SendingPacket(generatePacket(0),t));    
+    sendQueue.push_back(new SendingPacket(generatePacket(0),t));
     sendQueue.push_back(new SendingPacket(generatePacket(1),t+1));
     sendQueue.push_back(new SendingPacket(generatePacket(2),t+2));
     sendQueue.push_back(new SendingPacket(generatePacket(3),t+3));

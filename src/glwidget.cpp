@@ -65,7 +65,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     selectRobotAct = new QAction(tr("&Select robot"),this);
     resetRobotAct = new QAction(tr("&Reset robot"),this);
     onOffRobotAct = new QAction(tr("Turn &off"),this);
-    lockToRobotAct = new QAction(tr("Loc&k camera to this robot"),this);    
+    lockToRobotAct = new QAction(tr("Loc&k camera to this robot"),this);
     robpopup->addAction(moveRobotAct);
     robpopup->addAction(resetRobotAct);
     robpopup->addAction(onOffRobotAct);
@@ -117,6 +117,10 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     altTrigger = false;
     chipAngle = M_PI/4;
     chiping = false;
+
+    // Starting the timer to make sure that the time is defined
+    // the first time `step()` is called.
+    rendertimer.start();
 }
 
 GLWidget::~GLWidget()
@@ -177,7 +181,7 @@ void GLWidget::switchRobotOnOff()
 }
 
 void GLWidget::resetCurrentRobot()
-{       
+{
     ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
 }
 
@@ -227,7 +231,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
             if (kickingball)
             {
                 dReal x,y,z;
-                ssl->ball->getBodyPosition(x,y,z);                
+                ssl->ball->getBodyPosition(x,y,z);
                 x = ssl->cursor_x - x;
                 y = ssl->cursor_y - y;
                 dReal lxy = hypot(x,y);
@@ -251,9 +255,9 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
                 z = kickpower*tan(chipAngle);
 
                 dBodySetLinearVel(ssl->ball->body,x,y,z);
-                dBodySetAngularVel(ssl->ball->body,-y/cfg->BallRadius(),x/cfg->BallRadius(),z);    
+                dBodySetAngularVel(ssl->ball->body,-y/cfg->BallRadius(),x/cfg->BallRadius(),z);
             }
-        
+
         }
     }
     if (event->buttons() & Qt::RightButton)
@@ -290,7 +294,7 @@ void GLWidget::update3DCursor(int mouse_x,int mouse_y)
     dReal fx,fy,fz,rx,ry,rz,ux,uy,uz,px,py,pz;
     ssl->g->getViewpoint(xyz,hpr);
     ssl->g->getCameraForward(fx,fy,fz);
-    ssl->g->getCameraRight(rx,ry,rz);    
+    ssl->g->getCameraRight(rx,ry,rz);
     ux = ry*fz - rz*fy;
     uy = rz*fx - rx*fz;
     uz = rx*fy - ry*fx;
@@ -312,7 +316,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (!ssl->g->isGraphicsEnabled()) return;
     int dx = -(event->x() - lastPos.x());
-    int dy = -(event->y() - lastPos.y());    
+    int dy = -(event->y() - lastPos.y());
     if (event->buttons() & Qt::LeftButton) {
         if (ctrl)
             ssl->g->cameraMotion(4,dx,dy);
@@ -339,7 +343,7 @@ dReal GLWidget::getFPS()
 
 
 void GLWidget::initializeGL ()
-{    
+{
     ssl->glinit();
 }
 
@@ -350,24 +354,26 @@ void GLWidget::step()
     double ballSpeed = ballV[0]*ballV[0] + ballV[1]*ballV[1] + ballV[2]*ballV[2];
     ballSpeed  = sqrt(ballSpeed);
     lastBallSpeed = ballSpeed;
-    rendertimer.restart();
+
     m_fps = frames /(time.elapsed()/1000.0);
     if (!(frames % ((int)(ceil(cfg->DesiredFPS()))))) {
         time.restart();
         frames = 0;
     }
-    if (first_time) {ssl->step();first_time = false;}
-    else {
-        if (cfg->SyncWithGL())
-        {
-            dReal ddt=rendertimer.elapsed()/1000.0;
-            if (ddt>0.05) ddt=0.05;
-            ssl->step(ddt);
-        }
-        else {
-            ssl->step(cfg->DeltaTime());
-        }
+    //if (first_time) {ssl->step();first_time = false;}
+    //else {
+    if (cfg->SyncWithGL())
+    {
+        dReal ddt=rendertimer.elapsed()/1000.0;
+        if (ddt>0.05) ddt=0.05;
+        ssl->step(ddt);
     }
+    else {
+        ssl->step(cfg->DeltaTime());
+    }
+    //}
+
+    rendertimer.restart();
     frames ++;
 }
 
@@ -393,7 +399,7 @@ void GLWidget::paintGL()
         ssl->ball->getBodyPosition(x,y,z);
         ssl->g->lookAt(x,y,z);
     }
-    step();    
+    step();
     QFont font;
     for (int i=0;i<ROBOT_COUNT*2;i++)
     {
@@ -602,4 +608,3 @@ void GLWidgetGraphicsView::mouseReleaseEvent(QMouseEvent *event) {glwidget->mous
 void GLWidgetGraphicsView::wheelEvent(QWheelEvent *event) {glwidget->wheelEvent(event);}
 void GLWidgetGraphicsView::keyPressEvent(QKeyEvent *event){glwidget->keyPressEvent(event);}
 void GLWidgetGraphicsView::closeEvent(QCloseEvent *event){} //{viewportEvent(event);}
-

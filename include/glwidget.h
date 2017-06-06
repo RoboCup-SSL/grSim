@@ -35,7 +35,7 @@ public:
     GLWidget(QWidget *parent,ConfigWidget* _cfg);
     ~GLWidget();
     dReal getFPS();
-    ConfigWidget* cfg;   
+    ConfigWidget* cfg;
     SSLWorld* ssl;
     RobotsFomation* forms[6];
     QMenu* robpopup,*ballpopup,*mainpopup;
@@ -43,7 +43,7 @@ public:
     QAction* moveRobotAct;
     QAction* selectRobotAct;
     QAction* resetRobotAct;
-    QAction* moveBallAct;        
+    QAction* moveBallAct;
     QAction* lockToBallAct;
     QAction* onOffRobotAct;
     QAction* lockToRobotAct;
@@ -59,13 +59,13 @@ public:
     bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(dReal x,dReal y);
-    void reform(int team,const QString& act);    
+    void reform(int team,const QString& act);
     void step();
 public slots:
     void moveRobot();
     void resetRobot();
     void selectRobot();
-    void unselectRobot();    
+    void unselectRobot();
     void moveCurrentRobot();
     void resetCurrentRobot();
     void moveBall();
@@ -85,15 +85,15 @@ signals:
     void robotTurnedOnOff(int,bool);
 protected:
     void paintGL ();
-    void initializeGL ();        
+    void initializeGL ();
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);    
+    void mouseReleaseEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent* event);
-    void closeEvent(QCloseEvent *event);    
+    void closeEvent(QCloseEvent *event);
 private:
     int state;
     int moving_robot_id,clicked_robot;
@@ -105,7 +105,7 @@ private:
 friend class GLWidgetGraphicsView;
 };
 
-class GLWidgetGraphicsView : public QGraphicsView        
+class GLWidgetGraphicsView : public QGraphicsView
 {
     private:
         GLWidget *glwidget;
