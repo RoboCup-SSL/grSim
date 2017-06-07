@@ -31,8 +31,9 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     : QGLWidget(parent)
 {
     frames = 0;
+    physicsframes = 0;
+    physicsaccumulateddt = 0;
     state = 0;
-    first_time = true;
     cfg = _cfg;
     forms[1] = new RobotsFomation(-1);  //outside yellow
     forms[2] = new RobotsFomation(1);  //inside type 1
@@ -100,13 +101,14 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     connect(resetRobotAct, SIGNAL(triggered()), this, SLOT(resetRobot()));
     connect(moveBallAct, SIGNAL(triggered()), this, SLOT(moveBall()));
     connect(onOffRobotAct, SIGNAL(triggered()), this, SLOT(switchRobotOnOff()));
-    connect(yellowRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
+    connect(yellowRobotsMenu, SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
     connect(blueRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(blueRobotsMenuTriggered(QAction*)));
     connect(moveBallHereAct, SIGNAL(triggered()),this , SLOT(moveBallHere()));
     connect(moveRobotHereAct, SIGNAL(triggered()),this , SLOT(moveRobotHere()));
     connect(lockToRobotAct, SIGNAL(triggered()), this, SLOT(lockCameraToRobot()));
     connect(lockToBallAct, SIGNAL(triggered()), this, SLOT(lockCameraToBall()));
-    connect(changeCamModeAct,SIGNAL(triggered()),this,SLOT(changeCameraMode()));
+    connect(changeCamModeAct, SIGNAL(triggered()),this,SLOT(changeCameraMode()));
+    connect(&physicsfpsupdatetimer, SIGNAL(timeout()), this, SLOT(updatePhysicsSPS()));
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
     ctrl = false;
@@ -116,6 +118,8 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     altTrigger = false;
     chipAngle = M_PI/4;
     chiping = false;
+
+    physicsfpsupdatetimer.start(1000);
 
     // Starting the timer to make sure that the time is defined
     // the first time `step()` is called.
@@ -340,9 +344,9 @@ dReal GLWidget::getFPS()
     return m_fps;
 }
 
-dReal GLWidget::getPhysicsFPS()
+dReal GLWidget::getPhysicsSPS()
 {
-    return m_physicsfps;
+    return physicssps;
 }
 
 
@@ -364,24 +368,22 @@ void GLWidget::step()
         time.restart();
         frames = 0;
     }
-    if (first_time) {ssl->step();first_time = false;}
+
+    if (cfg->SyncWithGL())
+    {
+        dReal ddt=rendertimer.elapsed()/1000.0;
+        std::cout << 1.0 / ddt << "\n";
+        if (ddt>0.05) ddt=0.05;
+        ssl->step(ddt);
+        physicsaccumulateddt += ddt;
+    }
     else {
-        if (cfg->SyncWithGL())
-        {
-            dReal ddt=rendertimer.elapsed()/1000.0;
-            if (ddt>0.05) ddt=0.05;
-            ssl->step(ddt);
-            m_physicsfps = 1.0/ddt;
-        }
-        else {
-            ssl->step(cfg->DeltaTime());
-            // TODO: This is not really the fps.
-            // but a fixed number.
-            m_physicsfps = 1.0/cfg->DeltaTime();
-        }
+        ssl->step(cfg->DeltaTime());
+        physicsaccumulateddt += cfg->DeltaTime();
     }
 
     rendertimer.restart();
+    physicsframes++;
     frames ++;
 }
 
@@ -602,6 +604,14 @@ void GLWidget::moveRobotHere()
     ssl->robots[robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
     ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
 }
+
+void GLWidget::updatePhysicsSPS()
+{
+    physicssps = physicsaccumulateddt;
+    physicsframes = 0;
+    physicsaccumulateddt = 0;
+}
+
 
 GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)
     : QGraphicsView(scene)

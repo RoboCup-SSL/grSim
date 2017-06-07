@@ -98,20 +98,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     robotwidget = new RobotWidget(this);
     /* Status Bar */
-    physicsfpslabel = new QLabel(this);
+    physicsspslabel = new QLabel(this);
     fpslabel = new QLabel(this);
     cursorlabel = new QLabel(this);
     selectinglabel = new QLabel(this);
     vanishlabel = new QLabel("Vanishing",this);
     noiselabel = new QLabel("Gaussian noise",this);
     fpslabel->setFrameStyle(QFrame::Panel);
-    physicsfpslabel->setFrameStyle(QFrame::Panel);
+    physicsspslabel->setFrameStyle(QFrame::Panel);
     cursorlabel->setFrameStyle(QFrame::Panel);
     selectinglabel->setFrameStyle(QFrame::Panel);
     vanishlabel->setFrameStyle(QFrame::Panel);
     noiselabel->setFrameStyle(QFrame::Panel);
     statusBar()->addWidget(fpslabel);
-    statusBar()->addWidget(physicsfpslabel);
+    statusBar()->addWidget(physicsspslabel);
     statusBar()->addWidget(cursorlabel);
     statusBar()->addWidget(selectinglabel);
     statusBar()->addWidget(vanishlabel);
@@ -322,7 +322,7 @@ void MainWindow::update()
     lvv[2]=vv[2];
     QString ss;
     fpslabel->setText(QString("Frame rate: %1 fps").arg(ss.sprintf("%06.2f", glwidget->getFPS())));
-    physicsfpslabel->setText(QString("Physics rate: %1 fps. DONT THRUST THIS").arg(ss.sprintf("%06.2f", glwidget->getPhysicsFPS())));
+    physicsspslabel->setText(QString("Physics realtimeness: %1 sps").arg(ss.sprintf("%03.2f", glwidget->getPhysicsSPS())));
     if (glwidget->ssl->selected!=-1)
     {
         selectinglabel->setVisible(true);

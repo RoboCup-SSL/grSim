@@ -22,6 +22,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QGLWidget>
 #include <QGraphicsView>
 #include <QTime>
+#include <QTimer>
 #include <QMenu>
 
 #include "sslworld.h"
@@ -35,7 +36,7 @@ public:
     GLWidget(QWidget *parent,ConfigWidget* _cfg);
     ~GLWidget();
     dReal getFPS();
-    dReal getPhysicsFPS();
+    dReal getPhysicsSPS();
     ConfigWidget* cfg;
     SSLWorld* ssl;
     RobotsFomation* forms[6];
@@ -78,6 +79,8 @@ public slots:
     void moveBallHere();
     void lockCameraToRobot();
     void lockCameraToBall();
+
+    void updatePhysicsSPS();
 signals:
     void clicked();
     void selectedRobot();
@@ -98,11 +101,12 @@ protected:
 private:
     int state;
     int moving_robot_id,clicked_robot;
-    int frames;
-    bool first_time;
+    int frames, physicsframes;
     QTime time,rendertimer;
+    QTimer physicsfpsupdatetimer;
     dReal m_fps;
-    dReal m_physicsfps;
+    dReal physicssps;
+    dReal physicsaccumulateddt;
     QPoint lastPos;
 friend class GLWidgetGraphicsView;
 };
