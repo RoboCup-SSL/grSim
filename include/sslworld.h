@@ -89,7 +89,7 @@ public:
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
     bool updatedCursor;
-    Robot* robots[ROBOT_COUNT*2];
+    Robot* robots[MAX_ROBOT_COUNT*2];
     QTime *timer;
     int sendGeomCount;
 public slots:
@@ -100,8 +100,8 @@ signals:
 
 class RobotsFomation {
     public:
-        dReal x[ROBOT_COUNT];
-        dReal y[ROBOT_COUNT];
+        dReal x[MAX_ROBOT_COUNT];
+        dReal y[MAX_ROBOT_COUNT];
         RobotsFomation(int type);
         void setAll(dReal *xx,dReal *yy);
         void loadFromFile(const QString& filename);

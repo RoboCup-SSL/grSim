@@ -34,12 +34,11 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     state = 0;
     first_time = true;
     cfg = _cfg;
-    forms[0] = new RobotsFomation(-1);  //outside
-    forms[1] = new RobotsFomation(-2);  //outside
+    forms[1] = new RobotsFomation(-1);  //outside yellow
     forms[2] = new RobotsFomation(1);  //inside type 1
     forms[3] = new RobotsFomation(2);  //inside type 2
     forms[4] = new RobotsFomation(3);  //inside type 1
-    forms[5] = new RobotsFomation(4);  //inside type 2
+    //forms[5] = new RobotsFomation(4);  //inside type 2
     ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
     Current_robot = 0;
     Current_team = 0;
@@ -543,8 +542,7 @@ void GLWidget::reform(int team,const QString& act)
 {
     if (act==tr("Put all inside with formation 1")) forms[2]->resetRobots(ssl->robots,team);
     if (act==tr("Put all inside with formation 2")) forms[3]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all outside") && team==0) forms[0]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all outside") && team==1) forms[1]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all outside")) forms[1]->resetRobots(ssl->robots,team);
     if (act==tr("Put all out of field")) forms[4]->resetRobots(ssl->robots,team);
 
     if(act==tr("Turn all off")) {
