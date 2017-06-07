@@ -340,6 +340,11 @@ dReal GLWidget::getFPS()
     return m_fps;
 }
 
+dReal GLWidget::getPhysicsFPS()
+{
+    return m_physicsfps;
+}
+
 
 void GLWidget::initializeGL ()
 {
@@ -359,18 +364,22 @@ void GLWidget::step()
         time.restart();
         frames = 0;
     }
-    //if (first_time) {ssl->step();first_time = false;}
-    //else {
-    if (cfg->SyncWithGL())
-    {
-        dReal ddt=rendertimer.elapsed()/1000.0;
-        if (ddt>0.05) ddt=0.05;
-        ssl->step(ddt);
-    }
+    if (first_time) {ssl->step();first_time = false;}
     else {
-        ssl->step(cfg->DeltaTime());
+        if (cfg->SyncWithGL())
+        {
+            dReal ddt=rendertimer.elapsed()/1000.0;
+            if (ddt>0.05) ddt=0.05;
+            ssl->step(ddt);
+            m_physicsfps = 1.0/ddt;
+        }
+        else {
+            ssl->step(cfg->DeltaTime());
+            // TODO: This is not really the fps.
+            // but a fixed number.
+            m_physicsfps = 1.0/cfg->DeltaTime();
+        }
     }
-    //}
 
     rendertimer.restart();
     frames ++;

@@ -35,6 +35,7 @@ public:
     GLWidget(QWidget *parent,ConfigWidget* _cfg);
     ~GLWidget();
     dReal getFPS();
+    dReal getPhysicsFPS();
     ConfigWidget* cfg;
     SSLWorld* ssl;
     RobotsFomation* forms[6];
@@ -101,6 +102,7 @@ private:
     bool first_time;
     QTime time,rendertimer;
     dReal m_fps;
+    dReal m_physicsfps;
     QPoint lastPos;
 friend class GLWidgetGraphicsView;
 };
