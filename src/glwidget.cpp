@@ -372,7 +372,6 @@ void GLWidget::step()
     if (cfg->SyncWithGL())
     {
         dReal ddt=rendertimer.elapsed()/1000.0;
-        std::cout << 1.0 / ddt << "\n";
         if (ddt>0.05) ddt=0.05;
         ssl->step(ddt);
         physicsaccumulateddt += ddt;
