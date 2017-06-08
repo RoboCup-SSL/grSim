@@ -37,6 +37,7 @@ public:
     ~GLWidget();
     dReal getFPS();
     dReal getPhysicsSPS();
+    dReal getPhysicsTPS();
     ConfigWidget* cfg;
     SSLWorld* ssl;
     RobotsFomation* forms[6];
@@ -80,7 +81,7 @@ public slots:
     void lockCameraToRobot();
     void lockCameraToBall();
 
-    void updatePhysicsSPS();
+    void updateTimeStatistics();
 signals:
     void clicked();
     void selectedRobot();
@@ -101,12 +102,16 @@ protected:
 private:
     int state;
     int moving_robot_id,clicked_robot;
-    int frames, physicsframes;
-    QTime time,rendertimer;
+    int frames, physicsframecounter;
+    QTime time,physicstimer;
     QTimer physicsfpsupdatetimer;
     dReal m_fps;
+    // How many simulated seconds go in a real second.
     dReal physicssps;
-    dReal physicsaccumulateddt;
+    // How much time is taken each second for rendering.
+    dReal physicstps;
+    dReal physicsddtcounter;
+    dReal physicstimetaken;
     QPoint lastPos;
 friend class GLWidgetGraphicsView;
 };

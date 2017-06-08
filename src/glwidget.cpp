@@ -31,8 +31,9 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     : QGLWidget(parent)
 {
     frames = 0;
-    physicsframes = 0;
-    physicsaccumulateddt = 0;
+    physicsframecounter = 0;
+    physicsddtcounter = 0;
+    physicstimetaken = 0;
     state = 0;
     cfg = _cfg;
     forms[1] = new RobotsFomation(-1);  //outside yellow
@@ -108,7 +109,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     connect(lockToRobotAct, SIGNAL(triggered()), this, SLOT(lockCameraToRobot()));
     connect(lockToBallAct, SIGNAL(triggered()), this, SLOT(lockCameraToBall()));
     connect(changeCamModeAct, SIGNAL(triggered()),this,SLOT(changeCameraMode()));
-    connect(&physicsfpsupdatetimer, SIGNAL(timeout()), this, SLOT(updatePhysicsSPS()));
+    connect(&physicsfpsupdatetimer, SIGNAL(timeout()), this, SLOT(updateTimeStatistics()));
     setFocusPolicy(Qt::StrongFocus);
     fullScreen = false;
     ctrl = false;
@@ -123,7 +124,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
 
     // Starting the timer to make sure that the time is defined
     // the first time `step()` is called.
-    rendertimer.start();
+    physicstimer.start();
 }
 
 GLWidget::~GLWidget()
@@ -349,6 +350,11 @@ dReal GLWidget::getPhysicsSPS()
     return physicssps;
 }
 
+dReal GLWidget::getPhysicsTPS()
+{
+    return physicstps;
+}
+
 
 void GLWidget::initializeGL ()
 {
@@ -369,7 +375,7 @@ void GLWidget::step()
     // Resetting here will take into account the time it takes to simulate a
     // step plus the time between steps.
     // Resetting afterwards will only take into account the time between steps.
-    dReal ddt=rendertimer.restart()/1000.0;
+    dReal ddt=physicstimer.restart()/1000.0;
 
     m_fps = frames /(time.elapsed()/1000.0);
     if (!(frames % ((int)(ceil(cfg->DesiredFPS()))))) {
@@ -381,15 +387,18 @@ void GLWidget::step()
     {
         if (ddt>0.05) ddt=0.05;
         ssl->step(ddt);
-        physicsaccumulateddt += ddt;
+        physicsddtcounter += ddt;
     }
     else {
         ssl->step(cfg->DeltaTime());
-        physicsaccumulateddt += cfg->DeltaTime();
+        physicsddtcounter += cfg->DeltaTime();
     }
 
-    physicsframes++;
-    frames ++;
+    // Used to record the time spent each second on physics.
+    physicstimetaken += physicstimer.elapsed();
+
+    physicsframecounter++;
+    frames++;
 }
 
 void GLWidget::paintGL()
@@ -610,11 +619,13 @@ void GLWidget::moveRobotHere()
     ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
 }
 
-void GLWidget::updatePhysicsSPS()
+void GLWidget::updateTimeStatistics()
 {
-    physicssps = physicsaccumulateddt;
-    physicsframes = 0;
-    physicsaccumulateddt = 0;
+    physicssps = physicsddtcounter;
+    physicstps = physicstimetaken/1000.0;
+    physicstimetaken = 0;
+    physicsframecounter = 0;
+    physicsddtcounter = 0;
 }
 
 

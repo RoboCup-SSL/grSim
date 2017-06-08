@@ -89,7 +89,7 @@ private:
 
     QAction *showsimulator, *showconfig;
     QAction* fullScreenAct;
-    QLabel *physicsspslabel, *fpslabel,*cursorlabel,*selectinglabel,*vanishlabel,*noiselabel;
+    QLabel *physicsspslabel, *physicstpslabel, *fpslabel,*cursorlabel,*selectinglabel,*vanishlabel,*noiselabel;
     QString current_dir;
 
     QGraphicsScene *scene;
