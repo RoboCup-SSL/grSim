@@ -363,6 +363,14 @@ void GLWidget::step()
     ballSpeed  = sqrt(ballSpeed);
     lastBallSpeed = ballSpeed;
 
+    // Restarts the time as well as gets it.
+    // It is important that both getting and resetting happens here, instead
+    // of the resetting happening after the simulation step.
+    // Resetting here will take into account the time it takes to simulate a
+    // step plus the time between steps.
+    // Resetting afterwards will only take into account the time between steps.
+    dReal ddt=rendertimer.restart()/1000.0;
+
     m_fps = frames /(time.elapsed()/1000.0);
     if (!(frames % ((int)(ceil(cfg->DesiredFPS()))))) {
         time.restart();
@@ -371,7 +379,6 @@ void GLWidget::step()
 
     if (cfg->SyncWithGL())
     {
-        dReal ddt=rendertimer.elapsed()/1000.0;
         if (ddt>0.05) ddt=0.05;
         ssl->step(ddt);
         physicsaccumulateddt += ddt;
@@ -381,7 +388,6 @@ void GLWidget::step()
         physicsaccumulateddt += cfg->DeltaTime();
     }
 
-    rendertimer.restart();
     physicsframes++;
     frames ++;
 }
