@@ -37,7 +37,7 @@ public:
     ~GLWidget();
     dReal getFPS();
     dReal getPhysicsSPS();
-    dReal getPhysicsTPS();
+    dReal getPhysicsAverageStepTime();
     ConfigWidget* cfg;
     SSLWorld* ssl;
     RobotsFomation* forms[6];
@@ -108,8 +108,7 @@ private:
     dReal m_fps;
     // How many simulated seconds go in a real second.
     dReal physicssps;
-    // How much time is taken each second for rendering.
-    dReal physicstps;
+    dReal physicsaveragesteptime;
     dReal physicsddtcounter;
     dReal physicstimetaken;
     QPoint lastPos;

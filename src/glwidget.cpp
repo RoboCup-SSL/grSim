@@ -350,9 +350,9 @@ dReal GLWidget::getPhysicsSPS()
     return physicssps;
 }
 
-dReal GLWidget::getPhysicsTPS()
+dReal GLWidget::getPhysicsAverageStepTime()
 {
-    return physicstps;
+    return physicsaveragesteptime;
 }
 
 
@@ -622,7 +622,7 @@ void GLWidget::moveRobotHere()
 void GLWidget::updateTimeStatistics()
 {
     physicssps = physicsddtcounter;
-    physicstps = physicstimetaken/1000.0;
+    physicsaveragesteptime = physicstimetaken / physicsframecounter;
     physicstimetaken = 0;
     physicsframecounter = 0;
     physicsddtcounter = 0;
