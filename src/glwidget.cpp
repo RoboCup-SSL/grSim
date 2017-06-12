@@ -383,7 +383,7 @@ void GLWidget::step()
         frames = 0;
     }
 
-    if (cfg->SyncWithGL())
+    if (cfg->RealtimePhysics())
     {
         if (ddt>0.05) ddt=0.05;
         ssl->step(ddt);

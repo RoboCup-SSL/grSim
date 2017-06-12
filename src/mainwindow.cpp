@@ -324,7 +324,7 @@ void MainWindow::update()
     lvv[1]=vv[1];
     lvv[2]=vv[2];
     QString ss;
-    fpslabel->setText(QString("Frame rate: %1 fps").arg(ss.sprintf("%06.2f", glwidget->getFPS())));
+    fpslabel->setText(QString("OpenGL / ODE framerate: %1 fps").arg(ss.sprintf("%06.2f", glwidget->getFPS())));
     physicsspslabel->setText(QString("Physics realtimeness: %1 sps").arg(ss.sprintf("%03.2f", glwidget->getPhysicsSPS())));
     physicsaveragesteptimelabel->setText(QString("Average physics step time: %1 ms").arg(ss.sprintf("%03.1f", glwidget->getPhysicsAverageStepTime())));
     if (glwidget->ssl->selected!=-1)
