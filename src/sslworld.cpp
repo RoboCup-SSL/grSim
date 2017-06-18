@@ -225,7 +225,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p->addObject(ray);
     for (int i=0;i<10;i++)
         p->addObject(walls[i]);
-    const int wheeltexid = 37;
+    const int wheeltexid = 4 * ROBOT_COUNT + 12 + 1 ; //37 for 6 robots
 
 
     cfg->robotSettings = cfg->blueSettings;
@@ -447,7 +447,13 @@ void SSLWorld::step(dReal dt)
         robots[k]->selected = false;
     }
     p->draw();
-    g->drawSkybox(31,32,33,34,35,36);
+    //g->drawSkybox(31,32,33,34,35,36);
+    g->drawSkybox(4 * ROBOT_COUNT + 6 + 1, //31 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 2, //32 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 3, //33 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 4, //34 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 5, //31 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 6);//36 for 6 robot
 
     dMatrix3 R;
 
