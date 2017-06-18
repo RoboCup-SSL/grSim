@@ -825,22 +825,21 @@ RobotsFomation::RobotsFomation(int type)
     if (type==1) // formation 1
     {
         dReal teamPosX[MAX_ROBOT_COUNT] = {1.5, 1.5, 1.5, 0.55, 2.5, 3.6,
-                                           3.2, 3.2, 3.2, 3.2, 3.2, 3.2};
+                                               3.2, 3.2, 3.2, 3.2, 3.2, 3.2};
         dReal teamPosY[MAX_ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0,
-                                           0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
+                                               0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
         setAll(teamPosX,teamPosY);
     }
     if (type==2) // formation 2
     {
         dReal teamPosX[MAX_ROBOT_COUNT] = {4.2, 3.40,  3.40, 0.7, 0.7,  0.7,
-                                           2, 2, 2, 2, 2, 2};
+                                               2, 2, 2, 2, 2, 2};
         dReal teamPosY[MAX_ROBOT_COUNT] = {0.0, -0.20, 0.20, 0.0, 2.25, -2.25,
-                                           0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
+                                               0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
         setAll(teamPosX,teamPosY);
     }
     if (type==3) // outside field
     {
-        qDebug() << "type3";
         dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
                                            2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
         dReal teamPosY[MAX_ROBOT_COUNT] = {-4.0, -4.0, -4.0, -4.0, -4.0, -4.0,
