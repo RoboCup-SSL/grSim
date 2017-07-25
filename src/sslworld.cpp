@@ -604,11 +604,11 @@ void SSLWorld::recvActions()
     }
 
     // send status regardless of whether or not we received any commands
-    for (int team = 0; team < 1; ++team) {
+    for (int team = 0; team <= 1; ++team) {
         for (int id = 0; id < ROBOT_COUNT; ++id) {
             char status = 0;
-            status = robotIndex(id, team);
-            
+            status = id;
+
             const uint8_t touching_ball = 0x1 << 3;
             const uint8_t just_kicked = 0x1 << 4;
             const uint8_t robot_on = 0x1 << 5;
