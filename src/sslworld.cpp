@@ -565,10 +565,10 @@ void SSLWorld::recvActions()
                     if (!packet.replacement().robots(i).has_id()) continue;
                     int k = packet.replacement().robots(i).id();
                     dReal x = 0, y = 0, dir = 0;
+                    bool turnon = true;
                     if (packet.replacement().robots(i).has_x()) x = packet.replacement().robots(i).x();
                     if (packet.replacement().robots(i).has_y()) y = packet.replacement().robots(i).y();
                     if (packet.replacement().robots(i).has_dir()) dir = packet.replacement().robots(i).dir();
-                    bool turnon = true;
                     if (packet.replacement().robots(i).has_turnon()) turnon = packet.replacement().robots(i).turnon();
                     int id = robotIndex(k, team);
                     if ((id < 0) || (id >= ROBOT_COUNT*2)) continue;

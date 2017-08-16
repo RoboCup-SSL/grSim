@@ -4,7 +4,7 @@ required double y=2;
 required double dir=3;
 required uint32 id=4;
 required bool yellowteam=5;
-required bool turnon=6;
+optional bool turnon=6;
 }
 
 message grSim_BallReplacement {
