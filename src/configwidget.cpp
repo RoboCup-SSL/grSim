@@ -46,11 +46,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 
 ConfigWidget::ConfigWidget()
-{      
+{
   tmodel=new VarTreeModel();
-  this->setModel(tmodel);  
+  this->setModel(tmodel);
   geo_vars = VarListPtr(new VarList("Geometry"));
-  world.push_back(geo_vars);  
+  world.push_back(geo_vars);
   robot_settings = new QSettings;
     VarListPtr field_vars(new VarList("Field"));
 
@@ -83,7 +83,7 @@ ConfigWidget::ConfigWidget()
   VarListPtr phys_vars(new VarList("Physics"));
   world.push_back(phys_vars);
     VarListPtr worldp_vars(new VarList("World"));
-    phys_vars->addChild(worldp_vars);  
+    phys_vars->addChild(worldp_vars);
         ADD_VALUE(worldp_vars,Double,DesiredFPS,65,"Desired FPS")
         ADD_VALUE(worldp_vars,Bool,SyncWithGL,false,"Synchronize ODE with OpenGL")
         ADD_VALUE(worldp_vars,Double,DeltaTime,0.016,"ODE time step")
@@ -99,7 +99,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(ballp_vars,Double,BallAngularDamp,0.004,"Ball angular damping")
   VarListPtr comm_vars(new VarList("Communication"));
   world.push_back(comm_vars);
-    ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
+    ADD_VALUE(comm_vars,String,VisionMulticastAddr,"127.0.0.1","Vision multicast address")  //SSL Vision: "224.5.23.2"
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10020,"Vision multicast port")
     ADD_VALUE(comm_vars,Int,CommandListenPort,20011,"Command listen port")
     ADD_VALUE(comm_vars,Int,BlueStatusSendPort,30011,"Blue Team status send port")
@@ -164,7 +164,7 @@ ConfigWidget::ConfigWidget()
   loadRobotsSettings();
 }
 
-ConfigWidget::~ConfigWidget() {  
+ConfigWidget::~ConfigWidget() {
    VarXML::write(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 }
 
@@ -173,7 +173,7 @@ ConfigDockWidget::ConfigDockWidget(QWidget* _parent,ConfigWidget* _conf){
     parent=_parent;conf=_conf;
     setWidget(conf);
     conf->move(0,20);
-}  
+}
 void ConfigDockWidget::closeEvent(QCloseEvent* event)
 {
     emit closeSignal(false);
