@@ -1,5 +1,5 @@
 
-[grSim](http://github.com/mani-monaj/grSim) [![Build Status (Ubuntu 12.04, 16.04 and OSX w/ Xcode 8+)](https://travis-ci.org/mani-monaj/grSim.svg?branch=master)](https://travis-ci.org/mani-monaj/grSim)
+[grSim](http://github.com/mani-monaj/grSim) [![Build Status](https://travis-ci.org/RoboCup-SSL/grSim.svg?branch=master)](https://travis-ci.org/RoboCup-SSL/grSim)
 =======================
 
 [RoboCup Small Size League](http://wiki.robocup.org/Small_Size_League) Simulator.
