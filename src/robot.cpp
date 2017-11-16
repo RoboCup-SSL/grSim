@@ -192,7 +192,6 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
         dlen = sqrt(dlen);
         vx = dxx*kickspeedx/dlen;
         vy = dyy*kickspeedx/dlen;
-        cout << "Kicker strength: " << sqrt(vx*vx+vy*vy) << endl;
         vz = zf;
         const dReal* vball = dBodyGetLinearVel(rob->getBall()->body);
         dReal vn = -(vball[0]*dxx + vball[1]*dyy)*rob->cfg->robotSettings.KickerDampFactor;
