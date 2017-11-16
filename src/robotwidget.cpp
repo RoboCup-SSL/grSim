@@ -40,13 +40,6 @@ RobotWidget::RobotWidget(QWidget* parent)
       QString item=QString::number(i);
       robotCombo->addItem(item);
     }
-
-    // robotCombo->addItem("0");
-    // robotCombo->addItem("1");
-    // robotCombo->addItem("2");
-    // robotCombo->addItem("3");
-    // robotCombo->addItem("4");
-    // robotCombo->addItem("5");
     vellabel = new QLabel;
     acclabel = new QLabel;
     resetBtn = new QPushButton("Reset");

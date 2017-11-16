@@ -66,9 +66,16 @@ public:
         bool kicking;
         int rolling;
         int kickstate;
+
+	// Angle of the kicker with respect to the robot in radians
+	// 0 radians makes the kicker shoot straight
+	dReal angle;
+
         dReal m_kickspeed,m_kicktime;
       public:
         Kicker(Robot* robot);
+	void rotate(dReal angle);
+	void rotateAbsolute(dReal angle);
         void step();
         void kick(dReal kickspeedx, dReal kickspeedz);
         void setRoller(int roller);

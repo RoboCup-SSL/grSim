@@ -90,6 +90,7 @@ Robot::Kicker::Kicker(Robot* robot)
 
     rolling = 0;
     kicking = false;
+    angle = 0;
 }
 
 void Robot::Kicker::step()
@@ -162,24 +163,42 @@ void Robot::Kicker::toggleRoller()
     else rolling = 0;
 }
 
+void Robot::Kicker::rotate(dReal a)
+{
+    angle += a;
+}
+
+void Robot::Kicker::rotateAbsolute(dReal a)
+{
+    angle = a;
+}
+
 void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
-{    
+{
     dReal dx,dy,dz;
     dReal vx,vy,vz;
     rob->chassis->getBodyDirection(dx,dy,dz);dz = 0;
     dReal zf = kickspeedz;
+
+    // Rotate the direction of the robot with the angle of the kicker to get the directional vector of the ball
+    dReal dxx,dyy,dzz;
+    dxx = dx*cos(-angle)-dy*sin(-angle);
+    dyy = dx*sin(-angle)+dy*cos(-angle);
+    dzz = dz;
+
     if (isTouchingBall())
     {
-        dReal dlen = dx*dx+dy*dy+dz*dz;
+        dReal dlen = dxx*dxx+dyy*dyy+dzz*dzz;
         dlen = sqrt(dlen);
-        vx = dx*kickspeedx/dlen;
-        vy = dy*kickspeedx/dlen;
+        vx = dxx*kickspeedx/dlen;
+        vy = dyy*kickspeedx/dlen;
+        cout << "Kicker strength: " << sqrt(vx*vx+vy*vy) << endl;
         vz = zf;
         const dReal* vball = dBodyGetLinearVel(rob->getBall()->body);
-        dReal vn = -(vball[0]*dx + vball[1]*dy)*rob->cfg->robotSettings.KickerDampFactor;
-        dReal vt = -(vball[0]*dy - vball[1]*dx);
-        vx += vn * dx - vt * dy;
-        vy += vn * dy + vt * dx;
+        dReal vn = -(vball[0]*dxx + vball[1]*dyy)*rob->cfg->robotSettings.KickerDampFactor;
+        dReal vt = -(vball[0]*dyy - vball[1]*dxx);
+        vx += vn * dxx - vt * dyy;
+        vy += vn * dyy + vt * dxx;
         dBodySetLinearVel(rob->getBall()->body,vx,vy,vz);
     }
     kicking = true;
@@ -187,7 +206,7 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
 }
 
 Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir)
-{      
+{
     m_r = r;
     m_g = g;
     m_b = b;
@@ -246,7 +265,7 @@ void normalizeVector(dReal& x,dReal& y,dReal& z)
 }
 
 void Robot::step()
-{    
+{
     if (on)
     {
         if (firsttime)
@@ -284,7 +303,7 @@ void Robot::drawLabel()
     const dReal txtHeight = 24.0f*fr_b/(dReal)w->g->getHeight();
     pos[0] = dBodyGetPosition(chassis->body)[0];
     pos[1] = dBodyGetPosition(chassis->body)[1];
-    pos[2] = dBodyGetPosition(chassis->body)[2];    
+    pos[2] = dBodyGetPosition(chassis->body)[2];
     dReal xyz[3],hpr[3];
     w->g->getViewpoint(xyz,hpr);
     dReal ax = -pos[0]+xyz[0];
@@ -439,4 +458,3 @@ void Robot::incSpeed(int i,dReal v)
     if (!((i>=4) || (i<0)))
         wheels[i]->speed += v;
 }
-
