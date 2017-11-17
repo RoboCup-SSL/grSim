@@ -502,8 +502,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     case 'g': case 'G': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,-S);break;
     case 'f': case 'F': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,S);break;
     case 'h': case 'H': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,-S);break;
-    case 'r': case 'R': ssl->robots[R]->kicker->rotate(-M_PI/20);break;
-    case 'y': case 'Y': ssl->robots[R]->kicker->rotate(M_PI/20);break;
+    case 'r': case 'R': ssl->robots[R]->kicker->rotate(-2*M_PI/40);break;
+    case 'y': case 'Y': ssl->robots[R]->kicker->rotate(2*M_PI/40);break;
     case 'w': case 'W':dBodyAddForce(ssl->ball->body,0, BallForce,0);break;
     case 's': case 'S':dBodyAddForce(ssl->ball->body,0,-BallForce,0);break;
     case 'd': case 'D':dBodyAddForce(ssl->ball->body, BallForce,0,0);break;
