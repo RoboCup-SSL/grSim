@@ -520,6 +520,11 @@ void SSLWorld::recvActions()
                         dReal vw = 0;if (packet.commands().robot_commands(i).has_velangular()) vw = packet.commands().robot_commands(i).velangular();
                         robots[id]->setSpeed(vx, vy, vw);
                     }
+                    if (packet.commands().robot_commands(i).has_geneva_angle())
+                    {
+                        // geneva_angle in radians
+                        robots[id]->kicker->rotateAbsolute(packet.commands().robot_commands(i).geneva_angle());
+                    }
                     dReal kickx = 0 , kickz = 0;
                     bool kick = false;
                     if (packet.commands().robot_commands(i).has_kickspeedx())
@@ -540,11 +545,6 @@ void SSLWorld::recvActions()
                         if (packet.commands().robot_commands(i).spinner()) rolling = 1;
                     }
                     robots[id]->kicker->setRoller(rolling);
-                    if (packet.commands().robot_commands(i).has_geneva_angle())
-                    {
-                        // geneva_angle in radians
-                        robots[id]->kicker->rotateAbsolute(packet.commands().robot_commands(i).geneva_angle());
-                    }
                     char status = 0;
                     status = k;
                     if (robots[id]->kicker->isTouchingBall()) status = status | 8;
