@@ -225,7 +225,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p->addObject(ray);
     for (int i=0;i<10;i++)
         p->addObject(walls[i]);
-    const int wheeltexid = 37;
+    const int wheeltexid = 4 * ROBOT_COUNT + 12 + 1 ; //37 for 6 robots
 
 
     cfg->robotSettings = cfg->blueSettings;
@@ -447,7 +447,13 @@ void SSLWorld::step(dReal dt)
         robots[k]->selected = false;
     }
     p->draw();
-    g->drawSkybox(31,32,33,34,35,36);
+    //g->drawSkybox(31,32,33,34,35,36);
+    g->drawSkybox(4 * ROBOT_COUNT + 6 + 1, //31 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 2, //32 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 3, //33 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 4, //34 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 5, //31 for 6 robot
+                  4 * ROBOT_COUNT + 6 + 6);//36 for 6 robot
 
     dMatrix3 R;
 
@@ -559,14 +565,17 @@ void SSLWorld::recvActions()
                     if (!packet.replacement().robots(i).has_id()) continue;
                     int k = packet.replacement().robots(i).id();
                     dReal x = 0, y = 0, dir = 0;
+                    bool turnon = true;
                     if (packet.replacement().robots(i).has_x()) x = packet.replacement().robots(i).x();
                     if (packet.replacement().robots(i).has_y()) y = packet.replacement().robots(i).y();
                     if (packet.replacement().robots(i).has_dir()) dir = packet.replacement().robots(i).dir();
+                    if (packet.replacement().robots(i).has_turnon()) turnon = packet.replacement().robots(i).turnon();
                     int id = robotIndex(k, team);
                     if ((id < 0) || (id >= ROBOT_COUNT*2)) continue;
                     robots[id]->setXY(x,y);
                     robots[id]->resetRobot();
                     robots[id]->setDir(dir);
+                    robots[id]->on = turnon;
                 }
                 if (packet.replacement().has_ball())
                 {
@@ -816,46 +825,51 @@ RobotsFomation::RobotsFomation(int type)
 {
     if (type==0)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0,   1.0, 1.0,  0.33, 1.22};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75, 0.0, 0.75, 0.25, 0.0};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {2.2, 1.0, 1.0, 1.0, 0.33, 1.22,
+                                           3, 3.2, 3.4, 3.6, 3.8, 4.0};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {0.0, -0.75, 0.0, 0.75, 0.25, 0.0,
+                                           1, 1, 1, 1, 1, 1};
         setAll(teamPosX,teamPosY);
     }
     if (type==1) // formation 1
     {
-        dReal teamPosX[ROBOT_COUNT] = {1.5,  1.5, 1.5,   0.55,   2.5, 3.6};
-        dReal teamPosY[ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {1.5, 1.5, 1.5, 0.55, 2.5, 3.6,
+                                               3.2, 3.2, 3.2, 3.2, 3.2, 3.2};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0,
+                                               0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
         setAll(teamPosX,teamPosY);
     }
     if (type==2) // formation 2
     {
-        dReal teamPosX[ROBOT_COUNT] = {4.2, 3.40,  3.40, 0.7, 0.7,  0.7};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.20, 0.20, 0.0, 2.25, -2.25};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {4.2, 3.40,  3.40, 0.7, 0.7,  0.7,
+                                               2, 2, 2, 2, 2, 2};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {0.0, -0.20, 0.20, 0.0, 2.25, -2.25,
+                                               0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
         setAll(teamPosX,teamPosY);
     }
     if (type==3) // outside field
     {
-        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
-        dReal teamPosY[ROBOT_COUNT] = {-4.0, -4.0, -4.0, -4.0, -4.0, -4.0};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
+                                           2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {-4.0, -4.0, -4.0, -4.0, -4.0, -4.0,
+                                           -4.0, -4.0, -4.0, -4.0, -4.0, -4.0};
         setAll(teamPosX,teamPosY);
     }
     if (type==4)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1};
-        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1, 3, 3.2, 3.4, 3.6, 3.8, 4.0};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5, 1, 1, 1, 1, 1, 1};
         setAll(teamPosX,teamPosY);
     }
-    if (type==-1) // blue outside
+    if (type==-1) // outside
     {
-        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
-        dReal teamPosY[ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
+        dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
+                                           2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4,
+                                           -3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
         setAll(teamPosX,teamPosY);
     }
-    if (type==-2) // yellow outside
-    {
-        dReal teamPosX[ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4};
-        dReal teamPosY[ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
-        setAll(teamPosX,teamPosY);
-    }
+
 }
 
 void RobotsFomation::loadFromFile(const QString& filename)
