@@ -52,8 +52,14 @@ ConfigWidget::ConfigWidget()
   geo_vars = VarListPtr(new VarList("Geometry"));
   world.push_back(geo_vars);  
   robot_settings = new QSettings;
+    VarListPtr game_vars(new VarList("Game"));
+    geo_vars->addChild(game_vars);
+    ADD_ENUM(StringEnum, Division, "Division A", "Division")
+    ADD_TO_ENUM(Division, "Division A");
+    ADD_TO_ENUM(Division, "Division B");
+    END_ENUM(game_vars, Division);
+    ADD_VALUE(game_vars,Int,Robots_Count, 8, "Robots Count")
     VarListPtr field_vars(new VarList("Field"));
-
     geo_vars->addChild(field_vars);
         ADD_VALUE(field_vars,Double,Field_Line_Width,0.010,"Line Thickness")
         ADD_VALUE(field_vars,Double,Field_Length,9.000,"Length")

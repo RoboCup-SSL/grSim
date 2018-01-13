@@ -126,6 +126,9 @@ public:
   RobotSettings blueSettings;
   RobotSettings yellowSettings;
 
+  /*    Geometry/Game Vartypes   */
+  DEF_ENUM(std::string, Division)
+  DEF_VALUE(int, Int, Robots_Count)
   DEF_VALUE(double,Double,Field_Line_Width)
   DEF_VALUE(double,Double,Field_Length)
   DEF_VALUE(double,Double,Field_Width)
