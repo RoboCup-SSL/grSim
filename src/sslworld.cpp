@@ -316,11 +316,11 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     QBrush br;
     p->begin(img);
     QColor black(0,0,0,0);
-    for (int i=0;i<img->width();i++)
-        for (int j=0;j<img->height();j++)
-        {
-            img->setPixel(i,j,black.rgba());
+    for (int x = 0; x < img->width(); x++) {
+        for (int j= 0; j < img->height();j++) {
+            img->setPixel(x,j,black.rgba());
         }
+    }
     QColor txtcolor(r,g,b,a);
     QPen pen;
     pen.setStyle(Qt::SolidLine);
@@ -1017,7 +1017,7 @@ dReal randn_trig(dReal mu, dReal sigma) {
         storedDeviate=dist*cos(angle);
         deviateAvailable=true;
 
-        //	calcaulate return second deviate
+        //	calculate return second deviate
         return dist * sin(angle) * sigma + mu;
     }
 

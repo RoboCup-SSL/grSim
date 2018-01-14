@@ -136,7 +136,7 @@ public:
   DEF_VALUE(double,Double,Field_Defense_Rad)
   DEF_VALUE(double,Double,Field_Defense_Stretch)
   DEF_VALUE(double,Double,Field_Free_Kick)
-  DEF_VALUE(double,Double,Field_Penalty_Rad)//TODO: what's this??
+  DEF_VALUE(double,Double,Field_Penalty_Rad)
   DEF_VALUE(double,Double,Field_Penalty_Line)
   DEF_VALUE(double,Double,Field_Penalty_Point)
   DEF_VALUE(double,Double,Field_Margin)

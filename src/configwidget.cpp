@@ -42,9 +42,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     v_##name->addItem(str);
 
 
-#include<QDir>
-
-
 ConfigWidget::ConfigWidget()
 {      
   tmodel=new VarTreeModel();

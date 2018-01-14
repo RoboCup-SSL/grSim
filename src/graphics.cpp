@@ -614,18 +614,18 @@ void CGraphics::drawGround()
     resetState();
 }
 
-void CGraphics::drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY_RADIUS,dReal SSL_FIELD_PENALTY_LINE,dReal SSL_FIELD_PENALTY_POINT, dReal SSL_FIELD_LINE_WIDTH, dReal SSL_FIELD_DEFENSE_STRETCH, dReal SSL_FIELD_DEFENSE_RADIUS, dReal epsilon)
+void CGraphics::drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY_RADIUS,dReal SSL_FIELD_PENALTY_LINE,dReal SSL_FIELD_PENALTY_POINT, dReal SSL_FIELD_LINE_WIDTH, dReal SSL_FIELD_DEFENSE_STRETCH, dReal SSL_FIELD_DEFENSE_RADIUS, dReal _epsilon)
 {
     if (graphicDisabled) return;
     dReal angle;
-    dReal fw = SSL_FIELD_LENGTH / 2.0;
-    dReal fh = SSL_FIELD_WIDTH / 2.0;
-    dReal lw = SSL_FIELD_LINE_WIDTH;
-    dReal rad = SSL_FIELD_RAD;
-    dReal drad = SSL_FIELD_DEFENSE_RADIUS;
-    dReal ds = SSL_FIELD_DEFENSE_STRETCH / 2.0;
-    dReal penx = SSL_FIELD_PENALTY_POINT;
-
+    GLfloat fw   = static_cast<GLfloat>(SSL_FIELD_LENGTH / 2.0);
+    GLfloat fh   = static_cast<GLfloat>(SSL_FIELD_WIDTH / 2.0);
+    GLfloat lw   = static_cast<GLfloat>(SSL_FIELD_LINE_WIDTH);
+    GLfloat rad  = static_cast<GLfloat>(SSL_FIELD_RAD);
+    GLfloat drad = static_cast<GLfloat>(SSL_FIELD_DEFENSE_RADIUS);
+    GLfloat ds   = static_cast<GLfloat>(SSL_FIELD_DEFENSE_STRETCH / 2.0);
+    GLfloat penx = static_cast<GLfloat>(SSL_FIELD_PENALTY_POINT);
+    GLfloat epsilon = static_cast<GLfloat>(_epsilon);
     glEnable(GL_DEPTH_TEST);
     glPushMatrix();
     glScaled(1.0, 1.0, 1);
