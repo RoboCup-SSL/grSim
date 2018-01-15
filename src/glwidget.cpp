@@ -392,7 +392,7 @@ void GLWidget::paintGL()
     }
     step();    
     QFont font;
-    for (int i=0;i<ROBOT_COUNT*2;i++)
+    for (int i=0;i< ROBOT_COUNT*2;i++)
     {
         dReal xx,yy;
         ssl->robots[i]->getXY(xx,yy);

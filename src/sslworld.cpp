@@ -154,7 +154,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p = new PWorld(0.05,9.81f,g);
     ball = new PBall (0,0,0.5,cfg->BallRadius(),cfg->BallMass(), 1,0.7,0);
 
-    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),cfg->Field_Defense_Stretch(),cfg->Field_Defense_Rad(),0);
+    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Depth(),cfg->Field_Penalty_Width(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),0);
     ray = new PRay(50);
     
     // Bounding walls
@@ -725,8 +725,6 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     const double kGoalDepth = CONVUNIT(cfg->Goal_Depth());
     const double kBoundaryWidth = CONVUNIT(cfg->Field_Referee_Margin());
     const double kCenterRadius = CONVUNIT(cfg->Field_Rad());
-    const double kDefenseRadius = CONVUNIT(cfg->Field_Defense_Rad());
-    const double kDefenseStretch = CONVUNIT(cfg->Field_Defense_Stretch());
     const double kLineThickness = CONVUNIT(cfg->Field_Line_Width());
 
     const double kXMax = (kFieldLength-2*kLineThickness)/2;
@@ -741,8 +739,8 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     addFieldLine(field, "RightGoalLine", kXMax, kYMin, kXMax, kYMax, kLineThickness);
     addFieldLine(field, "HalfwayLine", 0, kYMin, 0, kYMax, kLineThickness);
     addFieldLine(field, "CenterLine", kXMin, 0, kXMax, 0, kLineThickness);
-    addFieldLine(field, "LeftPenaltyStretch", kXMin+kDefenseRadius-kLineThickness/2, -kDefenseStretch/2, kXMin+kDefenseRadius-kLineThickness/2, kDefenseStretch/2, kLineThickness);
-    addFieldLine(field, "RightPenaltyStretch", kXMax-kDefenseRadius+kLineThickness/2, -kDefenseStretch/2, kXMax-kDefenseRadius+kLineThickness/2, kDefenseStretch/2, kLineThickness);
+//    addFieldLine(field, "LeftPenaltyStretch", kXMin+kDefenseRadius-kLineThickness/2, -kDefenseStretch/2, kXMin+kDefenseRadius-kLineThickness/2, kDefenseStretch/2, kLineThickness);
+//    addFieldLine(field, "RightPenaltyStretch", kXMax-kDefenseRadius+kLineThickness/2, -kDefenseStretch/2, kXMax-kDefenseRadius+kLineThickness/2, kDefenseStretch/2, kLineThickness);
 
     addFieldLine(field, "RightGoalTopLine", kXMax, kGoalWidth/2, kXMax+kGoalDepth, kGoalWidth/2, kLineThickness);
     addFieldLine(field, "RightGoalBottomLine", kXMax, -kGoalWidth/2, kXMax+kGoalDepth, -kGoalWidth/2, kLineThickness);
@@ -753,10 +751,10 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     addFieldLine(field, "LeftGoalDepthLine", -kXMax-kGoalDepth+kLineThickness/2, -kGoalWidth/2, -kXMax-kGoalDepth+kLineThickness/2, kGoalWidth/2, kLineThickness);
 
     // Field arcs
-    addFieldArc(field, "LeftFieldLeftPenaltyArc",   kXMin, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, 0,        M_PI/2,   kLineThickness);
-    addFieldArc(field, "LeftFieldRightPenaltyArc",  kXMin, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, 1.5*M_PI, 2*M_PI,   kLineThickness);
-    addFieldArc(field, "RightFieldLeftPenaltyArc",  kXMax, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, M_PI,     1.5*M_PI, kLineThickness);
-    addFieldArc(field, "RightFieldRightPenaltyArc", kXMax, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, M_PI/2,   M_PI,     kLineThickness);
+//    addFieldArc(field, "LeftFieldLeftPenaltyArc",   kXMin, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, 0,        M_PI/2,   kLineThickness);
+//    addFieldArc(field, "LeftFieldRightPenaltyArc",  kXMin, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, 1.5*M_PI, 2*M_PI,   kLineThickness);
+//    addFieldArc(field, "RightFieldLeftPenaltyArc",  kXMax, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, M_PI,     1.5*M_PI, kLineThickness);
+//    addFieldArc(field, "RightFieldRightPenaltyArc", kXMax, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, M_PI/2,   M_PI,     kLineThickness);
     addFieldArc(field, "CenterCircle",              0,     0,                  kCenterRadius-kLineThickness/2,  0,        2*M_PI,   kLineThickness);
 }
 
