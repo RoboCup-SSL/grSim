@@ -726,11 +726,15 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     const double kBoundaryWidth = CONVUNIT(cfg->Field_Referee_Margin());
     const double kCenterRadius = CONVUNIT(cfg->Field_Rad());
     const double kLineThickness = CONVUNIT(cfg->Field_Line_Width());
+    const double kPenaltyDepth  = CONVUNIT(cfg->Field_Penalty_Depth());
+    const double kPenaltyWidth  = CONVUNIT(cfg->Field_Penalty_Width());
 
     const double kXMax = (kFieldLength-2*kLineThickness)/2;
     const double kXMin = -kXMax;
     const double kYMax = (kFieldWidth-kLineThickness)/2;
     const double kYMin = -kYMax;
+    const double penAreaX = kXMax - kPenaltyDepth;
+    const double penAreaY = kPenaltyWidth / 2.0;
 
     // Field lines
     addFieldLine(field, "TopTouchLine", kXMin-kLineThickness/2, kYMax, kXMax+kLineThickness/2, kYMax, kLineThickness);
@@ -739,8 +743,8 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     addFieldLine(field, "RightGoalLine", kXMax, kYMin, kXMax, kYMax, kLineThickness);
     addFieldLine(field, "HalfwayLine", 0, kYMin, 0, kYMax, kLineThickness);
     addFieldLine(field, "CenterLine", kXMin, 0, kXMax, 0, kLineThickness);
-//    addFieldLine(field, "LeftPenaltyStretch", kXMin+kDefenseRadius-kLineThickness/2, -kDefenseStretch/2, kXMin+kDefenseRadius-kLineThickness/2, kDefenseStretch/2, kLineThickness);
-//    addFieldLine(field, "RightPenaltyStretch", kXMax-kDefenseRadius+kLineThickness/2, -kDefenseStretch/2, kXMax-kDefenseRadius+kLineThickness/2, kDefenseStretch/2, kLineThickness);
+    addFieldLine(field, "LeftPenaltyStretch", -kXMin+kPenaltyDepth-kLineThickness/2, -kPenaltyWidth/2, kXMin+kPenaltyDepth-kLineThickness/2, kPenaltyWidth/2, kLineThickness);
+    addFieldLine(field, "RightPenaltyStretch", kXMax-kPenaltyDepth+kLineThickness/2, -kPenaltyWidth/2, kXMax-kPenaltyDepth+kLineThickness/2, kPenaltyWidth/2, kLineThickness);
 
     addFieldLine(field, "RightGoalTopLine", kXMax, kGoalWidth/2, kXMax+kGoalDepth, kGoalWidth/2, kLineThickness);
     addFieldLine(field, "RightGoalBottomLine", kXMax, -kGoalWidth/2, kXMax+kGoalDepth, -kGoalWidth/2, kLineThickness);
@@ -750,11 +754,12 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     addFieldLine(field, "LeftGoalBottomLine", -kXMax, -kGoalWidth/2, -kXMax-kGoalDepth, -kGoalWidth/2, kLineThickness);
     addFieldLine(field, "LeftGoalDepthLine", -kXMax-kGoalDepth+kLineThickness/2, -kGoalWidth/2, -kXMax-kGoalDepth+kLineThickness/2, kGoalWidth/2, kLineThickness);
 
+    addFieldLine(field, "LeftFieldLeftPenaltyStretch",   kXMin, kPenaltyWidth/2,  kXMin + kPenaltyDepth, kPenaltyWidth/2,   kLineThickness);
+    addFieldLine(field, "LeftFieldRightPenaltyStretch",  kXMin, -kPenaltyWidth/2, kXMin + kPenaltyDepth, -kPenaltyWidth/2,  kLineThickness);
+    addFieldLine(field, "RightFieldLeftPenaltyStretch",  kXMax, -kPenaltyWidth/2, kXMax - kPenaltyDepth, -kPenaltyWidth/2,kLineThickness);
+    addFieldLine(field, "RightFieldRightPenaltyStretch", kXMax, kPenaltyWidth/2,  kXMax - kPenaltyDepth, kPenaltyWidth/2,     kLineThickness);
+
     // Field arcs
-//    addFieldArc(field, "LeftFieldLeftPenaltyArc",   kXMin, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, 0,        M_PI/2,   kLineThickness);
-//    addFieldArc(field, "LeftFieldRightPenaltyArc",  kXMin, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, 1.5*M_PI, 2*M_PI,   kLineThickness);
-//    addFieldArc(field, "RightFieldLeftPenaltyArc",  kXMax, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, M_PI,     1.5*M_PI, kLineThickness);
-//    addFieldArc(field, "RightFieldRightPenaltyArc", kXMax, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, M_PI/2,   M_PI,     kLineThickness);
     addFieldArc(field, "CenterCircle",              0,     0,                  kCenterRadius-kLineThickness/2,  0,        2*M_PI,   kLineThickness);
 }
 
