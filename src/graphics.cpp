@@ -112,7 +112,7 @@ int CGraphics::loadTextureSkyBox(QImage* img)
         }
     }
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width(), img->height(), 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, buffer);
+                 GL_UNSIGNED_BYTE, buffer);
     delete img;
     tex_ids.append(id);
     return tex_ids.size()-1;
@@ -614,18 +614,18 @@ void CGraphics::drawGround()
     resetState();
 }
 
-void CGraphics::drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY_RADIUS,dReal SSL_FIELD_PENALTY_LINE,dReal SSL_FIELD_PENALTY_POINT, dReal SSL_FIELD_LINE_WIDTH, dReal SSL_FIELD_DEFENSE_STRETCH, dReal SSL_FIELD_DEFENSE_RADIUS, dReal epsilon)
+void CGraphics::drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY_DEPTH,dReal SSL_FIELD_PENALTY_WIDTH,dReal SSL_FIELD_PENALTY_POINT, dReal SSL_FIELD_LINE_WIDTH, dReal _epsilon)
 {
     if (graphicDisabled) return;
     dReal angle;
-    dReal fw = SSL_FIELD_LENGTH / 2.0;
-    dReal fh = SSL_FIELD_WIDTH / 2.0;
-    dReal lw = SSL_FIELD_LINE_WIDTH;
-    dReal rad = SSL_FIELD_RAD;
-    dReal drad = SSL_FIELD_DEFENSE_RADIUS;
-    dReal ds = SSL_FIELD_DEFENSE_STRETCH / 2.0;
-    dReal penx = SSL_FIELD_PENALTY_POINT;
-
+    GLfloat fw   = static_cast<GLfloat>(SSL_FIELD_LENGTH / 2.0);
+    GLfloat fh   = static_cast<GLfloat>(SSL_FIELD_WIDTH / 2.0);
+    GLfloat lw   = static_cast<GLfloat>(SSL_FIELD_LINE_WIDTH);
+    GLfloat rad  = static_cast<GLfloat>(SSL_FIELD_RAD);
+    GLfloat penx = static_cast<GLfloat>(SSL_FIELD_PENALTY_POINT);
+    GLfloat pdep = static_cast<GLfloat>(SSL_FIELD_PENALTY_DEPTH);
+    GLfloat pwid = static_cast<GLfloat>(SSL_FIELD_PENALTY_WIDTH);
+    GLfloat epsilon = static_cast<GLfloat>(_epsilon);
     glEnable(GL_DEPTH_TEST);
     glPushMatrix();
     glScaled(1.0, 1.0, 1);
@@ -694,82 +694,51 @@ void CGraphics::drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal S
 
     //Left defense area
 
-    cos1 = 0.0f, sin1 = -1.0f;
-    for(angle = -M_PI / 2.0 + anglestep; angle < anglestep; angle += anglestep) {
-        cos2 = cos(angle);
-        sin2 = sin(angle);
-
-        glBegin(GL_QUADS);
-        glVertex3f(-fw + cos1 * (drad - lw), -ds + sin1 * (drad - lw), epsilon);
-        glVertex3f(-fw + cos1 * drad       , -ds + sin1 * drad       , epsilon);
-        glVertex3f(-fw + cos2 * drad       , -ds + sin2 * drad       , epsilon);
-        glVertex3f(-fw + cos2 * (drad - lw), -ds + sin2 * (drad - lw), epsilon);
-        glEnd();
-
-        cos1 = cos2;
-        sin1 = sin2;
-    }
-
     glBegin(GL_QUADS);
-    glVertex3f(-fw + drad     ,  ds, epsilon);
-    glVertex3f(-fw + drad - lw,  ds, epsilon);
-    glVertex3f(-fw + drad - lw, -ds, epsilon);
-    glVertex3f(-fw + drad     , -ds, epsilon);
+    glVertex3f(-fw , -(pwid / 2)      , epsilon);
+    glVertex3f(-fw , -(pwid / 2) - lw , epsilon);
+    glVertex3f(-fw + pdep , -(pwid / 2) - lw , epsilon);
+    glVertex3f(-fw + pdep , -(pwid / 2) , epsilon);
     glEnd();
 
-    for(; angle < M_PI / 2.0 + anglestep; angle += anglestep) {
-        cos2 = cos(angle);
-        sin2 = sin(angle);
+    glBegin(GL_QUADS);
+    glVertex3f(-fw - lw + pdep,  -(pwid / 2), epsilon);
+    glVertex3f(-fw + pdep , -(pwid / 2), epsilon);
+    glVertex3f(-fw + pdep , (pwid / 2), epsilon);
+    glVertex3f(-fw - lw + pdep , (pwid / 2), epsilon);
+    glEnd();
 
-        glBegin(GL_QUADS);
-        glVertex3f(-fw + cos1 * (drad - lw), ds + sin1 * (drad - lw), epsilon);
-        glVertex3f(-fw + cos1 * drad       , ds + sin1 * drad       , epsilon);
-        glVertex3f(-fw + cos2 * drad       , ds + sin2 * drad       , epsilon);
-        glVertex3f(-fw + cos2 * (drad - lw), ds + sin2 * (drad - lw), epsilon);
-        glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f(-fw , (pwid / 2) - lw, epsilon);
+    glVertex3f(-fw + pdep, (pwid / 2) - lw, epsilon);
+    glVertex3f(-fw + pdep, (pwid / 2), epsilon);
+    glVertex3f(-fw , (pwid / 2), epsilon);
+    glEnd();
 
-        cos1 = cos2;
-        sin1 = sin2;
-    }
 
     //Right defense area
 
-    for(; angle < M_PI + anglestep; angle += anglestep) {
-        cos2 = cos(angle);
-        sin2 = sin(angle);
-
-        glBegin(GL_QUADS);
-        glVertex3f(fw + cos1 * (drad - lw), ds + sin1 * (drad - lw), epsilon);
-        glVertex3f(fw + cos1 * drad       , ds + sin1 * drad       , epsilon);
-        glVertex3f(fw + cos2 * drad       , ds + sin2 * drad       , epsilon);
-        glVertex3f(fw + cos2 * (drad - lw), ds + sin2 * (drad - lw), epsilon);
-        glEnd();
-
-        cos1 = cos2;
-        sin1 = sin2;
-    }
-
     glBegin(GL_QUADS);
-    glVertex3f(fw - drad     , -ds, epsilon);
-    glVertex3f(fw - drad + lw, -ds, epsilon);
-    glVertex3f(fw - drad + lw,  ds, epsilon);
-    glVertex3f(fw - drad     ,  ds, epsilon);
+    glVertex3f(fw - pdep , -(pwid / 2) - lw , epsilon);
+    glVertex3f(fw , -(pwid / 2) - lw , epsilon);
+    glVertex3f(fw , -(pwid / 2)      , epsilon);
+    glVertex3f(fw - pdep , -(pwid / 2) , epsilon);
     glEnd();
 
-    for(; angle < 1.5 * M_PI + anglestep; angle += anglestep) {
-        cos2 = cos(angle);
-        sin2 = sin(angle);
+    glBegin(GL_QUADS);
+    glVertex3f(fw - pdep , -(pwid / 2), epsilon);
+    glVertex3f(fw + lw - pdep,  -(pwid / 2), epsilon);
+    glVertex3f(fw + lw - pdep , (pwid / 2), epsilon);
+    glVertex3f(fw - pdep , (pwid / 2), epsilon);
+    glEnd();
 
-        glBegin(GL_QUADS);
-        glVertex3f(fw + cos1 * (drad - lw), -ds + sin1 * (drad - lw), epsilon);
-        glVertex3f(fw + cos1 * drad       , -ds + sin1 * drad       , epsilon);
-        glVertex3f(fw + cos2 * drad       , -ds + sin2 * drad       , epsilon);
-        glVertex3f(fw + cos2 * (drad - lw), -ds + sin2 * (drad - lw), epsilon);
-        glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f(fw - pdep, (pwid / 2) - lw, epsilon);
+    glVertex3f(fw , (pwid / 2) - lw, epsilon);
+    glVertex3f(fw , (pwid / 2), epsilon);
+    glVertex3f(fw - pdep, (pwid / 2), epsilon);
+    glEnd();
 
-        cos1 = cos2;
-        sin1 = sin2;
-    }
 
     //Penalty spots
 
@@ -873,30 +842,30 @@ void CGraphics::_drawPatch (dReal p1[3], dReal p2[3], dReal p3[3], int level)
 # define ICX 0.525731112119133606f
 # define ICZ 0.850650808352039932f
 dReal idata[12][3] = {
-    {-ICX, 0, ICZ},
-    {ICX, 0, ICZ},
-    {-ICX, 0, -ICZ},
-    {ICX, 0, -ICZ},
-    {0, ICZ, ICX},
-    {0, ICZ, -ICX},
-    {0, -ICZ, ICX},
-    {0, -ICZ, -ICX},
-    {ICZ, ICX, 0},
-    {-ICZ, ICX, 0},
-    {ICZ, -ICX, 0},
-    {-ICZ, -ICX, 0}
+        {-ICX, 0, ICZ},
+        {ICX, 0, ICZ},
+        {-ICX, 0, -ICZ},
+        {ICX, 0, -ICZ},
+        {0, ICZ, ICX},
+        {0, ICZ, -ICX},
+        {0, -ICZ, ICX},
+        {0, -ICZ, -ICX},
+        {ICZ, ICX, 0},
+        {-ICZ, ICX, 0},
+        {ICZ, -ICX, 0},
+        {-ICZ, -ICX, 0}
 };
 int iindex[20][3] = {
-    {0, 4, 1},	  {0, 9, 4},
-    {9, 5, 4},	  {4, 5, 8},
-    {4, 8, 1},	  {8, 10, 1},
-    {8, 3, 10},   {5, 3, 8},
-    {5, 2, 3},	  {2, 7, 3},
-    {7, 10, 3},   {7, 6, 10},
-    {7, 11, 6},   {11, 0, 6},
-    {0, 1, 6},	  {6, 1, 10},
-    {9, 0, 11},   {9, 11, 2},
-    {9, 2, 5},	  {7, 2, 11},
+        {0, 4, 1},	  {0, 9, 4},
+        {9, 5, 4},	  {4, 5, 8},
+        {4, 8, 1},	  {8, 10, 1},
+        {8, 3, 10},   {5, 3, 8},
+        {5, 2, 3},	  {2, 7, 3},
+        {7, 10, 3},   {7, 6, 10},
+        {7, 11, 6},   {11, 0, 6},
+        {0, 1, 6},	  {6, 1, 10},
+        {9, 0, 11},   {9, 11, 2},
+        {9, 2, 5},	  {7, 2, 11},
 };
 
 // draw a sphere of radius 1
@@ -1183,7 +1152,7 @@ void CGraphics::_drawCylinder_TopTextured (dReal l, dReal r, dReal zoffset,int t
 
 
 void CGraphics::drawBox (const dReal pos[3], const dReal R[12],
-                           const dReal sides[3])
+                         const dReal sides[3])
 {
     if (graphicDisabled) return;
     glShadeModel (GL_FLAT);
@@ -1195,7 +1164,7 @@ void CGraphics::drawBox (const dReal pos[3], const dReal R[12],
 
 
 void CGraphics::drawSphere (const dReal pos[3], const dReal R[12],
-                              dReal radius)
+                            dReal radius)
 {
     if (graphicDisabled) return;
     glEnable (GL_NORMALIZE);
@@ -1209,7 +1178,7 @@ void CGraphics::drawSphere (const dReal pos[3], const dReal R[12],
 
 
 void CGraphics::drawCylinder (const dReal pos[3], const dReal R[12],
-                                dReal length, dReal radius)
+                              dReal length, dReal radius)
 {
     if (graphicDisabled) return;
     glShadeModel (GL_SMOOTH);
@@ -1219,7 +1188,7 @@ void CGraphics::drawCylinder (const dReal pos[3], const dReal R[12],
 }
 
 void CGraphics::drawCylinder_TopTextured (const dReal pos[3], const dReal R[12],
-                                dReal length, dReal radius,int tex_id,bool robot)
+                                          dReal length, dReal radius,int tex_id,bool robot)
 {
     if (graphicDisabled) return;
     glShadeModel (GL_SMOOTH);
@@ -1229,7 +1198,7 @@ void CGraphics::drawCylinder_TopTextured (const dReal pos[3], const dReal R[12],
 }
 
 void CGraphics::drawCapsule (const dReal pos[3], const dReal R[12],
-                                      dReal length, dReal radius)
+                             dReal length, dReal radius)
 {
     if (graphicDisabled) return;
     glShadeModel (GL_SMOOTH);

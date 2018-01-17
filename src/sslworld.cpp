@@ -154,7 +154,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p = new PWorld(0.05,9.81f,g);
     ball = new PBall (0,0,0.5,cfg->BallRadius(),cfg->BallMass(), 1,0.7,0);
 
-    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Rad(),cfg->Field_Penalty_Line(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),cfg->Field_Defense_Stretch(),cfg->Field_Defense_Rad(),0);
+    ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Depth(),cfg->Field_Penalty_Width(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),0);
     ray = new PRay(50);
     
     // Bounding walls
@@ -316,11 +316,11 @@ QImage* createNumber(int i,int r,int g,int b,int a)
     QBrush br;
     p->begin(img);
     QColor black(0,0,0,0);
-    for (int i=0;i<img->width();i++)
-        for (int j=0;j<img->height();j++)
-        {
-            img->setPixel(i,j,black.rgba());
+    for (int x = 0; x < img->width(); x++) {
+        for (int j= 0; j < img->height();j++) {
+            img->setPixel(x,j,black.rgba());
         }
+    }
     QColor txtcolor(r,g,b,a);
     QPen pen;
     pen.setStyle(Qt::SolidLine);
@@ -725,14 +725,16 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     const double kGoalDepth = CONVUNIT(cfg->Goal_Depth());
     const double kBoundaryWidth = CONVUNIT(cfg->Field_Referee_Margin());
     const double kCenterRadius = CONVUNIT(cfg->Field_Rad());
-    const double kDefenseRadius = CONVUNIT(cfg->Field_Defense_Rad());
-    const double kDefenseStretch = CONVUNIT(cfg->Field_Defense_Stretch());
     const double kLineThickness = CONVUNIT(cfg->Field_Line_Width());
+    const double kPenaltyDepth  = CONVUNIT(cfg->Field_Penalty_Depth());
+    const double kPenaltyWidth  = CONVUNIT(cfg->Field_Penalty_Width());
 
     const double kXMax = (kFieldLength-2*kLineThickness)/2;
     const double kXMin = -kXMax;
     const double kYMax = (kFieldWidth-kLineThickness)/2;
     const double kYMin = -kYMax;
+    const double penAreaX = kXMax - kPenaltyDepth;
+    const double penAreaY = kPenaltyWidth / 2.0;
 
     // Field lines
     addFieldLine(field, "TopTouchLine", kXMin-kLineThickness/2, kYMax, kXMax+kLineThickness/2, kYMax, kLineThickness);
@@ -741,8 +743,8 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     addFieldLine(field, "RightGoalLine", kXMax, kYMin, kXMax, kYMax, kLineThickness);
     addFieldLine(field, "HalfwayLine", 0, kYMin, 0, kYMax, kLineThickness);
     addFieldLine(field, "CenterLine", kXMin, 0, kXMax, 0, kLineThickness);
-    addFieldLine(field, "LeftPenaltyStretch", kXMin+kDefenseRadius-kLineThickness/2, -kDefenseStretch/2, kXMin+kDefenseRadius-kLineThickness/2, kDefenseStretch/2, kLineThickness);
-    addFieldLine(field, "RightPenaltyStretch", kXMax-kDefenseRadius+kLineThickness/2, -kDefenseStretch/2, kXMax-kDefenseRadius+kLineThickness/2, kDefenseStretch/2, kLineThickness);
+    addFieldLine(field, "LeftPenaltyStretch", -kXMin+kPenaltyDepth-kLineThickness/2, -kPenaltyWidth/2, kXMin+kPenaltyDepth-kLineThickness/2, kPenaltyWidth/2, kLineThickness);
+    addFieldLine(field, "RightPenaltyStretch", kXMax-kPenaltyDepth+kLineThickness/2, -kPenaltyWidth/2, kXMax-kPenaltyDepth+kLineThickness/2, kPenaltyWidth/2, kLineThickness);
 
     addFieldLine(field, "RightGoalTopLine", kXMax, kGoalWidth/2, kXMax+kGoalDepth, kGoalWidth/2, kLineThickness);
     addFieldLine(field, "RightGoalBottomLine", kXMax, -kGoalWidth/2, kXMax+kGoalDepth, -kGoalWidth/2, kLineThickness);
@@ -752,11 +754,12 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     addFieldLine(field, "LeftGoalBottomLine", -kXMax, -kGoalWidth/2, -kXMax-kGoalDepth, -kGoalWidth/2, kLineThickness);
     addFieldLine(field, "LeftGoalDepthLine", -kXMax-kGoalDepth+kLineThickness/2, -kGoalWidth/2, -kXMax-kGoalDepth+kLineThickness/2, kGoalWidth/2, kLineThickness);
 
+    addFieldLine(field, "LeftFieldLeftPenaltyStretch",   kXMin, kPenaltyWidth/2,  kXMin + kPenaltyDepth, kPenaltyWidth/2,   kLineThickness);
+    addFieldLine(field, "LeftFieldRightPenaltyStretch",  kXMin, -kPenaltyWidth/2, kXMin + kPenaltyDepth, -kPenaltyWidth/2,  kLineThickness);
+    addFieldLine(field, "RightFieldLeftPenaltyStretch",  kXMax, -kPenaltyWidth/2, kXMax - kPenaltyDepth, -kPenaltyWidth/2,kLineThickness);
+    addFieldLine(field, "RightFieldRightPenaltyStretch", kXMax, kPenaltyWidth/2,  kXMax - kPenaltyDepth, kPenaltyWidth/2,     kLineThickness);
+
     // Field arcs
-    addFieldArc(field, "LeftFieldLeftPenaltyArc",   kXMin, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, 0,        M_PI/2,   kLineThickness);
-    addFieldArc(field, "LeftFieldRightPenaltyArc",  kXMin, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, 1.5*M_PI, 2*M_PI,   kLineThickness);
-    addFieldArc(field, "RightFieldLeftPenaltyArc",  kXMax, -kDefenseStretch/2, kDefenseRadius-kLineThickness/2, M_PI,     1.5*M_PI, kLineThickness);
-    addFieldArc(field, "RightFieldRightPenaltyArc", kXMax, kDefenseStretch/2,  kDefenseRadius-kLineThickness/2, M_PI/2,   M_PI,     kLineThickness);
     addFieldArc(field, "CenterCircle",              0,     0,                  kCenterRadius-kLineThickness/2,  0,        2*M_PI,   kLineThickness);
 }
 
@@ -1017,7 +1020,7 @@ dReal randn_trig(dReal mu, dReal sigma) {
         storedDeviate=dist*cos(angle);
         deviateAvailable=true;
 
-        //	calcaulate return second deviate
+        //	calculate return second deviate
         return dist * sin(angle) * sigma + mu;
     }
 

@@ -42,9 +42,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     v_##name->addItem(str);
 
 
-#include<QDir>
-
-
 ConfigWidget::ConfigWidget()
 {      
   tmodel=new VarTreeModel();
@@ -53,24 +50,21 @@ ConfigWidget::ConfigWidget()
   world.push_back(geo_vars);  
   robot_settings = new QSettings;
     VarListPtr field_vars(new VarList("Field"));
-
     geo_vars->addChild(field_vars);
         ADD_VALUE(field_vars,Double,Field_Line_Width,0.010,"Line Thickness")
         ADD_VALUE(field_vars,Double,Field_Length,9.000,"Length")
         ADD_VALUE(field_vars,Double,Field_Width,6.000,"Width")
         ADD_VALUE(field_vars,Double,Field_Rad,0.500,"Radius")
-        ADD_VALUE(field_vars,Double,Field_Defense_Rad,1.000,"Defense Radius")
-        ADD_VALUE(field_vars,Double,Field_Defense_Stretch,0.500,"Defense Stretch")
         ADD_VALUE(field_vars,Double,Field_Free_Kick,0.700,"Free Kick Distanse From Defense Area")
-        ADD_VALUE(field_vars,Double,Field_Penalty_Rad,0.50,"Penalty radius")
-        ADD_VALUE(field_vars,Double,Field_Penalty_Line,0.350,"Penalty line length")
-        ADD_VALUE(field_vars,Double,Field_Penalty_Point,0.950,"Penalty point")
+        ADD_VALUE(field_vars,Double,Field_Penalty_Width,2.40,"Penalty width")
+        ADD_VALUE(field_vars,Double,Field_Penalty_Depth,1.20,"Penalty depth")
+        ADD_VALUE(field_vars,Double,Field_Penalty_Point,1.20,"Penalty point")
         ADD_VALUE(field_vars,Double,Field_Margin,0.250,"Margin")
         ADD_VALUE(field_vars,Double,Field_Referee_Margin,0.455,"Referee margin")
         ADD_VALUE(field_vars,Double,Wall_Thickness,0.050,"Wall thickness")
         ADD_VALUE(field_vars,Double,Goal_Thickness,0.020,"Goal thickness")
         ADD_VALUE(field_vars,Double,Goal_Depth,0.200,"Goal depth")
-        ADD_VALUE(field_vars,Double,Goal_Width,1.000,"Goal width")
+        ADD_VALUE(field_vars,Double,Goal_Width,1.200,"Goal width")
         ADD_VALUE(field_vars,Double,Goal_Height,0.160,"Goal height")
     ADD_ENUM(StringEnum,YellowTeam,"Parsian","Yellow Team");
     END_ENUM(geo_vars,YellowTeam)

@@ -78,7 +78,7 @@ public:
     void drawSkybox(int t1,int t2,int t3,int t4,int t5,int t6);
     void drawSky ();
     void drawGround();
-    void drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY_RADIUS,dReal SSL_FIELD_PENALTY_LINE,dReal SSL_FIELD_PENALTY_POINT, dReal SSL_FIELD_LINE_WIDTH, dReal SSL_FIELD_DEFENSE_STRETCH, dReal SSL_FIELD_DEFENSE_RADIUS, dReal epsilon);
+    void drawSSLGround(dReal SSL_FIELD_RAD,dReal SSL_FIELD_LENGTH,dReal SSL_FIELD_WIDTH,dReal SSL_FIELD_PENALTY_DEPTH,dReal SSL_FIELD_PENALTY_WIDTH,dReal SSL_FIELD_PENALTY_POINT, dReal SSL_FIELD_LINE_WIDTH, dReal epsilon);
 
     void drawBox (const dReal pos[3], const dReal R[12],const dReal sides[3]);
     void drawSphere (const dReal pos[3], const dReal R[12],dReal radius);
