@@ -21,11 +21,22 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 int main(int argc, char *argv[])
 {
+    char** argend = argc + argv;
+
     QCoreApplication::setOrganizationName("Parsian");
     QCoreApplication::setOrganizationDomain("parsian-robotics.com");
     QCoreApplication::setApplicationName("grSim");
     QApplication a(argc, argv);
     MainWindow w;
-    w.show();
+
+    if (std::find(argv, argend, std::string("--headless")) != argend
+        || std::find(argv, argend, std::string("-H")) != argend) {
+        // enable headless mode
+        w.hide();
+        w.setIsGlEnabled(false);
+    } else {
+        // Run normally
+        w.show();
+    }
     return a.exec();
 }

@@ -71,6 +71,7 @@ public slots:
     void reconnectBlueStatusSocket();
     void reconnectVisionSocket();
     void recvActions();
+    void setIsGlEnabled(bool value);
 private:
     int getInterval();    
     QTimer *timer;
