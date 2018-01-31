@@ -1,19 +1,17 @@
 cmake_minimum_required(VERSION 2.8)
 
-
 ## Project branding, version and package mantainer
 project(grSim)
 set(VERSION "1.0.0a2")
 #set(VENDOR "Parsian")
 set(MAINTAINER "Mani Monajjemi <mani.monajjemi@gmail.com>")
 
-
 # some utils and helper vars
 string(TOLOWER ${CMAKE_PROJECT_NAME} CMAKE_PROJECT_NAME_LOWER)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 standard_config()
-standard_paths(${PROJECT_SOURCE_DIR} bin lib)
+#standard_paths(${PROJECT_SOURCE_DIR} bin lib)
 
 
 # definitions for knowing the OS from the code
@@ -33,6 +31,7 @@ if(UNIX)
     endif()
 endif()
 
+
 # set explicitly the c++ standard to use
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++03")
 
@@ -40,7 +39,6 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++03")
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include/net)
 include_directories(${PROJECT_SOURCE_DIR}/include/physics)
-
 
 ## Handling depenendcies
 
@@ -82,9 +80,18 @@ option(DOUBLE_PRECISION "Use double precision? If not single precision will be u
   endif()
 
 # VarTypes
-find_package(VarTypes REQUIRED)
-include_directories(${VARTYPES_INCLUDE_DIRS})
-list(APPEND libs ${VARTYPES_LIBRARIES})
+set(CMAKE_AUTOMOC OFF)
+add_subdirectory(${PROJECT_SOURCE_DIR}/external/vartypes)
+set(CMAKE_AUTOMOC ON)
+
+include_directories(${PROJECT_SOURCE_DIR}/external/vartypes)
+include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/)
+include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/vartypes/)
+include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/vartypes/gui/)
+include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/vartypes/primitives/)
+include_directories(${PROJECT_SOURCE_DIR}/external/vartypes/vartypes/xml/)
+
+list(APPEND libs vartypes)
 
 # Protobuf
 find_package(Protobuf REQUIRED)
@@ -200,11 +207,13 @@ elseif(WIN32)
 else()
     set(app ${CMAKE_PROJECT_NAME_LOWER})
     add_executable(${app} ${srcs})
+    set_target_properties(${app} 
+        PROPERTIES OUTPUT_NAME "grsim")
     target_link_libraries(${app} ${libs})
-    install(TARGETS ${app} DESTINATION bin)
-    install(DIRECTORY config DESTINATION share/${app})
-    install(FILES resources/grsim.desktop DESTINATION share/applications)
-    install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)
+    #install(TARGETS ${app} DESTINATION bin)
+    #install(DIRECTORY config DESTINATION share/${app})
+    #install(FILES resources/grsim.desktop DESTINATION share/applications)
+    #install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)
 endif()
 
 option(BUILD_CLIENTS "Choose this option if you want to build the example Qt client." ON)

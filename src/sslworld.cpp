@@ -532,8 +532,31 @@ void SSLWorld::recvActions()
                         kick = true;
                         kickz = packet.commands().robot_commands(i).kickspeedz();
                     }
+
+                    if (packet.commands().robot_commands(i).has_triggermode())
+                    {
+                        grSim_Robot_Command_TriggerMode mode = packet.commands().robot_commands(i).triggermode();
+                        switch (mode) {
+                            case grSim_Robot_Command_TriggerMode_STAND_DOWN:
+                                kick = false;
+                                kickx = 0;
+                                kickz = 0;
+                                break;
+                            case grSim_Robot_Command_TriggerMode_IMMEDIATE:
+                                break;
+                            case grSim_Robot_Command_TriggerMode_ON_BREAK_BEAM:
+                                if (!robots[id]->kicker->isTouchingBall()) {
+                                    kickx = 0;
+                                    kickz = 0;
+                                    kick = false;
+                                } 
+                                break;
+                        }
+                    }
+                        
                     if (kick && ((kickx>0.0001) || (kickz>0.0001)))
                         robots[id]->kicker->kick(kickx,kickz);
+
                     int rolling = 0;
                     if (packet.commands().robot_commands(i).has_spinner())
                     {
@@ -541,14 +564,6 @@ void SSLWorld::recvActions()
                     }
                     robots[id]->kicker->setRoller(rolling);
 
-                    char status = 0;
-                    status = k;
-                    if (robots[id]->kicker->isTouchingBall()) status = status | 8;
-                    if (robots[id]->on) status = status | 240;
-                    if (team == 0)
-                        blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
-                    else
-                        yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
 
                 }
             }
@@ -579,16 +594,42 @@ void SSLWorld::recvActions()
                 }
                 if (packet.replacement().has_ball())
                 {
-                    dReal x = 0, y = 0, vx = 0, vy = 0;
-                    if (packet.replacement().ball().has_x())  x  = packet.replacement().ball().x();
-                    if (packet.replacement().ball().has_y())  y  = packet.replacement().ball().y();
-                    if (packet.replacement().ball().has_vx()) vx = packet.replacement().ball().vx();
-                    if (packet.replacement().ball().has_vy()) vy = packet.replacement().ball().vy();
-                    ball->setBodyPosition(x,y,cfg->BallRadius()*1.2);
-                    dBodySetLinearVel(ball->body,vx,vy,0);
+                    if (packet.replacement().ball().has_pos()) 
+                    {
+                        dReal x = packet.replacement().ball().pos().x();
+                        dReal y = packet.replacement().ball().pos().y();
+                        ball->setBodyPosition(x,y,cfg->BallRadius()*1.2);
+                    }
+                    if (packet.replacement().ball().has_vel())
+                    {
+                        dReal vx = packet.replacement().ball().vel().x();
+                        dReal vy = packet.replacement().ball().vel().y();
+                        dBodySetLinearVel(ball->body,vx,vy,0);
+                    }
                     dBodySetAngularVel(ball->body,0,0,0);
                 }
             }
+        }
+    }
+
+    // send status regardless of whether or not we received any commands
+    for (int team = 0; team <= 1; ++team) {
+        for (int id = 0; id < ROBOT_COUNT; ++id) {
+            char status = 0;
+            status = id;
+
+            const uint8_t touching_ball = 0x1 << 3;
+            const uint8_t just_kicked = 0x1 << 4;
+            const uint8_t robot_on = 0x1 << 5;
+
+            if (robots[id]->kicker->isTouchingBall()) status = status | touching_ball;
+            if (robots[id]->kicker->justKicked()) status |= just_kicked;
+            if (robots[id]->on) status = status |= robot_on;
+
+            if (team == 0)
+                blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
+            else
+                yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
         }
     }
 }

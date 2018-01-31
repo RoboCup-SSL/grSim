@@ -26,6 +26,12 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("grSim");
     QApplication a(argc, argv);
     MainWindow w;
-    w.show();
+
+    if (argc == 1 || strcmp(argv[1], "-headless") != 0) {
+      w.show();
+    }
+    else {
+      w.hide();
+    }
     return a.exec();
 }
