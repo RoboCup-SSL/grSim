@@ -126,15 +126,14 @@ public:
   RobotSettings blueSettings;
   RobotSettings yellowSettings;
 
+  /*    Geometry/Game Vartypes   */
   DEF_VALUE(double,Double,Field_Line_Width)
   DEF_VALUE(double,Double,Field_Length)
   DEF_VALUE(double,Double,Field_Width)
   DEF_VALUE(double,Double,Field_Rad)
-  DEF_VALUE(double,Double,Field_Defense_Rad)
-  DEF_VALUE(double,Double,Field_Defense_Stretch)
   DEF_VALUE(double,Double,Field_Free_Kick)
-  DEF_VALUE(double,Double,Field_Penalty_Rad)//TODO: what's this??
-  DEF_VALUE(double,Double,Field_Penalty_Line)
+  DEF_VALUE(double,Double,Field_Penalty_Width)
+  DEF_VALUE(double,Double,Field_Penalty_Depth)
   DEF_VALUE(double,Double,Field_Penalty_Point)
   DEF_VALUE(double,Double,Field_Margin)
   DEF_VALUE(double,Double,Field_Referee_Margin)

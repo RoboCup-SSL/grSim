@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     edtChip = new QLineEdit("0", this);
     edtKick = new QLineEdit("0", this);
 
-    this->setWindowTitle(QString("grSim Sample Client - v 1.0"));
+    this->setWindowTitle(QString("grSim Sample Client - v 2.0"));
 
     lblIp = new QLabel("Simulator Address", this);
     lblPort = new QLabel("Simulator Port", this);

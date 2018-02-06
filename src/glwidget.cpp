@@ -170,7 +170,7 @@ void GLWidget::switchRobotOnOff()
     int k = robotIndex(Current_robot, Current_team);
     if (Current_robot!=-1)
     {
-        if (ssl->robots[k]->on==true)
+        if (ssl->robots[k]->on)
         {
             ssl->robots[k]->on = false;
             onOffRobotAct->setText("Turn &on");
@@ -363,11 +363,10 @@ void GLWidget::initializeGL ()
 
 void GLWidget::step()
 {
-    static double lastBallSpeed=-1;
     const dReal* ballV = dBodyGetLinearVel(ssl->ball->body);
     double ballSpeed = ballV[0]*ballV[0] + ballV[1]*ballV[1] + ballV[2]*ballV[2];
     ballSpeed  = sqrt(ballSpeed);
-    lastBallSpeed = ballSpeed;
+
 
     // Restarts the time as well as gets it.
     // It is important that both getting and resetting happens here, instead
@@ -376,6 +375,7 @@ void GLWidget::step()
     // step plus the time between steps.
     // Resetting afterwards will only take into account the time between steps.
     dReal ddt=physicstimer.restart()/1000.0;
+
 
     m_fps = frames /(time.elapsed()/1000.0);
     if (!(frames % ((int)(ceil(cfg->DesiredFPS()))))) {
@@ -425,7 +425,7 @@ void GLWidget::paintGL()
     }
     step();
     QFont font;
-    for (int i=0;i<ROBOT_COUNT*2;i++)
+    for (int i=0;i< ROBOT_COUNT*2;i++)
     {
         dReal xx,yy;
         ssl->robots[i]->getXY(xx,yy);
@@ -487,7 +487,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Control) ctrl = true;
     if (event->key() == Qt::Key_Alt) alt = true;
-    char cmd = event->key();
+    char cmd = static_cast<char>(event->key());
     if (fullScreen) {
         if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);
     }
@@ -495,7 +495,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     const dReal BallForce = 2.0;
     int R = robotIndex(Current_robot,Current_team);
     if (R < 0) return;
-    bool flag=false;
 
     switch (cmd) {
     case 't': case 'T': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,S);break;
@@ -513,7 +512,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     case 'j': case 'J': ssl->robots[R]->kicker->toggleRoller();break;
     case 'i': case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BallRadius(),0);break;
     case ';':
-        if (kickingball==false)
+        if (!kickingball)
         {
             kickingball = true; logStatus(QString("Kick mode On"),QColor("blue"));
             chiping = false;
@@ -525,7 +524,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         }
         break;
     case '\'':
-        if (chiping==false)
+        if (!chiping)
         {
             logStatus(QString("Chip mode On"),QColor("blue"));
             chiping = true;
@@ -547,6 +546,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         dBodySetLinearVel(ssl->ball->body,0,0,0);
         dBodySetAngularVel(ssl->ball->body,0,0,0);
         break;
+        default:break;
     }
 }
 
@@ -575,7 +575,7 @@ void GLWidget::reform(int team,const QString& act)
     if(act==tr("Turn all off")) {
         for(int i=0; i<ROBOT_COUNT; i++) {
             int k = robotIndex(i, team);
-            if(ssl->robots[k]->on==true) {
+            if(ssl->robots[k]->on) {
                 ssl->robots[k]->on = false;
                 onOffRobotAct->setText("Turn &on");
                 emit robotTurnedOnOff(k, false);
@@ -586,7 +586,7 @@ void GLWidget::reform(int team,const QString& act)
     if(act==tr("Turn all on")) {
         for(int i=0; i<ROBOT_COUNT; i++) {
             int k = robotIndex(i, team);
-            if(ssl->robots[k]->on==false) {
+            if(!ssl->robots[k]->on) {
                 ssl->robots[k]->on = true;
                 onOffRobotAct->setText("Turn &off");
                 emit robotTurnedOnOff(k, true);

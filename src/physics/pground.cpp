@@ -18,19 +18,18 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "pground.h"
 
-PGround::PGround(dReal field_radius,dReal field_length,dReal field_width,dReal field_penalty_rad,dReal field_penalty_line_length,dReal field_penalty_point, dReal field_line_width, dReal field_defense_stretch,dReal field_defense_radius,int tex_id)
+PGround::PGround(dReal field_radius,dReal field_length,dReal field_width,dReal field_penalty_rad,dReal field_penalty_line_length,dReal field_penalty_point, dReal field_line_width,int tex_id)
         : PObject(0,0,0,0,1,0,0)
 {
     rad = field_radius;
     len = field_length;
     wid = field_width;
-    prad = field_penalty_rad;
-    plen = field_penalty_line_length;
+    pdep = field_penalty_rad;
+    pwid = field_penalty_line_length;
     ppoint = field_penalty_point;
     tex = tex_id;
     lwidth = field_line_width;
-    dstretch = field_defense_stretch;
-    dradius = field_defense_radius;
+
 }
 
 void PGround::init()
@@ -44,7 +43,7 @@ void PGround::draw()
     g->useTexture(tex);
     g->drawGround();
     g->noTexture();
-    g->drawSSLGround(rad,len,wid,prad,plen,ppoint,lwidth,dstretch,dradius,0.0001);
+    g->drawSSLGround(rad,len,wid,pdep,pwid,ppoint,lwidth,0.0001);
 }
 
 PGround::~PGround()
