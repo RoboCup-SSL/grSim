@@ -747,7 +747,7 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     addFieldLine(field, "RightGoalLine", kXMax, kYMin, kXMax, kYMax, kLineThickness);
     addFieldLine(field, "HalfwayLine", 0, kYMin, 0, kYMax, kLineThickness);
     addFieldLine(field, "CenterLine", kXMin, 0, kXMax, 0, kLineThickness);
-    addFieldLine(field, "LeftPenaltyStretch", -kXMin+kPenaltyDepth-kLineThickness/2, -kPenaltyWidth/2, kXMin+kPenaltyDepth-kLineThickness/2, kPenaltyWidth/2, kLineThickness);
+    addFieldLine(field, "LeftPenaltyStretch", kXMin+kPenaltyDepth-kLineThickness/2, -kPenaltyWidth/2, kXMin+kPenaltyDepth-kLineThickness/2, kPenaltyWidth/2, kLineThickness);
     addFieldLine(field, "RightPenaltyStretch", kXMax-kPenaltyDepth+kLineThickness/2, -kPenaltyWidth/2, kXMax-kPenaltyDepth+kLineThickness/2, kPenaltyWidth/2, kLineThickness);
 
     addFieldLine(field, "RightGoalTopLine", kXMax, kGoalWidth/2, kXMax+kGoalDepth, kGoalWidth/2, kLineThickness);
