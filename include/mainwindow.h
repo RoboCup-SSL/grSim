@@ -70,6 +70,7 @@ public slots:
     void reconnectYellowStatusSocket();
     void reconnectBlueStatusSocket();
     void reconnectVisionSocket();
+    void reconnectRttsSocket();
     void recvActions();
 private:
     int getInterval();
@@ -96,6 +97,7 @@ private:
     GLWidgetGraphicsView *view;
     QSize lastSize;
     RoboCupSSLServer *visionServer;
+    RoboCupSSLServer *rttsServer;
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
 };
