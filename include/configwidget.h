@@ -161,6 +161,8 @@ public:
   DEF_VALUE(double,Double,Gravity)
   DEF_VALUE(std::string,String,VisionMulticastAddr)
   DEF_VALUE(int,Int,VisionMulticastPort)
+  DEF_VALUE(std::string,String,RttsMulticastAddr)
+  DEF_VALUE(int,Int,RttsMulticastPort)
   DEF_VALUE(int,Int,CommandListenPort)
   DEF_VALUE(int,Int,BlueStatusSendPort)
   DEF_VALUE(int,Int,YellowStatusSendPort)
