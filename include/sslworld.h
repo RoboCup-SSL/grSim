@@ -86,6 +86,7 @@ public:
     dReal cursor_x,cursor_y,cursor_z;
     dReal cursor_radius;
     RoboCupSSLServer *visionServer;
+    RoboCupSSLServer *rttsServer;
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
     bool updatedCursor;

@@ -811,6 +811,9 @@ void SSLWorld::sendVisionBuffer()
         delete sendQueue.front();
         sendQueue.pop_front();
         visionServer->send(*packet);
+        if(rttsServer != NULL){
+            rttsServer->send(*packet);
+        }
         delete packet;
         if (sendQueue.isEmpty()) break;
     }
