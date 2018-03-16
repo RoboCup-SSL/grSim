@@ -12,7 +12,7 @@ optional float wheel2 = 10;
 optional float wheel3 = 11;
 optional float wheel4 = 12;
 // in radians
-required float geneva_angle = 13;
+optional float geneva_angle = 13;
 }
 
 message grSim_Commands {
