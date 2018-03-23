@@ -52,8 +52,8 @@ ConfigWidget::ConfigWidget()
     VarListPtr field_vars(new VarList("Field"));
     geo_vars->addChild(field_vars);
         ADD_VALUE(field_vars,Double,Field_Line_Width,0.010,"Line Thickness")
-        ADD_VALUE(field_vars,Double,Field_Length,9.000,"Length")
-        ADD_VALUE(field_vars,Double,Field_Width,6.000,"Width")
+        ADD_VALUE(field_vars,Double,Field_Length,12.000,"Length")
+        ADD_VALUE(field_vars,Double,Field_Width,9.000,"Width")
         ADD_VALUE(field_vars,Double,Field_Rad,0.500,"Radius")
         ADD_VALUE(field_vars,Double,Field_Free_Kick,0.700,"Free Kick Distanse From Defense Area")
         ADD_VALUE(field_vars,Double,Field_Penalty_Width,2.40,"Penalty width")
