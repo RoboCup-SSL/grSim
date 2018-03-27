@@ -858,8 +858,8 @@ RobotsFomation::RobotsFomation(int type)
     {
         dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
                                            2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {-4.0, -4.0, -4.0, -4.0, -4.0, -4.0,
-                                           -4.0, -4.0, -4.0, -4.0, -4.0, -4.0};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {-5.5, -5.5, -5.5, -5.5, -5.5, -5.5,
+                                           -5.5, -5.5, -5.5, -5.5, -5.5, -5.5};
         setAll(teamPosX,teamPosY);
     }
     if (type==4)
@@ -872,8 +872,8 @@ RobotsFomation::RobotsFomation(int type)
     {
         dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
                                            2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4,
-                                           -3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
+        dReal teamPosY[MAX_ROBOT_COUNT] = {-4.9, -4.9, -4.9, -4.9, -4.9, -4.9,
+                                           -4.9, -4.9, -4.9, -4.9, -4.9, -4.9};
         setAll(teamPosX,teamPosY);
     }
 
