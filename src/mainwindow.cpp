@@ -393,6 +393,17 @@ void MainWindow::changeBallDamping()
 
 void MainWindow::restartSimulator()
 {
+    double old_width = glwidget->ssl->ground->getWidth();
+    double old_height = glwidget->ssl->ground->getLength();
+    double new_width = glwidget->cfg->Field_Width();
+    double new_length = glwidget->cfg->Field_Length();
+    double xScale = new_length / old_height;
+    double yScale = new_width / old_width;
+    glwidget->forms[1]->resize(xScale, yScale);
+    glwidget->forms[2]->resize(xScale, yScale);
+    glwidget->forms[3]->resize(xScale, yScale);
+    glwidget->forms[4]->resize(xScale, yScale);
+
     delete glwidget->ssl;
     glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[2],glwidget->forms[2]);
     glwidget->ssl->glinit();
@@ -400,8 +411,6 @@ void MainWindow::restartSimulator()
     glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
     glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
-
-
 }
 
 void MainWindow::ballMenuTriggered(QAction* act)

@@ -93,7 +93,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(ballp_vars,Double,BallAngularDamp,0.004,"Ball angular damping")
   VarListPtr comm_vars(new VarList("Communication"));
   world.push_back(comm_vars);
-    ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
+    ADD_VALUE(comm_vars,String,VisionMulticastAddr,"127.0.0.1","Vision multicast address")  //SSL Vision: "224.5.23.2"
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10036,"Vision multicast port")
     ADD_VALUE(comm_vars,Int,CommandListenPort,20011,"Command listen port")
     ADD_VALUE(comm_vars,Int,BlueStatusSendPort,30011,"Blue Team status send port")

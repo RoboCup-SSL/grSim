@@ -31,6 +31,8 @@ public:
     virtual ~PGround();
     virtual void init();
     virtual void draw();
+    virtual double getLength();
+    virtual double getWidth();
 };
 
 #endif // PGROUND_H

@@ -828,8 +828,12 @@ void RobotsFomation::setAll(dReal* xx,dReal *yy)
     }
 }
 
-RobotsFomation::RobotsFomation(int type)
+
+
+RobotsFomation::RobotsFomation(int type, double field_width, double field_length)
 {
+    this->field_length = field_length;
+    this->field_width = field_width;
     if (type==0)
     {
         dReal teamPosX[MAX_ROBOT_COUNT] = {2.2, 1.0, 1.0, 1.0, 0.33, 1.22,
@@ -840,11 +844,16 @@ RobotsFomation::RobotsFomation(int type)
     }
     if (type==1) // formation 1
     {
-        dReal teamPosX[MAX_ROBOT_COUNT] = {1.5, 1.5, 1.5, 0.55, 2.5, 3.6,
+        QString file_name = QString("formation_1.formation");
+        QString ss = qApp->applicationDirPath() + QString("/../config/") + file_name;
+        if(!this->loadFromIniFile(ss)) {
+            dReal teamPosX[MAX_ROBOT_COUNT] = {1.5, 1.5, 1.5, 0.55, 2.5, 3.6,
                                                3.2, 3.2, 3.2, 3.2, 3.2, 3.2};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0,
+            dReal teamPosY[MAX_ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0,
                                                0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
-        setAll(teamPosX,teamPosY);
+            setAll(teamPosX, teamPosY);
+        }
+
     }
     if (type==2) // formation 2
     {
@@ -891,7 +900,7 @@ void RobotsFomation::loadFromFile(const QString& filename)
     while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList list = line.split(",");
-        if (list.count()>=2)
+        if (list.count() >= 2)
         {
             x[k]=list[0].toFloat();
             y[k]=list[1].toFloat();
@@ -905,6 +914,50 @@ void RobotsFomation::loadFromFile(const QString& filename)
     }
 }
 
+/*
+ * Load ini file containing formation in exact value or percentage:
+ * Example:
+
+;Formation with 12 Robots
+[Robot 0]
+PercX = "100"
+PercY = "50"
+[Robot 1]
+PosX = "1.5"
+PosY = "0"
+[Robot 2]
+PosX = "1.5"
+PosY = "-1.12"
+
+ */
+bool RobotsFomation::loadFromIniFile(const QString& filename)
+{
+    QSettings* settings = new QSettings(filename, QSettings::IniFormat);
+
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
+
+    dReal teamPosX[MAX_ROBOT_COUNT];
+    dReal teamPosY[MAX_ROBOT_COUNT];
+
+    for(int i = 0; i < MAX_ROBOT_COUNT; i++) {
+        QVariant xVar = settings->value(QString("Robot %1/PosX").arg(i));
+        QVariant yVar = settings->value(QString("Robot %1/PosY").arg(i));
+        QVariant xPerc = settings->value(QString("Robot %1/PercX").arg(i));
+        QVariant yPerc = settings->value(QString("Robot %1/PercY").arg(i));
+        if(!xPerc.isNull() && !yPerc.isNull()) {
+            teamPosX[i] = getScaledLength(xPerc.toDouble());
+            teamPosY[i] = getScaledWidth(yPerc.toDouble());
+        } else if(!xVar.isNull() && !yVar.isNull()) {
+            teamPosX[i] = xVar.toDouble();
+            teamPosY[i] = yVar.toDouble();
+        }
+    }
+    setAll(teamPosX,teamPosY);
+    return true;
+}
+
 void RobotsFomation::resetRobots(Robot** r,int team)
 {
     dReal dir=-1;
@@ -913,6 +966,26 @@ void RobotsFomation::resetRobots(Robot** r,int team)
     {
         r[robotIndex(k,team)]->setXY(x[k]*dir,y[k]);
         r[robotIndex(k,team)]->resetRobot();
+    }
+}
+
+int RobotsFomation::getScaledWidth(double percentage)
+{
+    return percentage * field_width / 200.0;
+}
+
+int RobotsFomation::getScaledLength(double percentage)
+{
+    return percentage * field_length / 200.0;
+}
+
+
+void RobotsFomation::resize(double xScale, double yScale)
+{
+    for (int k=0;k<ROBOT_COUNT;k++)
+    {
+        x[k] = x[k] * xScale;
+        y[k] = y[k] * yScale;
     }
 }
 

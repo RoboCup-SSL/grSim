@@ -46,6 +46,16 @@ void PGround::draw()
     g->drawSSLGround(rad,len,wid,pdep,pwid,ppoint,lwidth,0.0001);
 }
 
+double PGround::getLength()
+{
+    return len;
+}
+
+double PGround::getWidth()
+{
+    return wid;
+}
+
 PGround::~PGround()
 {
 }

@@ -99,13 +99,20 @@ signals:
 };
 
 class RobotsFomation {
+    private:
+        int field_width;
+        int field_length;
     public:
         dReal x[MAX_ROBOT_COUNT];
         dReal y[MAX_ROBOT_COUNT];
-        RobotsFomation(int type);
+        RobotsFomation(int type, double field_width, double field_length);
         void setAll(dReal *xx,dReal *yy);
         void loadFromFile(const QString& filename);
+        bool loadFromIniFile(const QString& filename);
         void resetRobots(Robot** r,int team);
+        void resize(double xScale, double yScale);
+        int getScaledWidth(double percentage);
+        int getScaledLength(double percentage);
 };
 
 dReal fric(dReal f);

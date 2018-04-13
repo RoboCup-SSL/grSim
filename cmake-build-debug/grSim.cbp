@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="grSim"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\cmake\modules\;CMake Files\resources\;CMake Files\clients\;CMake Files\clients\qt\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="package_source">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 package_source"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="package">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 package"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="grsim">
+				<Option output="/home/visionpc/roboteamtwente/grSim/bin/grsim" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DHAVE_UNIX"/>
+					<Add option="-DHAVE_LINUX"/>
+					<Add option="-DQT_OPENGL_LIB"/>
+					<Add option="-DQT_GUI_LIB"/>
+					<Add option="-DQT_NETWORK_LIB"/>
+					<Add option="-DQT_CORE_LIB"/>
+					<Add option="-DdDOUBLE"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grsim_autogen/include"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include/net"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include/physics"/>
+					<Add directory="/usr/include/qt4"/>
+					<Add directory="/usr/include/qt4/QtOpenGL"/>
+					<Add directory="/usr/include/qt4/QtGui"/>
+					<Add directory="/usr/include/qt4/QtNetwork"/>
+					<Add directory="/usr/include/qt4/QtCore"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 grsim"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="grsim/fast">
+				<Option output="/home/visionpc/roboteamtwente/grSim/bin/grsim" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DHAVE_UNIX"/>
+					<Add option="-DHAVE_LINUX"/>
+					<Add option="-DQT_OPENGL_LIB"/>
+					<Add option="-DQT_GUI_LIB"/>
+					<Add option="-DQT_NETWORK_LIB"/>
+					<Add option="-DQT_CORE_LIB"/>
+					<Add option="-DdDOUBLE"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grsim_autogen/include"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include/net"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include/physics"/>
+					<Add directory="/usr/include/qt4"/>
+					<Add directory="/usr/include/qt4/QtOpenGL"/>
+					<Add directory="/usr/include/qt4/QtGui"/>
+					<Add directory="/usr/include/qt4/QtNetwork"/>
+					<Add directory="/usr/include/qt4/QtCore"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 grsim/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="grsim_autogen">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 grsim_autogen"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="client">
+				<Option output="/home/visionpc/roboteamtwente/grSim/bin/client" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/bin"/>
+				<Option object_output="./"/>
+				<Option type="0"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DHAVE_UNIX"/>
+					<Add option="-DHAVE_LINUX"/>
+					<Add option="-DQT_OPENGL_LIB"/>
+					<Add option="-DQT_GUI_LIB"/>
+					<Add option="-DQT_NETWORK_LIB"/>
+					<Add option="-DQT_CORE_LIB"/>
+					<Add option="-DdDOUBLE"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/clients/qt"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/client_autogen/include"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include/net"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include/physics"/>
+					<Add directory="/usr/include/qt4"/>
+					<Add directory="/usr/include/qt4/QtOpenGL"/>
+					<Add directory="/usr/include/qt4/QtGui"/>
+					<Add directory="/usr/include/qt4/QtNetwork"/>
+					<Add directory="/usr/include/qt4/QtCore"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 client"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="client/fast">
+				<Option output="/home/visionpc/roboteamtwente/grSim/bin/client" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/bin"/>
+				<Option object_output="./"/>
+				<Option type="0"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DHAVE_UNIX"/>
+					<Add option="-DHAVE_LINUX"/>
+					<Add option="-DQT_OPENGL_LIB"/>
+					<Add option="-DQT_GUI_LIB"/>
+					<Add option="-DQT_NETWORK_LIB"/>
+					<Add option="-DQT_CORE_LIB"/>
+					<Add option="-DdDOUBLE"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/clients/qt"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/client_autogen/include"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include/net"/>
+					<Add directory="/home/visionpc/roboteamtwente/grSim/include/physics"/>
+					<Add directory="/usr/include/qt4"/>
+					<Add directory="/usr/include/qt4/QtOpenGL"/>
+					<Add directory="/usr/include/qt4/QtGui"/>
+					<Add directory="/usr/include/qt4/QtNetwork"/>
+					<Add directory="/usr/include/qt4/QtCore"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 client/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="client_autogen">
+				<Option working_dir="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 client_autogen"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/clients/qt/main.cpp">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/clients/qt/mainwindow.cpp">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/clients/qt/mainwindow.h">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/client_autogen/mocs_compilation.cpp">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Commands.pb.cc">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Commands.pb.cc.rule">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Commands.pb.h">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Packet.pb.cc">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Packet.pb.cc.rule">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Packet.pb.h">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Replacement.pb.cc">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Replacement.pb.cc.rule">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Replacement.pb.h">
+			<Option target="client"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Commands.pb.cc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Commands.pb.cc.rule">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Commands.pb.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Packet.pb.cc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Packet.pb.cc.rule">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Packet.pb.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Replacement.pb.cc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Replacement.pb.cc.rule">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Replacement.pb.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grsim_autogen/mocs_compilation.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_detection.pb.cc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_detection.pb.cc.rule">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_detection.pb.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_geometry.pb.cc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_geometry.pb.cc.rule">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_geometry.pb.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_refbox_log.pb.cc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_refbox_log.pb.cc.rule">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_refbox_log.pb.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_wrapper.pb.cc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_wrapper.pb.cc.rule">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_wrapper.pb.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake-build-debug/qrc_textures.cxx">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/common.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/config.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/configwidget.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/getpositionwidget.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/glwidget.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/graphics.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/logger.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/mainwindow.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/net/robocup_ssl_client.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/net/robocup_ssl_server.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/physics/pball.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/physics/pbox.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/physics/pcylinder.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/physics/pfixedbox.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/physics/pground.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/physics/pobject.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/physics/pray.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/physics/pworld.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/robot.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/robotwidget.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/sslworld.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/include/statuswidget.h">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/resources/grsim.rc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/resources/textures.qrc">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/configwidget.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/getpositionwidget.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/glwidget.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/graphics.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/logger.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/main.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/mainwindow.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/net/robocup_ssl_client.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/net/robocup_ssl_server.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/physics/pball.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/physics/pbox.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/physics/pcylinder.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/physics/pfixedbox.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/physics/pground.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/physics/pobject.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/physics/pray.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/physics/pworld.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/robot.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/robotwidget.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/sslworld.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/src/statuswidget.cpp">
+			<Option target="grsim"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake/Utils.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake/modules/FindODE.cmake">
+			<Option virtualFolder="CMake Files\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/cmake/modules/FindVarTypes.cmake">
+			<Option virtualFolder="CMake Files\cmake\modules\"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/resources/textures.qrc">
+			<Option virtualFolder="CMake Files\resources\"/>
+		</Unit>
+		<Unit filename="/home/visionpc/roboteamtwente/grSim/clients/qt/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\clients\qt\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

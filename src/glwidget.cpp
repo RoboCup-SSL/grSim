@@ -36,10 +36,10 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     physicstimetaken = 0;
     state = 0;
     cfg = _cfg;
-    forms[1] = new RobotsFomation(-1);  //outside yellow
-    forms[2] = new RobotsFomation(1);  //inside type 1
-    forms[3] = new RobotsFomation(2);  //inside type 2
-    forms[4] = new RobotsFomation(3);  //inside type 1
+    forms[1] = new RobotsFomation(-1, cfg->Field_Width(), cfg->Field_Length());  //outside yellow
+    forms[2] = new RobotsFomation(1, cfg->Field_Width(), cfg->Field_Length());  //inside type 1
+    forms[3] = new RobotsFomation(2, cfg->Field_Width(), cfg->Field_Length());  //inside type 2
+    forms[4] = new RobotsFomation(3, cfg->Field_Width(), cfg->Field_Length());  //inside type 1
     //forms[5] = new RobotsFomation(4);  //inside type 2
     ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
     Current_robot = 0;

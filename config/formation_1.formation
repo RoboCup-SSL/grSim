@@ -1,0 +1,37 @@
+;Formation with 12 Robots
+[Robot 0]
+PercX = "100"
+PercY = "50"
+[Robot 1]
+PosX = "1.5"
+PosY = "0"
+[Robot 2]
+PosX = "1.5"
+PosY = "-1.12"
+[Robot 3]
+PosX = "0.55"
+PosY = "0.0"
+[Robot 4]
+PosX = "2.5"
+PosY = "0.0"
+[Robot 5]
+PosX = "3.6"
+PosY = "0.0"
+[Robot 6]
+PosX = "3.2"
+PosY = "0.75"
+[Robot 7]
+PosX = "3.2"
+PosY = "-0.75"
+[Robot 8]
+PosX = "3.2"
+PosY = "1.5"
+[Robot 9]
+PosX = "3.2"
+PosY = "-1.5"
+[Robot 10]
+PosX = "3.2"
+PosY = "2.25"
+[Robot 11]
+PosX = "3.2"
+PosY = "-2.25"
