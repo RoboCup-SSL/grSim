@@ -27,18 +27,20 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include <iostream>
 
-GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
+GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     : QGLWidget(parent)
 {
     frames = 0;
     state = 0;
     first_time = true;
     cfg = _cfg;
-    forms[1] = new RobotsFomation(-1);  //outside yellow
-    forms[2] = new RobotsFomation(1);  //inside type 1
-    forms[3] = new RobotsFomation(2);  //inside type 2
-    forms[4] = new RobotsFomation(3);  //inside type 1
+
+    forms[1] = new RobotsFomation(-1, cfg);  //outside yellow
+    forms[2] = new RobotsFomation(1, cfg);  //inside type 1
+    forms[3] = new RobotsFomation(2, cfg);  //inside type 2
+    forms[4] = new RobotsFomation(3, cfg);  //inside type 1
     //forms[5] = new RobotsFomation(4);  //inside type 2
+
     ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
     Current_robot = 0;
     Current_team = 0;
@@ -135,15 +137,15 @@ void GLWidget::unselectRobot()
     ssl->show3DCursor = false;
     ssl->cursor_radius = cfg->robotSettings.RobotRadius;
     state = 0;
-    moving_robot_id= robotIndex(Current_robot,Current_team);
+    moving_robot_id= ssl->robotIndex(Current_robot,Current_team);
 }
 
 void GLWidget::selectRobot()
 {
     if (clicked_robot!=-1)
     {
-        Current_robot = clicked_robot%ROBOT_COUNT;
-        Current_team = clicked_robot/ROBOT_COUNT;
+        Current_robot = clicked_robot%cfg->Robots_Count();
+        Current_team = clicked_robot/cfg->Robots_Count();
         emit selectedRobot();
     }
 }
@@ -152,13 +154,13 @@ void GLWidget::resetRobot()
 {
     if (Current_robot!=-1)
     {
-        ssl->robots[robotIndex(Current_robot, Current_team)]->resetRobot();
+        ssl->robots[ssl->robotIndex(Current_robot, Current_team)]->resetRobot();
     }
 }
 
 void GLWidget::switchRobotOnOff()
 {
-    int k = robotIndex(Current_robot, Current_team);
+    int k = ssl->robotIndex(Current_robot, Current_team);
     if (Current_robot!=-1)
     {
         if (ssl->robots[k]->on)
@@ -177,7 +179,7 @@ void GLWidget::switchRobotOnOff()
 
 void GLWidget::resetCurrentRobot()
 {       
-    ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
+    ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->resetRobot();
 }
 
 void GLWidget::moveCurrentRobot()
@@ -185,7 +187,7 @@ void GLWidget::moveCurrentRobot()
     ssl->show3DCursor = true;
     ssl->cursor_radius = cfg->robotSettings.RobotRadius;
     state = 1;
-    moving_robot_id = robotIndex(Current_robot,Current_team);
+    moving_robot_id = ssl->robotIndex(Current_robot,Current_team);
 }
 
 void GLWidget::moveBall()
@@ -374,7 +376,7 @@ void GLWidget::paintGL()
     if (cammode==1)
     {
         dReal x,y,z;
-        int R = robotIndex(Current_robot,Current_team);
+        int R = ssl->robotIndex(Current_robot,Current_team);
         ssl->robots[R]->getXY(x,y);z = 0.3;
         ssl->g->setViewpoint(x,y,z,ssl->robots[R]->getDir(),-25,0);
     }
@@ -392,13 +394,13 @@ void GLWidget::paintGL()
     }
     step();    
     QFont font;
-    for (int i=0;i< ROBOT_COUNT*2;i++)
+    for (int i=0;i< cfg->Robots_Count()*2;i++)
     {
         dReal xx,yy;
         ssl->robots[i]->getXY(xx,yy);
-        if (i>=ROBOT_COUNT) qglColor(Qt::yellow);
+        if (i>=cfg->Robots_Count()) qglColor(Qt::yellow);
         else qglColor(Qt::cyan);
-        renderText(xx,yy,0.3,QString::number(i%ROBOT_COUNT),font);
+        renderText(xx,yy,0.3,QString::number(i%cfg->Robots_Count()),font);
         if (!ssl->robots[i]->on){
             qglColor(Qt::red);
             font.setBold(true);
@@ -460,7 +462,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     }
     const dReal S = 1.00;
     const dReal BallForce = 2.0;
-    int R = robotIndex(Current_robot,Current_team);
+    int R = ssl->robotIndex(Current_robot,Current_team);
     if (R < 0) return;
 
     switch (cmd) {
@@ -538,8 +540,8 @@ void GLWidget::reform(int team,const QString& act)
     if (act==tr("Put all out of field")) forms[4]->resetRobots(ssl->robots,team);
 
     if(act==tr("Turn all off")) {
-        for(int i=0; i<ROBOT_COUNT; i++) {
-            int k = robotIndex(i, team);
+        for(int i=0; i<cfg->Robots_Count(); i++) {
+            int k = ssl->robotIndex(i, team);
             if(ssl->robots[k]->on) {
                 ssl->robots[k]->on = false;
                 onOffRobotAct->setText("Turn &on");
@@ -549,8 +551,8 @@ void GLWidget::reform(int team,const QString& act)
     }
 
     if(act==tr("Turn all on")) {
-        for(int i=0; i<ROBOT_COUNT; i++) {
-            int k = robotIndex(i, team);
+        for(int i=0; i<cfg->Robots_Count(); i++) {
+            int k = ssl->robotIndex(i, team);
             if(!ssl->robots[k]->on) {
                 ssl->robots[k]->on = true;
                 onOffRobotAct->setText("Turn &off");
@@ -572,7 +574,7 @@ void GLWidget::moveBallHere()
 void GLWidget::lockCameraToRobot()
 {
     cammode = -1;
-    lockedIndex = robotIndex(Current_robot,Current_team);//clicked_robot;
+    lockedIndex = ssl->robotIndex(Current_robot,Current_team);//clicked_robot;
 }
 
 void GLWidget::lockCameraToBall()
@@ -582,8 +584,8 @@ void GLWidget::lockCameraToBall()
 
 void GLWidget::moveRobotHere()
 {
-    ssl->robots[robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
-    ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
+    ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
+    ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->resetRobot();
 }
 
 GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)

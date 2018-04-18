@@ -96,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-    robotwidget = new RobotWidget(this);
+    robotwidget = new RobotWidget(this, configwidget);
     /* Status Bar */
     fpslabel = new QLabel(this);
     cursorlabel = new QLabel(this);
@@ -296,7 +296,7 @@ void MainWindow::showHideSimulator(bool v)
 void MainWindow::changeCurrentRobot()
 {
     glwidget->Current_robot=robotwidget->robotCombo->currentIndex();    
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+    robotwidget->setPicture(glwidget->ssl->robots[glwidget->ssl->robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
     robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
     robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
 }
@@ -312,6 +312,11 @@ void MainWindow::changeCurrentTeam()
 void MainWindow::changeGravity()
 {
     dWorldSetGravity (glwidget->ssl->p->world,0,0,-configwidget->Gravity());
+}
+
+int MainWindow::robotIndex(int robot,int team)
+{
+    return glwidget->ssl->robotIndex(robot, team);
 }
 
 void MainWindow::changeTimer()
@@ -356,8 +361,8 @@ void MainWindow::update()
         }
         else
         {            
-            int R = glwidget->ssl->selected%ROBOT_COUNT;
-            int T = glwidget->ssl->selected/ROBOT_COUNT;
+            int R = glwidget->ssl->selected%configwidget->Robots_Count();
+            int T = glwidget->ssl->selected/configwidget->Robots_Count();
             if (T==0) selectinglabel->setText(QString("%1:Blue").arg(R));
             else selectinglabel->setText(QString("%1:Yellow").arg(R));
         }

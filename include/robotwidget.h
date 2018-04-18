@@ -24,13 +24,14 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QLabel>
 #include <QPushButton>
 
+#include "configwidget.h"
 #include "getpositionwidget.h"
 
 class RobotWidget : public QDockWidget
 {
     Q_OBJECT
 public:    
-    RobotWidget(QWidget* parent);
+    RobotWidget(QWidget* parent, ConfigWidget* cfg);
     void setPicture(QImage* img);
     QComboBox *teamCombo,*robotCombo;
     QLabel *robotpic;
