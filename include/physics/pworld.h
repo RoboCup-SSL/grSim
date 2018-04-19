@@ -34,7 +34,7 @@ private:
     int **sur_matrix;
     int objects_count;
 public:
-    PWorld(dReal dt,dReal gravity,CGraphics* graphics);
+    PWorld(dReal dt,dReal gravity,CGraphics* graphics, int robot_count);
     ~PWorld();
     void setGravity(dReal gravity);
     void addObject(PObject* o);
@@ -48,9 +48,10 @@ public:
     dWorldID world;
     dSpaceID space;
     CGraphics* g;
+    int robot_count;
 };
 
-typedef bool PSurfaceCallback(dGeomID o1,dGeomID o2,PSurface* s);
+typedef bool PSurfaceCallback(dGeomID o1,dGeomID o2,PSurface* s,int robot_count);
 class PSurface
 {
 public:

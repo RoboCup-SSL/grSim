@@ -49,27 +49,57 @@ ConfigWidget::ConfigWidget()
   geo_vars = VarListPtr(new VarList("Geometry"));
   world.push_back(geo_vars);  
   robot_settings = new QSettings;
-    VarListPtr field_vars(new VarList("Field"));
-    geo_vars->addChild(field_vars);
-        ADD_VALUE(field_vars,Double,Field_Line_Width,0.010,"Line Thickness")
-        ADD_VALUE(field_vars,Double,Field_Length,9.000,"Length")
-        ADD_VALUE(field_vars,Double,Field_Width,6.000,"Width")
-        ADD_VALUE(field_vars,Double,Field_Rad,0.500,"Radius")
-        ADD_VALUE(field_vars,Double,Field_Free_Kick,0.700,"Free Kick Distanse From Defense Area")
-        ADD_VALUE(field_vars,Double,Field_Penalty_Width,2.40,"Penalty width")
-        ADD_VALUE(field_vars,Double,Field_Penalty_Depth,1.20,"Penalty depth")
-        ADD_VALUE(field_vars,Double,Field_Penalty_Point,1.20,"Penalty point")
-        ADD_VALUE(field_vars,Double,Field_Margin,0.250,"Margin")
-        ADD_VALUE(field_vars,Double,Field_Referee_Margin,0.455,"Referee margin")
-        ADD_VALUE(field_vars,Double,Wall_Thickness,0.050,"Wall thickness")
-        ADD_VALUE(field_vars,Double,Goal_Thickness,0.020,"Goal thickness")
-        ADD_VALUE(field_vars,Double,Goal_Depth,0.200,"Goal depth")
-        ADD_VALUE(field_vars,Double,Goal_Width,1.200,"Goal width")
-        ADD_VALUE(field_vars,Double,Goal_Height,0.160,"Goal height")
-    ADD_ENUM(StringEnum,YellowTeam,"Parsian","Yellow Team");
-    END_ENUM(geo_vars,YellowTeam)
-    ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
-    END_ENUM(geo_vars,BlueTeam)
+
+  VarListPtr game_vars(new VarList("Game"));
+  geo_vars->addChild(game_vars);
+  ADD_ENUM(StringEnum, Division, "Division A", "Division")
+  ADD_TO_ENUM(Division, "Division A");
+  ADD_TO_ENUM(Division, "Division B");
+  END_ENUM(game_vars, Division);
+  ADD_VALUE(game_vars,Int, Robots_Count, 8, "Robots Count")
+  VarListPtr fields_vars(new VarList("Field"));
+  VarListPtr div_a_vars(new VarList("Division A"));
+  VarListPtr div_b_vars(new VarList("Division B"));
+  geo_vars->addChild(fields_vars);
+  fields_vars->addChild(div_a_vars);
+  fields_vars->addChild(div_b_vars);
+
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Line_Width,0.010,"Line Thickness")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Length,12.000,"Length")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Width,9.000,"Width")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Rad,0.500,"Radius")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Free_Kick,0.700,"Free Kick Distance From Defense Area")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Penalty_Width,2.40,"Penalty width")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Penalty_Depth,1.20,"Penalty depth")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Penalty_Point,1.20,"Penalty point")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Margin,0.3,"Margin")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Referee_Margin,0.4,"Referee margin")
+  ADD_VALUE(div_a_vars, Double, DivA_Wall_Thickness,0.050,"Wall thickness")
+  ADD_VALUE(div_a_vars, Double, DivA_Goal_Thickness,0.020,"Goal thickness")
+  ADD_VALUE(div_a_vars, Double, DivA_Goal_Depth,0.200,"Goal depth")
+  ADD_VALUE(div_a_vars, Double, DivA_Goal_Width,1.200,"Goal width")
+  ADD_VALUE(div_a_vars, Double, DivA_Goal_Height,0.160,"Goal height")
+
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Line_Width,0.010,"Line Thickness")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Length,9.000,"Length")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Width,6.000,"Width")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Rad,0.500,"Radius")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Free_Kick,0.700,"Free Kick Distance From Defense Area")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Penalty_Width,2.00,"Penalty width")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Penalty_Depth,1.0,"Penalty depth")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Penalty_Point,1.00,"Penalty point")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Margin,0.30,"Margin")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Referee_Margin,0.4,"Referee margin")
+  ADD_VALUE(div_b_vars, Double, DivB_Wall_Thickness,0.050,"Wall thickness")
+  ADD_VALUE(div_b_vars, Double, DivB_Goal_Thickness,0.020,"Goal thickness")
+  ADD_VALUE(div_b_vars, Double, DivB_Goal_Depth,0.200,"Goal depth")
+  ADD_VALUE(div_b_vars, Double, DivB_Goal_Width,1.000,"Goal width")
+  ADD_VALUE(div_b_vars, Double, DivB_Goal_Height,0.160,"Goal height")
+
+  ADD_ENUM(StringEnum,YellowTeam,"Parsian","Yellow Team");
+  END_ENUM(geo_vars,YellowTeam)
+  ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
+  END_ENUM(geo_vars,BlueTeam)
 
     VarListPtr ballg_vars(new VarList("Ball"));
     geo_vars->addChild(ballg_vars);

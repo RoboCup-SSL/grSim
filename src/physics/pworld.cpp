@@ -36,8 +36,9 @@ void nearCallback (void *data, dGeomID o1, dGeomID o2)
 }
 
 
-PWorld::PWorld(dReal dt,dReal gravity,CGraphics* graphics)
+PWorld::PWorld(dReal dt,dReal gravity,CGraphics* graphics, int _robot_count)
 {
+    robot_count = _robot_count;
     //dInitODE2(0);
     dInitODE();
     world = dWorldCreate();
@@ -82,7 +83,7 @@ void PWorld::handleCollisions(dGeomID o1, dGeomID o2)
           sur->contactNormal[1] = contact[0].geom.normal[1];
           sur->contactNormal[2] = contact[0].geom.normal[2];
           bool flag=true;
-          if (sur->callback!=NULL) flag = sur->callback(o1,o2,sur);
+          if (sur->callback!=NULL) flag = sur->callback(o1,o2,sur,robot_count);
           if (flag)
           for (int i=0; i<n; i++) {
               contact[i].surface = sur->surface;
