@@ -82,8 +82,9 @@ First ensure the dependencies are there:
 ```bash
 $ brew install cmake
 $ brew install ode --with-double-precision
-$ brew tap FreeCAD/freecad
-$ brew install freecad/freecad/qt  
+$ brew tap cartr/qt4
+$ brew tap-pin cartr/qt4
+$ brew install qt@4  
 $ brew install protobuf
 ```
 
