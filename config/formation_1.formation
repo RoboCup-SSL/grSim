@@ -1,7 +1,7 @@
 ;Formation with 12 Robots
 [Robot 0]
-PercX = "100"
-PercY = "50"
+PosX = "5.6"
+PosY = "0"
 [Robot 1]
 PosX = "1.5"
 PosY = "0"
