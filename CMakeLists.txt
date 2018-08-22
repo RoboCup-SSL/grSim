@@ -42,8 +42,6 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # add src dir to included directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/include/net)
-include_directories(${PROJECT_SOURCE_DIR}/include/physics)
 
 
 ## Handling depenendcies
@@ -159,28 +157,28 @@ set(SOURCES
 )
 
 set(HEADERS
-    include/mainwindow.h
-    include/glwidget.h
-    include/graphics.h
-    include/physics/pworld.h
-    include/physics/pobject.h
-    include/physics/pball.h
-    include/physics/pground.h
-    include/physics/pfixedbox.h
-    include/physics/pcylinder.h
-    include/physics/pbox.h
-    include/physics/pray.h
-    include/net/robocup_ssl_server.h
-    include/net/robocup_ssl_client.h
-    include/sslworld.h
-    include/robot.h
-    include/configwidget.h
-    include/statuswidget.h
-    include/logger.h
-    include/robotwidget.h
-    include/getpositionwidget.h
-    include/common.h
-    include/config.h
+    include/grsim/mainwindow.h
+    include/grsim/glwidget.h
+    include/grsim/graphics.h
+    include/grsim/physics/pworld.h
+    include/grsim/physics/pobject.h
+    include/grsim/physics/pball.h
+    include/grsim/physics/pground.h
+    include/grsim/physics/pfixedbox.h
+    include/grsim/physics/pcylinder.h
+    include/grsim/physics/pbox.h
+    include/grsim/physics/pray.h
+    include/grsim/net/robocup_ssl_server.h
+    include/grsim/net/robocup_ssl_client.h
+    include/grsim/sslworld.h
+    include/grsim/robot.h
+    include/grsim/configwidget.h
+    include/grsim/statuswidget.h
+    include/grsim/logger.h
+    include/grsim/robotwidget.h
+    include/grsim/getpositionwidget.h
+    include/grsim/common.h
+    include/grsim/config.h
 )
 
 # files to be compiled

@@ -35,8 +35,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QStatusBar>
 #include <QMessageBox>
 
-#include "mainwindow.h"
-#include "logger.h"
+#include "grsim/mainwindow.h"
+#include "grsim/logger.h"
 
 int MainWindow::getInterval()
 {
