@@ -16,8 +16,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "logger.h"
-#include "statuswidget.h"
+#include "grsim/logger.h"
+#include "grsim/statuswidget.h"
 CStatusPrinter *printer;
 void initLogger(void* v)
 {

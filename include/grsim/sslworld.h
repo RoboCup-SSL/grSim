@@ -26,19 +26,19 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QList>
 
 
-#include "graphics.h"
-#include "physics/pworld.h"
-#include "physics/pball.h"
-#include "physics/pground.h"
-#include "physics/pfixedbox.h"
-#include "physics/pray.h"
+#include "grsim/graphics.h"
+#include "grsim/physics/pworld.h"
+#include "grsim/physics/pball.h"
+#include "grsim/physics/pground.h"
+#include "grsim/physics/pfixedbox.h"
+#include "grsim/physics/pray.h"
 
-#include "net/robocup_ssl_server.h"
+#include "grsim/net/robocup_ssl_server.h"
 
-#include "robot.h"
-#include "configwidget.h"
+#include "grsim/robot.h"
+#include "grsim/configwidget.h"
 
-#include "config.h"
+#include "grsim/config.h"
 
 #define WALL_COUNT 10
 

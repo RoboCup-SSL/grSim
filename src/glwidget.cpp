@@ -15,14 +15,14 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "config.h"
+#include "grsim/config.h"
 #include <QtGui>
 
 #include <QPainter>
-#include "glwidget.h"
-#include "physics/pball.h"
-#include "physics/pground.h"
-#include "logger.h"
+#include "grsim/glwidget.h"
+#include "grsim/physics/pball.h"
+#include "grsim/physics/pground.h"
+#include "grsim/logger.h"
 #include <QLabel>
 
 #include <iostream>

@@ -16,8 +16,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QtGui/QApplication>
-#include "mainwindow.h"
-#include "winmain.h"
+#include "grsim/mainwindow.h"
+#include "grsim/winmain.h"
 
 int main(int argc, char *argv[])
 {
