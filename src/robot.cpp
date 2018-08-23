@@ -16,8 +16,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "robot.h"
-
+#include "grsim/robot.h"
+#include <stdexcept>
 // ang2 = position angle
 // ang  = rotation angle
 Robot::Wheel::Wheel(Robot* robot,int _id,dReal ang,dReal ang2,int wheeltexid)

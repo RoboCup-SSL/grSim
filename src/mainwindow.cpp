@@ -16,7 +16,12 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "grsim/qt_version.h"
+#ifdef QT5
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 
 #include <QApplication>
 #include <QMenuBar>
@@ -28,7 +33,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QDockWidget>
 #include <QVBoxLayout>
 #include <QFileDialog>
-#include <QApplication>
 #include <QDir>
 #include <QClipboard>
 
