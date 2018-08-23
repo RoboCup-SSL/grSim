@@ -15,7 +15,12 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "grsim/qt_version.h"
+#ifdef QT5
+#include <QtWidgets/QApplication>
+#else
 #include <QtGui/QApplication>
+#endif
 #include "grsim/mainwindow.h"
 #include "grsim/winmain.h"
 

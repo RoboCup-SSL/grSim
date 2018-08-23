@@ -19,10 +19,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#if QT_VERSION >= 0x050000
-#define QT5
-#endif
-
+#include "grsim/qt_version.h"
 #ifdef QT5
 #include <QMdiArea>
 #else
