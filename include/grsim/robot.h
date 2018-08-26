@@ -52,7 +52,8 @@ public:
       public:
         int id;
         Wheel(Robot* robot,int _id,dReal ang,dReal ang2,int wheeltexid);
-        void step();
+        virtual ~Wheel(){}
+        virtual void step();
         dJointID joint;
         dJointID motor;
         PCylinder* cyl;
@@ -68,19 +69,22 @@ public:
         dReal m_kickspeed,m_kicktime;
       public:
         Kicker(Robot* robot);
-        void step();
-        void kick(dReal kickspeedx, dReal kickspeedz);
-        void setRoller(int roller);
-        int getRoller();
-        void toggleRoller();
-        bool isTouchingBall();
+        virtual ~Kicker(){}
+        virtual void step();
+        virtual void kick(dReal kickspeedx, dReal kickspeedz);
+        virtual void setRoller(int roller);
+        virtual int getRoller();
+        virtual void toggleRoller();
+        virtual bool isTouchingBall();
         dJointID joint;
         PBox* box;
         Robot* rob;
     } *kicker;
 
-    Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir);
-    ~Robot();
+    Robot(){}
+    //Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir);
+    virtual ~Robot();
+    virtual void initialize(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir);
     void step();
     void drawLabel();
     void setSpeed(int i,dReal s); //i = 0,1,2,3

@@ -23,6 +23,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include <QDebug>
 
+#include <cstdlib>
+
+#include <boost/function.hpp>
+#include <boost/dll.hpp>
+
 #include "grsim/logger.h"
 
 #include "grSim_Packet.pb.h"
@@ -130,6 +135,45 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s, int /*robots_count*/)
     return true;
 }
 
+std::map<std::string, boost::function<create_robot_t> > loadCustomRobotCreators(const std::string& teamname, const RobotSettings& robotsettings) {
+    std::map<std::string, boost::function<create_robot_t> > custom_robot_creator;
+    std::vector<boost::filesystem::path> target_paths;
+    boost::filesystem::path default_plugin_path((QDir::homePath()+"/.grsim/plugins/").toStdString());
+    if (!boost::filesystem::exists(default_plugin_path)) {
+        std::cerr << default_plugin_path << " does not exist" << std::endl;
+    } else {
+        target_paths.push_back(default_plugin_path);
+    }
+    const char* env_grsim_plugin_path = getenv("GRSIM_PLUGIN_PATH");
+    if (env_grsim_plugin_path != NULL) {
+        boost::filesystem::path grsim_plugin_path = std::string(env_grsim_plugin_path);
+        if (!boost::filesystem::exists(grsim_plugin_path)) {
+            std::cerr << grsim_plugin_path << " does not exist" << std::endl;
+        } else {
+            target_paths.push_back(grsim_plugin_path);
+        }
+    }
+    for (int i = 0; i < target_paths.size(); i++) {
+        const boost::filesystem::path& target_path = target_paths[i];
+        boost::filesystem::directory_iterator end_itr;
+        for( boost::filesystem::directory_iterator i( target_path ); i != end_itr; ++i ) {
+            boost::dll::shared_library lib(i->path());//, boost::dll::load_mode::append_decorations);
+            for (std::map<std::string, int>::const_iterator kv = robotsettings.CustomRobots.begin();
+                    kv != robotsettings.CustomRobots.end(); kv++) {
+                const std::string& custometype = kv->first;
+                std::string funcname = std::string("create_robot__") + teamname + std::string("__") + custometype;
+                if (!lib.has(funcname)) {
+                    std::cerr << "No such function '" << funcname << "' in library: " << i->path() << std::endl;
+                    continue;
+                }
+                std::cout << "Register " << funcname << " from library: " << i->path() << std::endl;
+                custom_robot_creator[custometype] = boost::dll::import_alias<create_robot_t>(i->path(), funcname);
+            }
+        }
+    }
+    return custom_robot_creator; //std::move
+}
+
 SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2)
     : QObject(parent)
 {    
@@ -223,26 +267,90 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
 
     cfg->robotSettings = cfg->blueSettings;
-    for (int k=0;k<cfg->Robots_Count();k++) {
+
+    std::map<std::string, boost::function<create_robot_t> > blue_robot_creator
+        = loadCustomRobotCreators(cfg->v_BlueTeam->getString(), cfg->blueSettings);
+    int k = 0;
+    for (std::map<std::string, int>::iterator kv = cfg->blueSettings.CustomRobots.begin();
+            kv != cfg->blueSettings.CustomRobots.end(); kv++) {
         float a1 = -form1->x[k];
         float a2 = form1->y[k];
         float a3 = ROBOT_START_Z(cfg);
-        robots[k] = new Robot(p,
-                              ball,
-                              cfg,
-                              -form1->x[k],
-                              form1->y[k],
-                              ROBOT_START_Z(cfg),
-                              ROBOT_GRAY,
-                              ROBOT_GRAY,
-                              ROBOT_GRAY,
-                              k + 1,
-                              wheeltexid,
-                              1);
+        //robots[k] = new Robot;
+        for (int i = 0; i < kv->second; i++) {
+            if (blue_robot_creator.find(kv->first) != blue_robot_creator.end()) {
+              robots[k] = blue_robot_creator[kv->first]();
+            } else {
+              robots[k] = new Robot();
+            }
+            robots[k]->initialize(p, ball, cfg, -form1->x[k], form1->y[k], ROBOT_START_Z(cfg), ROBOT_GRAY, ROBOT_GRAY, ROBOT_GRAY, k + 1, wheeltexid, 1);
+            if (k == cfg->Robots_Count() - 1) {
+                break;
+            }
+            k++;
+        }
     }
+
+    for (;k<cfg->Robots_Count();k++) {
+        float a1 = -form1->x[k];
+        float a2 = form1->y[k];
+        float a3 = ROBOT_START_Z(cfg);
+        robots[k] = new Robot();
+        robots[k]->initialize(p,
+                ball,
+                cfg,
+                -form1->x[k],
+                form1->y[k],
+                ROBOT_START_Z(cfg),
+                ROBOT_GRAY,
+                ROBOT_GRAY,
+                ROBOT_GRAY,
+                k + 1,
+                wheeltexid,
+                1);
+    }
+
+
+
+
+
     cfg->robotSettings = cfg->yellowSettings;
-    for (int k=0;k<cfg->Robots_Count();k++)
-        robots[k+cfg->Robots_Count()] = new Robot(p,ball,cfg,form2->x[k],form2->y[k],ROBOT_START_Z(cfg),ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY,k+cfg->Robots_Count()+1,wheeltexid,-1);//XXX
+    std::map<std::string, boost::function<create_robot_t> > yellow_robot_creator
+        = loadCustomRobotCreators(cfg->v_YellowTeam->getString(), cfg->yellowSettings);
+    k = 0;
+    for (std::map<std::string, int>::iterator kv = cfg->yellowSettings.CustomRobots.begin();
+            kv != cfg->yellowSettings.CustomRobots.end(); kv++) {
+        //robots[k] = new Robot;
+        for (int i = 0; i < kv->second; i++) {
+            if (yellow_robot_creator.find(kv->first) != yellow_robot_creator.end()) {
+              robots[k+cfg->Robots_Count()] = yellow_robot_creator[kv->first]();
+            } else {
+              robots[k+cfg->Robots_Count()] = new Robot();
+            }
+            robots[k+cfg->Robots_Count()]->initialize(p, ball, cfg, form2->x[k], form2->y[k], ROBOT_START_Z(cfg), ROBOT_GRAY, ROBOT_GRAY, ROBOT_GRAY, k+cfg->Robots_Count()+1, wheeltexid, 1);
+            if (k == cfg->Robots_Count() - 1) {
+                break;
+            }
+            k++;
+        }
+    }
+
+    for (;k<cfg->Robots_Count();k++) {
+        robots[k+cfg->Robots_Count()] = new Robot();
+        robots[k+cfg->Robots_Count()]->initialize(p,
+                ball,
+                cfg,
+                form2->x[k],
+                form2->y[k],
+                ROBOT_START_Z(cfg),
+                ROBOT_GRAY,
+                ROBOT_GRAY,
+                ROBOT_GRAY,
+                k+cfg->Robots_Count()+1,
+                wheeltexid,
+                1);
+    }
+
 
     p->initAllObjects();
 
@@ -918,6 +1026,7 @@ void RobotsFomation::loadFromFile(const QString& filename)
     }
 }
 
+//void RobotsFomation::resetRobots(boost::shared_ptr<Robot>* r,int team)
 void RobotsFomation::resetRobots(Robot** r,int team)
 {
     dReal dir=-1;

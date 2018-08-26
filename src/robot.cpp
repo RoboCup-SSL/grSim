@@ -186,7 +186,7 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
     kickstate = 10;
 }
 
-Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir)
+void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir)
 {      
     m_r = r;
     m_g = g;
@@ -439,4 +439,3 @@ void Robot::incSpeed(int i,dReal v)
     if (!((i>=4) || (i<0)))
         wheels[i]->speed += v;
 }
-

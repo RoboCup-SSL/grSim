@@ -25,6 +25,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QUdpSocket>
 #include <QList>
 
+#include <boost/shared_ptr.hpp>
 
 #include "grsim/graphics.h"
 #include "grsim/physics/pworld.h"
@@ -91,6 +92,7 @@ public:
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
     bool updatedCursor;
+    //boost::shared_ptr<Robot> robots[MAX_ROBOT_COUNT*2];
     Robot* robots[MAX_ROBOT_COUNT*2];
     QTime *timer;
     int sendGeomCount;
@@ -107,6 +109,7 @@ class RobotsFomation {
         RobotsFomation(int type, ConfigWidget* _cfg);
         void setAll(dReal *xx,dReal *yy);
         void loadFromFile(const QString& filename);
+        //void resetRobots(boost::shared_ptr<Robot>* r,int team);
         void resetRobots(Robot** r,int team);
     private:
         ConfigWidget* cfg;
@@ -115,4 +118,5 @@ class RobotsFomation {
 dReal fric(dReal f);
 int robotIndex(int robot,int team);
 
+typedef Robot* (create_robot_t)();
 #endif // SSLWORLD_H

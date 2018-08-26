@@ -49,6 +49,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # we will append all libs to this var
 set(libs)
 
+# Boost
+find_package(Boost REQUIRED COMPONENTS filesystem) #dll
+include_directories(${Boost_INCLUDE_DIR})
+list(APPEND libs ${Boost_LIBRARIES} dl)
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
@@ -126,6 +131,9 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
 qt5_add_resources(RESOURCES
     resources/textures.qrc
 )
+# qt5_add_resources(RESOURCES
+#     resources/textures.qrc
+# )
 
 set(RESOURCES
     ${RESOURCES}
