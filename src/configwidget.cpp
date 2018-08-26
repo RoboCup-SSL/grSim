@@ -17,6 +17,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 */
 
 #include "grsim/configwidget.h"
+#include "grsim/config.h"
 
 #ifdef HAVE_MACOSX
 
@@ -226,7 +227,9 @@ void ConfigWidget::loadRobotsSettings()
 
 void ConfigWidget::loadRobotSettings(QString team)
 {
-    QString ss = qApp->applicationDirPath()+QString("/../config/")+QString("%1.ini").arg(team);
+  //QString ss = qApp->applicationDirPath()+QString("/../share/grsim/config/")+QString("%1.ini").arg(team);
+    QString ss = QString(CONFIG_DIR) + QString("%1.ini").arg(team);
+    std::cout << "Loading " << ss.toUtf8().constData() << std::endl;
     robot_settings = new QSettings(ss, QSettings::IniFormat);
     robotSettings.RobotCenterFromKicker = robot_settings->value("Geometery/CenterFromKicker", 0.073).toDouble();
     robotSettings.RobotRadius = robot_settings->value("Geometery/Radius", 0.09).toDouble();
@@ -253,4 +256,12 @@ void ConfigWidget::loadRobotSettings(QString team)
     robotSettings.WheelTangentFriction = robot_settings->value("Physics/WheelTangentFriction", 0.8f).toDouble();
     robotSettings.WheelPerpendicularFriction = robot_settings->value("Physics/WheelPerpendicularFriction", 0.05f).toDouble();
     robotSettings.Wheel_Motor_FMax = robot_settings->value("Physics/WheelMotorMaximumApplyingTorque", 0.2f).toDouble();
+    robotSettings.CustomRobots.clear();
+    robot_settings->beginGroup("CustomRobots");
+    const QStringList keys = robot_settings->childKeys();
+    for (int i = 0; i < keys.size(); i++) {
+      const QString& key = keys[i];
+      robotSettings.CustomRobots[std::string(key.toUtf8().constData())] = robot_settings->value(key).toInt();
+    }
+    robot_settings->endGroup();
 }

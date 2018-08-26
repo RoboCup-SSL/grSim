@@ -2,6 +2,7 @@
 build*/*
 dist/*
 bin*/*
+include/grsim/config.h
 *.user
 *.swp
 Thumbs.db

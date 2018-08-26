@@ -111,6 +111,7 @@ public:
     double WheelTangentFriction;
     double WheelPerpendicularFriction;
     double Wheel_Motor_FMax;
+    std::map<std::string, int> CustomRobots;
 };
 
 

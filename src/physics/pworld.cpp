@@ -17,6 +17,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 */
 
 #include "grsim/physics/pworld.h"
+#include <iostream>
+
 PSurface::PSurface()
 {
   callback = NULL;
@@ -171,9 +173,9 @@ void PWorld::step(dReal dt)
     dWorldStep (world,(dt<0) ? delta_time : dt);
     dJointGroupEmpty (contactgroup);
     }
-    catch (...)
+    catch (std::exception& e)
     {
-        //qDebug() << "Some Error Happened;";
+      std::cerr << "Some Error Happened;" << e.what() << std::endl;
     }
 }
 

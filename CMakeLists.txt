@@ -45,6 +45,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # we will append all libs to this var
 set(libs)
 
+# Boost
+find_package(Boost REQUIRED COMPONENTS filesystem) #dll
+include_directories(${Boost_INCLUDE_DIR})
+list(APPEND libs ${Boost_LIBRARIES} dl)
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
@@ -58,6 +63,14 @@ set(QT_USE_QTOPENGL true)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 list(APPEND libs ${QT_LIBRARIES})
+# # Qt5
+# find_package(Qt5 REQUIRED COMPONENTS Gui Network OpenGL)
+# if(${QT5_NOTFOUND})
+#   message(STATUS "qt5 not found!")
+# else()
+#   message(STATUS "qt5 found!")
+# endif()
+# list(APPEND libs Qt5::Gui Qt5::Network Qt5::OpenGL)
 
 # ODE
 find_package(ODE REQUIRED)
@@ -102,6 +115,9 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
 qt4_add_resources(RESOURCES
     resources/textures.qrc
 )
+# qt5_add_resources(RESOURCES
+#     resources/textures.qrc
+# )
 
 set(RESOURCES
     ${RESOURCES}
@@ -194,7 +210,8 @@ elseif(WIN32)
     add_executable(${app} WIN32 ${srcs})
     target_link_libraries(${app} ${libs})
     install(TARGETS ${app} DESTINATION bin)
-    install(DIRECTORY config DESTINATION .)
+    configure_file(include/grsim/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/grsim/config.h)
+    install(DIRECTORY config DESTINATION share/${app})
     install(DIRECTORY bin DESTINATION .
             FILES_MATCHING PATTERN "*.dll")
     set(CPACK_PACKAGE_EXECUTABLES ${app} ${app})
@@ -203,6 +220,7 @@ else()
     add_executable(${app} ${srcs})
     target_link_libraries(${app} ${libs})
     install(TARGETS ${app} DESTINATION bin)
+    configure_file(include/grsim/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/grsim/config.h)
     install(DIRECTORY config DESTINATION share/${app})
     install(FILES resources/grsim.desktop DESTINATION share/applications)
     install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)
