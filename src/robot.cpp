@@ -220,8 +220,6 @@ void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dRea
     wheels[1] = new Wheel(this,1,cfg->robotSettings.Wheel2Angle,cfg->robotSettings.Wheel2Angle,wheeltexid);
     wheels[2] = new Wheel(this,2,cfg->robotSettings.Wheel3Angle,cfg->robotSettings.Wheel3Angle,wheeltexid);
     wheels[3] = new Wheel(this,3,cfg->robotSettings.Wheel4Angle,cfg->robotSettings.Wheel4Angle,wheeltexid);
-    firsttime=true;
-    on = true;
 }
 
 Robot::~Robot()
