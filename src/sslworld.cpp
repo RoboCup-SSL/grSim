@@ -25,7 +25,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include <cstdlib>
 
-#include <boost/function.hpp>
 #include <boost/dll.hpp>
 
 #include "grsim/logger.h"
@@ -268,8 +267,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
     cfg->robotSettings = cfg->blueSettings;
 
-    std::map<std::string, boost::function<create_robot_t> > blue_robot_creator
-        = loadCustomRobotCreators(cfg->v_BlueTeam->getString(), cfg->blueSettings);
+    blue_robot_creator = loadCustomRobotCreators(cfg->v_BlueTeam->getString(), cfg->blueSettings);
     int k = 0;
     for (std::map<std::string, int>::iterator kv = cfg->blueSettings.CustomRobots.begin();
             kv != cfg->blueSettings.CustomRobots.end(); kv++) {
@@ -315,8 +313,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
 
 
     cfg->robotSettings = cfg->yellowSettings;
-    std::map<std::string, boost::function<create_robot_t> > yellow_robot_creator
-        = loadCustomRobotCreators(cfg->v_YellowTeam->getString(), cfg->yellowSettings);
+    yellow_robot_creator = loadCustomRobotCreators(cfg->v_YellowTeam->getString(), cfg->yellowSettings);
     k = 0;
     for (std::map<std::string, int>::iterator kv = cfg->yellowSettings.CustomRobots.begin();
             kv != cfg->yellowSettings.CustomRobots.end(); kv++) {

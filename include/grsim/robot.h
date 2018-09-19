@@ -27,6 +27,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 class Robot
 {
+protected:
     PWorld* w;
     PBall* m_ball;
     dReal m_x,m_y,m_z;
@@ -81,23 +82,24 @@ public:
         Robot* rob;
     } *kicker;
 
-    Robot(){}
+    Robot() : firsttime(true), on(true) {
+    }
     //Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir);
     virtual ~Robot();
     virtual void initialize(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir);
-    void step();
-    void drawLabel();
-    void setSpeed(int i,dReal s); //i = 0,1,2,3
-    void setSpeed(dReal vx, dReal vy, dReal vw);
-    dReal getSpeed(int i);
-    void incSpeed(int i,dReal v);
-    void resetSpeeds();
-    void resetRobot();
-    void getXY(dReal& x,dReal& y);
-    dReal getDir();
-    void setXY(dReal x,dReal y);
-    void setDir(dReal ang);
-    int getID();
+    virtual void step();
+    virtual void drawLabel();
+    virtual void setSpeed(int i,dReal s); //i = 0,1,2,3
+    virtual void setSpeed(dReal vx, dReal vy, dReal vw);
+    virtual dReal getSpeed(int i);
+    virtual void incSpeed(int i,dReal v);
+    virtual void resetSpeeds();
+    virtual void resetRobot();
+    virtual void getXY(dReal& x,dReal& y);
+    virtual dReal getDir();
+    virtual void setXY(dReal x,dReal y);
+    virtual void setDir(dReal ang);
+    virtual int getID();
     PBall* getBall();
 };
 

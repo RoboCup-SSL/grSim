@@ -26,6 +26,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QList>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 #include "grsim/graphics.h"
 #include "grsim/physics/pworld.h"
@@ -50,6 +51,7 @@ class SendingPacket {
     SSL_WrapperPacket* packet;
     int t;
 };
+typedef Robot* (create_robot_t)();
 
 class SSLWorld : public QObject
 {
@@ -94,6 +96,8 @@ public:
     bool updatedCursor;
     //boost::shared_ptr<Robot> robots[MAX_ROBOT_COUNT*2];
     Robot* robots[MAX_ROBOT_COUNT*2];
+
+    std::map<std::string, boost::function<create_robot_t> > blue_robot_creator, yellow_robot_creator;
     QTime *timer;
     int sendGeomCount;
 public slots:
@@ -118,5 +122,4 @@ class RobotsFomation {
 dReal fric(dReal f);
 int robotIndex(int robot,int team);
 
-typedef Robot* (create_robot_t)();
 #endif // SSLWORLD_H
