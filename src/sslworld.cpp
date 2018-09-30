@@ -387,7 +387,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
             p->createSurface(robots[k]->chassis,walls[j]);
         p->createSurface(robots[k]->dummy,ball);
         //p->createSurface(robots[k]->chassis,ball);
-        p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
+        p->createSurface(robots[k]->kicker->getKickObject(),ball)->surface = ballwithkicker.surface;
         for (int j = 0; j < WHEEL_COUNT; j++)
         {
             p->createSurface(robots[k]->wheels[j]->cyl,ball);
@@ -401,7 +401,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
             if (k != j)
             {
                 p->createSurface(robots[k]->dummy,robots[j]->dummy); //seams ode doesn't understand cylinder-cylinder contacts, so I used spheres
-                p->createSurface(robots[k]->chassis,robots[j]->kicker->box);
+                p->createSurface(robots[k]->chassis,robots[j]->kicker->getKickObject());
             }
         }
     }

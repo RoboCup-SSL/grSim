@@ -53,7 +53,7 @@ public:
       public:
         int id;
         Wheel(Robot* robot,int _id,dReal ang,dReal ang2,int wheeltexid);
-        virtual ~Wheel(){}
+        virtual ~Wheel();
         virtual void step();
         dJointID joint;
         dJointID motor;
@@ -63,24 +63,46 @@ public:
     } *wheels[4];
     class Kicker
     {
+      public:
+        Kicker(Robot* robot) {}
+        virtual ~Kicker() {}
+        virtual void step() = 0;
+        virtual void kick(dReal kickspeedx, dReal kickspeedz) = 0;
+        virtual void setRoller(int roller) = 0;
+        virtual int getRoller() = 0;
+        virtual void toggleRoller() = 0;
+        virtual bool isTouchingBall() = 0;
+        virtual PObject* getKickObject() = 0;
+        //< NOTE: you only need to think about the case when an user change the robot manually, i.e. robot is ,parallel to the ground.
+        virtual void robotPoseChanged() = 0;
+    };
+
+    class DefaultKicker: public Kicker {
       private:
         bool kicking;
         int rolling;
         int kickstate;
         dReal m_kickspeed,m_kicktime;
+        dJointID joint;
+        PBox* box;
+        Robot* rob;
+
       public:
-        Kicker(Robot* robot);
-        virtual ~Kicker(){}
+        DefaultKicker(Robot* robot);
+        virtual ~DefaultKicker();
         virtual void step();
         virtual void kick(dReal kickspeedx, dReal kickspeedz);
         virtual void setRoller(int roller);
         virtual int getRoller();
         virtual void toggleRoller();
         virtual bool isTouchingBall();
-        dJointID joint;
-        PBox* box;
-        Robot* rob;
-    } *kicker;
+        //< NOTE: you only need to think about the case when an user change the robot manually, i.e. robot is ,parallel to the ground.
+        virtual void robotPoseChanged();
+        virtual PObject* getKickObject() {
+            return box;
+        }
+    };
+    Kicker *kicker;
 
     Robot() : firsttime(true), on(true) {
     }

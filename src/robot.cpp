@@ -55,6 +55,10 @@ Robot::Wheel::Wheel(Robot* robot,int _id,dReal ang,dReal ang2,int wheeltexid)
     dJointSetAMotorParam(motor,dParamFMax,rob->cfg->robotSettings.Wheel_Motor_FMax);
     speed = 0;
 }
+Robot::Wheel::~Wheel() {
+  dJointDestroy(joint);
+  dJointDestroy(motor);
+}
 
 void Robot::Wheel::step()
 {
@@ -62,7 +66,7 @@ void Robot::Wheel::step()
     dJointSetAMotorParam(motor,dParamFMax,rob->cfg->robotSettings.Wheel_Motor_FMax);
 }
 
-Robot::Kicker::Kicker(Robot* robot)
+Robot::DefaultKicker::DefaultKicker(Robot* robot) : Kicker(robot)
 {
     rob = robot;
 
@@ -91,8 +95,11 @@ Robot::Kicker::Kicker(Robot* robot)
     rolling = 0;
     kicking = false;
 }
+Robot::DefaultKicker::~DefaultKicker() {
+  dJointDestroy(joint);
+}
 
-void Robot::Kicker::step()
+void Robot::DefaultKicker::step()
 {
     if (kicking)
     {
@@ -126,10 +133,12 @@ void Robot::Kicker::step()
             dBodyAddTorque(rob->getBall()->body,yy*fx*rob->cfg->robotSettings.RollerPerpendicularTorqueFactor,yy*fy*rob->cfg->robotSettings.RollerPerpendicularTorqueFactor,0);
         }
     }
-    else box->setColor(0.9,0.9,0.9);
+    else {
+        box->setColor(0.9,0.9,0.9);
+    }
 }
 
-bool Robot::Kicker::isTouchingBall()
+bool Robot::DefaultKicker::isTouchingBall()
 {
     dReal vx,vy,vz;
     dReal bx,by,bz;
@@ -145,24 +154,30 @@ bool Robot::Kicker::isTouchingBall()
     return ((xx<rob->cfg->robotSettings.KickerThickness*2.0f+rob->cfg->BallRadius()) && (yy<rob->cfg->robotSettings.KickerWidth*0.5f) && (zz<rob->cfg->robotSettings.KickerHeight*0.5f));
 }
 
-void Robot::Kicker::setRoller(int roller)
+void Robot::DefaultKicker::setRoller(int roller)
 {
     rolling = roller;
+    if (rolling == 0) {
+        dBodySetLinearVel(box->body,0,0,0);
+        dBodySetAngularVel(box->body,0,0,0);
+    }
 }
 
-int Robot::Kicker::getRoller()
+int Robot::DefaultKicker::getRoller()
 {
     return rolling;
 }
 
-void Robot::Kicker::toggleRoller()
+void Robot::DefaultKicker::toggleRoller()
 {
-    if (rolling==0)
-        rolling = 1;
-    else rolling = 0;
+    if (rolling==0) {
+        setRoller(1);
+    } else {
+        setRoller(0);
+    }
 }
 
-void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
+void Robot::DefaultKicker::kick(dReal kickspeedx, dReal kickspeedz)
 {    
     dReal dx,dy,dz;
     dReal vx,vy,vz;
@@ -184,6 +199,21 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
     }
     kicking = true;
     kickstate = 10;
+}
+
+
+void Robot::DefaultKicker::robotPoseChanged() {
+    // position
+    dReal robotx, roboty, robotz;
+    dReal robotdirx, robotdiry, robotdirz;
+    dReal localx, localy, localz;
+    rob->chassis->getBodyPosition(robotx, roboty, robotz);
+    rob->chassis->getBodyDirection(robotdirx, robotdiry, robotdirz);
+    box->getBodyPosition(localx, localy, localz, /*local*/ true);
+    box->setBodyPosition(robotx + robotdirx * localx, roboty + robotdiry * localy, robotz + robotdirz * localz);
+    // direction
+    // NOTE: the kicker will be messed up when the robot *3d* pose is changed manually, this is only considering the case when the robot is set ont the ground
+    box->setBodyRotation(0,0,1,rob->getDir());
 }
 
 void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir)
@@ -214,7 +244,7 @@ void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dRea
     dummy_to_chassis = dJointCreateFixed(world->world,0);
     dJointAttach (dummy_to_chassis,chassis->body,dummy->body);
 
-    kicker = new Kicker(this);
+    kicker = new DefaultKicker(this);
 
     wheels[0] = new Wheel(this,0,cfg->robotSettings.Wheel1Angle,cfg->robotSettings.Wheel1Angle,wheeltexid);
     wheels[1] = new Wheel(this,1,cfg->robotSettings.Wheel2Angle,cfg->robotSettings.Wheel2Angle,wheeltexid);
@@ -332,8 +362,7 @@ void Robot::resetRobot()
     dBodySetAngularVel(chassis->body,0,0,0);
     dBodySetLinearVel(dummy->body,0,0,0);
     dBodySetAngularVel(dummy->body,0,0,0);
-    dBodySetLinearVel(kicker->box->body,0,0,0);
-    dBodySetAngularVel(kicker->box->body,0,0,0);
+    kicker->setRoller(0);
     for (int i=0;i<4;i++)
     {
         dBodySetLinearVel(wheels[i]->cyl->body,0,0,0);
@@ -370,8 +399,9 @@ void Robot::setXY(dReal x,dReal y)
     chassis->getBodyPosition(xx,yy,zz);
     chassis->setBodyPosition(x,y,height);
     dummy->setBodyPosition(x,y,height);
-    kicker->box->getBodyPosition(kx,ky,kz);
-    kicker->box->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+height);
+    kicker->robotPoseChanged();
+    //kicker->box->getBodyPosition(kx,ky,kz);
+    //kicker->box->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+height);
     for (int i=0;i<4;i++)
     {
         wheels[i]->cyl->getBodyPosition(kx,ky,kz);
@@ -383,15 +413,12 @@ void Robot::setDir(dReal ang)
 {
     ang*=M_PI/180.0f;
     chassis->setBodyRotation(0,0,1,ang);
-    kicker->box->setBodyRotation(0,0,1,ang);
     dummy->setBodyRotation(0,0,1,ang);
     dMatrix3 wLocalRot,wRot,cRot;
     dVector3 localPos,finalPos,cPos;
     chassis->getBodyPosition(cPos[0],cPos[1],cPos[2],false);
     chassis->getBodyRotation(cRot,false);
-    kicker->box->getBodyPosition(localPos[0],localPos[1],localPos[2],true);
-    dMultiply0(finalPos,cRot,localPos,4,3,1);finalPos[0]+=cPos[0];finalPos[1]+=cPos[1];finalPos[2]+=cPos[2];
-    kicker->box->setBodyPosition(finalPos[0],finalPos[1],finalPos[2],false);
+    kicker->robotPoseChanged();
     for (int i=0;i<4;i++)
     {
         wheels[i]->cyl->getBodyRotation(wLocalRot,true);
