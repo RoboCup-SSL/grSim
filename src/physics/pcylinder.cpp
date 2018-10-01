@@ -154,3 +154,10 @@ void PCylinder::draw()
            glutBitmapCharacter(GLUT_BITMAP_8_BY_13,c);
     glPopMatrix();*/
 }
+
+dReal PCylinder::getRadius() {
+    return m_radius;
+}
+dReal PCylinder::getLength() {
+    return m_length;
+}

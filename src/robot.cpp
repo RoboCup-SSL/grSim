@@ -27,9 +27,8 @@ Robot::Wheel::Wheel(Robot* robot,int _id,dReal ang,dReal ang2,int wheeltexid)
     dReal rad = rob->cfg->robotSettings.RobotRadius - rob->cfg->robotSettings.WheelThickness / 2.0;
     ang *= M_PI/180.0f;
     ang2 *= M_PI/180.0f;
-    dReal x = rob->m_x;
-    dReal y = rob->m_y;
-    dReal z = rob->m_z;
+    dReal x, y, z;
+    robot->chassis->getBodyPosition(x,y,z);
     dReal centerx = x+rad*cos(ang2);
     dReal centery = y+rad*sin(ang2);
     dReal centerz = z-rob->cfg->robotSettings.RobotHeight*0.5+rob->cfg->robotSettings.WheelRadius-rob->cfg->robotSettings.BottomHeight;
@@ -39,16 +38,16 @@ Robot::Wheel::Wheel(Robot* robot,int _id,dReal ang,dReal ang2,int wheeltexid)
     cyl->setBodyPosition(centerx-x,centery-y,centerz-z,true);       //set local position vector
     cyl->space = rob->space;
 
-    rob->w->addObject(cyl);
+    rob->getWorld()->addObject(cyl);
 
-    joint = dJointCreateHinge (rob->w->world,0);
+    joint = dJointCreateHinge (rob->getWorld()->world,0);
 
     dJointAttach (joint,rob->chassis->body,cyl->body);
     const dReal *a = dBodyGetPosition (cyl->body);
     dJointSetHingeAxis (joint,cos(ang),sin(ang),0);
     dJointSetHingeAnchor (joint,a[0],a[1],a[2]);
 
-    motor = dJointCreateAMotor(rob->w->world,0);
+    motor = dJointCreateAMotor(rob->getWorld()->world,0);
     dJointAttach(motor,rob->chassis->body,cyl->body);
     dJointSetAMotorNumAxes(motor,1);
     dJointSetAMotorAxis(motor,0,1,cos(ang),sin(ang),0);
@@ -70,9 +69,8 @@ Robot::DefaultKicker::DefaultKicker(Robot* robot) : Kicker(robot)
 {
     rob = robot;
 
-    dReal x = rob->m_x;
-    dReal y = rob->m_y;
-    dReal z = rob->m_z;
+    dReal x, y, z;
+    robot->chassis->getBodyPosition(x,y,z);
     dReal centerx = x+(rob->cfg->robotSettings.RobotCenterFromKicker+rob->cfg->robotSettings.KickerThickness);
     dReal centery = y;
     dReal centerz = z-(rob->cfg->robotSettings.RobotHeight)*0.5f+rob->cfg->robotSettings.WheelRadius-rob->cfg->robotSettings.BottomHeight+rob->cfg->robotSettings.KickerZ;
@@ -80,9 +78,9 @@ Robot::DefaultKicker::DefaultKicker(Robot* robot) : Kicker(robot)
     box->setBodyPosition(centerx-x,centery-y,centerz-z,true);
     box->space = rob->space;
 
-    rob->w->addObject(box);
+    rob->getWorld()->addObject(box);
 
-    joint = dJointCreateHinge (rob->w->world,0);
+    joint = dJointCreateHinge (rob->getWorld()->world,0);
     dJointAttach (joint,rob->chassis->body,box->body);
     const dReal *aa = dBodyGetPosition (box->body);
     dJointSetHingeAnchor (joint,aa[0],aa[1],aa[2]);
@@ -221,9 +219,6 @@ void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dRea
     m_r = r;
     m_g = g;
     m_b = b;
-    m_x = x;
-    m_y = y;
-    m_z = z;
     w = world;
     m_ball = ball;
     m_dir = dir;
@@ -260,6 +255,10 @@ Robot::~Robot()
 PBall* Robot::getBall()
 {
     return m_ball;
+}
+PWorld* Robot::getWorld()
+{
+    return w;
 }
 
 int Robot::getID()
