@@ -33,7 +33,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt@4                         ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install protobuf                     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ode --with-double-precision  ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then apt-get install libboost-dev ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install --assume-yes libboost-dev ; fi
 
 install:
   # vartypes
