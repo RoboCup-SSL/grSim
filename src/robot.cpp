@@ -241,10 +241,7 @@ void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dRea
 
     kicker = new DefaultKicker(this);
 
-    wheels[0] = new Wheel(this,0,cfg->robotSettings.Wheel1Angle,cfg->robotSettings.Wheel1Angle,wheeltexid);
-    wheels[1] = new Wheel(this,1,cfg->robotSettings.Wheel2Angle,cfg->robotSettings.Wheel2Angle,wheeltexid);
-    wheels[2] = new Wheel(this,2,cfg->robotSettings.Wheel3Angle,cfg->robotSettings.Wheel3Angle,wheeltexid);
-    wheels[3] = new Wheel(this,3,cfg->robotSettings.Wheel4Angle,cfg->robotSettings.Wheel4Angle,wheeltexid);
+    drive = new DefaultDrive(this, wheeltexid);
 }
 
 Robot::~Robot()
@@ -281,21 +278,14 @@ void Robot::step()
             if (m_dir==-1) setDir(180);
             firsttime = false;
         }
-        wheels[0]->step();
-        wheels[1]->step();
-        wheels[2]->step();
-        wheels[3]->step();
+        drive->step();
         kicker->step();
     }
     else {
         if (last_state)
         {
-            wheels[0]->speed = wheels[1]->speed = wheels[2]->speed = wheels[3]->speed = 0;
             kicker->setRoller(0);
-            wheels[0]->step();
-            wheels[1]->step();
-            wheels[2]->step();
-            wheels[3]->step();
+            drive->step();
             kicker->step();
         }
     }
@@ -350,9 +340,8 @@ void Robot::drawLabel()
 
 void Robot::resetSpeeds()
 {
-    wheels[0]->speed = wheels[1]->speed = wheels[2]->speed = wheels[3]->speed = 0;
+    drive->setVelocity(0, 0, 0);
 }
-
 
 void Robot::resetRobot()
 {
@@ -362,11 +351,7 @@ void Robot::resetRobot()
     dBodySetLinearVel(dummy->body,0,0,0);
     dBodySetAngularVel(dummy->body,0,0,0);
     kicker->setRoller(0);
-    for (int i=0;i<4;i++)
-    {
-        dBodySetLinearVel(wheels[i]->cyl->body,0,0,0);
-        dBodySetAngularVel(wheels[i]->cyl->body,0,0,0);
-    }
+    drive->forcestop();
     dReal x,y;
     getXY(x,y);
     setXY(x,y);
@@ -399,13 +384,7 @@ void Robot::setXY(dReal x,dReal y)
     chassis->setBodyPosition(x,y,height);
     dummy->setBodyPosition(x,y,height);
     kicker->robotPoseChanged();
-    //kicker->box->getBodyPosition(kx,ky,kz);
-    //kicker->box->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+height);
-    for (int i=0;i<4;i++)
-    {
-        wheels[i]->cyl->getBodyPosition(kx,ky,kz);
-        wheels[i]->cyl->setBodyPosition(kx-xx+x,ky-yy+y,kz-zz+height);
-    }
+    drive->robotPoseChanged();
 }
 
 void Robot::setDir(dReal ang)
@@ -413,53 +392,26 @@ void Robot::setDir(dReal ang)
     ang*=M_PI/180.0f;
     chassis->setBodyRotation(0,0,1,ang);
     dummy->setBodyRotation(0,0,1,ang);
-    dMatrix3 wLocalRot,wRot,cRot;
-    dVector3 localPos,finalPos,cPos;
-    chassis->getBodyPosition(cPos[0],cPos[1],cPos[2],false);
-    chassis->getBodyRotation(cRot,false);
     kicker->robotPoseChanged();
-    for (int i=0;i<4;i++)
-    {
-        wheels[i]->cyl->getBodyRotation(wLocalRot,true);
-        dMultiply0(wRot,cRot,wLocalRot,3,3,3);
-        dBodySetRotation(wheels[i]->cyl->body,wRot);
-        wheels[i]->cyl->getBodyPosition(localPos[0],localPos[1],localPos[2],true);
-        dMultiply0(finalPos,cRot,localPos,4,3,1);finalPos[0]+=cPos[0];finalPos[1]+=cPos[1];finalPos[2]+=cPos[2];
-        wheels[i]->cyl->setBodyPosition(finalPos[0],finalPos[1],finalPos[2],false);
-    }
+    drive->robotPoseChanged();
 }
 
 void Robot::setSpeed(int i,dReal s)
 {
-    if (!((i>=4) || (i<0)))
-        wheels[i]->speed = s;
+    drive->setSpeed(i, s);
 }
 
 void Robot::setSpeed(dReal vx, dReal vy, dReal vw)
 {
-    // Calculate Motor Speeds
-    dReal _DEG2RAD = M_PI / 180.0;
-    dReal motorAlpha[4] = {cfg->robotSettings.Wheel1Angle * _DEG2RAD, cfg->robotSettings.Wheel2Angle * _DEG2RAD, cfg->robotSettings.Wheel3Angle * _DEG2RAD, cfg->robotSettings.Wheel4Angle * _DEG2RAD};
-
-    dReal dw1 =  (1.0 / cfg->robotSettings.WheelRadius) * (( (cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[0])) + (vy * cos(motorAlpha[0]))) );
-    dReal dw2 =  (1.0 / cfg->robotSettings.WheelRadius) * (( (cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[1])) + (vy * cos(motorAlpha[1]))) );
-    dReal dw3 =  (1.0 / cfg->robotSettings.WheelRadius) * (( (cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[2])) + (vy * cos(motorAlpha[2]))) );
-    dReal dw4 =  (1.0 / cfg->robotSettings.WheelRadius) * (( (cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[3])) + (vy * cos(motorAlpha[3]))) );
-
-    setSpeed(0 , dw1);
-    setSpeed(1 , dw2);
-    setSpeed(2 , dw3);
-    setSpeed(3 , dw4);
+    drive->setVelocity(vx, vy, vw);
 }
 
 dReal Robot::getSpeed(int i)
 {
-    if ((i>=4) || (i<0)) return -1;
-    return wheels[i]->speed;
+    return drive->getSpeed(i);
 }
 
 void Robot::incSpeed(int i,dReal v)
 {
-    if (!((i>=4) || (i<0)))
-        wheels[i]->speed += v;
+    drive->incSpeed(i, v);
 }

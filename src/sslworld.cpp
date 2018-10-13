@@ -39,7 +39,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 
 #define ROBOT_GRAY 0.4
-#define WHEEL_COUNT 4
 
 SSLWorld* _w;
 dReal randn_notrig(dReal mu=0.0, dReal sigma=1.0);
@@ -388,10 +387,12 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         p->createSurface(robots[k]->dummy,ball);
         //p->createSurface(robots[k]->chassis,ball);
         p->createSurface(robots[k]->kicker->getKickObject(),ball)->surface = ballwithkicker.surface;
-        for (int j = 0; j < WHEEL_COUNT; j++)
+        const std::vector<PObject*> objs = robots[k]->drive->getObjects();
+        for (int j = 0; j < objs.size(); j++)
         {
-            p->createSurface(robots[k]->wheels[j]->cyl,ball);
-            PSurface* w_g = p->createSurface(robots[k]->wheels[j]->cyl,ground);
+            
+            p->createSurface(objs[j],ball);
+            PSurface* w_g = p->createSurface(objs[j],ground);
             w_g->surface=wheelswithground.surface;
             w_g->usefdir1=true;
             w_g->callback=wheelCallBack;

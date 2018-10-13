@@ -47,19 +47,6 @@ public:
     bool selected;
     dReal select_x,select_y,select_z;    
     QImage *img,*number;
-    class Wheel
-    {
-      public:
-        int id;
-        Wheel(Robot* robot,int _id,dReal ang,dReal ang2,int wheeltexid);
-        virtual ~Wheel();
-        virtual void step();
-        dJointID joint;
-        dJointID motor;
-        PCylinder* cyl;
-        dReal speed;
-        Robot* rob;
-    } *wheels[4];
     class Kicker
     {
       public:
@@ -102,6 +89,131 @@ public:
         }
     };
     Kicker *kicker;
+
+    class Drive {
+      public:
+        Drive(Robot* robot) : robot_(robot) {
+        }
+        virtual ~Drive() {
+        }
+        virtual void robotPoseChanged() = 0;
+        virtual void setSpeed(int i, double speed) = 0;
+        virtual double getSpeed(int i) = 0;
+        virtual void incSpeed(int i, dReal v) = 0;
+        virtual void setVelocity(double vx, double vy, double vw) = 0;
+        virtual void forcestop() = 0;
+        virtual void step() = 0;
+        virtual std::vector<PObject*> getObjects() = 0;
+      protected:
+        Robot* robot_;
+    };
+
+    class Wheel
+    {
+      public:
+        int id;
+        Wheel(Robot* robot,int _id,dReal ang,dReal ang2,int wheeltexid);
+        virtual ~Wheel();
+        virtual void step();
+        dJointID joint;
+        dJointID motor;
+        PCylinder* cyl;
+        dReal speed;
+        Robot* rob;
+    };
+
+    class DefaultDrive : public Drive {
+      public:
+        DefaultDrive(Robot* robot, int wheeltexid) : Drive(robot) {
+            wheels_[0] = new Wheel(robot,0,robot->cfg->robotSettings.Wheel1Angle,robot->cfg->robotSettings.Wheel1Angle,wheeltexid);
+            wheels_[1] = new Wheel(robot,1,robot->cfg->robotSettings.Wheel2Angle,robot->cfg->robotSettings.Wheel2Angle,wheeltexid);
+            wheels_[2] = new Wheel(robot,2,robot->cfg->robotSettings.Wheel3Angle,robot->cfg->robotSettings.Wheel3Angle,wheeltexid);
+            wheels_[3] = new Wheel(robot,3,robot->cfg->robotSettings.Wheel4Angle,robot->cfg->robotSettings.Wheel4Angle,wheeltexid);
+        }
+        virtual ~DefaultDrive() {
+            delete[] wheels_;
+        }
+        virtual void robotPoseChanged() {
+            // position
+            dReal robotx, roboty, robotz;
+            dReal robotdirx, robotdiry, robotdirz;
+            dReal localx, localy, localz;
+            // rob->chassis->getBodyPosition(robotx, roboty, robotz);
+            // rob->chassis->getBodyDirection(robotdirx, robotdiry, robotdirz);
+            // box->getBodyPosition(localx, localy, localz, /*local*/ true);
+            // box->setBodyPosition(robotx + robotdirx * localx, roboty + robotdiry * localy, robotz + robotdirz * localz);
+
+            robot_->chassis->getBodyPosition(robotx, roboty, robotz);
+            robot_->chassis->getBodyDirection(robotdirx, robotdiry, robotdirz);
+            //dReal height = ROBOT_START_Z(robot_->cfg);
+            for (int i = 0; i < 4; i++) {
+                wheels_[i]->cyl->getBodyPosition(localx, localy, localz, true);
+                wheels_[i]->cyl->setBodyPosition(robotx + robotdirx * localx, roboty + robotdiry * localy, robotz + robotdirz * localz);
+            }
+            // direction
+            dMatrix3 wLocalRot, wRot, cRot;
+            dVector3 localPos,finalPos,cPos;
+            robot_->chassis->getBodyPosition(cPos[0],cPos[1],cPos[2],false);
+            robot_->chassis->getBodyRotation(cRot,false);
+            for (int i = 0; i < 4; i++) {
+                wheels_[i]->cyl->getBodyRotation(wLocalRot,true);
+                dMultiply0(wRot,cRot,wLocalRot,3,3,3);
+                dBodySetRotation(wheels_[i]->cyl->body,wRot);
+                wheels_[i]->cyl->getBodyPosition(localPos[0],localPos[1],localPos[2],true);
+                dMultiply0(finalPos,cRot,localPos,4,3,1);finalPos[0]+=cPos[0];finalPos[1]+=cPos[1];finalPos[2]+=cPos[2];
+                wheels_[i]->cyl->setBodyPosition(finalPos[0],finalPos[1],finalPos[2],false);
+            }
+        }
+        void setSpeed(int i, double speed) {
+            if (!((i>=4) || (i<0))) {
+                wheels_[i]->speed = speed;
+            }
+        }
+        double getSpeed(int i) {
+            if ((i>=4) || (i<0)) return -1;
+            return wheels_[i]->speed;
+        }
+        void incSpeed(int i, dReal v) {
+            if (!((i>=4) || (i<0)))
+                wheels_[i]->speed += v;
+        }
+        void setVelocity(double vx, double vy, double vw) {
+            // Calculate Motor Speeds
+            dReal _DEG2RAD = M_PI / 180.0;
+            dReal motorAlpha[4] = {robot_->cfg->robotSettings.Wheel1Angle * _DEG2RAD, robot_->cfg->robotSettings.Wheel2Angle * _DEG2RAD, robot_->cfg->robotSettings.Wheel3Angle * _DEG2RAD, robot_->cfg->robotSettings.Wheel4Angle * _DEG2RAD};
+
+            dReal dw1 =  (1.0 / robot_->cfg->robotSettings.WheelRadius) * (( (robot_->cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[0])) + (vy * cos(motorAlpha[0]))) );
+            dReal dw2 =  (1.0 / robot_->cfg->robotSettings.WheelRadius) * (( (robot_->cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[1])) + (vy * cos(motorAlpha[1]))) );
+            dReal dw3 =  (1.0 / robot_->cfg->robotSettings.WheelRadius) * (( (robot_->cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[2])) + (vy * cos(motorAlpha[2]))) );
+            dReal dw4 =  (1.0 / robot_->cfg->robotSettings.WheelRadius) * (( (robot_->cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[3])) + (vy * cos(motorAlpha[3]))) );
+
+            setSpeed(0 , dw1);
+            setSpeed(1 , dw2);
+            setSpeed(2 , dw3);
+            setSpeed(3 , dw4);
+        }
+        void forcestop() {
+            for (int i = 0; i < 4; i++) {
+                dBodySetLinearVel(wheels_[i]->cyl->body,0,0,0);
+                dBodySetAngularVel(wheels_[i]->cyl->body,0,0,0);
+            }
+        }
+        void step() {
+            for (int i = 0; i < 4; i++) {
+                wheels_[i]->step();
+            }
+        }
+        std::vector<PObject*> getObjects() {
+            std::vector<PObject*> objs(4);
+            for (int i = 0; i < 4; i++) {
+                objs[i] = wheels_[i]->cyl;
+            }
+            return objs;
+        }
+      protected:
+        Wheel *wheels_[4];
+    };
+    Drive* drive;
 
     Robot() : firsttime(true), on(true) {
     }
