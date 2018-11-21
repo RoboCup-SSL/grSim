@@ -1,4 +1,4 @@
-# Install script for directory: /home/visionpc/roboteamtwente/grSim/clients/qt
+# Install script for directory: /home/rolf/roboteamtwente/grSim/clients/qt
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

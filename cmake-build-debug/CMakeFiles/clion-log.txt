@@ -1,23 +1,25 @@
-/home/visionpc/Downloads/clion-2018.1/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/visionpc/roboteamtwente/grSim
--- The C compiler identification is GNU 5.4.0
--- The CXX compiler identification is GNU 5.4.0
--- Check for working C compiler: /usr/bin/cc
--- Check for working C compiler: /usr/bin/cc -- works
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Detecting C compile features
--- Detecting C compile features - done
--- Check for working CXX compiler: /usr/bin/c++
--- Check for working CXX compiler: /usr/bin/c++ -- works
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Found OpenGL: /usr/lib/x86_64-linux-gnu/libGL.so   
--- Found Qt4: /usr/bin/qmake-qt4 (found version "4.8.7") 
--- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread (found version "2.6.1") 
--- Found Qt4: /usr/bin/qmake-qt4 (found version "4.8.7") 
--- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread;-lpthread (found version "2.6.1") 
+/opt/clion-2018.2.5/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/rolf/roboteamtwente/grSim
+CMake Warning (dev) at /opt/clion-2018.2.5/bin/cmake/linux/share/cmake-3.12/Modules/FindOpenGL.cmake:270 (message):
+  Policy CMP0072 is not set: FindOpenGL prefers GLVND by default when
+  available.  Run "cmake --help-policy CMP0072" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  FindOpenGL found both a legacy GL library:
+
+    OPENGL_gl_LIBRARY: /usr/lib/x86_64-linux-gnu/libGL.so
+
+  and GLVND libraries for OpenGL and GLX:
+
+    OPENGL_opengl_LIBRARY: /usr/lib/x86_64-linux-gnu/libOpenGL.so
+    OPENGL_glx_LIBRARY: /usr/lib/x86_64-linux-gnu/libGLX.so
+
+  OpenGL_GL_PREFERENCE has not been set to "GLVND" or "LEGACY", so for
+  compatibility with CMake 3.10 and below the legacy GL library will be used.
+Call Stack (most recent call first):
+  CMakeLists.txt:51 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread;-lpthread (found version "3.0.0") 
 -- Configuring done
 CMake Warning (dev) in CMakeLists.txt:
   Policy CMP0071 is not set: Let AUTOMOC and AUTOUIC process GENERATED files.
@@ -26,21 +28,20 @@ CMake Warning (dev) in CMakeLists.txt:
 
   For compatibility, CMake is excluding the GENERATED source file(s):
 
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_detection.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_geometry.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_wrapper.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_refbox_log.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Replacement.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Commands.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Packet.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_detection.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_geometry.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_wrapper.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_refbox_log.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Replacement.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Commands.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/grSim_Packet.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/qrc_textures.cxx"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_detection.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_geometry.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_wrapper.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_refbox_log.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/grSim_Replacement.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/grSim_Commands.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/grSim_Packet.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_detection.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_geometry.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_wrapper.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/messages_robocup_ssl_refbox_log.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/grSim_Replacement.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/grSim_Commands.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/grSim_Packet.pb.cc"
 
   from processing by AUTOMOC.  If any of the files should be processed, set
   CMP0071 to NEW.  If any of the files should not be processed, explicitly
@@ -57,12 +58,12 @@ CMake Warning (dev) in clients/qt/CMakeLists.txt:
 
   For compatibility, CMake is excluding the GENERATED source file(s):
 
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Replacement.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Commands.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Packet.pb.h"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Replacement.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Commands.pb.cc"
-    "/home/visionpc/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Packet.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Replacement.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Commands.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Packet.pb.h"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Replacement.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Commands.pb.cc"
+    "/home/rolf/roboteamtwente/grSim/cmake-build-debug/clients/qt/grSim_Packet.pb.cc"
 
   from processing by AUTOMOC.  If any of the files should be processed, set
   CMP0071 to NEW.  If any of the files should not be processed, explicitly
@@ -73,4 +74,4 @@ CMake Warning (dev) in clients/qt/CMakeLists.txt:
 This warning is for project developers.  Use -Wno-dev to suppress it.
 
 -- Generating done
--- Build files have been written to: /home/visionpc/roboteamtwente/grSim/cmake-build-debug
+-- Build files have been written to: /home/rolf/roboteamtwente/grSim/cmake-build-debug
