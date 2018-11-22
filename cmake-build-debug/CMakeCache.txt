@@ -256,9 +256,6 @@ CPACK_SOURCE_TZ:BOOL=ON
 //Enable to build ZIP source packages
 CPACK_SOURCE_ZIP:BOOL=OFF
 
-//Pick a version of Qt to use: 3 or 4
-DESIRED_QT_VERSION:STRING=3
-
 //Use double precision? If not single precision will be used.
 DOUBLE_PRECISION:BOOL=ON
 
@@ -327,12 +324,6 @@ Protobuf_PROTOC_LIBRARY_DEBUG:FILEPATH=/usr/lib/x86_64-linux-gnu/libprotoc.so
 
 //Path to a library.
 Protobuf_PROTOC_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libprotoc.so
-
-//Path to a file.
-QT3_QGLOBAL_H_FILE:FILEPATH=/home/rolf/roboteamtwente/workspace/devel/include
-
-//Path to a file.
-QT4_QGLOBAL_H_FILE:FILEPATH=QT4_QGLOBAL_H_FILE-NOTFOUND
 
 //Path to a library.
 QT_ARTHURPLUGIN_PLUGIN_DEBUG:FILEPATH=QT_ARTHURPLUGIN_PLUGIN_DEBUG-NOTFOUND
@@ -486,9 +477,6 @@ QT_QKRCODECS_PLUGIN_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/qt4/plugins/codec
 
 //Where can the qmake-qt4 library be found
 QT_QMAKE_EXECUTABLE:FILEPATH=/usr/bin/qmake-qt4
-
-//Path to a program.
-QT_QMAKE_EXECUTABLE_FINDQT:FILEPATH=/usr/bin/qmake
 
 //Path to a library.
 QT_QMNG_PLUGIN_DEBUG:FILEPATH=QT_QMNG_PLUGIN_DEBUG-NOTFOUND

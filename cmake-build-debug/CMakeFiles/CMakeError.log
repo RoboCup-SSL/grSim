@@ -1,11 +1,11 @@
 Determining if the Q_WS_WIN exist failed with the following output:
 Change Dir: /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_b1b7f/fast"
-/usr/bin/make -f CMakeFiles/cmTC_b1b7f.dir/build.make CMakeFiles/cmTC_b1b7f.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_f1e99/fast"
+/usr/bin/make -f CMakeFiles/cmTC_f1e99.dir/build.make CMakeFiles/cmTC_f1e99.dir/build
 make[1]: Entering directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_b1b7f.dir/CheckSymbolExists.cxx.o
-/usr/bin/c++   -I/usr/include/qt4  -std=c++03    -o CMakeFiles/cmTC_b1b7f.dir/CheckSymbolExists.cxx.o -c /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+Building CXX object CMakeFiles/cmTC_f1e99.dir/CheckSymbolExists.cxx.o
+/usr/bin/c++   -I/usr/include/qt4  -std=c++03    -o CMakeFiles/cmTC_f1e99.dir/CheckSymbolExists.cxx.o -c /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
 /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
 /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_WIN’ was not declared in this scope
    return ((int*)(&Q_WS_WIN))[argc];
@@ -14,11 +14,11 @@ Building CXX object CMakeFiles/cmTC_b1b7f.dir/CheckSymbolExists.cxx.o
    return ((int*)(&Q_WS_WIN))[argc];
                    ^~~~~~~~
                    Q_WS_X11
-CMakeFiles/cmTC_b1b7f.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_b1b7f.dir/CheckSymbolExists.cxx.o' failed
-make[1]: *** [CMakeFiles/cmTC_b1b7f.dir/CheckSymbolExists.cxx.o] Error 1
+CMakeFiles/cmTC_f1e99.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_f1e99.dir/CheckSymbolExists.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_f1e99.dir/CheckSymbolExists.cxx.o] Error 1
 make[1]: Leaving directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:121: recipe for target 'cmTC_b1b7f/fast' failed
-make: *** [cmTC_b1b7f/fast] Error 2
+Makefile:121: recipe for target 'cmTC_f1e99/fast' failed
+make: *** [cmTC_f1e99/fast] Error 2
 
 File /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
 /* */
@@ -38,11 +38,11 @@ int main(int argc, char** argv)
 Determining if the Q_WS_QWS exist failed with the following output:
 Change Dir: /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_badcc/fast"
-/usr/bin/make -f CMakeFiles/cmTC_badcc.dir/build.make CMakeFiles/cmTC_badcc.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_10f23/fast"
+/usr/bin/make -f CMakeFiles/cmTC_10f23.dir/build.make CMakeFiles/cmTC_10f23.dir/build
 make[1]: Entering directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_badcc.dir/CheckSymbolExists.cxx.o
-/usr/bin/c++   -I/usr/include/qt4  -std=c++03    -o CMakeFiles/cmTC_badcc.dir/CheckSymbolExists.cxx.o -c /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+Building CXX object CMakeFiles/cmTC_10f23.dir/CheckSymbolExists.cxx.o
+/usr/bin/c++   -I/usr/include/qt4  -std=c++03    -o CMakeFiles/cmTC_10f23.dir/CheckSymbolExists.cxx.o -c /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
 /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
 /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_QWS’ was not declared in this scope
    return ((int*)(&Q_WS_QWS))[argc];
@@ -51,11 +51,11 @@ Building CXX object CMakeFiles/cmTC_badcc.dir/CheckSymbolExists.cxx.o
    return ((int*)(&Q_WS_QWS))[argc];
                    ^~~~~~~~
                    Q_WS_X11
-CMakeFiles/cmTC_badcc.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_badcc.dir/CheckSymbolExists.cxx.o' failed
-make[1]: *** [CMakeFiles/cmTC_badcc.dir/CheckSymbolExists.cxx.o] Error 1
+CMakeFiles/cmTC_10f23.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_10f23.dir/CheckSymbolExists.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_10f23.dir/CheckSymbolExists.cxx.o] Error 1
 make[1]: Leaving directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:121: recipe for target 'cmTC_badcc/fast' failed
-make: *** [cmTC_badcc/fast] Error 2
+Makefile:121: recipe for target 'cmTC_10f23/fast' failed
+make: *** [cmTC_10f23/fast] Error 2
 
 File /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
 /* */
@@ -75,11 +75,11 @@ int main(int argc, char** argv)
 Determining if the Q_WS_MAC exist failed with the following output:
 Change Dir: /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_c1315/fast"
-/usr/bin/make -f CMakeFiles/cmTC_c1315.dir/build.make CMakeFiles/cmTC_c1315.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_ce94f/fast"
+/usr/bin/make -f CMakeFiles/cmTC_ce94f.dir/build.make CMakeFiles/cmTC_ce94f.dir/build
 make[1]: Entering directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_c1315.dir/CheckSymbolExists.cxx.o
-/usr/bin/c++   -I/usr/include/qt4  -std=c++03    -o CMakeFiles/cmTC_c1315.dir/CheckSymbolExists.cxx.o -c /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+Building CXX object CMakeFiles/cmTC_ce94f.dir/CheckSymbolExists.cxx.o
+/usr/bin/c++   -I/usr/include/qt4  -std=c++03    -o CMakeFiles/cmTC_ce94f.dir/CheckSymbolExists.cxx.o -c /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
 /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
 /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_MAC’ was not declared in this scope
    return ((int*)(&Q_WS_MAC))[argc];
@@ -88,11 +88,11 @@ Building CXX object CMakeFiles/cmTC_c1315.dir/CheckSymbolExists.cxx.o
    return ((int*)(&Q_WS_MAC))[argc];
                    ^~~~~~~~
                    Q_WS_X11
-CMakeFiles/cmTC_c1315.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_c1315.dir/CheckSymbolExists.cxx.o' failed
-make[1]: *** [CMakeFiles/cmTC_c1315.dir/CheckSymbolExists.cxx.o] Error 1
+CMakeFiles/cmTC_ce94f.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_ce94f.dir/CheckSymbolExists.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_ce94f.dir/CheckSymbolExists.cxx.o] Error 1
 make[1]: Leaving directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:121: recipe for target 'cmTC_c1315/fast' failed
-make: *** [cmTC_c1315/fast] Error 2
+Makefile:121: recipe for target 'cmTC_ce94f/fast' failed
+make: *** [cmTC_ce94f/fast] Error 2
 
 File /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
 /* */
@@ -112,22 +112,22 @@ int main(int argc, char** argv)
 Determining if the pthread_create exist failed with the following output:
 Change Dir: /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_68c09/fast"
-/usr/bin/make -f CMakeFiles/cmTC_68c09.dir/build.make CMakeFiles/cmTC_68c09.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_19c91/fast"
+/usr/bin/make -f CMakeFiles/cmTC_19c91.dir/build.make CMakeFiles/cmTC_19c91.dir/build
 make[1]: Entering directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_68c09.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -o CMakeFiles/cmTC_68c09.dir/CheckSymbolExists.c.o   -c /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTC_68c09
-/opt/clion-2018.2.5/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_68c09.dir/link.txt --verbose=1
-/usr/bin/cc      -rdynamic CMakeFiles/cmTC_68c09.dir/CheckSymbolExists.c.o  -o cmTC_68c09 
-CMakeFiles/cmTC_68c09.dir/CheckSymbolExists.c.o: In function `main':
+Building C object CMakeFiles/cmTC_19c91.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_19c91.dir/CheckSymbolExists.c.o   -c /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_19c91
+/opt/clion-2018.2.5/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_19c91.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_19c91.dir/CheckSymbolExists.c.o  -o cmTC_19c91 
+CMakeFiles/cmTC_19c91.dir/CheckSymbolExists.c.o: In function `main':
 CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_68c09.dir/build.make:86: recipe for target 'cmTC_68c09' failed
-make[1]: *** [cmTC_68c09] Error 1
+CMakeFiles/cmTC_19c91.dir/build.make:86: recipe for target 'cmTC_19c91' failed
+make[1]: *** [cmTC_19c91] Error 1
 make[1]: Leaving directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:121: recipe for target 'cmTC_68c09/fast' failed
-make: *** [cmTC_68c09/fast] Error 2
+Makefile:121: recipe for target 'cmTC_19c91/fast' failed
+make: *** [cmTC_19c91/fast] Error 2
 
 File /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
@@ -147,20 +147,20 @@ int main(int argc, char** argv)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_ce5c7/fast"
-/usr/bin/make -f CMakeFiles/cmTC_ce5c7.dir/build.make CMakeFiles/cmTC_ce5c7.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_ac30b/fast"
+/usr/bin/make -f CMakeFiles/cmTC_ac30b.dir/build.make CMakeFiles/cmTC_ac30b.dir/build
 make[1]: Entering directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_ce5c7.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_ce5c7.dir/CheckFunctionExists.c.o   -c /opt/clion-2018.2.5/bin/cmake/linux/share/cmake-3.12/Modules/CheckFunctionExists.c
-Linking C executable cmTC_ce5c7
-/opt/clion-2018.2.5/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ce5c7.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_ce5c7.dir/CheckFunctionExists.c.o  -o cmTC_ce5c7 -lpthreads 
+Building C object CMakeFiles/cmTC_ac30b.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_ac30b.dir/CheckFunctionExists.c.o   -c /opt/clion-2018.2.5/bin/cmake/linux/share/cmake-3.12/Modules/CheckFunctionExists.c
+Linking C executable cmTC_ac30b
+/opt/clion-2018.2.5/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ac30b.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_ac30b.dir/CheckFunctionExists.c.o  -o cmTC_ac30b -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_ce5c7.dir/build.make:86: recipe for target 'cmTC_ce5c7' failed
-make[1]: *** [cmTC_ce5c7] Error 1
+CMakeFiles/cmTC_ac30b.dir/build.make:86: recipe for target 'cmTC_ac30b' failed
+make[1]: *** [cmTC_ac30b] Error 1
 make[1]: Leaving directory '/home/rolf/roboteamtwente/grSim/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:121: recipe for target 'cmTC_ce5c7/fast' failed
-make: *** [cmTC_ce5c7/fast] Error 2
+Makefile:121: recipe for target 'cmTC_ac30b/fast' failed
+make: *** [cmTC_ac30b/fast] Error 2
 
 

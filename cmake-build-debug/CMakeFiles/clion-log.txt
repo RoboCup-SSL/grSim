@@ -19,6 +19,7 @@ Call Stack (most recent call first):
   CMakeLists.txt:51 (find_package)
 This warning is for project developers.  Use -Wno-dev to suppress it.
 
+-- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread (found version "3.0.0") 
 -- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread;-lpthread (found version "3.0.0") 
 -- Configuring done
 CMake Warning (dev) in CMakeLists.txt:

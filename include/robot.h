@@ -105,10 +105,10 @@ public:
     PBall* getBall();
 
     void setAngle(dReal vx, dReal vy, dReal vw);
-    dReal body2Wheels(dReal Fx, dReal Fy, dReal Fw);
+    std::vector<double> body2Wheels(dReal Fx, dReal Fy, dReal Fw);
     dReal scaleLimit(dReal Fx, dReal Fy, dReal Fw, dReal limit);
     double angleControl(double angleRef, double yaw);
-    double pwm2Motor(double power[4]);
+    std::vector<double> pwm2Motor(std::vector<double> power);
     double constrainAngle(double x);
     void vectorRotate(double yaw, double* x, double* y);
 };
