@@ -103,6 +103,14 @@ public:
     void setDir(dReal ang);
     int getID();
     PBall* getBall();
+
+    void setAngle(dReal vx, dReal vy, dReal vw);
+    std::vector<double> body2Wheels(dReal Fx, dReal Fy, dReal Fw);
+    dReal scaleLimit(dReal Fx, dReal Fy, dReal Fw, dReal limit);
+    double angleControl(double angleRef, double yaw);
+    std::vector<double> pwm2Motor(std::vector<double> power);
+    double constrainAngle(double x);
+    void vectorRotate(double yaw, double* x, double* y);
 };
 
 

@@ -440,6 +440,12 @@ void Robot::setSpeed(dReal vx, dReal vy, dReal vw)
     dReal dw3 =  (1.0 / cfg->robotSettings.WheelRadius) * (( (cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[2])) + (vy * cos(motorAlpha[2]))) );
     dReal dw4 =  (1.0 / cfg->robotSettings.WheelRadius) * (( (cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[3])) + (vy * cos(motorAlpha[3]))) );
 
+
+    std::cout<<"Wheel: " <<0 <<" -" <<dw1<< " ";
+    std::cout<<"Wheel: " <<1 <<" -" <<dw2<< " ";
+    std::cout<<"Wheel: " <<2 <<" -" <<dw3<< " ";
+    std::cout<<"Wheel: " <<3 <<" -" <<dw4<< " ";
+    std::cout<<std::endl;
     setSpeed(0 , dw1);
     setSpeed(1 , dw2);
     setSpeed(2 , dw3);
@@ -456,4 +462,144 @@ void Robot::incSpeed(int i,dReal v)
 {
     if (!((i>=4) || (i<0)))
         wheels[i]->speed += v;
+}
+
+//Implements our angle control cycle
+void Robot::setAngle(dReal vx, dReal vy, dReal vw) {
+    double xSensW=constrainAngle((double) getDir()/180.0*M_PI);
+    // Rotate to local frame of reference
+    vectorRotate(xSensW,&vx,&vy);
+    double assumed_delay=cfg->sendDelay()/1000; // seconds
+    static double prevYaw=0;
+    double yawVel=constrainAngle(xSensW-prevYaw)*60; //TODO: Fix time difference?
+    prevYaw=xSensW;
+    double comp_dir=yawVel*assumed_delay;
+    vectorRotate(comp_dir,&vx,&vy);
+
+    dReal Fx=vx*1500, Fy=vy*2000; //MAGIC NUMBERS
+    dReal Fw=angleControl(vw,xSensW)*2.0; //MORE MAGIC NUMBERS
+    dReal scale=scaleLimit(Fx,Fy,Fw,100); //EVEN MORE MAGIC NUMBERS
+    Fx=scale*Fx;
+    Fy=scale*Fy;
+    Fw=Fw*0.5;
+    std::vector<double> pwm=body2Wheels(Fx,Fy,Fw);
+    std::vector<double> output=pwm2Motor(pwm);
+    std::cout<<"Direction:" << xSensW <<std::endl;
+    for (int i = 0; i < 4; ++ i) {
+        std::cout<<"Wheel: " <<i <<" : " <<output[i]<< " ";
+    }
+    std::cout<<std::endl;
+    setSpeed(0 , output[0]);
+    setSpeed(1 , output[1]);
+    setSpeed(2 , output[2]);
+    setSpeed(3 , output[3]);
+}
+
+std::vector<double> Robot::body2Wheels(dReal Fx,dReal Fy,dReal Fw){
+        float R=0.0775; //robot radius
+        float r=0.0275; //wheel radius
+        float cos60=-0.5;
+        float sin60=-0.866;
+        float PWM_CUTOFF=3.0;
+        float T_CUTOFF=(PWM_CUTOFF+0.1F)*4*R/r;
+        std::vector<double> output;
+        if ((fabs(Fw)<T_CUTOFF) && (fabs(Fw)>T_CUTOFF/2-0.1F)){ //only using 2 motors for rotation, output doubled.
+            std::cout<< "Using only 2 wheels for rotation"<<std::endl;
+            output.push_back((1/sin60*Fx+1/cos60*Fy+2/R*Fw)*r/4);
+            output.push_back((1/sin60*Fx-1/cos60*Fy)*r/4);
+            output.push_back((-1/sin60*Fx-1/cos60*Fy+2/R*Fw)*r/4);
+            output.push_back((-1/sin60*Fx+1/cos60*Fy)*r/4);
+        }else{ //NORMAL case
+            output.push_back((1/sin60*Fx+1/cos60*Fy+1/R*Fw)*r/4);
+            output.push_back((1/sin60*Fx-1/cos60*Fy+1/R*Fw)*r/4);
+            output.push_back((-1/sin60*Fx-1/cos60*Fy+1/R*Fw)*r/4);
+            output.push_back((-1/sin60*Fx+1/cos60*Fy+1/R*Fw)*r/4);
+        }
+        return output;
+}
+
+double Robot::scaleLimit(dReal Fx, dReal Fy, dReal Fw, dReal limit){
+
+    double scale;
+    std::vector<double> imOutput=body2Wheels(Fx,Fy,Fw);
+    double maxEl = fmax(fmax(fabs(imOutput[0]),fabs(imOutput[1])),fmax(fabs(imOutput[2]),fabs(imOutput[3])));
+
+    if ((maxEl) > limit){
+        scale = limit/(maxEl);
+    }
+    else {
+        scale = 1;
+    }
+
+    return scale;
+}
+
+std::vector<double> Robot::pwm2Motor(std::vector<double> power){
+    double PWM_CUTOFF=3.0;
+    double PWM_ROUNDUP=3.1;
+    double PWM_MAX=100;
+    for (int i = 0; i <4; ++ i) {
+        if (fabs(power[i])<PWM_CUTOFF) {power[i]=0.0F;}
+        else if(fabs(power[i])<PWM_ROUNDUP){
+            if (power[i]<0) {
+                power[i] = - PWM_ROUNDUP;
+            }
+            else{
+                power[i] = PWM_ROUNDUP;
+            }
+            }
+        else if(fabs(power[i])>PWM_MAX){
+            if (power[i]<0){
+                power[i]=-PWM_MAX;
+            }
+            else{
+                power[i]=PWM_MAX;
+            }
+        }
+    }
+    std::cout<<std::endl;
+    std::vector<double> desiredVel;
+    for (int j = 0; j < 4; ++ j) {
+        desiredVel.push_back(374.0/60.0*power[j]*12/100); //power is % of total power given. 374 rpm/V *total Voltage (power*12/100). So current units is in rotation/second
+    }
+    return desiredVel;
+}
+double Robot::constrainAngle(double x){
+    x= fmod(x+M_PI,2*M_PI);
+    if (x<0)
+        x+=2*M_PI;
+    return x-M_PI;
+}
+double Robot::angleControl(double angleRef, double yaw) {
+    double R=0.0775; //robot radius
+    double r=0.0275; //wheel radius
+    double T_DIFF=1/60.0; // integration for time. No clue how this is actually supposed to work on the robot.
+    double angleErr= constrainAngle(angleRef-yaw);
+    static double prevErr=0;
+    double dErr=constrainAngle(angleErr-prevErr)/T_DIFF;
+    prevErr=angleErr;
+
+    double output;
+    static int TH_switch;
+    TH_switch=-1;
+
+    output=angleErr*300.0+dErr*13;
+    double mag=fabs(output);
+    double upper_lim=300, deadzone=0.03;
+    double T_cutoff= 3.1*4*R/r;
+    if (mag>upper_lim){
+        output=output/mag*upper_lim;
+    }else if (fabs(angleErr)<deadzone+TH_switch*0.003){
+        output=0;
+        TH_switch=1;
+    }else if (mag< T_cutoff/2 && mag > 0.001F){
+        output=output/mag*T_cutoff/2.0;
+    }
+    return output;
+}
+
+void Robot::vectorRotate(double yaw, double* x, double* y) {
+    double tempx = *x, tempy = *y;
+    *x = cos(yaw)*tempx + sin(yaw)*tempy;
+    *y = - sin(yaw)*tempx + cos(yaw)*tempy;
 }
