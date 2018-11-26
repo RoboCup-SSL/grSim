@@ -475,7 +475,7 @@ void Robot::setAngle(dReal vx, dReal vy, dReal vw) {
     prevYaw=xSensW;
     double comp_dir=yawVel*assumed_delay;
     vectorRotate(comp_dir,&vx,&vy);
-
+    
     dReal Fx=vx*1500, Fy=vy*2000; //MAGIC NUMBERS
     dReal Fw=angleControl(vw,xSensW)*2.0; //MORE MAGIC NUMBERS
     dReal scale=scaleLimit(Fx,Fy,Fw,100); //EVEN MORE MAGIC NUMBERS
@@ -485,9 +485,9 @@ void Robot::setAngle(dReal vx, dReal vy, dReal vw) {
     std::vector<double> pwm=body2Wheels(Fx,Fy,Fw);
     std::vector<double> output=pwm2Motor(pwm);
     std::cout<<"Direction:" << xSensW <<std::endl;
-//    for (int i = 0; i < 4; ++ i) {
-//        std::cout<<"Wheel: " <<i <<" : " <<output[i]<< " ";
-//    }
+    for (int i = 0; i < 4; ++ i) {
+        std::cout<<"Wheel: " <<i <<" : " <<output[i]<< " ";
+    }
     std::cout<<std::endl;
     setSpeed(0 , output[0]);
     setSpeed(1 , output[1]);
@@ -498,8 +498,8 @@ void Robot::setAngle(dReal vx, dReal vy, dReal vw) {
 std::vector<double> Robot::body2Wheels(dReal Fx,dReal Fy,dReal Fw){
         float R=0.0775; //robot radius
         float r=0.0275; //wheel radius
-        float cos60=0.5;
-        float sin60=0.866;
+        float cos60=-0.5;
+        float sin60=-0.866;
         float PWM_CUTOFF=3.0;
         float T_CUTOFF=(PWM_CUTOFF+0.1F)*4*R/r;
         std::vector<double> output;
@@ -511,7 +511,7 @@ std::vector<double> Robot::body2Wheels(dReal Fx,dReal Fy,dReal Fw){
             output.push_back((-1/sin60*Fx+1/cos60*Fy)*r/4);
         }else{ //NORMAL case
             output.push_back((1/sin60*Fx+1/cos60*Fy+1/R*Fw)*r/4);
-            output.push_back((1/sin60*Fx-1/cos60*Fy)+1/R*Fw*r/4);
+            output.push_back((1/sin60*Fx-1/cos60*Fy+1/R*Fw)*r/4);
             output.push_back((-1/sin60*Fx-1/cos60*Fy+1/R*Fw)*r/4);
             output.push_back((-1/sin60*Fx+1/cos60*Fy+1/R*Fw)*r/4);
         }
