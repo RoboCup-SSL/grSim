@@ -475,7 +475,7 @@ void Robot::setAngle(dReal vx, dReal vy, dReal vw) {
     prevYaw=xSensW;
     double comp_dir=yawVel*assumed_delay;
     vectorRotate(comp_dir,&vx,&vy);
-    
+
     dReal Fx=vx*1500, Fy=vy*2000; //MAGIC NUMBERS
     dReal Fw=angleControl(vw,xSensW)*2.0; //MORE MAGIC NUMBERS
     dReal scale=scaleLimit(Fx,Fy,Fw,100); //EVEN MORE MAGIC NUMBERS
@@ -539,8 +539,7 @@ std::vector<double> Robot::pwm2Motor(std::vector<double> power){
     double PWM_ROUNDUP=3.1;
     double PWM_MAX=100;
     for (int i = 0; i <4; ++ i) {
-        std::cout<< "Power wheel " << i << ": " << power[i] <<" ";
-        if (fabs(power[i])<PWM_CUTOFF) {power[i]=0.0F; std::cout<<"Power below cutoff!"<<std::endl;}
+        if (fabs(power[i])<PWM_CUTOFF) {power[i]=0.0F;}
         else if(fabs(power[i])<PWM_ROUNDUP){
             if (power[i]<0) {
                 power[i] = - PWM_ROUNDUP;
@@ -548,7 +547,7 @@ std::vector<double> Robot::pwm2Motor(std::vector<double> power){
             else{
                 power[i] = PWM_ROUNDUP;
             }
-            std::cout<<"Power rounded up!"<<std::endl;}
+            }
         else if(fabs(power[i])>PWM_MAX){
             if (power[i]<0){
                 power[i]=-PWM_MAX;
