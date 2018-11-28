@@ -489,17 +489,17 @@ void Robot::setAngle(dReal vx, dReal vy, dReal vw) {
         std::cout<<"Wheel: " <<i <<" : " <<output[i]<< " ";
     }
     std::cout<<std::endl;
-    setSpeed(0 , output[0]);
-    setSpeed(1 , output[1]);
-    setSpeed(2 , output[2]);
-    setSpeed(3 , output[3]);
+    setSpeed(0 , output[3]); //Left Front
+    setSpeed(1 , output[2]); //Left back
+    setSpeed(2 , output[1]); //Right Back
+    setSpeed(3 , output[0]); // Right Front
 }
 
 std::vector<double> Robot::body2Wheels(dReal Fx,dReal Fy,dReal Fw){
         float R=0.0775; //robot radius
         float r=0.0275; //wheel radius
-        float cos60=-0.5;
-        float sin60=-0.866;
+        float cos60=0.5;
+        float sin60=0.866;
         float PWM_CUTOFF=3.0;
         float T_CUTOFF=(PWM_CUTOFF+0.1F)*4*R/r;
         std::vector<double> output;
