@@ -560,7 +560,7 @@ std::vector<double> Robot::pwm2Motor(std::vector<double> power){
     std::cout<<std::endl;
     std::vector<double> desiredVel;
     for (int j = 0; j < 4; ++ j) {
-        desiredVel.push_back(374.0/60.0*power[j]*12/100); //power is % of total power given. 374 rpm/V *total Voltage (power*12/100). So current units is in rotation/second
+        desiredVel.push_back(374.0/60.0*power[j]*12/100*(1/0.288)); //power is % of total power given. 374 rpm/V *total Voltage (power*12/100). So current units is in rotation/second
     }
     return desiredVel;
 }
