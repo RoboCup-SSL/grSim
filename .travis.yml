@@ -31,6 +31,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap cartr/qt4                        ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap-pin cartr/qt4                    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt@4                         ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python@2                     ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link --overwrite python@2            ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install protobuf@2.6                 ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ode --with-double-precision  ; fi
 
