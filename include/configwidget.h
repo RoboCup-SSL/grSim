@@ -50,7 +50,13 @@ using namespace VarTypes;
 #define DEF_VALUE(type,Type,name)  \
             std::shared_ptr<VarTypes::Var##Type> v_##name; \
             inline type name() {return v_##name->get##Type();}
+            
+#define DEF_FIELD_VALUE(type,Type,name)  \
+            std::shared_ptr<VarTypes::Var##Type> v_DivA_##name; \
+            std::shared_ptr<VarTypes::Var##Type> v_DivB_##name; \
+            inline type name() {return (Division() == "Division A" ? v_DivA_##name: v_DivB_##name)->get##Type(); }
 
+            
 #define DEF_ENUM(type,name)  \
             std::shared_ptr<VarTypes::VarStringEnum> v_##name; \
             type name() {if(v_##name!=nullptr) return v_##name->getString();return * (new type);}
