@@ -21,6 +21,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 int main(int argc, char *argv[])
 {
+    std::locale::global( std::locale( "" ) );
+    
     char** argend = argc + argv;
 
     QCoreApplication::setOrganizationName("Parsian");
