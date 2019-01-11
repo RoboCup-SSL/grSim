@@ -36,6 +36,9 @@ class Robot
     int m_rob_id;
     bool firsttime;
     bool last_state;
+    dReal prevYaw;
+    int TH_switch;
+    double prevAngleErr;
 public:    
     ConfigWidget* cfg;
     dSpaceID space;

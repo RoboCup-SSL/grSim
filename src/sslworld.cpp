@@ -519,7 +519,7 @@ void SSLWorld::recvActions()
                         dReal vy = 0;if (packet.commands().robot_commands(i).has_velnormal())  vy = packet.commands().robot_commands(i).velnormal();
                         dReal vw = 0;if (packet.commands().robot_commands(i).has_velangular()) vw = packet.commands().robot_commands(i).velangular();
                         if(packet.commands().robot_commands(i).has_use_angle()) {
-                            if(packet.commands().robot_commands(i).use_angle()==true) {
+                            if(packet.commands().robot_commands(i).use_angle()) {
                                 robots[id]->setAngle(vx, vy, vw);
                             }
                             else {

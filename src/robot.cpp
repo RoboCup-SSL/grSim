@@ -217,7 +217,9 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal 
     m_dir = dir;
     cfg = _cfg;
     m_rob_id = rob_id;
-
+    prevYaw = 0;
+    TH_switch = 0;
+    prevAngleErr = 0;
     space = w->space;
 
     chassis = new PCylinder(x,y,z,cfg->robotSettings.RobotRadius,cfg->robotSettings.RobotHeight,cfg->robotSettings.BodyMass*0.99f,r,g,b,rob_id,true);
@@ -470,7 +472,6 @@ void Robot::setAngle(dReal vx, dReal vy, dReal vw) {
     // Rotate to local frame of reference
     vectorRotate(xSensW,&vx,&vy);
     double assumed_delay=cfg->sendDelay()/1000; // seconds
-    static double prevYaw=0;
     double yawVel=constrainAngle(xSensW-prevYaw)*60; //TODO: Fix time difference?
     prevYaw=xSensW;
     double comp_dir=yawVel*assumed_delay;
@@ -575,12 +576,12 @@ double Robot::angleControl(double angleRef, double yaw) {
     double r=0.0275; //wheel radius
     double T_DIFF=1/60.0; // integration for time. No clue how this is actually supposed to work on the robot.
     double angleErr= constrainAngle(angleRef-yaw);
-    static double prevErr=0;
-    double dErr=constrainAngle(angleErr-prevErr)/T_DIFF;
-    prevErr=angleErr;
+
+    double dErr=constrainAngle(angleErr-prevAngleErr)/T_DIFF;
+    prevAngleErr=angleErr;
 
     double output;
-    static int TH_switch;
+
     TH_switch=-1;
 
     output=angleErr*300.0+dErr*13;
