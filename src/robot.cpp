@@ -176,7 +176,7 @@ void Robot::DefaultKicker::toggleRoller()
 }
 
 void Robot::DefaultKicker::kick(dReal kickspeedx, dReal kickspeedz)
-{    
+{
     dReal dx,dy,dz;
     dReal vx,vy,vz;
     rob->chassis->getBodyDirection(dx,dy,dz);dz = 0;
@@ -214,7 +214,7 @@ void Robot::DefaultKicker::robotPoseChanged() {
     box->setBodyRotation(0,0,1,rob->getDir());
 }
 
-void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir)
+void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int wheeltexid,int dir)
 {      
     m_r = r;
     m_g = g;
@@ -223,11 +223,10 @@ void Robot::initialize(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dRea
     m_ball = ball;
     m_dir = dir;
     cfg = _cfg;
-    m_rob_id = rob_id;
 
     space = w->space;
 
-    chassis = new PCylinder(x,y,z,cfg->robotSettings.RobotRadius,cfg->robotSettings.RobotHeight,cfg->robotSettings.BodyMass*0.99f,r,g,b,rob_id,true);
+    chassis = new PCylinder(x,y,z,cfg->robotSettings.RobotRadius,cfg->robotSettings.RobotHeight,cfg->robotSettings.BodyMass*0.99f,r,g,b,m_rob_id,true);
     chassis->space = space;
     w->addObject(chassis);
 

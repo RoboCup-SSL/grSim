@@ -19,17 +19,39 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "mainwindow.h"
 #include "winmain.h"
 
+
+
 int main(int argc, char *argv[])
 {
     std::locale::global( std::locale( "" ) );
     
     char** argend = argc + argv;
 
+    if (std::find(argv, argend, std::string("--help")) != argend) {
+        std::cout << "grSim [-H/--headless] [-b blue_team]  [-y yellow_team]" << std::endl;
+        return 0;
+    }
+
     QCoreApplication::setOrganizationName("Parsian");
     QCoreApplication::setOrganizationDomain("parsian-robotics.com");
     QCoreApplication::setApplicationName("grSim");
     QApplication a(argc, argv);
-    MainWindow w;
+
+    std::string blue_teamname = DEFAULT_TEAM, yellow_teamname = DEFAULT_TEAM;
+
+    auto iter_blue = std::find(argv, argend, std::string("-b"));
+    auto iter_yellow = std::find(argv, argend, std::string("-y"));
+
+    if (iter_blue != argend && iter_blue + 1 != argend) {
+        blue_teamname = std::string(iter_blue[1]);
+    }
+    if (iter_yellow != argend && iter_yellow + 1 != argend) {
+        yellow_teamname = std::string(iter_yellow[1]);
+    }
+    std::cout << "Using " << blue_teamname << " configuration for blue team" << std::endl;
+    std::cout << "Using " << yellow_teamname << " configuration for yellow team" << std::endl;
+
+    MainWindow w(0, yellow_teamname, blue_teamname);
 
     if (std::find(argv, argend, std::string("--headless")) != argend
         || std::find(argv, argend, std::string("-H")) != argend) {

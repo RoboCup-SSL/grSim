@@ -38,6 +38,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "grsim/net/robocup_ssl_server.h"
 
 #include "grsim/robot.h"
+#include "grsim/team.h"
 #include "grsim/configwidget.h"
 
 #include "grsim/config.h"
@@ -51,7 +52,6 @@ class SendingPacket {
     SSL_WrapperPacket* packet;
     int t;
 };
-typedef Robot* (create_robot_t)();
 
 class SSLWorld : public QObject
 {
@@ -78,6 +78,7 @@ public:
     void sendVisionBuffer();
     bool visibleInCam(int id, double x, double y);
     int  robotIndex(int robot,int team);
+    PtrTeam callCreateTeam(std::string teamname, bool is_yellow);
 
     ConfigWidget* cfg;
     CGraphics* g;
@@ -95,9 +96,11 @@ public:
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
     bool updatedCursor;
     //boost::shared_ptr<Robot> robots[MAX_ROBOT_COUNT*2];
-    Robot* robots[MAX_ROBOT_COUNT*2];
+    //PtrRobot robots[MAX_ROBOT_COUNT*2];
+    PtrRobots robots;
+    PtrTeam team_yellow;
+    PtrTeam team_blue;
 
-    std::map<std::string, boost::function<create_robot_t> > blue_robot_creator, yellow_robot_creator;
     QTime *timer;
     int sendGeomCount;
 public slots:
@@ -114,7 +117,7 @@ class RobotsFomation {
         void setAll(dReal *xx,dReal *yy);
         void loadFromFile(const QString& filename);
         //void resetRobots(boost::shared_ptr<Robot>* r,int team);
-        void resetRobots(Robot** r,int team);
+        void resetRobots(PtrRobots r,int team);
     private:
         ConfigWidget* cfg;
 };
