@@ -34,7 +34,7 @@ if(UNIX)
 endif()
 
 # set explicitly the c++ standard to use
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++03")
+set (CMAKE_CXX_STANDARD 11)
 
 # add src dir to included directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -141,6 +141,7 @@ set(SOURCES
     src/net/robocup_ssl_client.cpp
     src/sslworld.cpp
     src/robot.cpp
+    src/team.cpp
     src/configwidget.cpp
     src/statuswidget.cpp
     src/logger.cpp
@@ -164,6 +165,7 @@ set(HEADERS
     include/grsim/net/robocup_ssl_client.h
     include/grsim/sslworld.h
     include/grsim/robot.h
+    include/grsim/team.h
     include/grsim/configwidget.h
     include/grsim/statuswidget.h
     include/grsim/logger.h

@@ -27,8 +27,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QMainWindow>
 #include <QSettings>
 
+#include <boost/optional.hpp>
 #include <stdint.h>
 #include <stdio.h>
+#include <memory>
 
 #include <vartypes/VarTreeModel.h>
 #include <vartypes/VarItem.h>
@@ -124,13 +126,20 @@ protected:
   VarTreeModel * tmodel;    
 public:
   VarListPtr geo_vars;
-  ConfigWidget();
+  ConfigWidget(std::string yellowteam, std::string blueteam);
   virtual ~ConfigWidget();
 
   QSettings* robot_settings;
   RobotSettings robotSettings;
   RobotSettings blueSettings;
   RobotSettings yellowSettings;
+
+  struct team_config_t {
+      QString path_ini;
+      boost::optional<std::string> path_dll;
+  };
+
+  std::map<std::string, team_config_t> teamConfigPath;
 
   /*    Geometry/Game Vartypes   */
   DEF_ENUM(std::string, Division)
@@ -185,7 +194,9 @@ public:
   DEF_VALUE(int, Int, plotter_port)
   DEF_VALUE(bool, Bool, plotter)  
   void loadRobotSettings(QString team);
-public slots:  
+  void loadTeamConfigPath();
+  boost::optional<std::string> findTeamPluginPath(const std::string& teamname);
+public slots:
   void loadRobotsSettings();
 };
 

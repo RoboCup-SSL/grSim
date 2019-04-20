@@ -133,46 +133,8 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s, int /*robots_count*/)
     return true;
 }
 
-std::map<std::string, boost::function<create_robot_t> > loadCustomRobotCreators(const std::string& teamname, const RobotSettings& robotsettings) {
-    std::map<std::string, boost::function<create_robot_t> > custom_robot_creator;
-    std::vector<boost::filesystem::path> target_paths;
-    boost::filesystem::path default_plugin_path((QDir::homePath()+"/.grsim/plugins/").toStdString());
-    if (!boost::filesystem::exists(default_plugin_path)) {
-        std::cerr << default_plugin_path << " does not exist" << std::endl;
-    } else {
-        target_paths.push_back(default_plugin_path);
-    }
-    const char* env_grsim_plugin_path = getenv("GRSIM_PLUGIN_PATH");
-    if (env_grsim_plugin_path != NULL) {
-        boost::filesystem::path grsim_plugin_path = std::string(env_grsim_plugin_path);
-        if (!boost::filesystem::exists(grsim_plugin_path)) {
-            std::cerr << grsim_plugin_path << " does not exist" << std::endl;
-        } else {
-            target_paths.push_back(grsim_plugin_path);
-        }
-    }
-    for (int i = 0; i < target_paths.size(); i++) {
-        const boost::filesystem::path& target_path = target_paths[i];
-        boost::filesystem::directory_iterator end_itr;
-        for( boost::filesystem::directory_iterator i( target_path ); i != end_itr; ++i ) {
-            boost::dll::shared_library lib(i->path());//, boost::dll::load_mode::append_decorations);
-            for (std::map<std::string, int>::const_iterator kv = robotsettings.CustomRobots.begin();
-                    kv != robotsettings.CustomRobots.end(); kv++) {
-                const std::string& custometype = kv->first;
-                std::string funcname = std::string("create_robot__") + teamname + std::string("__") + custometype;
-                if (!lib.has(funcname)) {
-                    std::cerr << "No such function '" << funcname << "' in library: " << i->path() << std::endl;
-                    continue;
-                }
-                std::cout << "Register " << funcname << " from library: " << i->path() << std::endl;
-                custom_robot_creator[custometype] = boost::dll::import_alias<create_robot_t>(i->path(), funcname);
-            }
-        }
-    }
-    return custom_robot_creator; //std::move
-}
 
-SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2)
+SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFomation *form1, RobotsFomation *form2)
     : QObject(parent)
 {    
     isGLEnabled = true;
@@ -263,55 +225,72 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         p->addObject(walls[i]);
     const int wheeltexid = 4 * cfg->Robots_Count() + 12 + 1 ; //37 for 6 robots
 
+    unsigned robotCount = (unsigned)cfg->Robots_Count();
+    // Create robots for each team
+    team_yellow = callCreateTeam(cfg->YellowTeam(), true);
+    team_blue = callCreateTeam(cfg->BlueTeam(), false);
+    team_blue->create_robots(robots, robotCount);
+    team_yellow->create_robots(robots, robotCount);
 
-    cfg->robotSettings = cfg->blueSettings;
-
-    blue_robot_creator = loadCustomRobotCreators(cfg->v_BlueTeam->getString(), cfg->blueSettings);
-    int k = 0;
-    for (std::map<std::string, int>::iterator kv = cfg->blueSettings.CustomRobots.begin();
-            kv != cfg->blueSettings.CustomRobots.end(); kv++) {
-        float a1 = -form1->x[k];
-        float a2 = form1->y[k];
-        float a3 = ROBOT_START_Z(cfg);
-        //robots[k] = new Robot;
-        for (int i = 0; i < kv->second; i++) {
-            if (blue_robot_creator.find(kv->first) != blue_robot_creator.end()) {
-              robots[k] = blue_robot_creator[kv->first]();
-            } else {
-              robots[k] = new Robot();
-            }
-            robots[k]->initialize(p, ball, cfg, -form1->x[k], form1->y[k], ROBOT_START_Z(cfg), ROBOT_GRAY, ROBOT_GRAY, ROBOT_GRAY, k + 1, wheeltexid, 1);
-            if (k == cfg->Robots_Count() - 1) {
-                break;
-            }
-            k++;
-        }
-    }
-
-    for (;k<cfg->Robots_Count();k++) {
-        float a1 = -form1->x[k];
-        float a2 = form1->y[k];
-        float a3 = ROBOT_START_Z(cfg);
-        robots[k] = new Robot();
+    for (unsigned k = 0; k < robots.size(); k++) {
+        bool is_yellow = k < robotCount;
+        dReal x = is_yellow ? -form1->x[k] : form2->x[k - robotCount];
+        dReal y = is_yellow ? form1->y[k] : form2->y[k - robotCount];
+        dReal z = ROBOT_START_Z(cfg);
         robots[k]->initialize(p,
-                ball,
-                cfg,
-                -form1->x[k],
-                form1->y[k],
-                ROBOT_START_Z(cfg),
-                ROBOT_GRAY,
-                ROBOT_GRAY,
-                ROBOT_GRAY,
-                k + 1,
-                wheeltexid,
-                1);
+                              ball,
+                              cfg,
+                              x, y, z,
+                              ROBOT_GRAY, ROBOT_GRAY, ROBOT_GRAY,
+                              wheeltexid,
+                              is_yellow? 1 : -1);
     }
 
+//    cfg->robotSettings = cfg->blueSettings;
+
+//    int k = 0;
+//    blue_robot_creator = loadCustomRobotCreators(cfg->v_BlueTeam->getString(), cfg->blueSettings);
+//    for (std::map<std::string, int>::iterator kv = cfg->blueSettings.CustomRobots.begin();
+//            kv != cfg->blueSettings.CustomRobots.end(); kv++) {
+//        float a1 = -form1->x[k];
+//        float a2 = form1->y[k];
+//        float a3 = ROBOT_START_Z(cfg);
+//        //robots[k] = new Robot;
+//        for (int i = 0; i < kv->second; i++) {
+//            if (blue_robot_creator.find(kv->first) != blue_robot_creator.end()) {
+//              robots[k] = blue_robot_creator[kv->first]();
+//            } else {
+//              robots[k] = new Robot();
+//            }
+//            robots[k]->initialize(p, ball, cfg, -form1->x[k], form1->y[k], ROBOT_START_Z(cfg), ROBOT_GRAY, ROBOT_GRAY, ROBOT_GRAY, k + 1, wheeltexid, 1);
+//            if (k == cfg->Robots_Count() - 1) {
+//                break;
+//            }
+//            k++;
+//        }
+//    }
+
+//    for (;k<cfg->Robots_Count();k++) {
+//        float a1 = -form1->x[k];
+//        float a2 = form1->y[k];
+//        float a3 = ROBOT_START_Z(cfg);
+//        robots[k] = new Robot();
+//        robots[k]->initialize(p,
+//                ball,
+//                cfg,
+//                -form1->x[k],
+//                form1->y[k],
+//                ROBOT_START_Z(cfg),
+//                ROBOT_GRAY,
+//                ROBOT_GRAY,
+//                ROBOT_GRAY,
+//                k + 1,
+//                wheeltexid,
+//                1);
+//    }
 
 
-
-
-    cfg->robotSettings = cfg->yellowSettings;
+    /*cfg->robotSettings = cfg->yellowSettings;
     yellow_robot_creator = loadCustomRobotCreators(cfg->v_YellowTeam->getString(), cfg->yellowSettings);
     k = 0;
     for (std::map<std::string, int>::iterator kv = cfg->yellowSettings.CustomRobots.begin();
@@ -345,7 +324,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
                 k+cfg->Robots_Count()+1,
                 wheeltexid,
                 1);
-    }
+    }*/
 
 
     p->initAllObjects();
@@ -418,11 +397,28 @@ int SSLWorld::robotIndex(int robot,int team)
     return robot + team*cfg->Robots_Count();
 }
 
+PtrTeam SSLWorld::callCreateTeam(std::string teamname, bool is_yellow) {
+    ConfigWidget::team_config_t teamConfig = cfg->teamConfigPath[teamname];
+    // If that team has a custom DLL, we load its 'create_team' function
+    if (teamConfig.path_dll) {
+        boost::filesystem::path path = *teamConfig.path_dll;
+        boost::dll::shared_library lib(path);
+        std::string funcname("create_team");
+        if (!lib.has(funcname)) {
+            std::cerr << "No such function '" << funcname << "' in library: " << path << std::endl;
+        } else {
+            return boost::dll::import_alias<create_team_t>(path, funcname)(is_yellow);
+        }
+    }
+    return create_default_team(is_yellow);
+}
+
 SSLWorld::~SSLWorld()
 {
     delete g;
     delete p;
 }
+
 
 QImage* createBlob(char yb,int i,QImage** res)
 {
@@ -606,112 +602,110 @@ void SSLWorld::recvActions()
     while (commandSocket->hasPendingDatagrams())
     {
         int size = commandSocket->readDatagram(in_buffer, 65536, &sender, &port);
-        if (size > 0)
+        if (size <= 0)
+            continue;
+        packet.ParseFromArray(in_buffer, size);
+        if (packet.has_commands())
         {
-            packet.ParseFromArray(in_buffer, size);
-            int team=0;
-            if (packet.has_commands())
+            // TODO: Change status to a protobuf with a clear definition
+            QUdpSocket* statusSocket;
+            int port = 0;
+            std::vector<Team::Status> statuses;
+            if (packet.commands().isteamyellow())
             {
-                if (packet.commands().has_isteamyellow())
-                {
-                    if (packet.commands().isteamyellow()) team=1;
-                }
-                for (int i=0;i<packet.commands().robot_commands_size();i++)
-                {
-                    if (!packet.commands().robot_commands(i).has_id()) continue;
-                    int k = packet.commands().robot_commands(i).id();
-                    int id = robotIndex(k, team);
-                    if ((id < 0) || (id >= cfg->Robots_Count()*2)) continue;
-                    bool wheels = false;
-                    if (packet.commands().robot_commands(i).has_wheelsspeed())
-                    {
-                        if (packet.commands().robot_commands(i).wheelsspeed()==true)
-                        {
-                            if (packet.commands().robot_commands(i).has_wheel1()) robots[id]->setSpeed(0, packet.commands().robot_commands(i).wheel1());
-                            if (packet.commands().robot_commands(i).has_wheel2()) robots[id]->setSpeed(1, packet.commands().robot_commands(i).wheel2());
-                            if (packet.commands().robot_commands(i).has_wheel3()) robots[id]->setSpeed(2, packet.commands().robot_commands(i).wheel3());
-                            if (packet.commands().robot_commands(i).has_wheel4()) robots[id]->setSpeed(3, packet.commands().robot_commands(i).wheel4());
-                            wheels = true;
-                        }
-                    }
-                    if (!wheels)
-                    {
-                        dReal vx = 0;if (packet.commands().robot_commands(i).has_veltangent()) vx = packet.commands().robot_commands(i).veltangent();
-                        dReal vy = 0;if (packet.commands().robot_commands(i).has_velnormal())  vy = packet.commands().robot_commands(i).velnormal();
-                        dReal vw = 0;if (packet.commands().robot_commands(i).has_velangular()) vw = packet.commands().robot_commands(i).velangular();
-                        robots[id]->setSpeed(vx, vy, vw);
-                    }
-                    dReal kickx = 0 , kickz = 0;
-                    bool kick = false;
-                    if (packet.commands().robot_commands(i).has_kickspeedx())
-                    {
-                        kick = true;
-                        kickx = packet.commands().robot_commands(i).kickspeedx();
-                    }
-                    if (packet.commands().robot_commands(i).has_kickspeedz())
-                    {
-                        kick = true;
-                        kickz = packet.commands().robot_commands(i).kickspeedz();
-                    }
-                    if (kick && ((kickx>0.0001) || (kickz>0.0001)))
-                        robots[id]->kicker->kick(kickx,kickz);
-                    int rolling = 0;
-                    if (packet.commands().robot_commands(i).has_spinner())
-                    {
-                        if (packet.commands().robot_commands(i).spinner()) rolling = 1;
-                    }
-                    robots[id]->kicker->setRoller(rolling);
-
-                    char status = 0;
-                    status = k;
-                    if (robots[id]->kicker->isTouchingBall()) status = status | 8;
-                    if (robots[id]->on) status = status | 240;
-                    if (team == 0)
-                        blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
-                    else
-                        yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
-
-                }
+                statuses = team_yellow->handle_cmds(in_buffer, size);
+                statusSocket = yellowStatusSocket;
+                port = cfg->YellowStatusSendPort();
+            } else {
+                statuses = team_blue->handle_cmds(in_buffer, size);
+                statusSocket = blueStatusSocket;
+                port = cfg->BlueStatusSendPort();
             }
-            if (packet.has_replacement())
+            for (auto& status: statuses) {
+                statusSocket->writeDatagram(&status, 1, sender, port);
+            }
+        }
+        if (packet.has_replacement())
+        {
+            const grSim_Replacement& cmd = packet.replacement();
+            for (int i = 0;i < cmd.robots_size(); i++)
             {
-                for (int i=0;i<packet.replacement().robots_size();i++)
-                {
-                    int team = 0;
-                    if (packet.replacement().robots(i).has_yellowteam())
-                    {
-                        if (packet.replacement().robots(i).yellowteam())
-                            team = 1;
-                    }
-                    if (!packet.replacement().robots(i).has_id()) continue;
-                    int k = packet.replacement().robots(i).id();
-                    dReal x = 0, y = 0, dir = 0;
-                    bool turnon = true;
-                    if (packet.replacement().robots(i).has_x()) x = packet.replacement().robots(i).x();
-                    if (packet.replacement().robots(i).has_y()) y = packet.replacement().robots(i).y();
-                    if (packet.replacement().robots(i).has_dir()) dir = packet.replacement().robots(i).dir();
-                    if (packet.replacement().robots(i).has_turnon()) turnon = packet.replacement().robots(i).turnon();
-                    int id = robotIndex(k, team);
-                    if ((id < 0) || (id >= cfg->Robots_Count()*2)) continue;
-                    robots[id]->setXY(x,y);
-                    robots[id]->resetRobot();
-                    robots[id]->setDir(dir);
-                    robots[id]->on = turnon;
-                }
-                if (packet.replacement().has_ball())
-                {
-                    dReal x = 0, y = 0, vx = 0, vy = 0;
-                    if (packet.replacement().ball().has_x())  x  = packet.replacement().ball().x();
-                    if (packet.replacement().ball().has_y())  y  = packet.replacement().ball().y();
-                    if (packet.replacement().ball().has_vx()) vx = packet.replacement().ball().vx();
-                    if (packet.replacement().ball().has_vy()) vy = packet.replacement().ball().vy();
-                    ball->setBodyPosition(x,y,cfg->BallRadius()*1.2);
-                    dBodySetLinearVel(ball->body,vx,vy,0);
-                    dBodySetAngularVel(ball->body,0,0,0);
-                }
+                int team = cmd.robots(i).yellowteam() ? 1 : 0;
+                dReal x = 0, y = 0, dir = 0;
+                bool turnon = true;
+                if (cmd.robots(i).has_x()) x = cmd.robots(i).x();
+                if (cmd.robots(i).has_y()) y = cmd.robots(i).y();
+                if (cmd.robots(i).has_dir()) dir = cmd.robots(i).dir();
+                if (cmd.robots(i).has_turnon()) turnon = cmd.robots(i).turnon();
+
+                if (!cmd.robots(i).has_id())
+                    continue;
+                unsigned k = cmd.robots(i).id();
+                int id = robotIndex(k, team);
+                if (id == -1 || id > robots.size())
+                    continue;
+                PtrRobot robot = robots[id];
+                if ((id < 0) || (id >= cfg->Robots_Count()*2)) continue;
+                robot->setXY(x, y);
+                robot->resetRobot();
+                robot->setDir(dir);
+                robot->on = turnon;
+            }
+            if (cmd.has_ball())
+            {
+                dReal x = 0, y = 0, vx = 0, vy = 0;
+                if (cmd.ball().has_x())  x  = cmd.ball().x();
+                if (cmd.ball().has_y())  y  = cmd.ball().y();
+                if (cmd.ball().has_vx()) vx = cmd.ball().vx();
+                if (cmd.ball().has_vy()) vy = cmd.ball().vy();
+                ball->setBodyPosition(x,y,cfg->BallRadius()*1.2);
+                dBodySetLinearVel(ball->body,vx,vy,0);
+                dBodySetAngularVel(ball->body,0,0,0);
             }
         }
     }
+//                    if (packet.commands().isteamyellow()) team=1;
+//                }
+//                for (int i=0;i<packet.commands().robot_commands_size();i++)
+//                {
+//                    const grSim_Robot_Command& cmd = packet.commands().robot_commands(i);
+//                    if (!cmd.has_id())
+//                        continue;
+//                    int k = cmd.id();
+//                    int id = robotIndex(k, team);
+//                    Robot* robot = robots[id];
+//                    if ((id < 0) || (id >= cfg->Robots_Count()*2)) continue;
+//                    bool wheels = false;
+//                    if (cmd.has_wheelsspeed())
+//                    {
+//                        if (cmd.wheelsspeed()==true)
+//                        {
+//                            if (cmd.has_wheel1()) robot->setSpeed(0, cmd.wheel1());
+//                            if (cmd.has_wheel2()) robot->setSpeed(1, cmd.wheel2());
+//                            if (cmd.has_wheel3()) robot->setSpeed(2, cmd.wheel3());
+//                            if (cmd.has_wheel4()) robot->setSpeed(3, cmd.wheel4());
+//                            wheels = true;
+//                        }
+//                    }
+//                    if (!wheels)
+//                    {
+//                        dReal vx = 0;if (cmd.has_veltangent()) vx = cmd.veltangent();
+//                        dReal vy = 0;if (cmd.has_velnormal())  vy = cmd.velnormal();
+//                        dReal vw = 0;if (cmd.has_velangular()) vw = cmd.velangular();
+//                        robot->setSpeed(vx, vy, vw);
+//                    }
+
+//                    char status = 0;
+//                    status = k;
+//                    if (robot->kicker->isTouchingBall()) status = status | 8;
+//                    if (robot->on) status = status | 240;
+//                    if (team == 0)
+//                        blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
+//                    else
+//                        yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
+
+//                }
+//            }
 }
 
 dReal normalizeAngle(dReal a)
@@ -1024,7 +1018,7 @@ void RobotsFomation::loadFromFile(const QString& filename)
 }
 
 //void RobotsFomation::resetRobots(boost::shared_ptr<Robot>* r,int team)
-void RobotsFomation::resetRobots(Robot** r,int team)
+void RobotsFomation::resetRobots(PtrRobots r,int team)
 {
     dReal dir=-1;
     if (team==1) dir = 1;

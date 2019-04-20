@@ -19,11 +19,15 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef ROBOT_H
 #define ROBOT_H
 
+#include <memory>
+
 #include "grsim/physics/pworld.h"
 #include "grsim/physics/pcylinder.h"
 #include "grsim/physics/pbox.h"
 #include "grsim/physics/pball.h"
 #include "grsim/configwidget.h"
+
+
 
 class Robot
 {
@@ -35,7 +39,7 @@ protected:
     int m_rob_id;
     bool firsttime;
     bool last_state;
-public:    
+public:
     ConfigWidget* cfg;
     dSpaceID space;
     PCylinder* chassis;
@@ -125,13 +129,12 @@ public:
     class DefaultDrive : public Drive {
       public:
         DefaultDrive(Robot* robot, int wheeltexid) : Drive(robot) {
-            wheels_[0] = new Wheel(robot,0,robot->cfg->robotSettings.Wheel1Angle,robot->cfg->robotSettings.Wheel1Angle,wheeltexid);
-            wheels_[1] = new Wheel(robot,1,robot->cfg->robotSettings.Wheel2Angle,robot->cfg->robotSettings.Wheel2Angle,wheeltexid);
-            wheels_[2] = new Wheel(robot,2,robot->cfg->robotSettings.Wheel3Angle,robot->cfg->robotSettings.Wheel3Angle,wheeltexid);
-            wheels_[3] = new Wheel(robot,3,robot->cfg->robotSettings.Wheel4Angle,robot->cfg->robotSettings.Wheel4Angle,wheeltexid);
+            wheels_[0] = std::unique_ptr<Wheel>(new Wheel(robot,0,robot->cfg->robotSettings.Wheel1Angle,robot->cfg->robotSettings.Wheel1Angle,wheeltexid));
+            wheels_[1] = std::unique_ptr<Wheel>(new Wheel(robot,1,robot->cfg->robotSettings.Wheel2Angle,robot->cfg->robotSettings.Wheel2Angle,wheeltexid));
+            wheels_[2] = std::unique_ptr<Wheel>(new Wheel(robot,2,robot->cfg->robotSettings.Wheel3Angle,robot->cfg->robotSettings.Wheel3Angle,wheeltexid));
+            wheels_[3] = std::unique_ptr<Wheel>(new Wheel(robot,3,robot->cfg->robotSettings.Wheel4Angle,robot->cfg->robotSettings.Wheel4Angle,wheeltexid));
         }
         virtual ~DefaultDrive() {
-            delete[] wheels_;
         }
         virtual void robotPoseChanged() {
             // position
@@ -211,15 +214,15 @@ public:
             return objs;
         }
       protected:
-        Wheel *wheels_[4];
+        std::unique_ptr<Wheel> wheels_[4];
     };
     Drive* drive;
 
-    Robot() : firsttime(true), on(true) {
+    Robot(unsigned int rob_id) : firsttime(true), on(true), m_rob_id(rob_id) {
     }
     //Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir);
     virtual ~Robot();
-    virtual void initialize(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir);
+    virtual void initialize(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int wheeltexid,int dir);
     virtual void step();
     virtual void drawLabel();
     virtual void setSpeed(int i,dReal s); //i = 0,1,2,3
@@ -237,6 +240,8 @@ public:
     PWorld* getWorld();
 };
 
+typedef std::shared_ptr<Robot> PtrRobot;
+typedef std::vector<PtrRobot> PtrRobots;
 
 #define ROBOT_START_Z(cfg)  (cfg->robotSettings.RobotHeight*0.5 + cfg->robotSettings.WheelRadius*1.1 + cfg->robotSettings.BottomHeight)
 

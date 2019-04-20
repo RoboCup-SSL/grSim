@@ -56,7 +56,7 @@ void MainWindow::customFPS(int fps)
     logStatus(QString("new FPS set by user: %1").arg(fps),"red");
 }
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent, std::string yellowteam, std::string blueteam)
     : QMainWindow(parent)
 {
     QDir dir = qApp->applicationDirPath();
@@ -77,10 +77,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     /* Widgets */
 
-    configwidget = new ConfigWidget();
-    dockconfig = new ConfigDockWidget(this,configwidget);
+    configwidget = new ConfigWidget(yellowteam, blueteam);
+    dockconfig = new ConfigDockWidget(this, configwidget);
 
-    glwidget = new GLWidget(this,configwidget);
+    glwidget = new GLWidget(this, configwidget);
     glwidget->setWindowTitle(tr("Simulator"));
     glwidget->resize(512,512);    
 
