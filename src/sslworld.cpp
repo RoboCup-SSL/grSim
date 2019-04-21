@@ -227,8 +227,8 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFomation *form1,
 
     unsigned robotCount = (unsigned)cfg->Robots_Count();
     // Create robots for each team
-    team_yellow = callCreateTeam(cfg->YellowTeam(), true);
     team_blue = callCreateTeam(cfg->BlueTeam(), false);
+    team_yellow = callCreateTeam(cfg->YellowTeam(), true);
     team_blue->create_robots(robots, robotCount);
     team_yellow->create_robots(robots, robotCount);
 
@@ -245,87 +245,6 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFomation *form1,
                               wheeltexid,
                               is_yellow? 1 : -1);
     }
-
-//    cfg->robotSettings = cfg->blueSettings;
-
-//    int k = 0;
-//    blue_robot_creator = loadCustomRobotCreators(cfg->v_BlueTeam->getString(), cfg->blueSettings);
-//    for (std::map<std::string, int>::iterator kv = cfg->blueSettings.CustomRobots.begin();
-//            kv != cfg->blueSettings.CustomRobots.end(); kv++) {
-//        float a1 = -form1->x[k];
-//        float a2 = form1->y[k];
-//        float a3 = ROBOT_START_Z(cfg);
-//        //robots[k] = new Robot;
-//        for (int i = 0; i < kv->second; i++) {
-//            if (blue_robot_creator.find(kv->first) != blue_robot_creator.end()) {
-//              robots[k] = blue_robot_creator[kv->first]();
-//            } else {
-//              robots[k] = new Robot();
-//            }
-//            robots[k]->initialize(p, ball, cfg, -form1->x[k], form1->y[k], ROBOT_START_Z(cfg), ROBOT_GRAY, ROBOT_GRAY, ROBOT_GRAY, k + 1, wheeltexid, 1);
-//            if (k == cfg->Robots_Count() - 1) {
-//                break;
-//            }
-//            k++;
-//        }
-//    }
-
-//    for (;k<cfg->Robots_Count();k++) {
-//        float a1 = -form1->x[k];
-//        float a2 = form1->y[k];
-//        float a3 = ROBOT_START_Z(cfg);
-//        robots[k] = new Robot();
-//        robots[k]->initialize(p,
-//                ball,
-//                cfg,
-//                -form1->x[k],
-//                form1->y[k],
-//                ROBOT_START_Z(cfg),
-//                ROBOT_GRAY,
-//                ROBOT_GRAY,
-//                ROBOT_GRAY,
-//                k + 1,
-//                wheeltexid,
-//                1);
-//    }
-
-
-    /*cfg->robotSettings = cfg->yellowSettings;
-    yellow_robot_creator = loadCustomRobotCreators(cfg->v_YellowTeam->getString(), cfg->yellowSettings);
-    k = 0;
-    for (std::map<std::string, int>::iterator kv = cfg->yellowSettings.CustomRobots.begin();
-            kv != cfg->yellowSettings.CustomRobots.end(); kv++) {
-        //robots[k] = new Robot;
-        for (int i = 0; i < kv->second; i++) {
-            if (yellow_robot_creator.find(kv->first) != yellow_robot_creator.end()) {
-              robots[k+cfg->Robots_Count()] = yellow_robot_creator[kv->first]();
-            } else {
-              robots[k+cfg->Robots_Count()] = new Robot();
-            }
-            robots[k+cfg->Robots_Count()]->initialize(p, ball, cfg, form2->x[k], form2->y[k], ROBOT_START_Z(cfg), ROBOT_GRAY, ROBOT_GRAY, ROBOT_GRAY, k+cfg->Robots_Count()+1, wheeltexid, 1);
-            if (k == cfg->Robots_Count() - 1) {
-                break;
-            }
-            k++;
-        }
-    }
-
-    for (;k<cfg->Robots_Count();k++) {
-        robots[k+cfg->Robots_Count()] = new Robot();
-        robots[k+cfg->Robots_Count()]->initialize(p,
-                ball,
-                cfg,
-                form2->x[k],
-                form2->y[k],
-                ROBOT_START_Z(cfg),
-                ROBOT_GRAY,
-                ROBOT_GRAY,
-                ROBOT_GRAY,
-                k+cfg->Robots_Count()+1,
-                wheeltexid,
-                1);
-    }*/
-
 
     p->initAllObjects();
 
@@ -399,18 +318,29 @@ int SSLWorld::robotIndex(int robot,int team)
 
 PtrTeam SSLWorld::callCreateTeam(std::string teamname, bool is_yellow) {
     ConfigWidget::team_config_t teamConfig = cfg->teamConfigPath[teamname];
-    // If that team has a custom DLL, we load its 'create_team' function
-    if (teamConfig.path_dll) {
-        boost::filesystem::path path = *teamConfig.path_dll;
-        boost::dll::shared_library lib(path);
-        std::string funcname("create_team");
-        if (!lib.has(funcname)) {
-            std::cerr << "No such function '" << funcname << "' in library: " << path << std::endl;
+    if (createTeamCallbackCache.find(teamname) == createTeamCallbackCache.end()) {
+        // If that team has a custom DLL, we load its 'create_team' function
+        if (teamConfig.path_dll) {
+            boost::filesystem::path path = *teamConfig.path_dll;
+            boost::dll::shared_library lib(path);
+            std::string funcname = std::string("create_") + teamname + std::string("_team");
+            if (!lib.has(funcname)) {
+                std::cerr << "No such function '" << funcname << "' in library: " << path << std::endl;
+                exit(-1);
+            } else {
+                std::cout << "Loading function '" << funcname << "' from the custom plugin: " << *teamConfig.path_dll << std::endl;
+                boost::function<create_team_t> f =  boost::dll::import_alias<create_team_t>(path, funcname);
+
+                createTeamCallbackCache.insert(std::make_pair(teamname, f));
+            }
         } else {
-            return boost::dll::import_alias<create_team_t>(path, funcname)(is_yellow);
+            std::cout << teamname << "Using default function" << std::endl;
+            boost::function<create_team_t> f(create_default_team);
+            createTeamCallbackCache.insert(std::make_pair(teamname, f));
         }
+
     }
-    return create_default_team(is_yellow);
+    return std::unique_ptr<Team>(createTeamCallbackCache[teamname](is_yellow));
 }
 
 SSLWorld::~SSLWorld()
@@ -622,10 +552,11 @@ void SSLWorld::recvActions()
                 statusSocket = blueStatusSocket;
                 port = cfg->BlueStatusSendPort();
             }
-            for (auto& status: statuses) {
+            for (Team::Status& status: statuses) {
                 statusSocket->writeDatagram(&status, 1, sender, port);
             }
         }
+
         if (packet.has_replacement())
         {
             const grSim_Replacement& cmd = packet.replacement();
@@ -643,10 +574,9 @@ void SSLWorld::recvActions()
                     continue;
                 unsigned k = cmd.robots(i).id();
                 int id = robotIndex(k, team);
-                if (id == -1 || id > robots.size())
+                if (id == -1 || id >= robots.size())
                     continue;
                 PtrRobot robot = robots[id];
-                if ((id < 0) || (id >= cfg->Robots_Count()*2)) continue;
                 robot->setXY(x, y);
                 robot->resetRobot();
                 robot->setDir(dir);
@@ -665,48 +595,6 @@ void SSLWorld::recvActions()
             }
         }
     }
-//                    if (packet.commands().isteamyellow()) team=1;
-//                }
-//                for (int i=0;i<packet.commands().robot_commands_size();i++)
-//                {
-//                    const grSim_Robot_Command& cmd = packet.commands().robot_commands(i);
-//                    if (!cmd.has_id())
-//                        continue;
-//                    int k = cmd.id();
-//                    int id = robotIndex(k, team);
-//                    Robot* robot = robots[id];
-//                    if ((id < 0) || (id >= cfg->Robots_Count()*2)) continue;
-//                    bool wheels = false;
-//                    if (cmd.has_wheelsspeed())
-//                    {
-//                        if (cmd.wheelsspeed()==true)
-//                        {
-//                            if (cmd.has_wheel1()) robot->setSpeed(0, cmd.wheel1());
-//                            if (cmd.has_wheel2()) robot->setSpeed(1, cmd.wheel2());
-//                            if (cmd.has_wheel3()) robot->setSpeed(2, cmd.wheel3());
-//                            if (cmd.has_wheel4()) robot->setSpeed(3, cmd.wheel4());
-//                            wheels = true;
-//                        }
-//                    }
-//                    if (!wheels)
-//                    {
-//                        dReal vx = 0;if (cmd.has_veltangent()) vx = cmd.veltangent();
-//                        dReal vy = 0;if (cmd.has_velnormal())  vy = cmd.velnormal();
-//                        dReal vw = 0;if (cmd.has_velangular()) vw = cmd.velangular();
-//                        robot->setSpeed(vx, vy, vw);
-//                    }
-
-//                    char status = 0;
-//                    status = k;
-//                    if (robot->kicker->isTouchingBall()) status = status | 8;
-//                    if (robot->on) status = status | 240;
-//                    if (team == 0)
-//                        blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
-//                    else
-//                        yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
-
-//                }
-//            }
 }
 
 dReal normalizeAngle(dReal a)

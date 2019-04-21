@@ -501,7 +501,7 @@ void MainWindow::reconnectBlueStatusSocket()
         delete blueStatusSocket;
     }
     blueStatusSocket = new QUdpSocket(this);
-    if (blueStatusSocket->bind(QHostAddress::Any,configwidget->BlueStatusSendPort()))
+//    if (blueStatusSocket->bind(QHostAddress::Any,configwidget->BlueStatusSendPort()))
         logStatus(QString("Status send port binded for Blue Team on: %1").arg(configwidget->BlueStatusSendPort()),QColor("green"));
 }
 
@@ -512,7 +512,7 @@ void MainWindow::reconnectYellowStatusSocket()
         delete yellowStatusSocket;
     }
     yellowStatusSocket = new QUdpSocket(this);
-    if (yellowStatusSocket->bind(QHostAddress::Any,configwidget->YellowStatusSendPort()))
+//    if (yellowStatusSocket->bind(QHostAddress::Any,configwidget->YellowStatusSendPort()))
         logStatus(QString("Status send port binded for Yellow Team on: %1").arg(configwidget->YellowStatusSendPort()),QColor("green"));
 }
 

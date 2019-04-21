@@ -5,5 +5,7 @@
 
 #define CONFIG_DIR "@CMAKE_INSTALL_PREFIX@/share/@app@/config/"
 
+#define DEFAULT_TEAM "Parsian"
+
 #endif //CONSTANTS_H
 

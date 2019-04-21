@@ -61,6 +61,22 @@ list(APPEND libs ${OPENGL_LIBRARIES})
 #find_package(GLUT REQUIRED)
 #include_directories(${GLUT_INCLUDE_DIR})
 
+# Protobuf
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+list(APPEND libs ${PROTOBUF_LIBRARIES})
+
+protobuf_generate_cpp(PROTO_CPP PROTO_H
+    src/proto/messages_robocup_ssl_detection.proto
+    src/proto/messages_robocup_ssl_geometry.proto
+    src/proto/messages_robocup_ssl_wrapper.proto
+    src/proto/messages_robocup_ssl_refbox_log.proto
+    src/proto/grSim_Replacement.proto
+    src/proto/grSim_Commands.proto
+    src/proto/grSim_Packet.proto
+)
+
+
 # Qt
 if(APPLE AND EXISTS /usr/local/opt/qt)
   # Homebrew installs Qt5 (up to at least 5.9.1) in
