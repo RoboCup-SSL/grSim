@@ -57,6 +57,22 @@ list(APPEND libs ${OPENGL_LIBRARIES})
 #find_package(GLUT REQUIRED)
 #include_directories(${GLUT_INCLUDE_DIR})
 
+# Protobuf
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+list(APPEND libs ${PROTOBUF_LIBRARIES})
+
+protobuf_generate_cpp(PROTO_CPP PROTO_H
+    src/proto/messages_robocup_ssl_detection.proto
+    src/proto/messages_robocup_ssl_geometry.proto
+    src/proto/messages_robocup_ssl_wrapper.proto
+    src/proto/messages_robocup_ssl_refbox_log.proto
+    src/proto/grSim_Replacement.proto
+    src/proto/grSim_Commands.proto
+    src/proto/grSim_Packet.proto
+)
+
+
 # Qt
 set(QT_USE_QTNETWORK true)
 set(QT_USE_QTOPENGL true)
@@ -96,21 +112,6 @@ option(DOUBLE_PRECISION "Use double precision? If not single precision will be u
 find_package(VarTypes REQUIRED)
 include_directories(${VARTYPES_INCLUDE_DIRS})
 list(APPEND libs ${VARTYPES_LIBRARIES})
-
-# Protobuf
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-list(APPEND libs ${PROTOBUF_LIBRARIES})
-
-protobuf_generate_cpp(PROTO_CPP PROTO_H
-    src/proto/messages_robocup_ssl_detection.proto
-    src/proto/messages_robocup_ssl_geometry.proto
-    src/proto/messages_robocup_ssl_wrapper.proto
-    src/proto/messages_robocup_ssl_refbox_log.proto
-    src/proto/grSim_Replacement.proto
-    src/proto/grSim_Commands.proto
-    src/proto/grSim_Packet.proto
-)
 
 qt4_add_resources(RESOURCES
     resources/textures.qrc

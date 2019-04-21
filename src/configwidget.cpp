@@ -101,14 +101,14 @@ ConfigWidget::ConfigWidget(std::string yellowteam, std::string blueteam) : teamC
   ADD_VALUE(div_b_vars, Double, DivB_Goal_Width,1.000,"Goal width")
   ADD_VALUE(div_b_vars, Double, DivB_Goal_Height,0.160,"Goal height")
 
-  ADD_ENUM(StringEnum,YellowTeam,DEFAULT_TEAM,"Yellow Team");
-  END_ENUM(geo_vars,YellowTeam)
-  ADD_ENUM(StringEnum,BlueTeam,DEFAULT_TEAM,"Blue Team");
-  END_ENUM(geo_vars,BlueTeam)
+//  ADD_ENUM(StringEnum,YellowTeam,DEFAULT_TEAM,"Yellow Team");
+//  END_ENUM(geo_vars,YellowTeam)
+//  ADD_ENUM(StringEnum,BlueTeam,DEFAULT_TEAM,"Blue Team");
+//  END_ENUM(geo_vars,BlueTeam)
 
-  // Remove default value of the team, since the enum will be populated later on
-  geo_vars->removeChild(v_BlueTeam);
-  geo_vars->removeChild(v_YellowTeam);
+//  // Remove default value of the team, since the enum will be populated later on
+//  geo_vars->removeChild(v_BlueTeam);
+//  geo_vars->removeChild(v_YellowTeam);
 
     VarListPtr ballg_vars(new VarList("Ball"));
     geo_vars->addChild(ballg_vars);
@@ -155,39 +155,16 @@ ConfigWidget::ConfigWidget(std::string yellowteam, std::string blueteam) : teamC
 
 
 
-    ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
-    ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
+    ADD_ENUM(StringEnum,YellowTeam,DEFAULT_TEAM,"Yellow Team")
+    ADD_ENUM(StringEnum,BlueTeam,DEFAULT_TEAM,"Blue Team")
 
     std::map<std::string, team_config_t>::iterator it;
     for ( it = teamConfigPath.begin(); it != teamConfigPath.end(); it++ ) {
-        ADD_TO_ENUM(BlueTeam, it->first)
-        ADD_TO_ENUM(YellowTeam, it->first)
+        if (it->first != DEFAULT_TEAM) {
+            ADD_TO_ENUM(BlueTeam, it->first)
+            ADD_TO_ENUM(YellowTeam, it->first)
+        }
     }
-
-//    dir.setCurrent(qApp->applicationDirPath()+"/../config/");
-//    dir.setNameFilters(QStringList() << "*.ini");
-//    dir.setSorting(QDir::Size | QDir::Reversed);
-//    QFileInfoList list = dir.entryInfoList();
-//    for (int i = 0; i < list.size(); ++i) {
-//        QFileInfo fileInfo = list.at(i);
-//        QStringList s = fileInfo.fileName().split(".");
-//        QString str;
-//        if (s.count() > 0) str = s[0];
-//        ADD_TO_ENUM(BlueTeam,str.toStdString())
-//        ADD_TO_ENUM(YellowTeam,str.toStdString())
-//    }
-//    dir.setCurrent(qApp->applicationDirPath()+"/../share/grsim/config/");
-//    dir.setNameFilters(QStringList() << "*.ini");
-//    dir.setSorting(QDir::Size | QDir::Reversed);
-//    list = dir.entryInfoList();
-//    for (int i = 0; i < list.size(); ++i) {
-//        QFileInfo fileInfo = list.at(i);
-//        QStringList s = fileInfo.fileName().split(".");
-//        QString str;
-//        if (s.count() > 0) str = s[0];
-//        ADD_TO_ENUM(BlueTeam,str.toStdString())
-//        ADD_TO_ENUM(YellowTeam,str.toStdString())
-//    }
 
     END_ENUM(geo_vars,BlueTeam)
     END_ENUM(geo_vars,YellowTeam)
@@ -268,8 +245,9 @@ void ConfigWidget::loadTeamConfigPath() {
 
             // Check if team's configuration required loading a custom DLL
             QSettings iniSetting(configPath.path_ini, QSettings::IniFormat);
-            if (iniSetting.contains("CustomTeamPlugin")) {
-                const std::string nameDLL = robot_settings->value("CustomTeamPlugin/NameDLL", "").toString().toStdString();
+            if (iniSetting.contains("CustomTeamPlugin/NameDLL")) {
+                std::cout << teamname << " have custom team plugin" << std::endl;
+                const std::string nameDLL = iniSetting.value("CustomTeamPlugin/NameDLL", "").toString().toStdString();
                 if (nameDLL != "")
                     configPath.path_dll = findTeamPluginPath(nameDLL);
             }
@@ -313,44 +291,6 @@ boost::optional<std::string> ConfigWidget::findTeamPluginPath(const std::string&
     std::cerr << "Can not find the Custom Team Plugin for team " << teamname << std::endl;
     return {};
 }
-/*
-void ConfigWidget::loadTeamPlugin(const std::string& teamname, const RobotSettings& robotsettings) {
-    std::vector<boost::filesystem::path> target_paths;
-    boost::filesystem::path default_plugin_path((QDir::homePath()+"/.grsim/plugins/").toStdString());
-    if (!boost::filesystem::exists(default_plugin_path)) {
-        std::cerr << default_plugin_path << " does not exist" << std::endl;
-    } else {
-        target_paths.push_back(default_plugin_path);
-    }
-    const char* env_grsim_plugin_path = getenv("GRSIM_PLUGIN_PATH");
-    if (env_grsim_plugin_path != NULL) {
-        boost::filesystem::path grsim_plugin_path = std::string(env_grsim_plugin_path);
-        if (!boost::filesystem::exists(grsim_plugin_path)) {
-            std::cerr << grsim_plugin_path << " does not exist" << std::endl;
-        } else {
-            target_paths.push_back(grsim_plugin_path);
-        }
-    }
-    for (int i = 0; i < target_paths.size(); i++) {
-        const boost::filesystem::path& target_path = target_paths[i];
-        boost::filesystem::directory_iterator end_itr;
-        for( boost::filesystem::directory_iterator i( target_path ); i != end_itr; ++i ) {
-            boost::dll::shared_library lib(i->path());//, boost::dll::load_mode::append_decorations);
-            for (std::map<std::string, int>::const_iterator kv = robotsettings.CustomRobots.begin();
-                    kv != robotsettings.CustomRobots.end(); kv++) {
-                const std::string& custometype = kv->first;
-                std::string funcname = std::string("create_robot__") + teamname + std::string("__") + custometype;
-                if (!lib.has(funcname)) {
-                    std::cerr << "No such function '" << funcname << "' in library: " << i->path() << std::endl;
-                    continue;
-                }
-                std::cout << "Register " << funcname << " from library: " << i->path() << std::endl;
-                custom_robot_creator[custometype] = boost::dll::import_alias<create_robot_t>(i->path(), funcname);
-            }
-        }
-    }
-    return custom_robot_creator; //std::move
-}*/
 
 void ConfigWidget::loadRobotSettings(QString team)
 {
@@ -383,12 +323,12 @@ void ConfigWidget::loadRobotSettings(QString team)
     robotSettings.WheelTangentFriction = robot_settings->value("Physics/WheelTangentFriction", 0.8f).toDouble();
     robotSettings.WheelPerpendicularFriction = robot_settings->value("Physics/WheelPerpendicularFriction", 0.05f).toDouble();
     robotSettings.Wheel_Motor_FMax = robot_settings->value("Physics/WheelMotorMaximumApplyingTorque", 0.2f).toDouble();
-    robotSettings.CustomRobots.clear();
-    robot_settings->beginGroup("CustomRobots");
-    const QStringList keys = robot_settings->childKeys();
-    for (int i = 0; i < keys.size(); i++) {
-      const QString& key = keys[i];
-      robotSettings.CustomRobots[std::string(key.toUtf8().constData())] = robot_settings->value(key).toInt();
-    }
-    robot_settings->endGroup();
+//    robotSettings.CustomRobots.clear();
+//    robot_settings->beginGroup("CustomRobots");
+//    const QStringList keys = robot_settings->childKeys();
+//    for (int i = 0; i < keys.size(); i++) {
+//      const QString& key = keys[i];
+//      robotSettings.CustomRobots[std::string(key.toUtf8().constData())] = robot_settings->value(key).toInt();
+//    }
+//    robot_settings->endGroup();
 }

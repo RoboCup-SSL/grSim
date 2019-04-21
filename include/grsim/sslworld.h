@@ -62,7 +62,11 @@ private:
     dReal last_dt;
     QList<SendingPacket*> sendQueue;
     char packet[200];
-    char *in_buffer;    
+    char *in_buffer;
+
+    // In the case of DLL the boost::function control the lifetime of all object create by them
+    // So the boost::function must be destroy only when we have finish using the Team's instance
+    std::map<std::string, boost::function<create_team_t>> createTeamCallbackCache;
 public:    
     dReal customDT;
     bool isGLEnabled;
