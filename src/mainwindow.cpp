@@ -56,7 +56,7 @@ void MainWindow::customFPS(int fps)
     logStatus(QString("new FPS set by user: %1").arg(fps),"red");
 }
 
-MainWindow::MainWindow(QWidget *parent, std::string yellowteam, std::string blueteam)
+MainWindow::MainWindow(QWidget *parent, boost::optional<std::string> cli_yellowteam, boost::optional<std::string> cli_blueteam)
     : QMainWindow(parent)
 {
     QDir dir = qApp->applicationDirPath();
@@ -77,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent, std::string yellowteam, std::string blue
 
     /* Widgets */
 
-    configwidget = new ConfigWidget(yellowteam, blueteam);
+    configwidget = new ConfigWidget(cli_yellowteam, cli_blueteam);
     dockconfig = new ConfigDockWidget(this, configwidget);
 
     glwidget = new GLWidget(this, configwidget);

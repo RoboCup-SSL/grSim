@@ -15,6 +15,11 @@ include(${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 standard_config()
 standard_paths(${PROJECT_SOURCE_DIR} bin lib)
 
+set(ENABLE_PLUGIN_WITH_EXTERNAL_DLL TRUE CACHE BOOL "Team's plugin might import external DLL. Require BOOST.DLL to work (BOOST >= 1.61.0)).")
+
+if(ENABLE_PLUGIN_WITH_EXTERNAL_DLL)
+    add_definitions(-DENABLE_PLUGIN_WITH_EXTERNAL_DLL)
+endif()
 
 # definitions for knowing the OS from the code
 if(MSVC)
