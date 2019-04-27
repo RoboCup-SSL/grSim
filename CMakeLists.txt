@@ -152,9 +152,6 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
 qt5_add_resources(RESOURCES
     resources/textures.qrc
 )
-# qt5_add_resources(RESOURCES
-#     resources/textures.qrc
-# )
 
 set(RESOURCES
     ${RESOURCES}
