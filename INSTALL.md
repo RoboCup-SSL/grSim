@@ -80,19 +80,20 @@ Pre-requirements:
 First ensure the dependencies are there:
 
 ```bash
-$ brew install cmake
-$ brew install ode --with-double-precision
-$ brew tap cartr/qt4
-$ brew tap-pin cartr/qt4
-$ brew install qt@4  
-$ brew install protobuf
+brew install cmake
+brew tap robotology/formulae         
+brew install robotology/formulae/ode 
+brew tap cartr/qt4
+brew tap-pin cartr/qt4
+brew install qt@4  
+brew install protobuf
 ```
 
 If you run into build issues, you may need to run this first:
 
 ```bash
-$ brew update
-$ brew doctor
+brew update
+brew doctor
 ```
 
 Next we need to install VarTypes manually. Please refer to the documentation above for the procedure. 
@@ -104,7 +105,7 @@ The steps to compile grSim on Mac OS is similar to the steps outlines above for 
 
 ```bash
 $ cd /path/to/grsim_ws
-$ git clone https://github.com/mani-monaj/grSim.git
+$ git clone https://github.com/Robocup-SSL/grSim.git
 $ cd ./grSim
 $ mkdir build
 $ cd build

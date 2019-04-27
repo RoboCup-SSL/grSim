@@ -518,12 +518,14 @@ void CGraphics::initScene(int width,int height,dReal rc,dReal gc,dReal bc,bool f
     glLightfv (GL_LIGHT0, GL_POSITION, light_position);
 
     if (fog) {
-        GLfloat fogColor [4] = {fogr,fogg,fogb,1};
+        GLfloat fogColor [4] = {static_cast<GLfloat>(fogr),
+                                static_cast<GLfloat>(fogg),
+                                static_cast<GLfloat>(fogb), 1};
         glFogi (GL_FOG_MODE, GL_EXP2); //set the fog mode to GL_EXP2
         glFogf(GL_FOG_START,5);
         glFogf(GL_FOG_END,10);
         glFogfv (GL_FOG_COLOR, fogColor); //set the fog color to our color chosen above
-        glFogf (GL_FOG_DENSITY, fogdensity); //set the density to the value above
+        glFogf (GL_FOG_DENSITY, static_cast<GLfloat>(fogdensity)); //set the density to the value above
         //glHint (GL_FOG_HINT, GL_NICEST); // set the fog to look the nicest, may slow down on older cards
     }
 }

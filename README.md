@@ -1,5 +1,5 @@
 
-grSim-[![Build Status](https://travis-ci.org/RoboCup-SSL/grSim.svg?branch=master)](https://travis-ci.org/RoboCup-SSL/grSim)
+grSim-[![Build Status](https://travis-ci.org/RoboCup-SSL/grSim.svg?branch=master)](https://travis-ci.org/RoboCup-SSL/grSim)[![CodeFactor](https://www.codefactor.io/repository/github/parsianroboticlab/grsim/badge/master)](https://www.codefactor.io/repository/github/parsianroboticlab/grsim/overview/master)
 =======================
 
 [RoboCup Small Size League](http://wiki.robocup.org/Small_Size_League) Simulator.
