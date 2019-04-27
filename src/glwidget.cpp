@@ -134,7 +134,7 @@ GLWidget::~GLWidget()
 void GLWidget::moveRobot()
 {
     ssl->show3DCursor = true;
-    ssl->cursor_radius = Current_isYellow ? cfg->yellowSettings.RobotRadius : cfg->blueSettings.RobotRadius;;
+    ssl->cursor_radius = Current_isYellow ? cfg->yellowSettings.RobotRadius : cfg->blueSettings.RobotRadius;
     state = 1;
     moving_robot_id = clicked_robot;
 }

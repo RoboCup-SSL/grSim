@@ -84,14 +84,6 @@ set(QT_USE_QTOPENGL true)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 list(APPEND libs ${QT_LIBRARIES})
-# # Qt5
-# find_package(Qt5 REQUIRED COMPONENTS Gui Network OpenGL)
-# if(${QT5_NOTFOUND})
-#   message(STATUS "qt5 not found!")
-# else()
-#   message(STATUS "qt5 found!")
-# endif()
-# list(APPEND libs Qt5::Gui Qt5::Network Qt5::OpenGL)
 
 # ODE
 find_package(ODE REQUIRED)
@@ -121,9 +113,6 @@ list(APPEND libs ${VARTYPES_LIBRARIES})
 qt4_add_resources(RESOURCES
     resources/textures.qrc
 )
-# qt5_add_resources(RESOURCES
-#     resources/textures.qrc
-# )
 
 set(RESOURCES
     ${RESOURCES}
