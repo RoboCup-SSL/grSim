@@ -50,7 +50,7 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
 
     ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
     Current_robot = 0;
-    Current_team = 0;
+    Current_isYellow = false;
     cammode = 0;
     setMouseTracking(true);
 
@@ -134,7 +134,7 @@ GLWidget::~GLWidget()
 void GLWidget::moveRobot()
 {
     ssl->show3DCursor = true;
-    ssl->cursor_radius = cfg->robotSettings.RobotRadius;
+    ssl->cursor_radius = Current_isYellow ? cfg->yellowSettings.RobotRadius : cfg->blueSettings.RobotRadius;;
     state = 1;
     moving_robot_id = clicked_robot;
 }
@@ -142,9 +142,9 @@ void GLWidget::moveRobot()
 void GLWidget::unselectRobot()
 {
     ssl->show3DCursor = false;
-    ssl->cursor_radius = cfg->robotSettings.RobotRadius;
+    ssl->cursor_radius = Current_isYellow ? cfg->yellowSettings.RobotRadius : cfg->blueSettings.RobotRadius;
     state = 0;
-    moving_robot_id= ssl->robotIndex(Current_robot,Current_team);
+    moving_robot_id= ssl->robotIndex(Current_robot,Current_isYellow);
 }
 
 void GLWidget::selectRobot()
@@ -152,7 +152,7 @@ void GLWidget::selectRobot()
     if (clicked_robot!=-1)
     {
         Current_robot = clicked_robot%cfg->Robots_Count();
-        Current_team = clicked_robot/cfg->Robots_Count();
+        Current_isYellow = clicked_robot/cfg->Robots_Count() == 1;
         emit selectedRobot();
     }
 }
@@ -161,13 +161,13 @@ void GLWidget::resetRobot()
 {
     if (Current_robot!=-1)
     {
-        ssl->robots[ssl->robotIndex(Current_robot, Current_team)]->resetRobot();
+        ssl->robots[ssl->robotIndex(Current_robot, Current_isYellow)]->resetRobot();
     }
 }
 
 void GLWidget::switchRobotOnOff()
 {
-    int k = ssl->robotIndex(Current_robot, Current_team);
+    int k = ssl->robotIndex(Current_robot, Current_isYellow);
     if (Current_robot!=-1)
     {
         if (ssl->robots[k]->on)
@@ -186,15 +186,15 @@ void GLWidget::switchRobotOnOff()
 
 void GLWidget::resetCurrentRobot()
 {       
-    ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->resetRobot();
+    ssl->robots[ssl->robotIndex(Current_robot,Current_isYellow)]->resetRobot();
 }
 
 void GLWidget::moveCurrentRobot()
 {
     ssl->show3DCursor = true;
-    ssl->cursor_radius = cfg->robotSettings.RobotRadius;
+    ssl->cursor_radius = Current_isYellow ? cfg->yellowSettings.RobotRadius : cfg->blueSettings.RobotRadius;
     state = 1;
-    moving_robot_id = ssl->robotIndex(Current_robot,Current_team);
+    moving_robot_id = ssl->robotIndex(Current_robot, Current_isYellow);
 }
 
 void GLWidget::moveBall()
@@ -383,7 +383,7 @@ void GLWidget::paintGL()
     if (cammode==1)
     {
         dReal x,y,z;
-        int R = ssl->robotIndex(Current_robot,Current_team);
+        int R = ssl->robotIndex(Current_robot,Current_isYellow);
         ssl->robots[R]->getXY(x,y);z = 0.3;
         ssl->g->setViewpoint(x,y,z,ssl->robots[R]->getDir(),-25,0);
     }
@@ -469,7 +469,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     }
     const dReal S = 1.00;
     const dReal BallForce = 2.0;
-    int R = ssl->robotIndex(Current_robot,Current_team);
+    int R = ssl->robotIndex(Current_robot,Current_isYellow);
     if (R < 0) return;
 
     switch (cmd) {
@@ -581,7 +581,7 @@ void GLWidget::moveBallHere()
 void GLWidget::lockCameraToRobot()
 {
     cammode = -1;
-    lockedIndex = ssl->robotIndex(Current_robot,Current_team);//clicked_robot;
+    lockedIndex = ssl->robotIndex(Current_robot,Current_isYellow);//clicked_robot;
 }
 
 void GLWidget::lockCameraToBall()
@@ -591,8 +591,8 @@ void GLWidget::lockCameraToBall()
 
 void GLWidget::moveRobotHere()
 {
-    ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
-    ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->resetRobot();
+    ssl->robots[ssl->robotIndex(Current_robot,Current_isYellow)]->setXY(ssl->cursor_x,ssl->cursor_y);
+    ssl->robots[ssl->robotIndex(Current_robot,Current_isYellow)]->resetRobot();
 }
 
 GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)

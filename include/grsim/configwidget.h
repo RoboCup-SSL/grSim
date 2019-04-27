@@ -128,7 +128,6 @@ public:
   ConfigWidget(boost::optional<std::string> cli_yellowteam, boost::optional<std::string> cli_blueteam);
   virtual ~ConfigWidget();
 
-  RobotSettings robotSettings;
   RobotSettings blueSettings;
   RobotSettings yellowSettings;
 
@@ -191,7 +190,7 @@ public:
   DEF_VALUE(std::string, String, plotter_addr)
   DEF_VALUE(int, Int, plotter_port)
   DEF_VALUE(bool, Bool, plotter)  
-  void loadRobotSettings(std::string team);
+  RobotSettings loadRobotSettings(std::string team);
   void loadTeamConfigPath();
   boost::optional<std::string> findTeamPluginPath(const std::string& teamname);
 public slots:

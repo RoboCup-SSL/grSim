@@ -40,6 +40,7 @@ protected:
     bool firsttime;
     bool last_state;
 public:
+    RobotSettings settings;
     ConfigWidget* cfg;
     dSpaceID space;
     PCylinder* chassis;
@@ -129,10 +130,10 @@ public:
     class DefaultDrive : public Drive {
       public:
         DefaultDrive(Robot* robot, int wheeltexid) : Drive(robot) {
-            wheels_[0] = std::unique_ptr<Wheel>(new Wheel(robot,0,robot->cfg->robotSettings.Wheel1Angle,robot->cfg->robotSettings.Wheel1Angle,wheeltexid));
-            wheels_[1] = std::unique_ptr<Wheel>(new Wheel(robot,1,robot->cfg->robotSettings.Wheel2Angle,robot->cfg->robotSettings.Wheel2Angle,wheeltexid));
-            wheels_[2] = std::unique_ptr<Wheel>(new Wheel(robot,2,robot->cfg->robotSettings.Wheel3Angle,robot->cfg->robotSettings.Wheel3Angle,wheeltexid));
-            wheels_[3] = std::unique_ptr<Wheel>(new Wheel(robot,3,robot->cfg->robotSettings.Wheel4Angle,robot->cfg->robotSettings.Wheel4Angle,wheeltexid));
+            wheels_[0] = std::unique_ptr<Wheel>(new Wheel(robot,0,robot->settings.Wheel1Angle,robot->settings.Wheel1Angle,wheeltexid));
+            wheels_[1] = std::unique_ptr<Wheel>(new Wheel(robot,1,robot->settings.Wheel2Angle,robot->settings.Wheel2Angle,wheeltexid));
+            wheels_[2] = std::unique_ptr<Wheel>(new Wheel(robot,2,robot->settings.Wheel3Angle,robot->settings.Wheel3Angle,wheeltexid));
+            wheels_[3] = std::unique_ptr<Wheel>(new Wheel(robot,3,robot->settings.Wheel4Angle,robot->settings.Wheel4Angle,wheeltexid));
         }
         virtual ~DefaultDrive() {
         }
@@ -183,12 +184,12 @@ public:
         void setVelocity(double vx, double vy, double vw) {
             // Calculate Motor Speeds
             dReal _DEG2RAD = M_PI / 180.0;
-            dReal motorAlpha[4] = {robot_->cfg->robotSettings.Wheel1Angle * _DEG2RAD, robot_->cfg->robotSettings.Wheel2Angle * _DEG2RAD, robot_->cfg->robotSettings.Wheel3Angle * _DEG2RAD, robot_->cfg->robotSettings.Wheel4Angle * _DEG2RAD};
+            dReal motorAlpha[4] = {robot_->settings.Wheel1Angle * _DEG2RAD, robot_->settings.Wheel2Angle * _DEG2RAD, robot_->settings.Wheel3Angle * _DEG2RAD, robot_->settings.Wheel4Angle * _DEG2RAD};
 
-            dReal dw1 =  (1.0 / robot_->cfg->robotSettings.WheelRadius) * (( (robot_->cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[0])) + (vy * cos(motorAlpha[0]))) );
-            dReal dw2 =  (1.0 / robot_->cfg->robotSettings.WheelRadius) * (( (robot_->cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[1])) + (vy * cos(motorAlpha[1]))) );
-            dReal dw3 =  (1.0 / robot_->cfg->robotSettings.WheelRadius) * (( (robot_->cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[2])) + (vy * cos(motorAlpha[2]))) );
-            dReal dw4 =  (1.0 / robot_->cfg->robotSettings.WheelRadius) * (( (robot_->cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[3])) + (vy * cos(motorAlpha[3]))) );
+            dReal dw1 =  (1.0 / robot_->settings.WheelRadius) * (( (robot_->settings.RobotRadius * vw) - (vx * sin(motorAlpha[0])) + (vy * cos(motorAlpha[0]))) );
+            dReal dw2 =  (1.0 / robot_->settings.WheelRadius) * (( (robot_->settings.RobotRadius * vw) - (vx * sin(motorAlpha[1])) + (vy * cos(motorAlpha[1]))) );
+            dReal dw3 =  (1.0 / robot_->settings.WheelRadius) * (( (robot_->settings.RobotRadius * vw) - (vx * sin(motorAlpha[2])) + (vy * cos(motorAlpha[2]))) );
+            dReal dw4 =  (1.0 / robot_->settings.WheelRadius) * (( (robot_->settings.RobotRadius * vw) - (vx * sin(motorAlpha[3])) + (vy * cos(motorAlpha[3]))) );
 
             setSpeed(0 , dw1);
             setSpeed(1 , dw2);
@@ -222,7 +223,7 @@ public:
     }
     //Robot(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir);
     virtual ~Robot();
-    virtual void initialize(PWorld* world,PBall* ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int wheeltexid,int dir);
+    virtual void initialize(PWorld* world, PBall* ball, ConfigWidget* cfg, RobotSettings settings, dReal x, dReal y, dReal z, dReal r, dReal g, dReal b, int wheeltexid, int dir);
     virtual void step();
     virtual void drawLabel();
     virtual void setSpeed(int i,dReal s); //i = 0,1,2,3
@@ -243,6 +244,6 @@ public:
 typedef std::shared_ptr<Robot> PtrRobot;
 typedef std::vector<PtrRobot> PtrRobots;
 
-#define ROBOT_START_Z(cfg)  (cfg->robotSettings.RobotHeight*0.5 + cfg->robotSettings.WheelRadius*1.1 + cfg->robotSettings.BottomHeight)
+double getRobotZ(const RobotSettings& settings);
 
 #endif // ROBOT_H
