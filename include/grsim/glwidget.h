@@ -32,6 +32,7 @@ class GLWidget : public QGLWidget {
 
     Q_OBJECT
 public:
+
     GLWidget(QWidget *parent,ConfigWidget* _cfg);
     ~GLWidget();
     dReal getFPS();
@@ -51,7 +52,8 @@ public:
     QAction* moveRobotHereAct;
     QAction* changeCamModeAct;
     QMenu *cameraMenu;
-    int Current_robot,Current_team,cammode;
+    bool Current_isYellow;
+    int Current_robot,cammode;
     int lockedIndex;
     bool ctrl,alt,kickingball,altTrigger;
     bool chiping;

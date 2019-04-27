@@ -207,10 +207,8 @@ void ConfigDockWidget::closeEvent(QCloseEvent*)
 
 void ConfigWidget::loadRobotsSettings()
 {
-    loadRobotSettings(YellowTeam());
-    yellowSettings = robotSettings;
-    loadRobotSettings(BlueTeam());
-    blueSettings = robotSettings;
+    yellowSettings = loadRobotSettings(YellowTeam());
+    blueSettings = loadRobotSettings(BlueTeam());
 }
 
 
@@ -296,7 +294,7 @@ boost::optional<std::string> ConfigWidget::findTeamPluginPath(const std::string&
     return {};
 }
 
-void ConfigWidget::loadRobotSettings(std::string team)
+RobotSettings ConfigWidget::loadRobotSettings(std::string team)
 {
     if (teamConfigPath.find(team) == teamConfigPath.end()) {
         std::cerr << "Can not find configuration for team '" << team << "', fallback to default." << std::endl;
@@ -305,29 +303,32 @@ void ConfigWidget::loadRobotSettings(std::string team)
     QString ss = teamConfigPath[team].path_ini;
     std::cout << "Loading team " << team << " at " << ss.toStdString() << std::endl;
     QSettings ini_setting(ss, QSettings::IniFormat);
-    robotSettings.RobotCenterFromKicker = ini_setting.value("Geometery/CenterFromKicker", 0.073).toDouble();
-    robotSettings.RobotRadius = ini_setting.value("Geometery/Radius", 0.09).toDouble();
-    robotSettings.RobotHeight = ini_setting.value("Geometery/Height", 0.13).toDouble();
-    robotSettings.BottomHeight = ini_setting.value("Geometery/RobotBottomZValue", 0.02).toDouble();
-    robotSettings.KickerZ = ini_setting.value("Geometery/KickerZValue", 0.005).toDouble();
-    robotSettings.KickerThickness = ini_setting.value("Geometery/KickerThickness", 0.005).toDouble();
-    robotSettings.KickerWidth = ini_setting.value("Geometery/KickerWidth", 0.08).toDouble();
-    robotSettings.KickerHeight = ini_setting.value("Geometery/KickerHeight", 0.04).toDouble();
-    robotSettings.WheelRadius = ini_setting.value("Geometery/WheelRadius", 0.0325).toDouble();
-    robotSettings.WheelThickness = ini_setting.value("Geometery/WheelThickness", 0.005).toDouble();
-    robotSettings.Wheel1Angle = ini_setting.value("Geometery/Wheel1Angle", 60).toDouble();
-    robotSettings.Wheel2Angle = ini_setting.value("Geometery/Wheel2Angle", 135).toDouble();
-    robotSettings.Wheel3Angle = ini_setting.value("Geometery/Wheel3Angle", 225).toDouble();
-    robotSettings.Wheel4Angle = ini_setting.value("Geometery/Wheel4Angle", 300).toDouble();
+    RobotSettings rs;
+    rs.RobotCenterFromKicker = ini_setting.value("Geometery/CenterFromKicker", 0.073).toDouble();
+    rs.RobotRadius = ini_setting.value("Geometery/Radius", 0.09).toDouble();
+    rs.RobotHeight = ini_setting.value("Geometery/Height", 0.13).toDouble();
+    rs.BottomHeight = ini_setting.value("Geometery/RobotBottomZValue", 0.02).toDouble();
+    rs.KickerZ = ini_setting.value("Geometery/KickerZValue", 0.005).toDouble();
+    rs.KickerThickness = ini_setting.value("Geometery/KickerThickness", 0.005).toDouble();
+    rs.KickerWidth = ini_setting.value("Geometery/KickerWidth", 0.08).toDouble();
+    rs.KickerHeight = ini_setting.value("Geometery/KickerHeight", 0.04).toDouble();
+    rs.WheelRadius = ini_setting.value("Geometery/WheelRadius", 0.0325).toDouble();
+    rs.WheelThickness = ini_setting.value("Geometery/WheelThickness", 0.005).toDouble();
+    rs.Wheel1Angle = ini_setting.value("Geometery/Wheel1Angle", 60).toDouble();
+    rs.Wheel2Angle = ini_setting.value("Geometery/Wheel2Angle", 135).toDouble();
+    rs.Wheel3Angle = ini_setting.value("Geometery/Wheel3Angle", 225).toDouble();
+    rs.Wheel4Angle = ini_setting.value("Geometery/Wheel4Angle", 300).toDouble();
 
-    robotSettings.BodyMass  = ini_setting.value("Physics/BodyMass", 2).toDouble();
-    robotSettings.WheelMass = ini_setting.value("Physics/WheelMass", 0.2).toDouble();
-    robotSettings.KickerMass= ini_setting.value("Physics/KickerMass",0.02).toDouble();
-    robotSettings.KickerDampFactor = ini_setting.value("Physics/KickerDampFactor", 0.2f).toDouble();
-    robotSettings.RollerTorqueFactor = ini_setting.value("Physics/RollerTorqueFactor", 0.06f).toDouble();
-    robotSettings.RollerPerpendicularTorqueFactor = ini_setting.value("Physics/RollerPerpendicularTorqueFactor", 0.005f).toDouble();
-    robotSettings.Kicker_Friction = ini_setting.value("Physics/KickerFriction", 0.8f).toDouble();
-    robotSettings.WheelTangentFriction = ini_setting.value("Physics/WheelTangentFriction", 0.8f).toDouble();
-    robotSettings.WheelPerpendicularFriction = ini_setting.value("Physics/WheelPerpendicularFriction", 0.05f).toDouble();
-    robotSettings.Wheel_Motor_FMax = ini_setting.value("Physics/WheelMotorMaximumApplyingTorque", 0.2f).toDouble();
+    rs.BodyMass  = ini_setting.value("Physics/BodyMass", 2).toDouble();
+    rs.WheelMass = ini_setting.value("Physics/WheelMass", 0.2).toDouble();
+    rs.KickerMass= ini_setting.value("Physics/KickerMass",0.02).toDouble();
+    rs.KickerDampFactor = ini_setting.value("Physics/KickerDampFactor", 0.2f).toDouble();
+    rs.RollerTorqueFactor = ini_setting.value("Physics/RollerTorqueFactor", 0.06f).toDouble();
+    rs.RollerPerpendicularTorqueFactor = ini_setting.value("Physics/RollerPerpendicularTorqueFactor", 0.005f).toDouble();
+    rs.Kicker_Friction = ini_setting.value("Physics/KickerFriction", 0.8f).toDouble();
+    rs.WheelTangentFriction = ini_setting.value("Physics/WheelTangentFriction", 0.8f).toDouble();
+    rs.WheelPerpendicularFriction = ini_setting.value("Physics/WheelPerpendicularFriction", 0.05f).toDouble();
+    rs.Wheel_Motor_FMax = ini_setting.value("Physics/WheelMotorMaximumApplyingTorque", 0.2f).toDouble();
+
+    return rs;
 }

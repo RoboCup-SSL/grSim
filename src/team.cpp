@@ -22,9 +22,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 void DefaultTeam::create_robots(std::vector<PtrRobot>& all_robots, unsigned int nb_robots) {
     all_robots.reserve(all_robots.size() + nb_robots);
+    const size_t nb_robot_other_team = all_robots.size();
     robots.reserve(robots.size() + nb_robots);
     for (unsigned id = 0; id < nb_robots; ++id) {
-        PtrRobot r = std::make_shared<Robot>(id + 1);
+        PtrRobot r = std::make_shared<Robot>(nb_robot_other_team + id + 1);
         all_robots.push_back(r);
         robots.push_back(r);
     }

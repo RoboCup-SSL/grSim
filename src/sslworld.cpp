@@ -71,8 +71,9 @@ bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s, int /*robots_count*/)
     }
 
     s->surface.mode = dContactFDir1 | dContactMu2  | dContactApprox1 | dContactSoftCFM;
-    s->surface.mu = fric(_w->cfg->robotSettings.WheelPerpendicularFriction);
-    s->surface.mu2 = fric(_w->cfg->robotSettings.WheelTangentFriction);
+    // TODO: Make this parameter depends on the robot color
+    s->surface.mu = fric(_w->cfg->yellowSettings.WheelPerpendicularFriction);
+    s->surface.mu2 = fric(_w->cfg->yellowSettings.WheelTangentFriction);
     s->surface.soft_cfm = 0.002;
 
     dVector3 v={0,0,1,1};
@@ -236,12 +237,14 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFomation *form1,
 
     for (unsigned k = 0; k < robots.size(); k++) {
         bool is_yellow = k < robotCount;
+        RobotSettings settings = is_yellow ? cfg->yellowSettings : cfg->blueSettings;
         dReal x = is_yellow ? -form1->x[k] : form2->x[k - robotCount];
         dReal y = is_yellow ? form1->y[k] : form2->y[k - robotCount];
-        dReal z = ROBOT_START_Z(cfg);
+        dReal z = getRobotZ(settings);
         robots[k]->initialize(p,
                               ball,
                               cfg,
+                              settings,
                               x, y, z,
                               ROBOT_GRAY, ROBOT_GRAY, ROBOT_GRAY,
                               wheeltexid,
@@ -271,16 +274,20 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFomation *form1,
     ball_ground->surface = ballwithwall.surface;
     ball_ground->callback = ballCallBack;
 
-    PSurface ballwithkicker;
-    ballwithkicker.surface.mode = dContactApprox1;
-    ballwithkicker.surface.mu = fric(cfg->robotSettings.Kicker_Friction);
-    ballwithkicker.surface.slip1 = 5;
     
     for (int i = 0; i < WALL_COUNT; i++)
         p->createSurface(ball, walls[i])->surface = ballwithwall.surface;
     
-    for (int k = 0; k < 2 * cfg->Robots_Count(); k++)
+    for (unsigned k = 0; k < 2 * robotCount; k++)
     {
+        bool is_yellow = k < robotCount;
+        RobotSettings settings = is_yellow ? cfg->yellowSettings : cfg->blueSettings;
+
+        PSurface ballwithkicker;
+        ballwithkicker.surface.mode = dContactApprox1;
+        ballwithkicker.surface.mu = fric(settings.Kicker_Friction);
+        ballwithkicker.surface.slip1 = 5;
+
         p->createSurface(robots[k]->chassis,ground);
         for (int j = 0; j < WALL_COUNT; j++)
             p->createSurface(robots[k]->chassis,walls[j]);
@@ -297,7 +304,7 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFomation *form1,
             w_g->usefdir1=true;
             w_g->callback=wheelCallBack;
         }
-        for (int j = k + 1; j < 2 * cfg->Robots_Count(); j++)
+        for (unsigned j = k + 1; j < 2 * robotCount; j++)
         {            
             if (k != j)
             {
