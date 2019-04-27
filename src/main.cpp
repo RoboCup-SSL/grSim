@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("grSim");
     QApplication a(argc, argv);
 
-    std::string blue_teamname = DEFAULT_TEAM, yellow_teamname = DEFAULT_TEAM;
+    boost::optional<std::string> blue_teamname, yellow_teamname;
 
     auto iter_blue = std::find(argv, argend, std::string("-b"));
     auto iter_yellow = std::find(argv, argend, std::string("-y"));
@@ -48,8 +48,6 @@ int main(int argc, char *argv[])
     if (iter_yellow != argend && iter_yellow + 1 != argend) {
         yellow_teamname = std::string(iter_yellow[1]);
     }
-    std::cout << "Using " << blue_teamname << " configuration for blue team" << std::endl;
-    std::cout << "Using " << yellow_teamname << " configuration for yellow team" << std::endl;
 
     MainWindow w(0, yellow_teamname, blue_teamname);
 

@@ -25,7 +25,9 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include <cstdlib>
 
+#ifdef ENABLE_PLUGIN_WITH_EXTERNAL_DLL
 #include <boost/dll.hpp>
+#endif
 
 #include "grsim/logger.h"
 
@@ -321,6 +323,7 @@ PtrTeam SSLWorld::callCreateTeam(std::string teamname, bool is_yellow) {
     if (createTeamCallbackCache.find(teamname) == createTeamCallbackCache.end()) {
         // If that team has a custom DLL, we load its 'create_team' function
         if (teamConfig.path_dll) {
+#ifdef ENABLE_PLUGIN_WITH_EXTERNAL_DLL
             boost::filesystem::path path = *teamConfig.path_dll;
             boost::dll::shared_library lib(path);
             std::string funcname = std::string("create_") + teamname + std::string("_team");
@@ -328,13 +331,19 @@ PtrTeam SSLWorld::callCreateTeam(std::string teamname, bool is_yellow) {
                 std::cerr << "No such function '" << funcname << "' in library: " << path << std::endl;
                 exit(-1);
             } else {
-                std::cout << "Loading function '" << funcname << "' from the custom plugin: " << *teamConfig.path_dll << std::endl;
+                std::cout <<  teamname << " is using function '" << funcname << "' from the custom plugin: " << *teamConfig.path_dll << std::endl;
                 boost::function<create_team_t> f =  boost::dll::import_alias<create_team_t>(path, funcname);
 
                 createTeamCallbackCache.insert(std::make_pair(teamname, f));
             }
+#else
+            std::cerr << teamname << " is using a external DLL, but grsim was compile with ENABLE_PLUGIN_WITH_EXTERNAL_DLL set as false." << std::endl;
+            std::cerr << "Falling back to default team configuration" << std::endl;
+            boost::function<create_team_t> f(create_default_team);
+            createTeamCallbackCache.insert(std::make_pair(teamname, f));
+#endif
         } else {
-            std::cout << teamname << "Using default function" << std::endl;
+            std::cout << teamname << " is using a default function" << std::endl;
             boost::function<create_team_t> f(create_default_team);
             createTeamCallbackCache.insert(std::make_pair(teamname, f));
         }

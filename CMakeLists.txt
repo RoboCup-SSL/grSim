@@ -19,6 +19,11 @@ set(app ${CMAKE_PROJECT_NAME})
 # create the target before the sources list is known so that we can call
 # add_dependencies(<target> external_proj)
 add_executable(${app} "")
+set(ENABLE_PLUGIN_WITH_EXTERNAL_DLL TRUE CACHE BOOL "Team's plugin might import external DLL. Require BOOST.DLL to work (BOOST >= 1.61.0)).")
+
+if(ENABLE_PLUGIN_WITH_EXTERNAL_DLL)
+    add_definitions(-DENABLE_PLUGIN_WITH_EXTERNAL_DLL)
+endif()
 
 # definitions for knowing the OS from the code
 if(MSVC)

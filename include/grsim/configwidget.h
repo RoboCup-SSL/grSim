@@ -119,7 +119,6 @@ public:
     double WheelTangentFriction;
     double WheelPerpendicularFriction;
     double Wheel_Motor_FMax;
-//    std::map<std::string, int> CustomRobots;
 };
 
 
@@ -132,10 +131,9 @@ protected:
   VarTreeModel * tmodel;    
 public:
   VarListPtr geo_vars;
-  ConfigWidget(std::string yellowteam, std::string blueteam);
+  ConfigWidget(boost::optional<std::string> cli_yellowteam, boost::optional<std::string> cli_blueteam);
   virtual ~ConfigWidget();
 
-  QSettings* robot_settings;
   RobotSettings robotSettings;
   RobotSettings blueSettings;
   RobotSettings yellowSettings;
@@ -199,7 +197,7 @@ public:
   DEF_VALUE(std::string, String, plotter_addr)
   DEF_VALUE(int, Int, plotter_port)
   DEF_VALUE(bool, Bool, plotter)  
-  void loadRobotSettings(QString team);
+  void loadRobotSettings(std::string team);
   void loadTeamConfigPath();
   boost::optional<std::string> findTeamPluginPath(const std::string& teamname);
 public slots:

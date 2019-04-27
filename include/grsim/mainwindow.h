@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0, std::string yellowteam = DEFAULT_TEAM, std::string blueteam = DEFAULT_TEAM);
+    MainWindow(QWidget *parent = 0, boost::optional<std::string> cli_yellowteam = {}, boost::optional<std::string> cli_blueteam = {});
     ~MainWindow();    
 public slots:
     void update();
