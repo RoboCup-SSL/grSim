@@ -65,6 +65,6 @@ script:
   # grsim
   - cd $TRAVIS_BUILD_DIR
   - mkdir build && cd build
-  - cmake ..
+  - cmake .. -DENABLE_PLUGIN_WITH_EXTERNAL_DLL=OFF
   - make
   - sudo make install
