@@ -25,6 +25,7 @@ addons:
       - protobuf-compiler 
       - libode-dev
       - libboost-dev
+      - libboost-filesystem-dev
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null                   ; fi
