@@ -15,9 +15,21 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <iostream>
+
+#include <boost/optional.hpp>
+
+#include "grsim/qt_version.h"
+#ifdef QT5
+#include <QtWidgets/QApplication>
+#else
 #include <QtGui/QApplication>
-#include "mainwindow.h"
-#include "winmain.h"
+#endif
+#include "grsim/mainwindow.h"
+#include "grsim/winmain.h"
+
+
 
 int main(int argc, char *argv[])
 {
@@ -25,11 +37,29 @@ int main(int argc, char *argv[])
     
     char** argend = argc + argv;
 
+    if (std::find(argv, argend, std::string("--help")) != argend) {
+        std::cout << "grSim [-H/--headless] [-b blue_team]  [-y yellow_team]" << std::endl;
+        return 0;
+    }
+
     QCoreApplication::setOrganizationName("Parsian");
     QCoreApplication::setOrganizationDomain("parsian-robotics.com");
     QCoreApplication::setApplicationName("grSim");
     QApplication a(argc, argv);
-    MainWindow w;
+
+    boost::optional<std::string> blue_teamname, yellow_teamname;
+
+    auto iter_blue = std::find(argv, argend, std::string("-b"));
+    auto iter_yellow = std::find(argv, argend, std::string("-y"));
+
+    if (iter_blue != argend && iter_blue + 1 != argend) {
+        blue_teamname = std::string(iter_blue[1]);
+    }
+    if (iter_yellow != argend && iter_yellow + 1 != argend) {
+        yellow_teamname = std::string(iter_yellow[1]);
+    }
+
+    MainWindow w(0, yellow_teamname, blue_teamname);
 
     if (std::find(argv, argend, std::string("--headless")) != argend
         || std::find(argv, argend, std::string("-H")) != argend) {

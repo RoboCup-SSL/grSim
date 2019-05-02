@@ -16,7 +16,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "configwidget.h"
+#include <boost/filesystem.hpp>
+
+#include "grsim/configwidget.h"
+#include "grsim/config.h"
 
 #ifdef HAVE_MACOSX
 
@@ -42,13 +45,14 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     v_##name->addItem(str);
 
 
-ConfigWidget::ConfigWidget()
-{      
+ConfigWidget::ConfigWidget(boost::optional<std::string> cli_yellowteam, boost::optional<std::string> cli_blueteam) : teamConfigPath()
+{
+  loadTeamConfigPath();
+
   tmodel=new VarTreeModel();
   this->setModel(tmodel);  
   geo_vars = VarListPtr(new VarList("Geometry"));
-  world.push_back(geo_vars);  
-  robot_settings = new QSettings;
+  world.push_back(geo_vars);
 
   VarListPtr game_vars(new VarList("Game"));
   geo_vars->addChild(game_vars);
@@ -96,11 +100,6 @@ ConfigWidget::ConfigWidget()
   ADD_VALUE(div_b_vars, Double, DivB_Goal_Width,1.000,"Goal width")
   ADD_VALUE(div_b_vars, Double, DivB_Goal_Height,0.160,"Goal height")
 
-  ADD_ENUM(StringEnum,YellowTeam,"Parsian","Yellow Team");
-  END_ENUM(geo_vars,YellowTeam)
-  ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
-  END_ENUM(geo_vars,BlueTeam)
-
     VarListPtr ballg_vars(new VarList("Ball"));
     geo_vars->addChild(ballg_vars);
         ADD_VALUE(ballg_vars,Double,BallRadius,0.0215,"Radius")
@@ -142,65 +141,67 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
         ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
-    world=VarXML::read(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 
-
-    QDir dir;
-    std::string blueteam = v_BlueTeam->getString();
-    geo_vars->removeChild(v_BlueTeam);
-
-    std::string yellowteam = v_YellowTeam->getString();
-    geo_vars->removeChild(v_YellowTeam);
-
-    ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
-    ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
-
-    dir.setCurrent(qApp->applicationDirPath()+"/../config/");
-    dir.setNameFilters(QStringList() << "*.ini");
-    dir.setSorting(QDir::Size | QDir::Reversed);
-    QFileInfoList list = dir.entryInfoList();
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo fileInfo = list.at(i);
-        QStringList s = fileInfo.fileName().split(".");
-        QString str;
-        if (s.count() > 0) str = s[0];
-        ADD_TO_ENUM(BlueTeam,str.toStdString())
-        ADD_TO_ENUM(YellowTeam,str.toStdString())
-    }
-    dir.setCurrent(qApp->applicationDirPath()+"/../share/grsim/config/");
-    dir.setNameFilters(QStringList() << "*.ini");
-    dir.setSorting(QDir::Size | QDir::Reversed);
-    list = dir.entryInfoList();
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo fileInfo = list.at(i);
-        QStringList s = fileInfo.fileName().split(".");
-        QString str;
-        if (s.count() > 0) str = s[0];
-        ADD_TO_ENUM(BlueTeam,str.toStdString())
-        ADD_TO_ENUM(YellowTeam,str.toStdString())
-    }
-
-    END_ENUM(geo_vars,BlueTeam)
+    ADD_ENUM(StringEnum,YellowTeam,DEFAULT_TEAM,"Yellow Team")
     END_ENUM(geo_vars,YellowTeam)
+    ADD_ENUM(StringEnum,BlueTeam,DEFAULT_TEAM,"Blue Team")
+    END_ENUM(geo_vars,BlueTeam)
 
-  v_BlueTeam->setString(blueteam);
-  v_YellowTeam->setString(yellowteam);
+    // Loading xml configuration
+    world = VarXML::read(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
+    tmodel->setRootItems(world);
 
-  tmodel->setRootItems(world);
+    // Save team selected in xml
+    std::string xml_blueteam = BlueTeam();
+    std::string xml_yellowteam = YellowTeam();
+    // Remove list of teams from XML, since they may not exist anymore
+    v_BlueTeam->resetToDefault();
+    v_YellowTeam->resetToDefault();
 
-  this->expandAndFocus(geo_vars);
-  this->expandAndFocus(phys_vars);
-  this->expandAndFocus(comm_vars);
+    // Populate the list of available teams
+    std::map<std::string, team_config_t>::iterator it;
+    for ( it = teamConfigPath.begin(); it != teamConfigPath.end(); it++ ) {
+        std::string teamname = it->first;
+        ADD_TO_ENUM(BlueTeam, teamname)
+        ADD_TO_ENUM(YellowTeam, teamname)
+    }
 
-  this->fitColumns();
+    // The cli has priority over the xml configuration
+    std::string selected_blueteam = cli_blueteam ? cli_blueteam.get() : xml_blueteam;
+    std::string selected_yellowteam = cli_yellowteam ? cli_yellowteam.get() : xml_yellowteam;
 
-  resize(320,400);
-  connect(v_BlueTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(loadRobotsSettings()));
-  connect(v_YellowTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(loadRobotsSettings()));
-  loadRobotsSettings();
+    // Check that the team configurations actually exists.
+    if(teamConfigPath.find(selected_blueteam) == teamConfigPath.end()) {
+        std::cerr << "Can not find '" << selected_blueteam << "', the blue team configuration. Check that your config/ folder exists and containts the .ini ." << std::endl;
+        std::cerr << "Reverting to the default team '" << DEFAULT_TEAM << "'"<< std::endl;
+        selected_blueteam = DEFAULT_TEAM;
+    }
+
+    if (teamConfigPath.find(selected_yellowteam) == teamConfigPath.end()) {
+        std::cerr << "Can not find '" << selected_yellowteam << "', the yellow team configuration. Check that your config/ folder exists and containts the .ini ." << std::endl;
+        std::cerr << "Reverting to the default team '" << DEFAULT_TEAM << "'"<< std::endl;
+        selected_yellowteam = DEFAULT_TEAM;
+    }
+    // If the command line force a different team configuration, we switch to it
+    v_BlueTeam->setString(selected_blueteam);
+    v_YellowTeam->setString(selected_yellowteam);
+
+    std::cout << "Using " << selected_blueteam << " configuration for blue team" << std::endl;
+    std::cout << "Using " << selected_yellowteam << " configuration for yellow team" << std::endl;
+
+    this->expandAndFocus(geo_vars);
+    this->expandAndFocus(phys_vars);
+    this->expandAndFocus(comm_vars);
+
+    this->fitColumns();
+
+    resize(320,400);
+    connect(v_BlueTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(loadRobotsSettings()));
+    connect(v_YellowTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(loadRobotsSettings()));
+    loadRobotsSettings();
 }
 
-ConfigWidget::~ConfigWidget() {  
+ConfigWidget::~ConfigWidget(){
    VarXML::write(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 }
 
@@ -210,7 +211,7 @@ ConfigDockWidget::ConfigDockWidget(QWidget* _parent,ConfigWidget* _conf){
     setWidget(conf);
     conf->move(0,20);
 }  
-void ConfigDockWidget::closeEvent(QCloseEvent* event)
+void ConfigDockWidget::closeEvent(QCloseEvent*)
 {
     emit closeSignal(false);
 }
@@ -218,39 +219,128 @@ void ConfigDockWidget::closeEvent(QCloseEvent* event)
 
 void ConfigWidget::loadRobotsSettings()
 {
-    loadRobotSettings(YellowTeam().c_str());
-    yellowSettings = robotSettings;
-    loadRobotSettings(BlueTeam().c_str());
-    blueSettings = robotSettings;
+    yellowSettings = loadRobotSettings(YellowTeam());
+    blueSettings = loadRobotSettings(BlueTeam());
 }
 
-void ConfigWidget::loadRobotSettings(QString team)
-{
-    QString ss = qApp->applicationDirPath()+QString("/../config/")+QString("%1.ini").arg(team);
-    robot_settings = new QSettings(ss, QSettings::IniFormat);
-    robotSettings.RobotCenterFromKicker = robot_settings->value("Geometery/CenterFromKicker", 0.073).toDouble();
-    robotSettings.RobotRadius = robot_settings->value("Geometery/Radius", 0.09).toDouble();
-    robotSettings.RobotHeight = robot_settings->value("Geometery/Height", 0.13).toDouble();
-    robotSettings.BottomHeight = robot_settings->value("Geometery/RobotBottomZValue", 0.02).toDouble();
-    robotSettings.KickerZ = robot_settings->value("Geometery/KickerZValue", 0.005).toDouble();
-    robotSettings.KickerThickness = robot_settings->value("Geometery/KickerThickness", 0.005).toDouble();
-    robotSettings.KickerWidth = robot_settings->value("Geometery/KickerWidth", 0.08).toDouble();
-    robotSettings.KickerHeight = robot_settings->value("Geometery/KickerHeight", 0.04).toDouble();
-    robotSettings.WheelRadius = robot_settings->value("Geometery/WheelRadius", 0.0325).toDouble();
-    robotSettings.WheelThickness = robot_settings->value("Geometery/WheelThickness", 0.005).toDouble();
-    robotSettings.Wheel1Angle = robot_settings->value("Geometery/Wheel1Angle", 60).toDouble();
-    robotSettings.Wheel2Angle = robot_settings->value("Geometery/Wheel2Angle", 135).toDouble();
-    robotSettings.Wheel3Angle = robot_settings->value("Geometery/Wheel3Angle", 225).toDouble();
-    robotSettings.Wheel4Angle = robot_settings->value("Geometery/Wheel4Angle", 300).toDouble();
 
-    robotSettings.BodyMass  = robot_settings->value("Physics/BodyMass", 2).toDouble();
-    robotSettings.WheelMass = robot_settings->value("Physics/WheelMass", 0.2).toDouble();
-    robotSettings.KickerMass= robot_settings->value("Physics/KickerMass",0.02).toDouble();
-    robotSettings.KickerDampFactor = robot_settings->value("Physics/KickerDampFactor", 0.2f).toDouble();
-    robotSettings.RollerTorqueFactor = robot_settings->value("Physics/RollerTorqueFactor", 0.06f).toDouble();
-    robotSettings.RollerPerpendicularTorqueFactor = robot_settings->value("Physics/RollerPerpendicularTorqueFactor", 0.005f).toDouble();
-    robotSettings.Kicker_Friction = robot_settings->value("Physics/KickerFriction", 0.8f).toDouble();
-    robotSettings.WheelTangentFriction = robot_settings->value("Physics/WheelTangentFriction", 0.8f).toDouble();
-    robotSettings.WheelPerpendicularFriction = robot_settings->value("Physics/WheelPerpendicularFriction", 0.05f).toDouble();
-    robotSettings.Wheel_Motor_FMax = robot_settings->value("Physics/WheelMotorMaximumApplyingTorque", 0.2f).toDouble();
+void ConfigWidget::loadTeamConfigPath() {
+    teamConfigPath.clear();
+
+    QDir dir;
+
+    dir.setCurrent(CONFIG_DIR);
+    dir.setNameFilters(QStringList() << "*.ini");
+    dir.setSorting(QDir::Size | QDir::Reversed);
+    QFileInfoList list = dir.entryInfoList();
+
+    dir.setCurrent(qApp->applicationDirPath()+"/../share/grsim/config/");
+    dir.setNameFilters(QStringList() << "*.ini");
+    dir.setSorting(QDir::Size | QDir::Reversed);
+    list += dir.entryInfoList();
+
+    dir.setCurrent(qApp->applicationDirPath()+"/../config/");
+    dir.setNameFilters(QStringList() << "*.ini");
+    dir.setSorting(QDir::Size | QDir::Reversed);
+    list += dir.entryInfoList();
+
+    for (int i = 0; i < list.size(); ++i) {
+        QFileInfo fileInfo = list.at(i);
+        QStringList s = fileInfo.fileName().split(".");
+        if (fileInfo.exists() && fileInfo.canonicalFilePath().toStdString() != "" && s.count() > 0 && s[0] != "") {
+            std::string teamname = s[0].toStdString();
+            team_config_t configPath;
+            configPath.path_ini = fileInfo.canonicalFilePath();
+
+            // Check if team's configuration required loading a custom DLL
+            QSettings iniSetting(configPath.path_ini, QSettings::IniFormat);
+            if (iniSetting.contains("CustomTeamPlugin/NameDLL")) {
+                std::cout << teamname << " have custom team plugin" << std::endl;
+                const std::string nameDLL = iniSetting.value("CustomTeamPlugin/NameDLL", "").toString().toStdString();
+                if (nameDLL != "")
+                    configPath.path_dll = findTeamPluginPath(nameDLL);
+            }
+            teamConfigPath.insert(std::make_pair(teamname, configPath));
+        }
+    }
+    std::cout << "[Team configuration found]" << std::endl;
+    std::map<std::string, team_config_t>::iterator it;
+    for ( it = teamConfigPath.begin(); it != teamConfigPath.end(); it++ ) {
+        std::cout << "\t" << it->first << "  => init conf == " << it->second.path_ini.toStdString() << std::endl;
+    }
+    // Sanity check
+    if (teamConfigPath.find(DEFAULT_TEAM) == teamConfigPath.end()) {
+        std::cerr << "Can not find '" << DEFAULT_TEAM << "', the default team configuration. Check that your config folder exist" << std::endl;
+        exit(-1);
+    }
+}
+
+boost::optional<std::string> ConfigWidget::findTeamPluginPath(const std::string& teamname) {
+    std::vector<boost::filesystem::path> target_paths;
+    boost::filesystem::path default_plugin_path((QDir::homePath()+"/.grsim/plugins/").toStdString());
+    if (!boost::filesystem::exists(default_plugin_path)) {
+        std::cerr << default_plugin_path << " does not exist" << std::endl;
+    } else {
+        target_paths.push_back(default_plugin_path);
+    }
+    const char* env_grsim_plugin_path = getenv("GRSIM_PLUGIN_PATH");
+    if (env_grsim_plugin_path != nullptr) {
+        boost::filesystem::path grsim_plugin_path = std::string(env_grsim_plugin_path);
+        if (!boost::filesystem::exists(grsim_plugin_path)) {
+            std::cerr << grsim_plugin_path << " does not exist" << std::endl;
+        } else {
+            target_paths.push_back(grsim_plugin_path);
+        }
+    }
+    for (const boost::filesystem::path& target_path: target_paths) {
+        boost::filesystem::directory_iterator end_itr;
+        for( boost::filesystem::directory_iterator iter(target_path); iter != end_itr; ++iter ) {
+            boost::filesystem::path path = iter->path();
+            if (boost::filesystem::is_regular_file(path) && path.stem() == teamname) {
+                std::cout << "Found DLL " << path.string() << " for team " << teamname << std::endl;
+                return path.string();
+            }
+        }
+    }
+    std::cerr << "Can not find the Custom Team Plugin for team " << teamname << std::endl;
+    return {};
+}
+
+RobotSettings ConfigWidget::loadRobotSettings(std::string team)
+{
+    if (teamConfigPath.find(team) == teamConfigPath.end()) {
+        std::cerr << "Can not find configuration for team '" << team << "', fallback to default." << std::endl;
+        team = DEFAULT_TEAM;
+    }
+    QString ss = teamConfigPath[team].path_ini;
+    std::cout << "Loading team " << team << " at " << ss.toStdString() << std::endl;
+    QSettings ini_setting(ss, QSettings::IniFormat);
+    RobotSettings rs;
+    rs.RobotCenterFromKicker = ini_setting.value("Geometery/CenterFromKicker", 0.073).toDouble();
+    rs.RobotRadius = ini_setting.value("Geometery/Radius", 0.09).toDouble();
+    rs.RobotHeight = ini_setting.value("Geometery/Height", 0.13).toDouble();
+    rs.BottomHeight = ini_setting.value("Geometery/RobotBottomZValue", 0.02).toDouble();
+    rs.KickerZ = ini_setting.value("Geometery/KickerZValue", 0.005).toDouble();
+    rs.KickerThickness = ini_setting.value("Geometery/KickerThickness", 0.005).toDouble();
+    rs.KickerWidth = ini_setting.value("Geometery/KickerWidth", 0.08).toDouble();
+    rs.KickerHeight = ini_setting.value("Geometery/KickerHeight", 0.04).toDouble();
+    rs.WheelRadius = ini_setting.value("Geometery/WheelRadius", 0.0325).toDouble();
+    rs.WheelThickness = ini_setting.value("Geometery/WheelThickness", 0.005).toDouble();
+    rs.Wheel1Angle = ini_setting.value("Geometery/Wheel1Angle", 60).toDouble();
+    rs.Wheel2Angle = ini_setting.value("Geometery/Wheel2Angle", 135).toDouble();
+    rs.Wheel3Angle = ini_setting.value("Geometery/Wheel3Angle", 225).toDouble();
+    rs.Wheel4Angle = ini_setting.value("Geometery/Wheel4Angle", 300).toDouble();
+
+    rs.BodyMass  = ini_setting.value("Physics/BodyMass", 2).toDouble();
+    rs.WheelMass = ini_setting.value("Physics/WheelMass", 0.2).toDouble();
+    rs.KickerMass= ini_setting.value("Physics/KickerMass",0.02).toDouble();
+    rs.KickerDampFactor = ini_setting.value("Physics/KickerDampFactor", 0.2f).toDouble();
+    rs.RollerTorqueFactor = ini_setting.value("Physics/RollerTorqueFactor", 0.06f).toDouble();
+    rs.RollerPerpendicularTorqueFactor = ini_setting.value("Physics/RollerPerpendicularTorqueFactor", 0.005f).toDouble();
+    rs.Kicker_Friction = ini_setting.value("Physics/KickerFriction", 0.8f).toDouble();
+    rs.WheelTangentFriction = ini_setting.value("Physics/WheelTangentFriction", 0.8f).toDouble();
+    rs.WheelPerpendicularFriction = ini_setting.value("Physics/WheelPerpendicularFriction", 0.05f).toDouble();
+    rs.Wheel_Motor_FMax = ini_setting.value("Physics/WheelMotorMaximumApplyingTorque", 0.2f).toDouble();
+
+    return rs;
 }

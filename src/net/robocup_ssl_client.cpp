@@ -19,7 +19,7 @@
   \author  Jan Segre, 2012
 */
 //========================================================================
-#include "robocup_ssl_client.h"
+#include "grsim/net/robocup_ssl_client.h"
 #include <QtNetwork>
 #include <iostream>
 

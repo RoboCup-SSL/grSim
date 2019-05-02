@@ -16,7 +16,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "pcylinder.h"
+#include "grsim/physics/pcylinder.h"
 
 PCylinder::PCylinder(dReal x,dReal y,dReal z,dReal radius,dReal length,dReal mass,dReal red,dReal green,dReal blue,int texid,bool robot)
           : PObject(x,y,z,red,green,blue,mass)
@@ -153,4 +153,11 @@ void PCylinder::draw()
            //glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
            glutBitmapCharacter(GLUT_BITMAP_8_BY_13,c);
     glPopMatrix();*/
+}
+
+dReal PCylinder::getRadius() {
+    return m_radius;
+}
+dReal PCylinder::getLength() {
+    return m_length;
 }

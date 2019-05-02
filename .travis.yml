@@ -25,6 +25,7 @@ addons:
       - protobuf-compiler 
       - libode-dev
       - libboost-dev
+      - libboost-filesystem-dev
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null                   ; fi
@@ -32,7 +33,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap-pin cartr/qt4                    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt@4                         ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew uninstall --ignore-dependencies python ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install protobuf                     ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then travis_wait brew install protobuf         ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap robotology/formulae              ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install robotology/formulae/ode      ; fi
 
@@ -50,6 +51,6 @@ script:
   # grsim
   - cd $TRAVIS_BUILD_DIR
   - mkdir build && cd build
-  - cmake ..
+  - cmake .. -DENABLE_PLUGIN_WITH_EXTERNAL_DLL=OFF
   - make
   - sudo make install

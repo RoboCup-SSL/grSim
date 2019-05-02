@@ -19,10 +19,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#if QT_VERSION >= 0x050000
-#define QT5
-#endif
-
+#include "grsim/qt_version.h"
 #ifdef QT5
 #include <QMdiArea>
 #else
@@ -41,7 +38,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = 0, boost::optional<std::string> cli_yellowteam = {}, boost::optional<std::string> cli_blueteam = {});
     ~MainWindow();    
 public slots:
     void update();

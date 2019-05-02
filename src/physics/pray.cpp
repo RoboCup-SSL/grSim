@@ -16,7 +16,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "pray.h"
+#include "grsim/physics/pray.h"
 
 PRay::PRay(dReal length)
          : PObject(0,0,0,0,0,0,0)

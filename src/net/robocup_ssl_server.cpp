@@ -19,10 +19,10 @@
   \author  Jan Segre, 2012
 */
 //========================================================================
-#include "robocup_ssl_server.h"
+#include "grsim/net/robocup_ssl_server.h"
 #include <QtNetwork>
 #include <iostream>
-#include "logger.h"
+#include "grsim/logger.h"
 
 using namespace std;
 

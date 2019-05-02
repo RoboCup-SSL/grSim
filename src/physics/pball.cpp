@@ -16,7 +16,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "pball.h"
+#include "grsim/physics/pball.h"
 
 PBall::PBall(dReal x,dReal y,dReal z,dReal radius,dReal mass,dReal red,dReal green,dReal blue)
         : PObject(x,y,z,red,green,blue,mass)

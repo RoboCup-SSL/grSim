@@ -15,6 +15,11 @@ include(${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 standard_config()
 standard_paths(${PROJECT_SOURCE_DIR} bin lib)
 
+set(ENABLE_PLUGIN_WITH_EXTERNAL_DLL TRUE CACHE BOOL "Team's plugin might import external DLL. Require BOOST.DLL to work (BOOST >= 1.61.0)).")
+
+if(ENABLE_PLUGIN_WITH_EXTERNAL_DLL)
+    add_definitions(-DENABLE_PLUGIN_WITH_EXTERNAL_DLL)
+endif()
 
 # definitions for knowing the OS from the code
 if(MSVC)
@@ -34,12 +39,10 @@ if(UNIX)
 endif()
 
 # set explicitly the c++ standard to use
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_STANDARD 11)
 
 # add src dir to included directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/include/net)
-include_directories(${PROJECT_SOURCE_DIR}/include/physics)
 
 
 ## Handling depenendcies
@@ -47,12 +50,33 @@ include_directories(${PROJECT_SOURCE_DIR}/include/physics)
 # we will append all libs to this var
 set(libs)
 
+# Boost
+find_package(Boost REQUIRED COMPONENTS filesystem) #dll
+include_directories(${Boost_INCLUDE_DIR})
+list(APPEND libs ${Boost_LIBRARIES} dl)
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 list(APPEND libs ${OPENGL_LIBRARIES})
 #find_package(GLUT REQUIRED)
 #include_directories(${GLUT_INCLUDE_DIR})
+
+# Protobuf
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+list(APPEND libs ${PROTOBUF_LIBRARIES})
+
+protobuf_generate_cpp(PROTO_CPP PROTO_H
+    src/proto/messages_robocup_ssl_detection.proto
+    src/proto/messages_robocup_ssl_geometry.proto
+    src/proto/messages_robocup_ssl_wrapper.proto
+    src/proto/messages_robocup_ssl_refbox_log.proto
+    src/proto/grSim_Replacement.proto
+    src/proto/grSim_Commands.proto
+    src/proto/grSim_Packet.proto
+)
+
 
 # Qt
 set(QT_USE_QTNETWORK true)
@@ -86,21 +110,6 @@ find_package(VarTypes REQUIRED)
 include_directories(${VARTYPES_INCLUDE_DIRS})
 list(APPEND libs ${VARTYPES_LIBRARIES})
 
-# Protobuf
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-list(APPEND libs ${PROTOBUF_LIBRARIES})
-
-protobuf_generate_cpp(PROTO_CPP PROTO_H
-    src/proto/messages_robocup_ssl_detection.proto
-    src/proto/messages_robocup_ssl_geometry.proto
-    src/proto/messages_robocup_ssl_wrapper.proto
-    src/proto/messages_robocup_ssl_refbox_log.proto
-    src/proto/grSim_Replacement.proto
-    src/proto/grSim_Commands.proto
-    src/proto/grSim_Packet.proto
-)
-
 qt4_add_resources(RESOURCES
     resources/textures.qrc
 )
@@ -127,6 +136,7 @@ set(SOURCES
     src/net/robocup_ssl_client.cpp
     src/sslworld.cpp
     src/robot.cpp
+    src/team.cpp
     src/configwidget.cpp
     src/statuswidget.cpp
     src/logger.cpp
@@ -135,28 +145,29 @@ set(SOURCES
 )
 
 set(HEADERS
-    include/mainwindow.h
-    include/glwidget.h
-    include/graphics.h
-    include/physics/pworld.h
-    include/physics/pobject.h
-    include/physics/pball.h
-    include/physics/pground.h
-    include/physics/pfixedbox.h
-    include/physics/pcylinder.h
-    include/physics/pbox.h
-    include/physics/pray.h
-    include/net/robocup_ssl_server.h
-    include/net/robocup_ssl_client.h
-    include/sslworld.h
-    include/robot.h
-    include/configwidget.h
-    include/statuswidget.h
-    include/logger.h
-    include/robotwidget.h
-    include/getpositionwidget.h
-    include/common.h
-    include/config.h
+    include/grsim/mainwindow.h
+    include/grsim/glwidget.h
+    include/grsim/graphics.h
+    include/grsim/physics/pworld.h
+    include/grsim/physics/pobject.h
+    include/grsim/physics/pball.h
+    include/grsim/physics/pground.h
+    include/grsim/physics/pfixedbox.h
+    include/grsim/physics/pcylinder.h
+    include/grsim/physics/pbox.h
+    include/grsim/physics/pray.h
+    include/grsim/net/robocup_ssl_server.h
+    include/grsim/net/robocup_ssl_client.h
+    include/grsim/sslworld.h
+    include/grsim/robot.h
+    include/grsim/team.h
+    include/grsim/configwidget.h
+    include/grsim/statuswidget.h
+    include/grsim/logger.h
+    include/grsim/robotwidget.h
+    include/grsim/getpositionwidget.h
+    include/grsim/common.h
+    include/grsim/config.h
 )
 
 # files to be compiled
@@ -171,6 +182,9 @@ set(srcs
 
 file(GLOB CONFIG_FILES "config/*.ini")
 set_source_files_properties(${CONFIG_FILES}  PROPERTIES MACOSX_PACKAGE_LOCATION "config")
+
+file(GLOB HEADERS_INSTALLED "include/*.h")
+install(DIRECTORY include/grsim DESTINATION include/)
 
 if(APPLE)
     set(app ${CMAKE_PROJECT_NAME})
@@ -193,7 +207,8 @@ elseif(WIN32)
     add_executable(${app} WIN32 ${srcs})
     target_link_libraries(${app} ${libs})
     install(TARGETS ${app} DESTINATION bin)
-    install(DIRECTORY config DESTINATION .)
+    configure_file(include/grsim/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/grsim/config.h)
+    install(DIRECTORY config DESTINATION share/${app})
     install(DIRECTORY bin DESTINATION .
             FILES_MATCHING PATTERN "*.dll")
     set(CPACK_PACKAGE_EXECUTABLES ${app} ${app})
@@ -202,6 +217,7 @@ else()
     add_executable(${app} ${srcs})
     target_link_libraries(${app} ${libs})
     install(TARGETS ${app} DESTINATION bin)
+    configure_file(include/grsim/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/grsim/config.h)
     install(DIRECTORY config DESTINATION share/${app})
     install(FILES resources/grsim.desktop DESTINATION share/applications)
     install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)

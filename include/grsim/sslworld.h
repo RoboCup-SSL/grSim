@@ -25,20 +25,23 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QUdpSocket>
 #include <QList>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
-#include "graphics.h"
-#include "physics/pworld.h"
-#include "physics/pball.h"
-#include "physics/pground.h"
-#include "physics/pfixedbox.h"
-#include "physics/pray.h"
+#include "grsim/graphics.h"
+#include "grsim/physics/pworld.h"
+#include "grsim/physics/pball.h"
+#include "grsim/physics/pground.h"
+#include "grsim/physics/pfixedbox.h"
+#include "grsim/physics/pray.h"
 
-#include "net/robocup_ssl_server.h"
+#include "grsim/net/robocup_ssl_server.h"
 
-#include "robot.h"
-#include "configwidget.h"
+#include "grsim/robot.h"
+#include "grsim/team.h"
+#include "grsim/configwidget.h"
 
-#include "config.h"
+#include "grsim/config.h"
 
 #define WALL_COUNT 10
 
@@ -59,7 +62,11 @@ private:
     dReal last_dt;
     QList<SendingPacket*> sendQueue;
     char packet[200];
-    char *in_buffer;    
+    char *in_buffer;
+
+    // In the case of DLL the boost::function control the lifetime of all object create by them
+    // So the boost::function must be destroy only when we have finish using the Team's instance
+    std::map<std::string, boost::function<create_team_t>> createTeamCallbackCache;
 public:    
     dReal customDT;
     bool isGLEnabled;
@@ -75,6 +82,7 @@ public:
     void sendVisionBuffer();
     bool visibleInCam(int id, double x, double y);
     int  robotIndex(int robot,int team);
+    PtrTeam callCreateTeam(std::string teamname, bool is_yellow);
 
     ConfigWidget* cfg;
     CGraphics* g;
@@ -91,7 +99,11 @@ public:
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
     bool updatedCursor;
-    Robot* robots[MAX_ROBOT_COUNT*2];
+
+    PtrRobots robots;
+    PtrTeam team_yellow;
+    PtrTeam team_blue;
+
     QTime *timer;
     int sendGeomCount;
 public slots:
@@ -107,7 +119,7 @@ class RobotsFomation {
         RobotsFomation(int type, ConfigWidget* _cfg);
         void setAll(dReal *xx,dReal *yy);
         void loadFromFile(const QString& filename);
-        void resetRobots(Robot** r,int team);
+        void resetRobots(PtrRobots r,int team);
     private:
         ConfigWidget* cfg;
 };

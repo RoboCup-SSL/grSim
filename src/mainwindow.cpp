@@ -16,7 +16,12 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "grsim/qt_version.h"
+#ifdef QT5
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 
 #include <QApplication>
 #include <QMenuBar>
@@ -28,7 +33,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QDockWidget>
 #include <QVBoxLayout>
 #include <QFileDialog>
-#include <QApplication>
 #include <QDir>
 #include <QClipboard>
 
@@ -37,8 +41,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QMessageBox>
 #endif
 
-#include "mainwindow.h"
-#include "logger.h"
+#include "grsim/mainwindow.h"
+#include "grsim/logger.h"
 
 int MainWindow::getInterval()
 {
@@ -52,7 +56,7 @@ void MainWindow::customFPS(int fps)
     logStatus(QString("new FPS set by user: %1").arg(fps),"red");
 }
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent, boost::optional<std::string> cli_yellowteam, boost::optional<std::string> cli_blueteam)
     : QMainWindow(parent)
 {
     QDir dir = qApp->applicationDirPath();
@@ -73,10 +77,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     /* Widgets */
 
-    configwidget = new ConfigWidget();
-    dockconfig = new ConfigDockWidget(this,configwidget);
+    configwidget = new ConfigWidget(cli_yellowteam, cli_blueteam);
+    dockconfig = new ConfigDockWidget(this, configwidget);
 
-    glwidget = new GLWidget(this,configwidget);
+    glwidget = new GLWidget(this, configwidget);
     glwidget->setWindowTitle(tr("Simulator"));
     glwidget->resize(512,512);    
 
@@ -272,7 +276,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     robotwidget->teamCombo->setCurrentIndex(0);
     robotwidget->robotCombo->setCurrentIndex(0);
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot, glwidget->Current_isYellow)]->img);
     robotwidget->id = 0;
     scene = new QGraphicsScene(0,0,800,600);    
 }
@@ -296,16 +300,16 @@ void MainWindow::showHideSimulator(bool v)
 void MainWindow::changeCurrentRobot()
 {
     glwidget->Current_robot=robotwidget->robotCombo->currentIndex();    
-    robotwidget->setPicture(glwidget->ssl->robots[glwidget->ssl->robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
-    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+    robotwidget->setPicture(glwidget->ssl->robots[glwidget->ssl->robotIndex(glwidget->Current_robot,glwidget->Current_isYellow)]->img);
+    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_isYellow);
     robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
 }
 
 void MainWindow::changeCurrentTeam()
 {
-    glwidget->Current_team=robotwidget->teamCombo->currentIndex();
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
-    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+    glwidget->Current_isYellow=robotwidget->teamCombo->currentIndex() == 1;
+    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_isYellow)]->img);
+    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_isYellow);
     robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
 }
 
@@ -314,7 +318,7 @@ void MainWindow::changeGravity()
     dWorldSetGravity (glwidget->ssl->p->world,0,0,-configwidget->Gravity());
 }
 
-int MainWindow::robotIndex(int robot,int team)
+int MainWindow::robotIndex(int robot, int team)
 {
     return glwidget->ssl->robotIndex(robot, team);
 }
@@ -337,7 +341,7 @@ void MainWindow::update()
     if (glwidget->ssl->g->isGraphicsEnabled()) glwidget->updateGL();
     else glwidget->step();
 
-    int R = robotIndex(glwidget->Current_robot,glwidget->Current_team);
+    int R = robotIndex(glwidget->Current_robot,glwidget->Current_isYellow);
 
     const dReal* vv = dBodyGetLinearVel(glwidget->ssl->robots[R]->chassis->body);
     static dVector3 lvv;
@@ -376,9 +380,9 @@ void MainWindow::update()
 
 void MainWindow::updateRobotLabel()
 {
-    robotwidget->teamCombo->setCurrentIndex(glwidget->Current_team);
+    robotwidget->teamCombo->setCurrentIndex(glwidget->Current_isYellow ? 1 : 0);
     robotwidget->robotCombo->setCurrentIndex(glwidget->Current_robot);
-    robotwidget->id = robotIndex(glwidget->Current_robot,glwidget->Current_team);
+    robotwidget->id = robotIndex(glwidget->Current_robot,glwidget->Current_isYellow);
     robotwidget->changeRobotOnOff(robotwidget->id,glwidget->ssl->robots[robotwidget->id]->on);
 }
 
@@ -469,7 +473,7 @@ void MainWindow::toggleFullScreen(bool a)
 
 void MainWindow::setCurrentRobotPosition()
 {
-    int i = robotIndex(glwidget->Current_robot,glwidget->Current_team);
+    int i = robotIndex(glwidget->Current_robot,glwidget->Current_isYellow);
     bool ok1=false,ok2=false,ok3=false;
     dReal x = robotwidget->getPoseWidget->x->text().toFloat(&ok1);
     dReal y = robotwidget->getPoseWidget->y->text().toFloat(&ok2);

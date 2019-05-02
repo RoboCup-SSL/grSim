@@ -3,5 +3,9 @@
 
 #define MAX_ROBOT_COUNT 12 //don't change
 
+#define CONFIG_DIR "@CMAKE_INSTALL_PREFIX@/share/@app@/config/"
+
+#define DEFAULT_TEAM "Parsian"
+
 #endif //CONSTANTS_H
 

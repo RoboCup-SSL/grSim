@@ -34,6 +34,8 @@ public:
     virtual void setMass(dReal mass);
     virtual void init();
     virtual void draw();
+    dReal getRadius();
+    dReal getLength();
 };
 
 #endif // PCYLINDER_H
