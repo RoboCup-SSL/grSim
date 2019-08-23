@@ -394,7 +394,8 @@ void SSLWorld::step(dReal dt)
 
     if (customDT > 0)
         dt = customDT;
-    g->initScene(m_parent->width(),m_parent->height(),0,0.7,1);//true,0.7,0.7,0.7,0.8);
+    const auto ratio = m_parent->devicePixelRatio();
+    g->initScene(m_parent->width()*ratio,m_parent->height()*ratio,0,0.7,1);
     for (int kk=0;kk<5;kk++)
     {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
