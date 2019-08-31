@@ -55,11 +55,14 @@ list(APPEND libs ${OPENGL_LIBRARIES})
 #include_directories(${GLUT_INCLUDE_DIR})
 
 # Qt
-set(QT_USE_QTNETWORK true)
-set(QT_USE_QTOPENGL true)
-find_package(Qt4 REQUIRED)
-include(${QT_USE_FILE})
-list(APPEND libs ${QT_LIBRARIES})
+if(APPLE AND EXISTS /usr/local/opt/qt)
+  # Homebrew installs Qt5 (up to at least 5.9.1) in
+  # /usr/local/qt5, ensure it can be found by CMake since
+  # it is not in the default /usr/local prefix.
+  list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt")
+endif()
+find_package(Qt5 COMPONENTS Core Widgets OpenGL Network REQUIRED)
+list(APPEND libs Qt5::Core Qt5::Widgets Qt5::OpenGL Qt5::Network)
 
 # ODE
 find_package(ODE REQUIRED)
@@ -101,7 +104,7 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
     src/proto/grSim_Packet.proto
 )
 
-qt4_add_resources(RESOURCES
+qt5_add_resources(RESOURCES
     resources/textures.qrc
 )
 
@@ -177,6 +180,9 @@ if(APPLE)
     add_executable(${app} MACOSX_BUNDLE ${srcs})
     target_link_libraries(${app} ${libs})
     install(TARGETS ${app} DESTINATION .)
+    add_executable(${app}-bin ${srcs} resources/textures.qrc)
+    target_link_libraries(${app}-bin ${libs})
+    install(TARGETS ${app}-bin DESTINATION .)
     set(MACOSX_BUNDLE_ICON_FILE "${PROJECT_SOURCE_DIR}/resources/icons/grsim.icns")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
     set(MACOSX_BUNDLE_VERSION ${VERSION})
@@ -238,7 +244,7 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.txt")
 #set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/WELCOME.txt")
 set(CPACK_PACKAGE_VERSION ${VERSION})
 # Debian based specific
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libode1 (>=0.11), vartypes (>=0.7.0), libqt4-network (>=4.8.0), libqt4-core, libqt4-gui, libqt4-opengl")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libode1 (>=0.11), vartypes (>=0.7.0)")
 if(FLAVOR)
     set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME_LOWER}_${CPACK_PACKAGE_VERSION}-${FLAVOR}_${ARCH}")
 else()
