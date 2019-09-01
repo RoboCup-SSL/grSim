@@ -11,6 +11,12 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
+    - os: linux
+      dist: bionic
+      sudo: required
+    - os: linux
+      dist: xenial
+      sudo: required
     - os: osx
       osx_image: xcode11
 
