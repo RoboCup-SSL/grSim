@@ -29,6 +29,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include <stdint.h>
 #include <stdio.h>
+#include <memory>
 
 #include <vartypes/VarTreeModel.h>
 #include <vartypes/VarItem.h>
@@ -69,22 +70,22 @@ using namespace VarTypes;
 #else
 
 #define DEF_VALUE(type,Type,name)  \
-            std::tr1::shared_ptr<VarTypes::Var##Type> v_##name; \
+            std::shared_ptr<VarTypes::Var##Type> v_##name; \
             inline type name() {return v_##name->get##Type();}
 
 #define DEF_FIELD_VALUE(type,Type,name)  \
-            std::tr1::shared_ptr<VarTypes::Var##Type> v_DivA_##name; \
-            std::tr1::shared_ptr<VarTypes::Var##Type> v_DivB_##name; \
+            std::shared_ptr<VarTypes::Var##Type> v_DivA_##name; \
+            std::shared_ptr<VarTypes::Var##Type> v_DivB_##name; \
             inline type name() {return (Division() == "Division A" ? v_DivA_##name: v_DivB_##name)->get##Type(); }
 
 #define DEF_ENUM(type,name)  \
-            std::tr1::shared_ptr<VarTypes::VarStringEnum> v_##name; \
+            std::shared_ptr<VarTypes::VarStringEnum> v_##name; \
             type name() {if(v_##name!=NULL) return v_##name->getString();return * (new type);}
 
 #define DEF_TREE(name)  \
-            std::tr1::shared_ptr<VarTypes::VarList> name;
+            std::shared_ptr<VarTypes::VarList> name;
 #define DEF_PTREE(parents, name)  \
-            std::tr1::shared_ptr<VarTypes::VarList> parents##_##name;
+            std::shared_ptr<VarTypes::VarList> parents##_##name;
 
 #endif
 

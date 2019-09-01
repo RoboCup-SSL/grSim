@@ -12,9 +12,9 @@ GrSim depends on:
 
 - [CMake](https://cmake.org/) version 2.8+ 
 - [OpenGL](https://www.opengl.org)
-- [Qt4 Development Libraries](https://www.qt.io) version 4.8+
+- [Qt5 Development Libraries](https://www.qt.io)
 - [Open Dynamics Engine (ODE)](http://www.ode.org)
-- [VarTypes Library](https://github.com/szi/vartypes)
+- [VarTypes Library](https://github.com/jpfeltracco/vartypes) forked from [Szi's Vartypes](https://github.com/szi/vartypes)
 - [Google Protobuf](https://github.com/google/protobuf)
 - [Boost development libraries](http://www.boost.org/) (needed by VarTypes)
 
@@ -25,14 +25,14 @@ GrSim depends on:
 If you run a Debian system, or derivative, first ensure that these dependencies are there:
 
 ```bash
-$ sudo apt-get install git build-essential cmake libqt4-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
+$ sudo apt-get install git build-essential cmake qt5-default libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
 ```
 
 Next compile and install VarTypes from source. In the following we install VarTypes from source using `git`.
 
 ```bash
 $ cd /tmp
-$ git clone https://github.com/szi/vartypes.git 
+$ git clone https://github.com/jpfeltracco/vartypes.git
 $ cd vartypes
 $ mkdir build
 $ cd build
@@ -83,9 +83,7 @@ First ensure the dependencies are there:
 brew install cmake
 brew tap robotology/formulae         
 brew install robotology/formulae/ode 
-brew tap cartr/qt4
-brew tap-pin cartr/qt4
-brew install qt@4  
+brew install qt5
 brew install protobuf
 ```
 
@@ -97,8 +95,6 @@ brew doctor
 ```
 
 Next we need to install VarTypes manually. Please refer to the documentation above for the procedure. 
-
-**IMPORTANT NOTE:** VarTypes currently does not compile on MacOS. Please use the following fork of Vartypes instead of the official repository: `https://github.com/lordhippo/vartypes.git (branch: osx-fix)`
 
 The steps to compile grSim on Mac OS is similar to the steps outlines above for Linux:
 

@@ -11,35 +11,37 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
+    - os: linux
+      dist: bionic
+      sudo: required
+    - os: linux
+      dist: xenial
+      sudo: required
     - os: osx
-      osx_image: xcode8
+      osx_image: xcode11
 
 addons:
   apt:
     packages:
       - cmake
-      - libqt4-dev
+      - qt5-default
+      - libqt5opengl5-dev
       - libgl1-mesa-dev
       - libglu1-mesa-dev
       - libprotobuf-dev 
       - protobuf-compiler 
       - libode-dev
       - libboost-dev
-
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update > /dev/null                   ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap cartr/qt4                        ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap-pin cartr/qt4                    ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt@4                         ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew uninstall --ignore-dependencies python ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install protobuf                     ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap robotology/formulae              ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install robotology/formulae/ode      ; fi
+  homebrew:
+    taps: robotology/formulae
+    packages:
+      - qt5
+      - protobuf
+      - robotology/formulae/ode
 
 install:
   # vartypes
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git clone https://github.com/szi/vartypes.git ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then git clone https://github.com/lordhippo/vartypes.git -b osx-fix; fi
+  - git clone https://github.com/jpfeltracco/vartypes.git
   - cd vartypes
   - mkdir build && cd build
   - cmake ..

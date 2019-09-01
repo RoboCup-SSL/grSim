@@ -6,10 +6,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(libs)
 
-set(QT_USE_QTNETWORK TRUE)
-find_package(Qt4 REQUIRED)
-include(${QT_USE_FILE})
-list(APPEND libs ${QT_LIBRARIES})
+find_package(Qt5 COMPONENTS Core Widgets Network REQUIRED)
+list(APPEND libs Qt5::Core Qt5::Widgets Qt5::Network)
+
 
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})

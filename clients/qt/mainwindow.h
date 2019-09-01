@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui/QMainWindow>
-#include <QtGui/QDialog>
+#include <QtWidgets/QMainWindow>
+#include <QDialog>
 #include <QLineEdit>
 #include <QLabel>
 #include <QTimer>
