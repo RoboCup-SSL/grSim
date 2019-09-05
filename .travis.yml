@@ -39,15 +39,6 @@ addons:
       - protobuf
       - robotology/formulae/ode
 
-install:
-  # vartypes
-  - git clone https://github.com/jpfeltracco/vartypes.git
-  - cd vartypes
-  - mkdir build && cd build
-  - cmake ..
-  - make
-  - sudo make install
-
 script:
   # grsim
   - cd $TRAVIS_BUILD_DIR

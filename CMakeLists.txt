@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 
 ## Project branding, version and package mantainer
@@ -15,6 +15,10 @@ include(${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 standard_config()
 standard_paths(${PROJECT_SOURCE_DIR} bin lib)
 
+set(app ${CMAKE_PROJECT_NAME})
+# create the target before the sources list is known so that we can call
+# add_dependencies(<target> external_proj)
+add_executable(${app} "")
 
 # definitions for knowing the OS from the code
 if(MSVC)
@@ -85,8 +89,25 @@ option(DOUBLE_PRECISION "Use double precision? If not single precision will be u
   endif()
 
 # VarTypes
-find_package(VarTypes REQUIRED)
-include_directories(${VARTYPES_INCLUDE_DIRS})
+find_package(VarTypes)
+
+if(NOT VARTYPES_FOUND)
+  include(ExternalProject)
+  set(VARTYPES_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/vartypes_install")
+  ExternalProject_Add(vartypes_external
+    GIT_REPOSITORY    https://github.com/jpfeltracco/vartypes
+    GIT_TAG           origin/jpfeltracco/build_static
+    INSTALL_DIR       "${VARTYPES_INSTALL_DIR}"
+    CMAKE_ARGS        "-DVARTYPES_BUILD_STATIC=ON;-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>"
+  )
+  add_dependencies(${app} vartypes_external)
+
+  set(VARTYPES_INCLUDE_DIRS "${VARTYPES_INSTALL_DIR}/include")
+  set(VARTYPE_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}vartypes${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(VARTYPES_LIBRARIES "${VARTYPES_INSTALL_DIR}/lib/${VARTYPE_LIB_NAME}")
+endif()
+
+target_include_directories(${app} PRIVATE ${VARTYPES_INCLUDE_DIRS})
 list(APPEND libs ${VARTYPES_LIBRARIES})
 
 # Protobuf
@@ -175,42 +196,33 @@ set(srcs
 file(GLOB CONFIG_FILES "config/*.ini")
 set_source_files_properties(${CONFIG_FILES}  PROPERTIES MACOSX_PACKAGE_LOCATION "config")
 
-if(APPLE)
-    set(app ${CMAKE_PROJECT_NAME})
-    add_executable(${app} MACOSX_BUNDLE ${srcs})
-    target_link_libraries(${app} ${libs})
-    install(TARGETS ${app} DESTINATION .)
-    add_executable(${app}-bin ${srcs} resources/textures.qrc)
-    target_link_libraries(${app}-bin ${libs})
-    install(TARGETS ${app}-bin DESTINATION .)
-    set(MACOSX_BUNDLE_ICON_FILE "${PROJECT_SOURCE_DIR}/resources/icons/grsim.icns")
-    set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
-    set(MACOSX_BUNDLE_VERSION ${VERSION})
-    set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${VERSION}")
-    set(BUNDLE_APP ${PROJECT_SOURCE_DIR}/bin/${app}.app)
-    install(
-        CODE "
-        include(BundleUtilities)
-        fixup_bundle(\"${BUNDLE_APP}\"   \"\"   \"/opt/local/lib;/usr/local/lib\")"
-        COMPONENT Runtime)
-    set(CPACK_GENERATOR "DragNDrop" "TGZ")
-elseif(WIN32)
-    set(app ${CMAKE_PROJECT_NAME})
-    add_executable(${app} WIN32 ${srcs})
-    target_link_libraries(${app} ${libs})
-    install(TARGETS ${app} DESTINATION bin)
-    install(DIRECTORY config DESTINATION .)
-    install(DIRECTORY bin DESTINATION .
-            FILES_MATCHING PATTERN "*.dll")
-    set(CPACK_PACKAGE_EXECUTABLES ${app} ${app})
+target_sources(${app} PRIVATE ${srcs})
+install(TARGETS ${app} DESTINATION bin)
+target_link_libraries(${app} ${libs})
+
+if(APPLE AND CMAKE_MACOSX_BUNDLE)
+  # use CMAKE_MACOSX_BUNDLE if you want to build a mac bundle
+  set(MACOSX_BUNDLE_ICON_FILE "${PROJECT_SOURCE_DIR}/resources/icons/grsim.icns")
+  set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
+  set(MACOSX_BUNDLE_VERSION ${VERSION})
+  set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${VERSION}")
+  set(BUNDLE_APP ${PROJECT_SOURCE_DIR}/bin/${app}.app)
+  install(
+      CODE "
+      include(BundleUtilities)
+      fixup_bundle(\"${BUNDLE_APP}\"   \"\"   \"/opt/local/lib;/usr/local/lib\")"
+      COMPONENT Runtime)
+  set(CPACK_GENERATOR "DragNDrop" "TGZ")
+elseif(WIN32 AND CMAKE_WIN32_EXECUTABLE)
+  # use CMAKE_WIN32_EXECUTABLE if you want to build a windows exe
+  install(DIRECTORY config DESTINATION .)
+  install(DIRECTORY bin DESTINATION .
+          FILES_MATCHING PATTERN "*.dll")
+  set(CPACK_PACKAGE_EXECUTABLES ${app} ${app})
 else()
-    set(app ${CMAKE_PROJECT_NAME_LOWER})
-    add_executable(${app} ${srcs})
-    target_link_libraries(${app} ${libs})
-    install(TARGETS ${app} DESTINATION bin)
-    install(DIRECTORY config DESTINATION share/${app})
-    install(FILES resources/grsim.desktop DESTINATION share/applications)
-    install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)
+  install(DIRECTORY config DESTINATION share/${app})
+  install(FILES resources/grsim.desktop DESTINATION share/applications)
+  install(FILES resources/icons/grsim.svg DESTINATION share/icons/hicolor/scalable/apps)
 endif()
 
 option(BUILD_CLIENTS "Choose this option if you want to build the example Qt client." ON)
