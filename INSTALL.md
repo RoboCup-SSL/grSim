@@ -83,7 +83,7 @@ First ensure the dependencies are there:
 brew install cmake
 brew tap robotology/formulae         
 brew install robotology/formulae/ode 
-brew install qt5
+brew install qt
 brew install protobuf
 ```
 
