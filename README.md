@@ -30,9 +30,9 @@ grSim compiles on Linux (tested on Ubuntu variants only) and Mac OS. It depends 
 
 - [CMake](https://cmake.org/) version 2.8+ 
 - [OpenGL](https://www.opengl.org)
-- [Qt4 Development Libraries](https://www.qt.io) version 4.8+
+- [Qt5 Development Libraries](https://www.qt.io)
 - [Open Dynamics Engine (ODE)](http://www.ode.org)
-- [VarTypes Library](https://github.com/szi/vartypes)
+- [VarTypes Library](https://github.com/jpfeltracco/vartypes) forked from [Szi's Vartypes](https://github.com/szi/vartypes)
 - [Google Protobuf](https://github.com/google/protobuf)
 - [Boost development libraries](http://www.boost.org/) (needed by VarTypes)
 
