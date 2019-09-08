@@ -28,7 +28,7 @@ Software Requirements
 
 grSim compiles on Linux (tested on Ubuntu variants only) and Mac OS. It depends on the following libraries:
 
-- [CMake](https://cmake.org/) version 2.8+ 
+- [CMake](https://cmake.org/) version 3.5+ 
 - [OpenGL](https://www.opengl.org)
 - [Qt5 Development Libraries](https://www.qt.io)
 - [Open Dynamics Engine (ODE)](http://www.ode.org)
