@@ -45,7 +45,7 @@ Next, clone grSim into your preferred location.
 
 ```bash
 $ cd /path/to/grsim_ws
-$ git clone https://github.com/mani-monaj/grSim.git
+$ git clone https://github.com/RoboCup-SSL/grSim.git
 $ cd grSim
 ```
 
