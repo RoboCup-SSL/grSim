@@ -2,7 +2,7 @@
 grSim-[![Build Status](https://travis-ci.org/RoboCup-SSL/grSim.svg?branch=master)](https://travis-ci.org/RoboCup-SSL/grSim)[![CodeFactor](https://www.codefactor.io/repository/github/parsianroboticlab/grsim/badge/master)](https://www.codefactor.io/repository/github/parsianroboticlab/grsim/overview/master)
 =======================
 
-[RoboCup Small Size League](http://wiki.robocup.org/Small_Size_League) Simulator.
+[RoboCup Small Size League](https://ssl.robocup.org/) Simulator.
 
 ![grSim on Ubuntu](docs/img/screenshot01.jpg?raw=true "grSim on Ubuntu")
 
@@ -28,11 +28,11 @@ Software Requirements
 
 grSim compiles on Linux (tested on Ubuntu variants only) and Mac OS. It depends on the following libraries:
 
-- [CMake](https://cmake.org/) version 2.8+ 
+- [CMake](https://cmake.org/) version 3.5+ 
 - [OpenGL](https://www.opengl.org)
-- [Qt4 Development Libraries](https://www.qt.io) version 4.8+
+- [Qt5 Development Libraries](https://www.qt.io)
 - [Open Dynamics Engine (ODE)](http://www.ode.org)
-- [VarTypes Library](https://github.com/szi/vartypes)
+- [VarTypes Library](https://github.com/jpfeltracco/vartypes) forked from [Szi's Vartypes](https://github.com/szi/vartypes)
 - [Google Protobuf](https://github.com/google/protobuf)
 - [Boost development libraries](http://www.boost.org/) (needed by VarTypes)
 

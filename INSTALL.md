@@ -10,7 +10,7 @@ GrSim is written in C++, in order to compile it, you will need a working toolcha
 
 GrSim depends on:
 
-- [CMake](https://cmake.org/) version 2.8+ 
+- [CMake](https://cmake.org/) version 3.5+ 
 - [OpenGL](https://www.opengl.org)
 - [Qt5 Development Libraries](https://www.qt.io)
 - [Open Dynamics Engine (ODE)](http://www.ode.org)
@@ -45,7 +45,7 @@ Next, clone grSim into your preferred location.
 
 ```bash
 $ cd /path/to/grsim_ws
-$ git clone https://github.com/mani-monaj/grSim.git
+$ git clone https://github.com/RoboCup-SSL/grSim.git
 $ cd grSim
 ```
 

@@ -1,6 +1,6 @@
 ## Authors
 
-grSim was originally developed by [Ali Koochakzadeh](https://github.com/ali-k) and [Mani Monajjemi](https://mani.im) from [Parsian](http://wiki.robocup.org/Small_Size_League/Teams#Parsian), the RoboCup Small Size Team of [Amirkabir University of Technology](http://www.aut.ac.ir/aut/). Since 2011, it has received numerous contributions from the RoboCup SSL community as well as Parsian team members (listed below). grSim is Currently maintained by [Mohammad Mahdi Rahimi](https://github.com/Mahi97).
+grSim was originally developed by [Ali Koochakzadeh](https://github.com/ali-k) and [Mani Monajjemi](https://mani.im) from [Parsian](https://github.com/ParsianRoboticLab), the RoboCup Small Size Team of [Amirkabir University of Technology](http://www.aut.ac.ir/aut/). Since 2011, it has received numerous contributions from the RoboCup SSL community as well as Parsian team members (listed below). grSim is Currently maintained by [Mohammad Mahdi Rahimi](https://github.com/Mahi97).
 
 ### Contributers
 

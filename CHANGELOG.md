@@ -1,6 +1,18 @@
 grSim is a software from developers for developers, mainly
 in RoboCup Small Size League domain. Commit logs can be
-accessed [here](https://github.com/mani-monaj/grSim/commits/master)
+accessed [here](https://github.com/RoboCup-SSL/grSim/commits/master)
+
+2017-01-09
+----------
+
+Mohammad Mahdi Rahimi <mohammadmahdi76@gmail.com>
+
+- Milestone 2.0
+  - Update documentation files
+  - Updates from Parsian
+  - Set explicitly the C++ standard to use : c++03
+  - Enable multi-target build on TravisCI
+  - Use pkg-config for ODE and protobuf
 
 2016-11-05
 ----------
