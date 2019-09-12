@@ -92,6 +92,7 @@ public:
     void resetRobot();
     void getXY(dReal& x,dReal& y);
     dReal getDir();
+    dReal getDir(dReal &k);
     void setXY(dReal x,dReal y);
     void setDir(dReal ang);
     int getID();

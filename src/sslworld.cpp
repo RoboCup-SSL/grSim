@@ -642,7 +642,7 @@ bool SSLWorld::visibleInCam(int id, double x, double y)
 SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
 {
     SSL_WrapperPacket* packet = new SSL_WrapperPacket;
-    dReal x,y,z,dir;
+    dReal x,y,z,dir,k;
     ball->getBodyPosition(x,y,z);    
     packet->mutable_detection()->set_camera_id(cam_id);
     packet->mutable_detection()->set_frame_number(framenum);    
@@ -700,7 +700,11 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
         {
             if (!robots[i]->on) continue;
             robots[i]->getXY(x,y);
-            dir = robots[i]->getDir();
+            dir = robots[i]->getDir(k);
+            // reset when the robot has turned over
+            if (k < 0.9) {
+                robots[i]->resetRobot();
+            }
             if (visibleInCam(cam_id, x, y)) {
                 SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
                 rob->set_robot_id(i);
@@ -718,7 +722,11 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
         {
             if (!robots[i]->on) continue;
             robots[i]->getXY(x,y);
-            dir = robots[i]->getDir();
+            dir = robots[i]->getDir(k);
+            // reset when the robot has turned over
+            if (k < 0.9) {
+                robots[i]->resetRobot();
+            }
             if (visibleInCam(cam_id, x, y)) {
                 SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
                 rob->set_robot_id(i-cfg->Robots_Count());

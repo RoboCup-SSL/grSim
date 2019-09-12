@@ -42,6 +42,7 @@ public:
     void setBodyRotation(dReal x_axis,dReal y_axis,dReal z_axis,dReal ang,bool local=false);
     void getBodyPosition(dReal &x,dReal &y,dReal &z,bool local=false);
     void getBodyDirection(dReal &x,dReal &y,dReal &z);
+    void getBodyDirection(dReal &x,dReal &y,dReal &z, dReal &k);
     void getBodyRotation(dMatrix3 r,bool local=false);
     void setVisibility(bool v);
     void setColor(dReal r,dReal g,dReal b);

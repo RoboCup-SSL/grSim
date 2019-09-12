@@ -365,6 +365,16 @@ dReal Robot::getDir()
     return (y > 0) ? absAng : -absAng;
 }
 
+dReal Robot::getDir(dReal &k)
+{
+    dReal x,y,z;
+    chassis->getBodyDirection(x,y,z,k);
+    dReal dot = x;//zarb dar (1.0,0.0,0.0)
+    dReal length = sqrt(x*x + y*y);
+    dReal absAng = (dReal)(acos((dReal)(dot/length)) * (180.0f/M_PI));
+    return (y > 0) ? absAng : -absAng;
+}
+
 void Robot::setXY(dReal x,dReal y)
 {
     dReal xx,yy,zz,kx,ky,kz;
