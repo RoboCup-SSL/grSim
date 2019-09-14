@@ -304,6 +304,16 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     timer = new QTime();
     timer->start();
     in_buffer = new char [65536];
+
+    // initialize robot state
+    for (int team = 0; team < 2; ++team)
+    {
+        for (int i = 0; i < MAX_ROBOT_COUNT; ++i)
+        {
+            lastInfraredState[team][i] = false;
+            lastKickState[team][i] = 0; 
+        }
+    }
 }
 
 int SSLWorld::robotIndex(int robot,int team)
@@ -492,6 +502,49 @@ void SSLWorld::step(dReal dt)
     framenum ++;
 }
 
+void SSLWorld::addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, int kickStatus)
+{
+    Robot_Status* robot_status = robotsPacket.add_robots_status();
+    robot_status->set_robot_id(robotID);
+
+    if (infrared)
+        robot_status->set_infrared(1);
+    else
+        robot_status->set_infrared(0);
+
+    switch(kickStatus){
+        case 0:
+            robot_status->set_flat_kick(0);
+            robot_status->set_chip_kick(0);
+            break;
+        case 1:
+            robot_status->set_flat_kick(1);
+            robot_status->set_chip_kick(0);
+            break;
+        case 2:
+            robot_status->set_flat_kick(0);
+            robot_status->set_chip_kick(1);
+            break;
+        default:
+            robot_status->set_flat_kick(0);
+            robot_status->set_chip_kick(0);
+            break;
+    }
+}
+
+void SSLWorld::sendRobotStatus(Robots_Status& robotsPacket, QHostAddress sender, int team)
+{
+    int size = robotsPacket.ByteSize();
+    QByteArray buffer(size, 0);
+    robotsPacket.SerializeToArray(buffer.data(), buffer.size());
+    if (team == 0)
+    {
+        blueStatusSocket->writeDatagram(buffer.data(), buffer.size(), sender, cfg->BlueStatusSendPort());
+    }
+    else{
+        yellowStatusSocket->writeDatagram(buffer.data(), buffer.size(), sender, cfg->YellowStatusSendPort());
+    }
+}
 
 void SSLWorld::recvActions()
 {
@@ -605,6 +658,28 @@ void SSLWorld::recvActions()
                     dBodySetAngularVel(ball->body,0,0,0);
                 }
             }
+        }
+
+        // send robot status
+        for (int team = 0; team < 2; ++team)
+        {
+            Robots_Status robotsPacket;
+            bool updateRobotStatus = false;
+            for (int i = 0; i < this->cfg->Robots_Count(); ++i)
+            {
+                int id = robotIndex(i, team);
+                bool isInfrared = robots[id]->kicker->isTouchingBall();
+                int kicking = robots[id]->kicker->isKicking();
+                if (isInfrared != lastInfraredState[team][i] || kicking != lastKickState[team][i])
+                {
+                    updateRobotStatus = true;
+                    addRobotStatus(robotsPacket, i, team, isInfrared, kicking);
+                    lastInfraredState[team][i] = isInfrared;
+                    lastKickState[team][i] = kicking;
+                }
+            }
+            if (updateRobotStatus)
+                sendRobotStatus(robotsPacket, sender, team);
         }
     }
 }

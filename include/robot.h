@@ -63,7 +63,7 @@ public:
     class Kicker
     {
       private:
-        bool kicking;
+        int kicking;   // 0: no kick, 1: flat kick, 2: chip kick
         int rolling;
         int kickstate;
         dReal m_kickspeed,m_kicktime;
@@ -75,6 +75,7 @@ public:
         int getRoller();
         void toggleRoller();
         bool isTouchingBall();
+        int isKicking();
         dJointID joint;
         PBox* box;
         Robot* rob;

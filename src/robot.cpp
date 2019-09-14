@@ -89,7 +89,7 @@ Robot::Kicker::Kicker(Robot* robot)
     dJointSetHingeParam (joint,dParamHiStop,0);
 
     rolling = 0;
-    kicking = false;
+    kicking = 0;
 }
 
 void Robot::Kicker::step()
@@ -98,7 +98,7 @@ void Robot::Kicker::step()
     {
         box->setColor(1,0.3,0);
         kickstate--;
-        if (kickstate<=0) kicking = false;
+        if (kickstate<=0) kicking = 0;
     }
     else if (rolling!=0)
     {
@@ -145,6 +145,11 @@ bool Robot::Kicker::isTouchingBall()
     return ((xx<rob->cfg->robotSettings.KickerThickness*2.0f+rob->cfg->BallRadius()) && (yy<rob->cfg->robotSettings.KickerWidth*0.5f) && (zz<rob->cfg->robotSettings.KickerHeight*0.5f));
 }
 
+int Robot::Kicker::isKicking()
+{
+    return kicking;
+}
+
 void Robot::Kicker::setRoller(int roller)
 {
     rolling = roller;
@@ -181,9 +186,12 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
         vx += vn * dx - vt * dy;
         vy += vn * dy + vt * dx;
         dBodySetLinearVel(rob->getBall()->body,vx,vy,vz);
+        if (kickspeedz >= 1)
+            kicking = 2;
+        else
+            kicking = 1;
+        kickstate = 10;
     }
-    kicking = true;
-    kickstate = 10;
 }
 
 Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir)
