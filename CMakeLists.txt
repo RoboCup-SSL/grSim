@@ -83,11 +83,11 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
 
 
 # Qt
-if(APPLE AND EXISTS /usr/local/opt/qt)
+if(APPLE AND EXISTS /usr/local/Cellar/qt/)
   # Homebrew installs Qt5 (up to at least 5.9.1) in
   # /usr/local/qt5, ensure it can be found by CMake since
   # it is not in the default /usr/local prefix.
-  list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt")
+  list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar/qt")
 endif()
 find_package(Qt5 COMPONENTS Core Widgets OpenGL Network REQUIRED)
 list(APPEND libs Qt5::Core Qt5::Widgets Qt5::OpenGL Qt5::Network)
