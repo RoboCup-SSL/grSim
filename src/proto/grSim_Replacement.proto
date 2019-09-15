@@ -10,13 +10,13 @@ optional bool turnon=6;
 }
 
 message grSim_BallReplacement {
-required double x=1;
-required double y=2;
-required double vx=3;
-required double vy=4;
+optional double x=1;
+optional double y=2;
+optional double vx=3;
+optional double vy=4;
 }
 
 message grSim_Replacement {
-optional grSim_BallReplacement ball = 1;
-repeated grSim_RobotReplacement robots = 2;
+optional grSim_BallReplacement ball=1;
+repeated grSim_RobotReplacement robots=2;
 }
