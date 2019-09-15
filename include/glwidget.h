@@ -19,6 +19,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
+#define GL_SILENCE_DEPRECATION
 #include <QGLWidget>
 #include <QGraphicsView>
 #include <QTime>
@@ -26,6 +27,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "sslworld.h"
 #include "configwidget.h"
+
 
 class GLWidgetGraphicsView;
 class GLWidget : public QGLWidget {

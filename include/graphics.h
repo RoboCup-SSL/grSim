@@ -19,11 +19,13 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#define GL_SILENCE_DEPRECATION
 #include <ode/ode.h>
 
 #include <QVector>
 #include <QGLWidget>
 #include <QString>
+
 
 class CGraphics
 {
