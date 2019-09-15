@@ -123,7 +123,7 @@ void MainWindow::resetBtnClicked()
 
 void MainWindow::reconnectUdp()
 {
-    _addr = edtIp->text();
+    _addr = QHostAddress(edtIp->text());
     _port = edtPort->text().toUShort();
     btnSend->setDisabled(false);
 }
