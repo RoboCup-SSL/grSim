@@ -25,6 +25,12 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "physics/pball.h"
 #include "configwidget.h"
 
+enum KickStatus
+{
+    NO_KICK = 0,
+    FLAT_KICK = 1,
+    CHIP_KICK = 2,
+};
 
 class Robot
 {
@@ -63,10 +69,11 @@ public:
     class Kicker
     {
       private:
-        bool kicking;
+        KickStatus kicking;
         int rolling;
         int kickstate;
         dReal m_kickspeed,m_kicktime;
+        bool holdingBall;
       public:
         Kicker(Robot* robot);
         void step();
@@ -75,7 +82,11 @@ public:
         int getRoller();
         void toggleRoller();
         bool isTouchingBall();
+        KickStatus isKicking();
+        void holdBall();
+        void unholdBall();
         dJointID joint;
+        dJointID robot_to_ball;
         PBox* box;
         Robot* rob;
     } *kicker;
@@ -92,10 +103,12 @@ public:
     void resetRobot();
     void getXY(dReal& x,dReal& y);
     dReal getDir();
+    dReal getDir(dReal &k);
     void setXY(dReal x,dReal y);
     void setDir(dReal ang);
     int getID();
     PBall* getBall();
+    PWorld* getWorld();
 };
 
 

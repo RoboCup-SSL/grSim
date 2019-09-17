@@ -40,6 +40,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "config.h"
 
+#include "messages_robocup_ssl_robot_status.pb.h"
+
 #define WALL_COUNT 10
 
 class RobotsFomation;
@@ -59,7 +61,9 @@ private:
     dReal last_dt;
     QList<SendingPacket*> sendQueue;
     char packet[200];
-    char *in_buffer;    
+    char *in_buffer;
+    bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT];
+    KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT];    
 public:    
     dReal customDT;
     bool isGLEnabled;
@@ -75,6 +79,8 @@ public:
     void sendVisionBuffer();
     bool visibleInCam(int id, double x, double y);
     int  robotIndex(int robot,int team);
+    void addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, KickStatus kickStatus);
+    void sendRobotStatus(Robots_Status& robotsPacket, QHostAddress sender, int team);
 
     ConfigWidget* cfg;
     CGraphics* g;

@@ -62,7 +62,7 @@ void Robot::Wheel::step()
     dJointSetAMotorParam(motor,dParamFMax,rob->cfg->robotSettings.Wheel_Motor_FMax);
 }
 
-Robot::Kicker::Kicker(Robot* robot)
+Robot::Kicker::Kicker(Robot* robot) : holdingBall(false)
 {
     rob = robot;
 
@@ -89,41 +89,24 @@ Robot::Kicker::Kicker(Robot* robot)
     dJointSetHingeParam (joint,dParamHiStop,0);
 
     rolling = 0;
-    kicking = false;
+    kicking = NO_KICK;
 }
 
 void Robot::Kicker::step()
 {
-    if (kicking)
+    if (!isTouchingBall() || rolling == 0) unholdBall();
+    if (kicking != NO_KICK)
     {
         box->setColor(1,0.3,0);
         kickstate--;
-        if (kickstate<=0) kicking = false;
+        if (kickstate<=0) kicking = NO_KICK;
     }
     else if (rolling!=0)
     {
         box->setColor(1,0.7,0);
         if (isTouchingBall())
         {
-            dReal fx,fy,fz;
-            rob->chassis->getBodyDirection(fx,fy,fz);
-            fz = sqrt(fx*fx + fy*fy);
-            fx/=fz;fy/=fz;
-            if (rolling==-1) {fx=-fx;fy=-fy;}
-            rob->getBall()->tag = rob->getID();
-
-            dReal vx,vy,vz;
-            dReal bx,by,bz;
-            dReal kx,ky,kz;
-            rob->chassis->getBodyDirection(vx,vy,vz);
-            rob->getBall()->getBodyPosition(bx,by,bz);
-            box->getBodyPosition(kx,ky,kz);
-            dReal yy = -((-(kx-bx)*vy + (ky-by)*vx)) / rob->cfg->robotSettings.KickerWidth;
-            //dReal dir = 1;
-            //if (yy>0) dir = -1.0f;//never read
-            dBodySetAngularVel(rob->getBall()->body,fy*rob->cfg->robotSettings.RollerTorqueFactor*1400,-fx*rob->cfg->robotSettings.RollerTorqueFactor*1400,0);
-            //dBodyAddTorque(rob->getBall()->body,fy*rob->cfg->ROLLERTORQUEFACTOR(),-fx*rob->cfg->ROLLERTORQUEFACTOR(),0);
-            dBodyAddTorque(rob->getBall()->body,yy*fx*rob->cfg->robotSettings.RollerPerpendicularTorqueFactor,yy*fy*rob->cfg->robotSettings.RollerPerpendicularTorqueFactor,0);
+            holdBall();
         }
     }
     else box->setColor(0.9,0.9,0.9);
@@ -143,6 +126,11 @@ bool Robot::Kicker::isTouchingBall()
     dReal yy = fabs(-(kx-bx)*vy + (ky-by)*vx);
     dReal zz = fabs(kz-bz);
     return ((xx<rob->cfg->robotSettings.KickerThickness*2.0f+rob->cfg->BallRadius()) && (yy<rob->cfg->robotSettings.KickerWidth*0.5f) && (zz<rob->cfg->robotSettings.KickerHeight*0.5f));
+}
+
+KickStatus Robot::Kicker::isKicking()
+{
+    return kicking;
 }
 
 void Robot::Kicker::setRoller(int roller)
@@ -168,6 +156,7 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
     dReal vx,vy,vz;
     rob->chassis->getBodyDirection(dx,dy,dz);dz = 0;
     dReal zf = kickspeedz;
+    unholdBall();
     if (isTouchingBall())
     {
         dReal dlen = dx*dx+dy*dy+dz*dz;
@@ -181,9 +170,37 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
         vx += vn * dx - vt * dy;
         vy += vn * dy + vt * dx;
         dBodySetLinearVel(rob->getBall()->body,vx,vy,vz);
+        if (kickspeedz >= 1)
+            kicking = CHIP_KICK;
+        else
+            kicking = FLAT_KICK;
+        kickstate = 10;
     }
-    kicking = true;
-    kickstate = 10;
+}
+
+void Robot::Kicker::holdBall(){
+    dReal vx,vy,vz;
+    dReal bx,by,bz;
+    dReal kx,ky,kz;
+    rob->chassis->getBodyDirection(vx,vy,vz);
+    rob->getBall()->getBodyPosition(bx,by,bz);
+    box->getBodyPosition(kx,ky,kz);
+    kx += vx*rob->cfg->robotSettings.KickerThickness*0.5f;
+    ky += vy*rob->cfg->robotSettings.KickerThickness*0.5f;
+    dReal xx = fabs((kx-bx)*vx + (ky-by)*vy);
+    dReal yy = fabs(-(kx-bx)*vy + (ky-by)*vx);
+    if(holdingBall || xx-rob->cfg->BallRadius() < 0) return;
+    dBodySetLinearVel(rob->getBall()->body,0,0,0);
+    robot_to_ball = dJointCreateHinge(rob->getWorld()->world,0);
+    dJointAttach (robot_to_ball,box->body,rob->getBall()->body);
+    holdingBall = true;
+}
+
+void Robot::Kicker::unholdBall(){
+    if(holdingBall) {
+        dJointDestroy(robot_to_ball);
+        holdingBall = false;
+    }
 }
 
 Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal z,dReal r,dReal g,dReal b,int rob_id,int wheeltexid,int dir)
@@ -232,6 +249,11 @@ Robot::~Robot()
 PBall* Robot::getBall()
 {
     return m_ball;
+}
+
+PWorld* Robot::getWorld()
+{
+    return w;
 }
 
 int Robot::getID()
@@ -359,6 +381,16 @@ dReal Robot::getDir()
 {
     dReal x,y,z;
     chassis->getBodyDirection(x,y,z);
+    dReal dot = x;//zarb dar (1.0,0.0,0.0)
+    dReal length = sqrt(x*x + y*y);
+    dReal absAng = (dReal)(acos((dReal)(dot/length)) * (180.0f/M_PI));
+    return (y > 0) ? absAng : -absAng;
+}
+
+dReal Robot::getDir(dReal &k)
+{
+    dReal x,y,z;
+    chassis->getBodyDirection(x,y,z,k);
     dReal dot = x;//zarb dar (1.0,0.0,0.0)
     dReal length = sqrt(x*x + y*y);
     dReal absAng = (dReal)(acos((dReal)(dot/length)) * (180.0f/M_PI));

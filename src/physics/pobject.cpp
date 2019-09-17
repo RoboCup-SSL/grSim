@@ -116,6 +116,18 @@ void PObject::getBodyDirection(dReal &x,dReal &y,dReal &z)
   z = axis[2];
 }
 
+void PObject::getBodyDirection(dReal &x,dReal &y,dReal &z, dReal &k)
+{
+  const dReal *r=dBodyGetRotation(body);
+  dVector3 v={1,0,0};
+  dVector3 axis;
+  dMultiply0(axis,r,v,4,3,1);
+  x = axis[0];
+  y = axis[1];
+  z = axis[2];
+  k = r[10];
+}
+
 void PObject::getBodyRotation(dMatrix3 r,bool local)
 {
     if (local)

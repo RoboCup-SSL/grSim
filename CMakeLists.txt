@@ -120,6 +120,7 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
     src/proto/messages_robocup_ssl_geometry.proto
     src/proto/messages_robocup_ssl_wrapper.proto
     src/proto/messages_robocup_ssl_refbox_log.proto
+    src/proto/messages_robocup_ssl_robot_status.proto
     src/proto/grSim_Replacement.proto
     src/proto/grSim_Commands.proto
     src/proto/grSim_Packet.proto
