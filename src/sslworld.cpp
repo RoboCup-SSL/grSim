@@ -777,8 +777,10 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
             robots[i]->getXY(x,y);
             dir = robots[i]->getDir(k);
             // reset when the robot has turned over
-            if (k < 0.9) {
-                robots[i]->resetRobot();
+            if (cfg->ResetTurnOver()) {
+                if (k < 0.9) {
+                    robots[i]->resetRobot();
+                }
             }
             if (visibleInCam(cam_id, x, y)) {
                 SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
@@ -799,8 +801,10 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
             robots[i]->getXY(x,y);
             dir = robots[i]->getDir(k);
             // reset when the robot has turned over
-            if (k < 0.9) {
-                robots[i]->resetRobot();
+            if (cfg->ResetTurnOver()) {
+                if (k < 0.9) {
+                    robots[i]->resetRobot();
+                }
             }
             if (visibleInCam(cam_id, x, y)) {
                 SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();

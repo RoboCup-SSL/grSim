@@ -173,6 +173,7 @@ public:
   DEF_VALUE(double,Double,DeltaTime)
   DEF_VALUE(int,Int,sendGeometryEvery)
   DEF_VALUE(double,Double,Gravity)
+  DEF_VALUE(bool,Bool,ResetTurnOver)
   DEF_VALUE(std::string,String,VisionMulticastAddr)  
   DEF_VALUE(int,Int,VisionMulticastPort)  
   DEF_VALUE(int,Int,CommandListenPort)
