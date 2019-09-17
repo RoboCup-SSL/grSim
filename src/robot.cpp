@@ -89,17 +89,17 @@ Robot::Kicker::Kicker(Robot* robot) : holdingBall(false)
     dJointSetHingeParam (joint,dParamHiStop,0);
 
     rolling = 0;
-    kicking = 0;
+    kicking = NO_KICK;
 }
 
 void Robot::Kicker::step()
 {
     if (!isTouchingBall() || rolling == 0) unholdBall();
-    if (kicking)
+    if (kicking != NO_KICK)
     {
         box->setColor(1,0.3,0);
         kickstate--;
-        if (kickstate<=0) kicking = 0;
+        if (kickstate<=0) kicking = NO_KICK;
     }
     else if (rolling!=0)
     {
@@ -128,7 +128,7 @@ bool Robot::Kicker::isTouchingBall()
     return ((xx<rob->cfg->robotSettings.KickerThickness*2.0f+rob->cfg->BallRadius()) && (yy<rob->cfg->robotSettings.KickerWidth*0.5f) && (zz<rob->cfg->robotSettings.KickerHeight*0.5f));
 }
 
-int Robot::Kicker::isKicking()
+KickStatus Robot::Kicker::isKicking()
 {
     return kicking;
 }
@@ -171,9 +171,9 @@ void Robot::Kicker::kick(dReal kickspeedx, dReal kickspeedz)
         vy += vn * dy + vt * dx;
         dBodySetLinearVel(rob->getBall()->body,vx,vy,vz);
         if (kickspeedz >= 1)
-            kicking = 2;
+            kicking = CHIP_KICK;
         else
-            kicking = 1;
+            kicking = FLAT_KICK;
         kickstate = 10;
     }
 }

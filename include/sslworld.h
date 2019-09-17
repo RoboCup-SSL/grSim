@@ -62,8 +62,8 @@ private:
     QList<SendingPacket*> sendQueue;
     char packet[200];
     char *in_buffer;
-    bool lastInfraredState[2][MAX_ROBOT_COUNT];
-    int lastKickState[2][MAX_ROBOT_COUNT];    
+    bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT];
+    KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT];    
 public:    
     dReal customDT;
     bool isGLEnabled;
@@ -79,7 +79,7 @@ public:
     void sendVisionBuffer();
     bool visibleInCam(int id, double x, double y);
     int  robotIndex(int robot,int team);
-    void addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, int kickStatus);
+    void addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, KickStatus kickStatus);
     void sendRobotStatus(Robots_Status& robotsPacket, QHostAddress sender, int team);
 
     ConfigWidget* cfg;

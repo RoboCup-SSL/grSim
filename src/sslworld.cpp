@@ -311,7 +311,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         for (int i = 0; i < MAX_ROBOT_COUNT; ++i)
         {
             lastInfraredState[team][i] = false;
-            lastKickState[team][i] = 0; 
+            lastKickState[team][i] = NO_KICK; 
         }
     }
 }
@@ -502,7 +502,7 @@ void SSLWorld::step(dReal dt)
     framenum ++;
 }
 
-void SSLWorld::addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, int kickStatus)
+void SSLWorld::addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, KickStatus kickStatus)
 {
     Robot_Status* robot_status = robotsPacket.add_robots_status();
     robot_status->set_robot_id(robotID);
@@ -513,15 +513,15 @@ void SSLWorld::addRobotStatus(Robots_Status& robotsPacket, int robotID, int team
         robot_status->set_infrared(0);
 
     switch(kickStatus){
-        case 0:
+        case NO_KICK:
             robot_status->set_flat_kick(0);
             robot_status->set_chip_kick(0);
             break;
-        case 1:
+        case FLAT_KICK:
             robot_status->set_flat_kick(1);
             robot_status->set_chip_kick(0);
             break;
-        case 2:
+        case CHIP_KICK:
             robot_status->set_flat_kick(0);
             robot_status->set_chip_kick(1);
             break;
@@ -669,7 +669,7 @@ void SSLWorld::recvActions()
             {
                 int id = robotIndex(i, team);
                 bool isInfrared = robots[id]->kicker->isTouchingBall();
-                int kicking = robots[id]->kicker->isKicking();
+                KickStatus kicking = robots[id]->kicker->isKicking();
                 if (isInfrared != lastInfraredState[team][i] || kicking != lastKickState[team][i])
                 {
                     updateRobotStatus = true;
