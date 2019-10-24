@@ -609,16 +609,6 @@ void SSLWorld::recvActions()
                         if (packet.commands().robot_commands(i).spinner()) rolling = 1;
                     }
                     robots[id]->kicker->setRoller(rolling);
-
-                    char status = 0;
-                    status = k;
-                    if (robots[id]->kicker->isTouchingBall()) status = status | 8;
-                    if (robots[id]->on) status = status | 240;
-                    if (team == 0)
-                        blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
-                    else
-                        yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
-
                 }
             }
             if (packet.has_replacement())
