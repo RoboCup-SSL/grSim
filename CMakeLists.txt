@@ -70,23 +70,7 @@ list(APPEND libs Qt5::Core Qt5::Widgets Qt5::OpenGL Qt5::Network)
 
 # ODE
 find_package(ODE REQUIRED)
-include_directories(${ODE_INCLUDE_DIRS})
-list(APPEND libs ${ODE_LIBRARIES})
-#TODO: make this an option
-option(DOUBLE_PRECISION "Use double precision? If not single precision will be used." ON)
-  if(DOUBLE_PRECISION)
-    if(APPLE)
-      add_definitions(-DdIDEDOUBLE)
-    else()
-      add_definitions(-DdDOUBLE)
-    endif()
-  else()
-    if(APPLE)
-      add_definitions(-DdIDESINGLE)
-    else()
-      add_definitions(-DdSINGLE)
-    endif()
-  endif()
+list(APPEND libs ode::ode)
 
 # VarTypes
 find_package(VarTypes)
