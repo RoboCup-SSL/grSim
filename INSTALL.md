@@ -11,6 +11,7 @@ GrSim is written in C++, in order to compile it, you will need a working toolcha
 GrSim depends on:
 
 - [CMake](https://cmake.org/) version 3.5+ 
+- [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
 - [OpenGL](https://www.opengl.org)
 - [Qt5 Development Libraries](https://www.qt.io)
 - [Open Dynamics Engine (ODE)](http://www.ode.org)
@@ -25,7 +26,7 @@ GrSim depends on:
 If you run a Debian system, or derivative, first ensure that these dependencies are there:
 
 ```bash
-$ sudo apt-get install git build-essential cmake qt5-default libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
+$ sudo apt-get install git build-essential cmake pkg-config qt5-default libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
 ```
 
 Next compile and install VarTypes from source. In the following we install VarTypes from source using `git`.
@@ -81,6 +82,7 @@ First ensure the dependencies are there:
 
 ```bash
 brew install cmake
+brew install pkg-config
 brew tap robotology/formulae         
 brew install robotology/formulae/ode 
 brew install qt
