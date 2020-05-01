@@ -6,3 +6,4 @@ bin*/*
 *.swp
 Thumbs.db
 .idea/*
+cmake-build-debug/*
