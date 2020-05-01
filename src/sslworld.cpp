@@ -217,8 +217,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
-    for (int i=0;i<10;i++)
-        p->addObject(walls[i]);
+    for (auto & wall : walls) p->addObject(wall);
     const int wheeltexid = 4 * cfg->Robots_Count() + 12 + 1 ; //37 for 6 robots
 
 
@@ -272,21 +271,19 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     ballwithkicker.surface.mu = fric(cfg->robotSettings.Kicker_Friction);
     ballwithkicker.surface.slip1 = 5;
     
-    for (int i = 0; i < WALL_COUNT; i++)
-        p->createSurface(ball, walls[i])->surface = ballwithwall.surface;
+    for (auto & wall : walls) p->createSurface(ball, wall)->surface = ballwithwall.surface;
     
     for (int k = 0; k < 2 * cfg->Robots_Count(); k++)
     {
         p->createSurface(robots[k]->chassis,ground);
-        for (int j = 0; j < WALL_COUNT; j++)
-            p->createSurface(robots[k]->chassis,walls[j]);
+        for (auto & wall : walls) p->createSurface(robots[k]->chassis,wall);
         p->createSurface(robots[k]->dummy,ball);
         //p->createSurface(robots[k]->chassis,ball);
         p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
-        for (int j = 0; j < WHEEL_COUNT; j++)
+        for (auto & wheel : robots[k]->wheels)
         {
-            p->createSurface(robots[k]->wheels[j]->cyl,ball);
-            PSurface* w_g = p->createSurface(robots[k]->wheels[j]->cyl,ground);
+            p->createSurface(wheel->cyl,ball);
+            PSurface* w_g = p->createSurface(wheel->cyl,ground);
             w_g->surface=wheelswithground.surface;
             w_g->usefdir1=true;
             w_g->callback=wheelCallBack;
