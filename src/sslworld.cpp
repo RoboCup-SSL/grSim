@@ -399,23 +399,17 @@ void SSLWorld::step(dReal dt)
     if (!isGLEnabled) g->disableGraphics();
     else g->enableGraphics();
 
-    if (customDT > 0)
-        dt = customDT;
+    if (customDT > 0) dt = customDT;
     const auto ratio = m_parent->devicePixelRatio();
     g->initScene(m_parent->width()*ratio,m_parent->height()*ratio,0,0.7,1);
-    for (int kk=0;kk<5;kk++)
-    {
+    int ballCollisionTry = 5;
+    for (int kk=0;kk < ballCollisionTry;kk++) {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
         dReal ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
         ballspeed = sqrt(ballspeed);
         dReal ballfx=0,ballfy=0,ballfz=0;
         dReal balltx=0,ballty=0,balltz=0;
-        if (ballspeed<0.01)
-        {
-            ;//const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
-            //TODO: what was supposed to be here?
-        }
-        else {
+        if (ballspeed > 0.01) {
             dReal fk = cfg->BallFriction()*cfg->BallMass()*cfg->Gravity();
             ballfx = -fk*ballvel[0] / ballspeed;
             ballfy = -fk*ballvel[1] / ballspeed;
@@ -426,11 +420,11 @@ void SSLWorld::step(dReal dt)
             dBodyAddTorque(ball->body,balltx,ballty,balltz);
         }
         dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
-        if (dt==0) dt=last_dt;
+        if (dt == 0) dt = last_dt;
         else last_dt = dt;
 
         selected = -1;
-        p->step(dt*0.2);
+        p->step(dt/ballCollisionTry);
     }
 
 
@@ -470,7 +464,6 @@ void SSLWorld::step(dReal dt)
         robots[k]->selected = false;
     }
     p->draw();
-    //g->drawSkybox(31,32,33,34,35,36);
     g->drawSkybox(4 * cfg->Robots_Count() + 6 + 1, //31 for 6 robot
                   4 * cfg->Robots_Count() + 6 + 2, //32 for 6 robot
                   4 * cfg->Robots_Count() + 6 + 3, //33 for 6 robot
@@ -490,7 +483,6 @@ void SSLWorld::step(dReal dt)
             g->drawCircle(cursor_x,cursor_y,0.001,cursor_radius);
             glDisable(GL_BLEND);
         }
-    //for (int k=0;k<10;k++) robots[k]->drawLabel();
 
     g->finalizeScene();
 

@@ -167,12 +167,11 @@ PSurface* PWorld::findSurface(PObject* o1,PObject* o2)
 void PWorld::step(dReal dt)
 {
     try {
-    dSpaceCollide (space,this,&nearCallback);
-    dWorldStep (world,(dt<0) ? delta_time : dt);
-    dJointGroupEmpty (contactgroup);
+        dSpaceCollide (space,this,&nearCallback);
+        dWorldStep(world,(dt<0) ? delta_time : dt);
+        dJointGroupEmpty (contactgroup);
     }
-    catch (...)
-    {
+    catch (...) {
         //qDebug() << "Some Error Happened;";
     }
 }
