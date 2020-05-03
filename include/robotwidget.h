@@ -33,6 +33,8 @@ class RobotWidget : public QDockWidget
 public:    
     RobotWidget(QWidget* parent, ConfigWidget* cfg);
     void setPicture(QImage* img);
+    void changeRobotCount(int newRobotCount);
+    void changeCurrentRobot(int CurrentRobotID);
     QComboBox *teamCombo,*robotCombo;
     QLabel *robotpic;
     QLabel *vellabel,*acclabel;

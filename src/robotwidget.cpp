@@ -36,10 +36,7 @@ RobotWidget::RobotWidget(QWidget* parent, ConfigWidget* cfg)
     robotCombo = new QComboBox(this);
 
     // Add items to the combo box dynamically 
-    for (int i=0; i<cfg->Robots_Count(); i++){
-      QString item=QString::number(i);
-      robotCombo->addItem(item);
-    }
+    changeRobotCount(cfg->Robots_Count());
 
     vellabel = new QLabel;
     acclabel = new QLabel;
@@ -64,6 +61,33 @@ RobotWidget::RobotWidget(QWidget* parent, ConfigWidget* cfg)
     setWidget(widget);
     getPoseWidget = new GetPositionWidget();
     QObject::connect(setPoseBtn,SIGNAL(clicked()),this,SLOT(setPoseBtnClicked()));
+}
+
+void RobotWidget::changeRobotCount(int newRobotCount) {
+    // block signal emitting to avoid segmentation fault
+    // if don't do this, CurrentIndexChange() signal will be emitted everytime adding/deleting item
+    // and MainWindow::changeCurrentRobot() will be called
+    robotCombo->blockSignals(true);
+
+    // increase comboBox element
+    if(newRobotCount > robotCombo->count()) {
+        for (int i=robotCombo->count(); i<newRobotCount; i++){
+            QString item=QString::number(i);
+            robotCombo->addItem(item);
+        }
+    }
+    // decrease comboBox element
+    else {
+        for (int i=robotCombo->count(); i>=newRobotCount; i--) {
+            robotCombo->removeItem(i);
+        }
+    }
+    robotCombo->blockSignals(false);
+}
+
+void RobotWidget::changeCurrentRobot(int CurrentRobotID) {
+    CurrentRobotID = std::min(CurrentRobotID, robotCombo->count()-1);
+    robotCombo->setCurrentIndex(CurrentRobotID);
 }
 
 void RobotWidget::setPicture(QImage* img)

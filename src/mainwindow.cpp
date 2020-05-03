@@ -211,7 +211,7 @@ MainWindow::MainWindow(QWidget *parent)
     //geometry config vars
     QObject::connect(configwidget->v_DesiredFPS.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeTimer()));
     QObject::connect(configwidget->v_Division.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Robots_Count.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Robots_Count.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeRobotCount()));
 
     QObject::connect(configwidget->v_DivA_Field_Line_Width.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Field_Length.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
@@ -285,18 +285,43 @@ void MainWindow::showHideSimulator(bool v)
 
 void MainWindow::changeCurrentRobot()
 {
-    glwidget->Current_robot=robotwidget->robotCombo->currentIndex();    
-    robotwidget->setPicture(glwidget->ssl->robots[glwidget->ssl->robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
-    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
-    robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
+    // skip when robot count is zero to avoid out-of-range access for robots[]
+    // if zero, robotCombo->currentIndex returns -1
+    if(configwidget->Robots_Count() != 0) {
+        glwidget->Current_robot=robotwidget->robotCombo->currentIndex();
+        robotwidget->setPicture(glwidget->ssl->robots[glwidget->ssl->robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+        robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+        robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
+    }
 }
 
 void MainWindow::changeCurrentTeam()
 {
     glwidget->Current_team=robotwidget->teamCombo->currentIndex();
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
-    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
-    robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
+    // skip when robot count is zero to avoid out of range access for robots[]
+    // (if zero, robotCombo->currentIndex returns -1)
+    if(configwidget->Robots_Count() != 0) {
+        robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+        robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+        robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
+    }
+}
+
+void MainWindow::changeRobotCount()
+{
+    auto newRobotCount = configwidget->Robots_Count();
+
+    if(newRobotCount < 0 || newRobotCount > MAX_ROBOT_COUNT) {
+        newRobotCount = std::min(std::max(0, newRobotCount), static_cast<int>(MAX_ROBOT_COUNT));
+        configwidget->v_Robots_Count->setInt(newRobotCount);
+    }
+
+    robotwidget->changeRobotCount(newRobotCount);
+    
+    int newCurrentRobot = std::min(newRobotCount - 1, glwidget->Current_robot);
+    robotwidget->changeCurrentRobot(newCurrentRobot);
+    restartSimulator();
+    changeCurrentRobot();
 }
 
 void MainWindow::changeGravity()
