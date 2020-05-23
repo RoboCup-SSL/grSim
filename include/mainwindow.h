@@ -43,6 +43,8 @@ public slots:
     void changeCurrentRobot();
     void changeCurrentTeam();
 
+    void changeRobotCount();
+
     void changeBallMass();   
     void changeBallGroundSurface();    
     void changeBallDamping();
