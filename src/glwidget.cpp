@@ -99,7 +99,7 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
 
     connect(moveRobotAct, SIGNAL(triggered()), this, SLOT(moveRobot()));
     connect(selectRobotAct, SIGNAL(triggered()), this, SLOT(selectRobot()));
-    connect(resetRobotAct, SIGNAL(triggered()), this, SLOT(resetRobot()));
+    connect(resetRobotAct, SIGNAL(triggered()), this, SLOT(resetCurrentRobot()));
     connect(moveBallAct, SIGNAL(triggered()), this, SLOT(moveBall()));
     connect(onOffRobotAct, SIGNAL(triggered()), this, SLOT(switchRobotOnOff()));
     connect(yellowRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
@@ -149,7 +149,7 @@ void GLWidget::selectRobot()
     }
 }
 
-void GLWidget::resetRobot()
+void GLWidget::resetCurrentRobot()
 {
     if (Current_robot!=-1)
     {
@@ -174,11 +174,6 @@ void GLWidget::switchRobotOnOff()
             emit robotTurnedOnOff(k,true);
         }
     }
-}
-
-void GLWidget::resetCurrentRobot()
-{       
-    ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->resetRobot();
 }
 
 void GLWidget::moveCurrentRobot()
