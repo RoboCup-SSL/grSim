@@ -905,7 +905,7 @@ void SSLWorld::sendVisionBuffer()
 
 void RobotsFomation::setAll(dReal* xx,dReal *yy)
 {
-    for (int i=0;i<cfg->Robots_Count();i++)
+    for (int i=0;i<MAX_ROBOT_COUNT;i++)
     {
         x[i] = xx[i];
         y[i] = yy[i];
