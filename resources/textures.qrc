@@ -13,6 +13,10 @@
         <file    alias="y9.png">../resources/textures/y9.png</file>
         <file   alias="y10.png">../resources/textures/y10.png</file>
         <file   alias="y11.png">../resources/textures/y11.png</file>
+        <file   alias="y12.png">../resources/textures/y12.png</file>
+        <file   alias="y13.png">../resources/textures/y13.png</file>
+        <file   alias="y14.png">../resources/textures/y14.png</file>
+        <file   alias="y15.png">../resources/textures/y15.png</file>
         <file    alias="b0.png">../resources/textures/b0.png</file>
         <file    alias="b1.png">../resources/textures/b1.png</file>
         <file    alias="b2.png">../resources/textures/b2.png</file>
@@ -25,6 +29,10 @@
         <file    alias="b9.png">../resources/textures/b9.png</file>
         <file   alias="b10.png">../resources/textures/b10.png</file>
         <file   alias="b11.png">../resources/textures/b11.png</file>
+        <file   alias="b12.png">../resources/textures/b12.png</file>
+        <file   alias="b13.png">../resources/textures/b13.png</file>
+        <file   alias="b14.png">../resources/textures/b14.png</file>
+        <file   alias="b15.png">../resources/textures/b15.png</file>
         <file alias="wheel.png">../resources/textures/wheel.png</file>
         <file alias="grass.png">../resources/textures/grass.png</file>
         <file alias="sky/neg_x.png">../resources/textures/sky/arabian_nights_rt.png</file>
