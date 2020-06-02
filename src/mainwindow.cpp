@@ -67,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
     configwidget = new ConfigWidget();
     dockconfig = new ConfigDockWidget(this,configwidget);
     dockconfig->setObjectName("ConfigDockWidget");
+    dockconfig->setWindowTitle("Configuration");
 
     glwidget = new GLWidget(this,configwidget);
     glwidget->setWindowTitle(tr("Simulator"));
@@ -126,9 +127,7 @@ MainWindow::MainWindow(QWidget *parent)
     showsimulator->setCheckable(true);
     showsimulator->setChecked(true);
     viewMenu->addAction(showsimulator);
-    showconfig = new QAction("&Configuration", viewMenu);
-    showconfig->setCheckable(true);
-    showconfig->setChecked(true);
+    showconfig = dockconfig->toggleViewAction();
     viewMenu->addAction(showconfig);
 
     QMenu *simulatorMenu = new QMenu("&Simulator");
@@ -179,9 +178,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(takeSnapshotToClipboardAct, SIGNAL(triggered(bool)), this, SLOT(takeSnapshotToClipboard()));
     QObject::connect(exit, SIGNAL(triggered(bool)), this, SLOT(close()));
     QObject::connect(showsimulator, SIGNAL(triggered(bool)), this, SLOT(showHideSimulator(bool)));
-    QObject::connect(showconfig, SIGNAL(triggered(bool)), this, SLOT(showHideConfig(bool)));
     QObject::connect(glwidget, SIGNAL(closeSignal(bool)), this, SLOT(showHideSimulator(bool)));    
-    QObject::connect(dockconfig, SIGNAL(closeSignal(bool)), this, SLOT(showHideConfig(bool)));
     QObject::connect(glwidget, SIGNAL(selectedRobot()), this, SLOT(updateRobotLabel()));
     QObject::connect(robotwidget->robotCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentRobot()));
     QObject::connect(robotwidget->teamCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentTeam()));
@@ -266,12 +263,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-}
-
-void MainWindow::showHideConfig(bool v)
-{
-    if (v) {dockconfig->show();showconfig->setChecked(true);}
-    else {dockconfig->hide();showconfig->setChecked(false);}
 }
 
 void MainWindow::showHideSimulator(bool v)

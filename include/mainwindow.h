@@ -38,7 +38,6 @@ public:
 public slots:
     void update();
     void updateRobotLabel();
-    void showHideConfig(bool v);
     void showHideSimulator(bool v);
     void changeCurrentRobot();
     void changeCurrentTeam();
