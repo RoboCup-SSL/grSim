@@ -71,7 +71,6 @@ public slots:
 private:
     int getInterval();    
     QTimer *timer;
-    QMdiArea* workspace;
     GLWidget *glwidget;
     ConfigWidget *configwidget;
     ConfigDockWidget *dockconfig;

@@ -61,10 +61,6 @@ MainWindow::MainWindow(QWidget *parent)
     statusWidget = new CStatusWidget(printer);
     initLogger((void*)printer);
 
-    /* Init Workspace */
-    workspace = new QMdiArea(this);
-    setCentralWidget(workspace);    
-
     /* Widgets */
 
     configwidget = new ConfigWidget();
@@ -168,9 +164,7 @@ MainWindow::MainWindow(QWidget *parent)
     addDockWidget(Qt::BottomDockWidgetArea, statusWidget);
     addDockWidget(Qt::LeftDockWidgetArea, robotwidget);
 
-    workspace->addSubWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
-
-    glwidget->setWindowState(Qt::WindowMaximized);
+    setCentralWidget(glwidget);
 
     timer = new QTimer(this);
     timer->setInterval(getInterval());
@@ -472,7 +466,7 @@ void MainWindow::toggleFullScreen(bool a)
     }
     else {
         view->close(); 
-        workspace->addSubWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+        // workspace->addSubWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
         glwidget->show();
         glwidget->resize(lastSize);
         glwidget->fullScreen = false;
