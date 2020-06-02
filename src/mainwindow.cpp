@@ -59,12 +59,14 @@ MainWindow::MainWindow(QWidget *parent)
     /* Status Logger */
     printer = new CStatusPrinter();
     statusWidget = new CStatusWidget(printer);
+    statusWidget->setObjectName("CStatusWidget");
     initLogger((void*)printer);
 
     /* Widgets */
 
     configwidget = new ConfigWidget();
     dockconfig = new ConfigDockWidget(this,configwidget);
+    dockconfig->setObjectName("ConfigDockWidget");
 
     glwidget = new GLWidget(this,configwidget);
     glwidget->setWindowTitle(tr("Simulator"));
@@ -87,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     robotwidget = new RobotWidget(this, configwidget);
+    robotwidget->setObjectName("RobotWidget");
     /* Status Bar */
     fpslabel = new QLabel(this);
     cursorlabel = new QLabel(this);
@@ -157,7 +160,8 @@ MainWindow::MainWindow(QWidget *parent)
     fullScreenAct->setChecked(false);
     simulatorMenu->addAction(fullScreenAct);
 
-    viewMenu->addAction(robotwidget->toggleViewAction());
+    showrobot = robotwidget->toggleViewAction();
+    viewMenu->addAction(showrobot);
     viewMenu->addMenu(glwidget->cameraMenu);
 
     addDockWidget(Qt::LeftDockWidgetArea,dockconfig);
@@ -258,7 +262,6 @@ MainWindow::MainWindow(QWidget *parent)
     robotwidget->robotCombo->setCurrentIndex(0);
     robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
     robotwidget->id = 0;
-    scene = new QGraphicsScene(0,0,800,600);    
 }
 
 MainWindow::~MainWindow()
@@ -452,27 +455,20 @@ void MainWindow::toggleFullScreen(bool a)
 {
     if (a)
     {
-        view = new GLWidgetGraphicsView(scene,glwidget);
-        lastSize = glwidget->size();        
-        view->setViewport(glwidget);
-        view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-        view->setFrameStyle(0);
-        view->showFullScreen();
-        view->setFocus();        
-        glwidget->fullScreen = true;
-        fullScreenAct->setChecked(true);
+        prevState = saveState();
+        for (auto dockwidget : findChildren<QDockWidget*>())
+        {
+            dockwidget->hide();
+        }
+        showconfig->setEnabled(false);
+        showrobot->setEnabled(false);
+        showFullScreen();
     }
     else {
-        view->close(); 
-        // workspace->addSubWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
-        glwidget->show();
-        glwidget->resize(lastSize);
-        glwidget->fullScreen = false;
-        fullScreenAct->setChecked(false);
-        glwidget->setFocusPolicy(Qt::StrongFocus);
-        glwidget->setFocus();
+        showNormal();
+        restoreState(prevState);
+        showconfig->setEnabled(true);
+        showrobot->setEnabled(true);
     }
 }
 

@@ -75,18 +75,16 @@ private:
     ConfigWidget *configwidget;
     ConfigDockWidget *dockconfig;
     RobotWidget *robotwidget;        
+    QByteArray prevState;
 
     CStatusPrinter *printer;
     CStatusWidget *statusWidget;
 
-    QAction *showsimulator, *showconfig;
+    QAction *showsimulator, *showconfig, *showrobot;
     QAction* fullScreenAct;
     QLabel *fpslabel,*cursorlabel,*selectinglabel,*vanishlabel,*noiselabel;
     QString current_dir;
 
-    QGraphicsScene *scene;
-    GLWidgetGraphicsView *view;
-    QSize lastSize;
     RoboCupSSLServer *visionServer;
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
