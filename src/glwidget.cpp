@@ -110,7 +110,6 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     connect(lockToBallAct, SIGNAL(triggered()), this, SLOT(lockCameraToBall()));
     connect(changeCamModeAct,SIGNAL(triggered()),this,SLOT(changeCameraMode()));
     setFocusPolicy(Qt::StrongFocus);
-    fullScreen = false;
     ctrl = false;
     alt = false;
     kickingball = false;
@@ -457,9 +456,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Control) ctrl = true;
     if (event->key() == Qt::Key_Alt) alt = true;
     char cmd = static_cast<char>(event->key());
-    if (fullScreen) {
-        if (event->key()==Qt::Key_F2) emit toggleFullScreen(false);
-    }
     const dReal S = 1.00;
     const dReal BallForce = 2.0;
     int R = ssl->robotIndex(Current_robot,Current_team);
@@ -587,17 +583,3 @@ void GLWidget::moveRobotHere()
     ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
     ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->resetRobot();
 }
-
-GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)
-    : QGraphicsView(scene)
-{
-    glwidget = _glwidget;
-}
-
-void GLWidgetGraphicsView::mousePressEvent(QMouseEvent *event) {glwidget->mousePressEvent(event);}
-void GLWidgetGraphicsView::mouseMoveEvent(QMouseEvent *event) {glwidget->mouseMoveEvent(event);}
-void GLWidgetGraphicsView::mouseReleaseEvent(QMouseEvent *event) {glwidget->mouseReleaseEvent(event);}
-void GLWidgetGraphicsView::wheelEvent(QWheelEvent *event) {glwidget->wheelEvent(event);}
-void GLWidgetGraphicsView::keyPressEvent(QKeyEvent *event){glwidget->keyPressEvent(event);}
-void GLWidgetGraphicsView::closeEvent(QCloseEvent *event){} //{viewportEvent(event);}
-
