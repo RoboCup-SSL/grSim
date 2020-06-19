@@ -21,7 +21,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #define GL_SILENCE_DEPRECATION
 #include <QGLWidget>
-#include <QGraphicsView>
 #include <QTime>
 #include <QMenu>
 
@@ -29,7 +28,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "configwidget.h"
 
 
-class GLWidgetGraphicsView;
 class GLWidget : public QGLWidget {
 
     Q_OBJECT
@@ -58,7 +56,6 @@ public:
     bool ctrl,alt,kickingball,altTrigger;
     bool chiping;
     double kickpower, chipAngle;
-    bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(dReal x,dReal y);
     void reform(int team,const QString& act);    
@@ -83,7 +80,6 @@ signals:
     void clicked();
     void selectedRobot();
     void closeSignal(bool);
-    void toggleFullScreen(bool);
     void robotTurnedOnOff(int,bool);
 protected:
     void paintGL ();
@@ -104,22 +100,6 @@ private:
     QTime time,rendertimer;
     dReal m_fps;
     QPoint lastPos;
-friend class GLWidgetGraphicsView;
-};
-
-class GLWidgetGraphicsView : public QGraphicsView        
-{
-    private:
-        GLWidget *glwidget;
-    public:
-        GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget* _glwidget);
-    protected:
-        void mousePressEvent(QMouseEvent *event);
-        void mouseMoveEvent(QMouseEvent *event);
-        void mouseReleaseEvent(QMouseEvent *event);
-        void wheelEvent(QWheelEvent *event);
-        void keyPressEvent(QKeyEvent *event);
-        void closeEvent(QCloseEvent *event);
 };
 
 #endif // WIDGET_H
