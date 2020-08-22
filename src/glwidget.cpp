@@ -162,17 +162,10 @@ void GLWidget::switchRobotOnOff()
     int k = ssl->robotIndex(Current_robot, Current_team);
     if (Current_robot!=-1)
     {
-        if (ssl->robots[k]->on)
-        {
-            ssl->robots[k]->on = false;
-            onOffRobotAct->setText("Turn &on");
-            emit robotTurnedOnOff(k,false);
-        }
-        else {
-            ssl->robots[k]->on = true;
-            onOffRobotAct->setText("Turn &off");
-            emit robotTurnedOnOff(k,true);
-        }
+        auto& robot_on = ssl->robots[k]->on;
+        robot_on = !robot_on;
+        onOffRobotAct->setText(robot_on ? "Turn &off" : "Turn &on");
+        emit robotTurnedOnOff(k,robot_on);
     }
 }
 
