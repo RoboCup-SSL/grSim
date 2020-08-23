@@ -464,29 +464,19 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     case 'i': case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BallRadius(),0);break;
     case ';':
         if (!kickingball)
-        {
-            kickingball = true; logStatus(QString("Kick mode On"),QColor("blue"));
-            chiping = false;
-        }
+            logStatus(QString("Kick mode On"),QColor("blue"));
         else
-        {
-            kickingball = false; logStatus(QString("Kick mode Off"),QColor("red"));
-            chiping = false;
-        }
+            logStatus(QString("Kick mode Off"),QColor("red"));
+        kickingball=!kickingball;
+        chiping=false;
         break;
     case '\'':
         if (!chiping)
-        {
             logStatus(QString("Chip mode On"),QColor("blue"));
-            chiping = true;
-            kickingball = false;
-        }
         else
-        {
             logStatus(QString("Chip mode Off"),QColor("red"));
-            chiping = false;
-            kickingball = false;
-        }
+        chiping=!chiping;
+        kickingball=false;
         break;
     case ']': kickpower += 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("orange"));break;
     case '[': kickpower -= 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("cyan"));break;
