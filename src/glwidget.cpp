@@ -315,13 +315,13 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     int dy = -(event->y() - lastPos.y());    
     if (event->buttons() & Qt::LeftButton) {
         if (ctrl)
-            ssl->g->cameraMotion(4,dx,dy);
+            ssl->g->cameraMotion(CameraMotionMode::MOVE_POSITION_FREELY,dx,dy);
         else
-            ssl->g->cameraMotion(1,dx,dy);
+            ssl->g->cameraMotion(CameraMotionMode::ROTATE_VIEW_POINT,dx,dy);
     }
     else if (event->buttons() & Qt::MidButton)
     {
-        ssl->g->cameraMotion(2,dx,dy);
+        ssl->g->cameraMotion(CameraMotionMode::MOVE_POSITION_LR,dx,dy);
     }
     lastPos = event->pos();
     update3DCursor(event->x(),event->y());
