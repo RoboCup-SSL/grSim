@@ -99,7 +99,7 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
 
     connect(moveRobotAct, SIGNAL(triggered()), this, SLOT(moveRobot()));
     connect(selectRobotAct, SIGNAL(triggered()), this, SLOT(selectRobot()));
-    connect(resetRobotAct, SIGNAL(triggered()), this, SLOT(resetRobot()));
+    connect(resetRobotAct, SIGNAL(triggered()), this, SLOT(resetCurrentRobot()));
     connect(moveBallAct, SIGNAL(triggered()), this, SLOT(moveBall()));
     connect(onOffRobotAct, SIGNAL(triggered()), this, SLOT(switchRobotOnOff()));
     connect(yellowRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
@@ -149,7 +149,7 @@ void GLWidget::selectRobot()
     }
 }
 
-void GLWidget::resetRobot()
+void GLWidget::resetCurrentRobot()
 {
     if (Current_robot!=-1)
     {
@@ -162,23 +162,11 @@ void GLWidget::switchRobotOnOff()
     int k = ssl->robotIndex(Current_robot, Current_team);
     if (Current_robot!=-1)
     {
-        if (ssl->robots[k]->on)
-        {
-            ssl->robots[k]->on = false;
-            onOffRobotAct->setText("Turn &on");
-            emit robotTurnedOnOff(k,false);
-        }
-        else {
-            ssl->robots[k]->on = true;
-            onOffRobotAct->setText("Turn &off");
-            emit robotTurnedOnOff(k,true);
-        }
+        auto& robot_on = ssl->robots[k]->on;
+        robot_on = !robot_on;
+        onOffRobotAct->setText(robot_on ? "Turn &off" : "Turn &on");
+        emit robotTurnedOnOff(k,robot_on);
     }
-}
-
-void GLWidget::resetCurrentRobot()
-{       
-    ssl->robots[ssl->robotIndex(Current_robot,Current_team)]->resetRobot();
 }
 
 void GLWidget::moveCurrentRobot()
@@ -476,29 +464,19 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     case 'i': case 'I': dBodySetLinearVel(ssl->ball->body,2.0,0,0);dBodySetAngularVel(ssl->ball->body,0,2.0/cfg->BallRadius(),0);break;
     case ';':
         if (!kickingball)
-        {
-            kickingball = true; logStatus(QString("Kick mode On"),QColor("blue"));
-            chiping = false;
-        }
+            logStatus(QString("Kick mode On"),QColor("blue"));
         else
-        {
-            kickingball = false; logStatus(QString("Kick mode Off"),QColor("red"));
-            chiping = false;
-        }
+            logStatus(QString("Kick mode Off"),QColor("red"));
+        kickingball=!kickingball;
+        chiping=false;
         break;
     case '\'':
         if (!chiping)
-        {
             logStatus(QString("Chip mode On"),QColor("blue"));
-            chiping = true;
-            kickingball = false;
-        }
         else
-        {
             logStatus(QString("Chip mode Off"),QColor("red"));
-            chiping = false;
-            kickingball = false;
-        }
+        chiping=!chiping;
+        kickingball=false;
         break;
     case ']': kickpower += 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("orange"));break;
     case '[': kickpower -= 0.1; logStatus(QString("Kick power = %1").arg(kickpower),QColor("cyan"));break;

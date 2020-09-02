@@ -62,7 +62,6 @@ public:
     void step();
 public slots:
     void moveRobot();
-    void resetRobot();
     void selectRobot();
     void unselectRobot();    
     void moveCurrentRobot();
