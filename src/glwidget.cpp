@@ -31,7 +31,7 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     : QGLWidget(parent)
 {
     frames = 0;
-    state = 0;
+    state = CursorMode::STEADY;
     first_time = true;
     cfg = _cfg;
 
@@ -44,7 +44,7 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
     Current_robot = 0;
     Current_team = 0;
-    cammode = 0;
+    cammode = CameraMode::BIRDS_EYE_FROM_TOUCH_LINE;
     setMouseTracking(true);
 
     blueRobotsMenu = new QMenu("&Blue Robots");
@@ -127,7 +127,7 @@ void GLWidget::moveRobot()
 {
     ssl->show3DCursor = true;
     ssl->cursor_radius = cfg->robotSettings.RobotRadius;
-    state = 1;
+    state = CursorMode::PLACE_ROBOT;
     moving_robot_id = clicked_robot;
 }
 
@@ -135,7 +135,7 @@ void GLWidget::unselectRobot()
 {
     ssl->show3DCursor = false;
     ssl->cursor_radius = cfg->robotSettings.RobotRadius;
-    state = 0;
+    state = CursorMode::STEADY;
     moving_robot_id= ssl->robotIndex(Current_robot,Current_team);
 }
 
@@ -173,7 +173,7 @@ void GLWidget::moveCurrentRobot()
 {
     ssl->show3DCursor = true;
     ssl->cursor_radius = cfg->robotSettings.RobotRadius;
-    state = 1;
+    state = CursorMode::PLACE_ROBOT;
     moving_robot_id = ssl->robotIndex(Current_robot,Current_team);
 }
 
@@ -181,7 +181,7 @@ void GLWidget::moveBall()
 {
     ssl->show3DCursor = true;
     ssl->cursor_radius = cfg->BallRadius();
-    state = 2;
+    state = CursorMode::PLACE_BALL;
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -190,22 +190,22 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     lastPos = event->pos();
     if (event->buttons() & Qt::LeftButton)
     {
-        if (state==1)
+        if (state==CursorMode::PLACE_ROBOT)
         {
             if (moving_robot_id!=-1)
             {
                 ssl->robots[moving_robot_id]->setXY(ssl->cursor_x,ssl->cursor_y);
-                state = 0;
+                state = CursorMode::STEADY;
                 ssl->show3DCursor = false;
             }
         }
-        else if (state==2)
+        else if (state==CursorMode::PLACE_BALL)
         {
             ssl->ball->setBodyPosition(ssl->cursor_x,ssl->cursor_y,cfg->BallRadius()*1.1*20.0);
             dBodySetAngularVel(ssl->ball->body,0,0,0);
             dBodySetLinearVel(ssl->ball->body,0,0,0);
             ssl->show3DCursor = false;
-            state = 0;
+            state = CursorMode::STEADY;
         }
         else {
             if (ssl->selected>=0){
@@ -303,13 +303,13 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     int dy = -(event->y() - lastPos.y());    
     if (event->buttons() & Qt::LeftButton) {
         if (ctrl)
-            ssl->g->cameraMotion(4,dx,dy);
+            ssl->g->cameraMotion(CameraMotionMode::MOVE_POSITION_FREELY,dx,dy);
         else
-            ssl->g->cameraMotion(1,dx,dy);
+            ssl->g->cameraMotion(CameraMotionMode::ROTATE_VIEW_POINT,dx,dy);
     }
     else if (event->buttons() & Qt::MidButton)
     {
-        ssl->g->cameraMotion(2,dx,dy);
+        ssl->g->cameraMotion(CameraMotionMode::MOVE_POSITION_LR,dx,dy);
     }
     lastPos = event->pos();
     update3DCursor(event->x(),event->y());
@@ -360,20 +360,20 @@ void GLWidget::step()
 void GLWidget::paintGL()
 {
     if (!ssl->g->isGraphicsEnabled()) return;
-    if (cammode==1)
+    if (cammode==CameraMode::CURRENT_ROBOT_VIEW)
     {
         dReal x,y,z;
         int R = ssl->robotIndex(Current_robot,Current_team);
         ssl->robots[R]->getXY(x,y);z = 0.3;
         ssl->g->setViewpoint(x,y,z,ssl->robots[R]->getDir(),-25,0);
     }
-    if (cammode==-1)
+    if (cammode==CameraMode::LOCK_TO_ROBOT)
     {
         dReal x,y,z;
         ssl->robots[lockedIndex]->getXY(x,y);z = 0.1;
         ssl->g->lookAt(x,y,z);
     }
-    if (cammode==-2)
+    else if(cammode==CameraMode::LOCK_TO_BALL)
     {
         dReal x,y,z;
         ssl->ball->getBodyPosition(x,y,z);
@@ -400,22 +400,21 @@ void GLWidget::paintGL()
 void GLWidget::changeCameraMode()
 {
     static dReal xyz[3],hpr[3];
-    if (cammode<0) cammode=0;
-    else cammode ++;
-    cammode %= 6;
-    if (cammode==0)
+    if(static_cast<int>(cammode)<0) cammode=CameraMode::BIRDS_EYE_FROM_TOUCH_LINE;
+    cammode = static_cast<CameraMode>(static_cast<int>(cammode) + 1);
+    cammode = static_cast<CameraMode>(static_cast<int>(cammode)%(static_cast<int>(CameraMode::MAX_ACTIVE_MODE_FOR_CHANGEMODE)+1));
+
+    if (cammode==CameraMode::BIRDS_EYE_FROM_TOUCH_LINE)
         ssl->g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,90,-45,0);
-    else if (cammode==1)
-    {
+    else if (cammode==CameraMode::CURRENT_ROBOT_VIEW)
         ssl->g->getViewpoint(xyz,hpr);
-    }
-    else if (cammode==2)
+    else if (cammode==CameraMode::TOP_VIEW)
         ssl->g->setViewpoint(0,0,5,0,-90,0);
-    else if (cammode==3)
+    else if (cammode==CameraMode::BIRDS_EYE_FROM_OPPOSITE_TOUCH_LINE)
         ssl->g->setViewpoint(0, (cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,270,-45,0);
-    else if (cammode==4)
+    else if (cammode==CameraMode::BIRDS_EYE_FROM_BLUE)
         ssl->g->setViewpoint(-(cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,0,-45,0);
-    else if (cammode==5)
+    else if (cammode==CameraMode::BIRDS_EYE_FROM_YELLOW)
         ssl->g->setViewpoint((cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,180,-45,0);
 }
 
@@ -547,13 +546,13 @@ void GLWidget::moveBallHere()
 
 void GLWidget::lockCameraToRobot()
 {
-    cammode = -1;
+    cammode = CameraMode::LOCK_TO_ROBOT;
     lockedIndex = ssl->robotIndex(Current_robot,Current_team);//clicked_robot;
 }
 
 void GLWidget::lockCameraToBall()
 {
-    cammode = -2;
+    cammode = CameraMode::LOCK_TO_BALL;
 }
 
 void GLWidget::moveRobotHere()
