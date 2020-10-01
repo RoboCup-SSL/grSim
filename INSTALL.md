@@ -10,7 +10,7 @@ GrSim is written in C++, in order to compile it, you will need a working toolcha
 
 GrSim depends on:
 
-- [CMake](https://cmake.org/) version 3.5+ 
+- [CMake](https://cmake.org/) version 3.5+
 - [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
 - [OpenGL](https://www.opengl.org)
 - [Qt5 Development Libraries](https://www.qt.io)
@@ -23,13 +23,40 @@ GrSim depends on:
 
 ### Linux/Unix Installation
 
-If you run a Debian system, or derivative, first ensure that these dependencies are there:
+#### Arch Linux
+
+If you are using Arch Linux or a based Arch Linux distribution like Manjaro, you can install grSim from the [Arch User Repository](https://aur.archlinux.org/packages/grsim-git/) using yay or the AUR helper of your choice. In order to install it with yay, run the follow:
+
+```bash
+$ yay -S grsim-git
+```
+
+Otherwise, if you want to install it from the source code, install all dependencies, except VarTypes, with:
+
+```bash
+$ sudo pacman -S base-devel boost hicolor-icon-theme mesa ode protobuf qt5-base cmake git
+```
+
+You can install VarTypes via [AUR](https://aur.archlinux.org/packages/vartypes-qt5-git/) with:
+
+```bash
+$ yay -S vartypes-qt5-git
+```
+
+ or building from source following the steps on the Building section.
+
+#### Debian
+
+If you run a Debian system, or derivative, ensure that these dependencies are there:
 
 ```bash
 $ sudo apt-get install git build-essential cmake pkg-config qt5-default libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
 ```
 
-Next compile and install VarTypes from source. In the following we install VarTypes from source using `git`.
+
+#### Building
+
+First compile and install VarTypes from source. In the following we install VarTypes from source using `git`.
 
 ```bash
 $ cd /tmp
@@ -57,19 +84,20 @@ $ mkdir build
 $ cd build
 ```
 
-Run CMake to generate the makefiles:
+Run CMake to generate the makefile (note: grSim will be installed into directory chosen, by default `/usr/local`):
 
 ```bash
-$ cmake ..
+$ cmake -DCMAKE_INSTALL_PREFIX=/usr/local ..
 ```
 
-Then compile the program:
+Then compile the program and install it:
 
 ```bash
 $ make
+$ sudo make install
 ```
 
-The binary is copied to the `../bin` folder after a successful compilation.
+grSim will be — by default — installed on the `/usr/local` directory.
 
 ### Mac OS X Installation
 
@@ -84,7 +112,7 @@ First ensure the dependencies are there:
 brew install cmake
 brew install pkg-config
 brew tap robotology/formulae         
-brew install robotology/formulae/ode 
+brew install robotology/formulae/ode
 brew install qt
 brew install protobuf
 ```
@@ -96,7 +124,7 @@ brew update
 brew doctor
 ```
 
-Next we need to install VarTypes manually. Please refer to the documentation above for the procedure. 
+Next we need to install VarTypes manually. Please refer to the documentation above for the procedure.
 
 The steps to compile grSim on Mac OS is similar to the steps outlines above for Linux:
 
@@ -111,7 +139,7 @@ $ cmake ..
 $ make
 ```
 
-The binary files (grSim and the sample client) will be placed in `../bin`. 
+The binary files (grSim and the sample client) will be placed in `../bin`.
 
 ## Notes on the performance
 
