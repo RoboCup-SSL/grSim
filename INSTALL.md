@@ -21,92 +21,45 @@ GrSim depends on:
 
 **Note:** It's necessary to compile ODE in double precision. This is default when installing the ODE binaries in Ubuntu. However, if you are compiling ODE from source (e.g on Mac OS), please make sure to enable the double precision during the configuration step: `./configure --enable-double-precision`.
 
-### Linux/Unix Installation
+
+
+## Installing from package manager
+### Arch Linux
+
+A package of grSim is avaliable on the [Arch User Repository](https://aur.archlinux.org/packages/grsim-git/), you can install it with your preferred AUR manager. Using `yay` it can be done with:
+```bash
+$ sudo yay -S grsim-git
+```
+
+## Building and installing from the source code
+
+### Installing Dependencies
 
 #### Arch Linux
 
-If you are using Arch Linux or a based Arch Linux distribution like Manjaro, you can install grSim from the [Arch User Repository](https://aur.archlinux.org/packages/grsim-git/) using yay or the AUR helper of your choice. In order to install it with yay, run the follow:
-
-```bash
-$ yay -S grsim-git
+If you are running Arch Linux or an Arch Linux based distribution, install the dependencies with:
 ```
-
-Otherwise, if you want to install it from the source code, install all dependencies, except VarTypes, with:
-
-```bash
-$ sudo pacman -S base-devel boost hicolor-icon-theme mesa ode protobuf qt5-base cmake git
+$ sudo pacman -S base-devel boost hicolor-icon-theme \
+                 mesa ode protobuf qt5-base cmake git
 ```
-
-You can install VarTypes via [AUR](https://aur.archlinux.org/packages/vartypes-qt5-git/) with:
-
-```bash
-$ yay -S vartypes-qt5-git
-```
-
- or building from source following the steps on the Building section.
 
 #### Debian
 
-If you run a Debian system, or derivative, ensure that these dependencies are there:
-
-```bash
-$ sudo apt-get install git build-essential cmake pkg-config qt5-default libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
+For Debian, or derivative
+```
+$ sudo apt install git build-essential cmake pkg-config qt5-default \
+                   libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev \
+                   libprotobuf-dev protobuf-compiler libode-dev libboost-dev
 ```
 
+#### Mac OS X
 
-#### Building
+For Mac OS X, you will need to have installed:
 
-First compile and install VarTypes from source. In the following we install VarTypes from source using `git`.
-
-```bash
-$ cd /tmp
-$ git clone https://github.com/jpfeltracco/vartypes.git
-$ cd vartypes
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
-$ sudo make install
-```
-
-Next, clone grSim into your preferred location.
-
-```bash
-$ cd /path/to/grsim_ws
-$ git clone https://github.com/RoboCup-SSL/grSim.git
-$ cd grSim
-```
-
-Create a build directory within the project (this is ignored by .gitignore):
-
-```bash
-$ mkdir build
-$ cd build
-```
-
-Run CMake to generate the makefile (note: grSim will be installed into directory chosen, by default `/usr/local`):
-
-```bash
-$ cmake -DCMAKE_INSTALL_PREFIX=/usr/local ..
-```
-
-Then compile the program and install it:
-
-```bash
-$ make
-$ sudo make install
-```
-
-grSim will be — by default — installed on the `/usr/local` directory.
-
-### Mac OS X Installation
-
-Pre-requirements:
-
-- [Xcode](https://developer.apple.com/xcode/) or Xcode Command Line Tools 8.0 or newer
+- [Xcode](https://developer.apple.com/xcode/) or Xcode Command Line Tools 8.0 or newer;
 - [Homebrew](http://brew.sh/) package manager.
 
-First ensure the dependencies are there:
+Than install the dependencies needed:
 
 ```bash
 brew install cmake
@@ -124,22 +77,47 @@ brew update
 brew doctor
 ```
 
-Next we need to install VarTypes manually. Please refer to the documentation above for the procedure.
+### Building
 
-The steps to compile grSim on Mac OS is similar to the steps outlines above for Linux:
-
+First clone grSim into your preferred location.
 
 ```bash
 $ cd /path/to/grsim_ws
-$ git clone https://github.com/Robocup-SSL/grSim.git
-$ cd ./grSim
+$ git clone https://github.com/RoboCup-SSL/grSim.git
+$ cd grSim
+```
+
+Create a build directory within the project (this is ignored by .gitignore):
+
+```bash
 $ mkdir build
 $ cd build
-$ cmake ..
+```
+
+Run CMake to generate the makefile (note: if you proceed with the installation, grSim will be installed into directory chosen, by default `/usr/local`):
+
+```bash
+$ cmake -DCMAKE_INSTALL_PREFIX=/usr/local ..
+```
+
+Then compile the program:
+
+```bash
 $ make
 ```
 
-The binary files (grSim and the sample client) will be placed in `../bin`.
+The executable will be located on the `bin` directory.
+
+### Installing
+
+At least, if you want to install grSim on your system, run the follow:
+
+```bash
+$ sudo make install
+```
+
+grSim will be — by default — installed on the `/usr/local` directory.
+
 
 ## Notes on the performance
 
