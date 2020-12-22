@@ -678,24 +678,40 @@ dReal normalizeAngle(dReal a)
 
 bool SSLWorld::visibleInCam(int id, double x, double y)
 {
+    const float CAMERA_OVERLAP = 0.2f;
     id %= 4;
     if (id==0)
     {
-        if (x>-0.2 && y>-0.2) return true;
+        if (x>-CAMERA_OVERLAP && y>-CAMERA_OVERLAP) return true;
     }
     if (id==1)
     {
-        if (x>-0.2 && y<0.2) return true;
+        if (x>-CAMERA_OVERLAP && y<CAMERA_OVERLAP) return true;
     }
     if (id==2)
     {
-        if (x<0.2 && y<0.2) return true;
+        if (x<CAMERA_OVERLAP && y<CAMERA_OVERLAP) return true;
     }
     if (id==3)
     {
-        if (x<0.2 && y>-0.2) return true;
+        if (x<CAMERA_OVERLAP && y>-CAMERA_OVERLAP) return true;
     }
     return false;
+}
+
+QPair<float, float> SSLWorld::cameraPosition(int id)
+{
+    Q_ASSERT(id >= 0 && id < 4);
+
+    // these positions must be kept synchronized with the quadrants in visibleInCam
+    QVector<QPair<float, float>> camera_quadrants = {
+        {0.25, 0.25},
+        {0.25, -0.25},
+        {-0.25, -0.25},
+        {-0.25, 0.25}
+    };
+    return {camera_quadrants[id].first * cfg->Field_Length(),
+            camera_quadrants[id].second * cfg->Field_Width()};
 }
 
 #define CONVUNIT(x) ((int)(1000*(x)))
@@ -712,7 +728,9 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
     dReal dev_x = cfg->noiseDeviation_x();
     dReal dev_y = cfg->noiseDeviation_y();
     dReal dev_a = cfg->noiseDeviation_angle();
-    if (sendGeomCount++ % cfg->sendGeometryEvery() == 0)
+
+    // send the geometry for every camera consecutively to provide the camera setup for all of them
+    if (((sendGeomCount++) / 4) % (cfg->sendGeometryEvery() / 4) == 0)
     {
         SSL_GeometryData* geom = packet->mutable_geometry();
         SSL_GeometryFieldSize* field = geom->mutable_field();
@@ -740,6 +758,30 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
 
         // Field lines and arcs
         addFieldLinesArcs(field);
+
+        // camera calibration
+        const float CAMERA_HEIGHT = 4;
+        const unsigned FOCAL_LENGTH = 390;
+
+        SSL_GeometryCameraCalibration* camera = geom->add_calib();
+        camera->set_camera_id(cam_id);
+        // dummy values
+        camera->set_distortion(0.2);
+        camera->set_focal_length(FOCAL_LENGTH);
+        camera->set_principal_point_x(300);
+        camera->set_principal_point_y(300);
+        camera->set_q0(0.7);
+        camera->set_q1(0.7);
+        camera->set_q2(0.7);
+        camera->set_q3(0.7);
+        camera->set_tx(0);
+        camera->set_ty(0);
+        camera->set_tz(3500);
+
+        auto camera_pos = cameraPosition(cam_id);
+        camera->set_derived_camera_world_tx(CONVUNIT(camera_pos.first));
+        camera->set_derived_camera_world_ty(CONVUNIT(camera_pos.second));
+        camera->set_derived_camera_world_tz(CONVUNIT(CAMERA_HEIGHT));
 
     }
     if (cfg->noise()==false) {dev_x = 0;dev_y = 0;dev_a = 0;}
