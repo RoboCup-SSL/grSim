@@ -78,6 +78,7 @@ public:
     void addFieldArc(SSL_GeometryFieldSize *field, const string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness);
     void sendVisionBuffer();
     bool visibleInCam(int id, double x, double y);
+    QPair<float, float> cameraPosition(int id);
     int  robotIndex(int robot,int team);
     void addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, KickStatus kickStatus);
     void sendRobotStatus(Robots_Status& robotsPacket, QHostAddress sender, int team);
