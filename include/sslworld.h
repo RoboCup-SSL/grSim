@@ -43,6 +43,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "messages_robocup_ssl_robot_status.pb.h"
 
 #define WALL_COUNT 10
+#define FORMATION_OUTSIDE 0
+#define FORMATION_INSIDE_1 1
+#define FORMATION_INSIDE_2 2
+#define FORMATION_OUTSIDE_FIELD 3
 
 class RobotsFomation;
 class SendingPacket {

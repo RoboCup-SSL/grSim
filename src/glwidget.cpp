@@ -35,13 +35,12 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     first_time = true;
     cfg = _cfg;
 
-    forms[1] = new RobotsFomation(-1, cfg);  //outside yellow
-    forms[2] = new RobotsFomation(1, cfg);  //inside type 1
-    forms[3] = new RobotsFomation(2, cfg);  //inside type 2
-    forms[4] = new RobotsFomation(3, cfg);  //inside type 1
-    //forms[5] = new RobotsFomation(4);  //inside type 2
+    forms[FORMATION_OUTSIDE] = new RobotsFomation(FORMATION_OUTSIDE, cfg);
+    forms[FORMATION_INSIDE_1] = new RobotsFomation(FORMATION_INSIDE_1, cfg);
+    forms[FORMATION_INSIDE_2] = new RobotsFomation(FORMATION_INSIDE_2, cfg);
+    forms[FORMATION_OUTSIDE_FIELD] = new RobotsFomation(FORMATION_OUTSIDE_FIELD, cfg);
 
-    ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
+    ssl = new SSLWorld(this,cfg,forms[FORMATION_INSIDE_1],forms[FORMATION_INSIDE_1]);
     Current_robot = 0;
     Current_team = 0;
     cammode = CameraMode::BIRDS_EYE_FROM_TOUCH_LINE;
@@ -49,6 +48,7 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
 
     blueRobotsMenu = new QMenu("&Blue Robots");
     yellowRobotsMenu = new QMenu("&Yellow Robots");
+    allRobotsMenu = new QMenu("&All Robots");
     blueRobotsMenu->addAction(tr("Put all inside with formation 1"));
     blueRobotsMenu->addAction(tr("Put all inside with formation 2"));
     blueRobotsMenu->addAction(tr("Put all outside"));
@@ -61,6 +61,12 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     yellowRobotsMenu->addAction(tr("Put all out of field"));
     yellowRobotsMenu->addAction(tr("Turn all off"));
     yellowRobotsMenu->addAction(tr("Turn all on"));
+    allRobotsMenu->addAction(tr("Put all inside with formation 1"));
+    allRobotsMenu->addAction(tr("Put all inside with formation 2"));
+    allRobotsMenu->addAction(tr("Put all outside"));
+    allRobotsMenu->addAction(tr("Put all out of field"));
+    allRobotsMenu->addAction(tr("Turn all off"));
+    allRobotsMenu->addAction(tr("Turn all on"));
     robpopup = new QMenu(this);
     moveRobotAct = new QAction(tr("&Locate robot"),this);
     selectRobotAct = new QAction(tr("&Select robot"),this);
@@ -73,6 +79,7 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     robpopup->addAction(lockToRobotAct);
     robpopup->addMenu(blueRobotsMenu);
     robpopup->addMenu(yellowRobotsMenu);
+    robpopup->addMenu(allRobotsMenu);
 
     moveBallAct = new QAction(tr("&Locate ball"),this);
     lockToBallAct = new QAction(tr("Loc&k camera to ball"),this);
@@ -95,6 +102,7 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     mainpopup->addMenu(cameraMenu);
     mainpopup->addMenu(blueRobotsMenu);
     mainpopup->addMenu(yellowRobotsMenu);
+    mainpopup->addMenu(allRobotsMenu);
 
 
     connect(moveRobotAct, SIGNAL(triggered()), this, SLOT(moveRobot()));
@@ -104,6 +112,8 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     connect(onOffRobotAct, SIGNAL(triggered()), this, SLOT(switchRobotOnOff()));
     connect(yellowRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
     connect(blueRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(blueRobotsMenuTriggered(QAction*)));
+    connect(allRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(yellowRobotsMenuTriggered(QAction*)));
+    connect(allRobotsMenu,SIGNAL(triggered(QAction*)),this,SLOT(blueRobotsMenuTriggered(QAction*)));
     connect(moveBallHereAct, SIGNAL(triggered()),this , SLOT(moveBallHere()));
     connect(moveRobotHereAct, SIGNAL(triggered()),this , SLOT(moveRobotHere()));
     connect(lockToRobotAct, SIGNAL(triggered()), this, SLOT(lockCameraToRobot()));
@@ -507,10 +517,10 @@ void GLWidget::yellowRobotsMenuTriggered(QAction *act)
 
 void GLWidget::reform(int team,const QString& act)
 {
-    if (act==tr("Put all inside with formation 1")) forms[2]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all inside with formation 2")) forms[3]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all outside")) forms[1]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all out of field")) forms[4]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all inside with formation 1")) forms[FORMATION_INSIDE_1]->resetRobots(ssl->robots, team);
+    if (act==tr("Put all inside with formation 2")) forms[FORMATION_INSIDE_2]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all outside")) forms[FORMATION_OUTSIDE]->resetRobots(ssl->robots,team);
+    if (act==tr("Put all out of field")) forms[FORMATION_OUTSIDE_FIELD]->resetRobots(ssl->robots,team);
 
     if(act==tr("Turn all off")) {
         for(int i=0; i<cfg->Robots_Count(); i++) {

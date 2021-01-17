@@ -152,6 +152,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     robotMenu->addMenu(glwidget->blueRobotsMenu);
     robotMenu->addMenu(glwidget->yellowRobotsMenu);
+    robotMenu->addMenu(glwidget->allRobotsMenu);
 
     fullScreenAct = new QAction(tr("&Full screen"),simulatorMenu);
     fullScreenAct->setShortcut(QKeySequence("F2"));
@@ -417,7 +418,7 @@ void MainWindow::changeBallDamping()
 void MainWindow::restartSimulator()
 {        
     delete glwidget->ssl;
-    glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[2],glwidget->forms[2]);
+    glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[FORMATION_INSIDE_1],glwidget->forms[FORMATION_INSIDE_1]);
     glwidget->ssl->glinit();
     glwidget->ssl->visionServer = visionServer;
     glwidget->ssl->commandSocket = commandSocket;
