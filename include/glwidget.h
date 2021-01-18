@@ -54,9 +54,9 @@ public:
     dReal getFPS();
     ConfigWidget* cfg;   
     SSLWorld* ssl;
-    RobotsFomation* forms[6];
+    RobotsFomation* forms[4];
     QMenu* robpopup,*ballpopup,*mainpopup;
-    QMenu *blueRobotsMenu,*yellowRobotsMenu;
+    QMenu *blueRobotsMenu,*yellowRobotsMenu,*allRobotsMenu;
     QAction* moveRobotAct;
     QAction* selectRobotAct;
     QAction* resetRobotAct;
