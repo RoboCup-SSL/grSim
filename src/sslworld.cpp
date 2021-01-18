@@ -930,10 +930,10 @@ SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
 void SSLWorld::sendVisionBuffer()
 {
     int t = timer->elapsed();
-    sendQueue.push_back(new SendingPacket(generatePacket(0),t));    
-    sendQueue.push_back(new SendingPacket(generatePacket(1),t+1));
-    sendQueue.push_back(new SendingPacket(generatePacket(2),t+2));
-    sendQueue.push_back(new SendingPacket(generatePacket(3),t+3));
+    sendQueue.push_back(new SendingPacket(generatePacket(0),t));
+    sendQueue.push_back(new SendingPacket(generatePacket(1),t));
+    sendQueue.push_back(new SendingPacket(generatePacket(2),t));
+    sendQueue.push_back(new SendingPacket(generatePacket(3),t));
     while (t - sendQueue.front()->t>=cfg->sendDelay())
     {
         SSL_WrapperPacket *packet = sendQueue.front()->packet;
