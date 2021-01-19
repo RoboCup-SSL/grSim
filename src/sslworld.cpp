@@ -714,7 +714,6 @@ QPair<float, float> SSLWorld::cameraPosition(int id)
             camera_quadrants[id].second * cfg->Field_Width()};
 }
 
-static const bool PROJECT_AIRBONE_BALL = true;
 #define CONVUNIT(x) ((int)(1000*(x)))
 SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
 {
@@ -798,7 +797,8 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
             float output_y = randn_notrig(y*1000.0f,dev_x);
             float output_z = z*1000.0f;
 
-            if (PROJECT_AIRBONE_BALL) {
+            const bool project_airborne = cfg->BallProjectAirborne();
+            if (project_airborne) {
                 output_z = qBound(0.f, output_z - BALL_RADIUS, CONVUNIT(CAMERA_HEIGHT) * SCALING_LIMIT);
                 auto camera_pos = cameraPosition(cam_id);
                 const float camera_x = CONVUNIT(camera_pos.first);
@@ -810,7 +810,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
 
             vball->set_x(output_x);
             vball->set_y(output_y);
-            if (!PROJECT_AIRBONE_BALL) {
+            if (!project_airborne) {
                 vball->set_z(output_z);
             }
             vball->set_pixel_x(x*1000.0f);

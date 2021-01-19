@@ -167,6 +167,7 @@ public:
   DEF_VALUE(double,Double,BallBounceVel)
   DEF_VALUE(double,Double,BallLinearDamp)
   DEF_VALUE(double,Double,BallAngularDamp)
+  DEF_VALUE(bool,Bool,BallProjectAirborne)
 
   DEF_VALUE(bool,Bool,SyncWithGL)
   DEF_VALUE(double,Double,DesiredFPS)
