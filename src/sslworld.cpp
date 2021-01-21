@@ -729,7 +729,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
     dReal dev_y = cfg->noiseDeviation_y();
     dReal dev_a = cfg->noiseDeviation_angle();
 
-    const float CAMERA_HEIGHT = 4;
+    const float CAMERA_HEIGHT = cfg->Camera_Height();
 
     // send the geometry for every camera consecutively to provide the camera setup for all of them
     if (((sendGeomCount++) / 4) % (cfg->sendGeometryEvery() / 4) == 0)
@@ -762,7 +762,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
         addFieldLinesArcs(field);
 
         // camera calibration
-        const unsigned FOCAL_LENGTH = 390;
+        const unsigned FOCAL_LENGTH = cfg->Camera_Focal_Length();
 
         SSL_GeometryCameraCalibration* camera = geom->add_calib();
         camera->set_camera_id(cam_id);
@@ -789,8 +789,8 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
     if ((cfg->vanishing()==false) || (rand0_1() > cfg->ball_vanishing()))
     {
         if (visibleInCam(cam_id, x, y)) {
-            const float BALL_RADIUS = 21.5; // mm
-            const float SCALING_LIMIT = 0.9;
+            const float BALL_RADIUS = cfg->BallRadius() * 1000.f;
+            const float SCALING_LIMIT = cfg->Camera_Scaling_Limit();
             SSL_DetectionBall* vball = packet->mutable_detection()->add_balls();
 
             float output_x = randn_notrig(x*1000.0f,dev_x);

@@ -156,6 +156,9 @@ public:
   DEF_FIELD_VALUE(double,Double,Goal_Depth)
   DEF_FIELD_VALUE(double,Double,Goal_Width)
   DEF_FIELD_VALUE(double,Double,Goal_Height)
+  DEF_VALUE(double,Double,Camera_Height)
+  DEF_VALUE(int,Int,Camera_Focal_Length)
+  DEF_VALUE(double,Double,Camera_Scaling_Limit)
 
   DEF_ENUM(std::string,YellowTeam)
   DEF_ENUM(std::string,BlueTeam)

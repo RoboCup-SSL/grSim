@@ -88,6 +88,12 @@ ConfigWidget::ConfigWidget()
   END_ENUM(geo_vars,YellowTeam)
   ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
   END_ENUM(geo_vars,BlueTeam)
+  VarListPtr camera_vars(new VarList("Cameras"));
+  geo_vars->addChild(camera_vars);
+  ADD_VALUE(camera_vars,Double,Camera_Height,4,"Height of all cameras")
+  ADD_VALUE(camera_vars,Int,Camera_Focal_Length,390,"Focal length")
+  ADD_VALUE(camera_vars,Double,Camera_Scaling_Limit,0.9,"Camera scaling limit")
+
 
     VarListPtr ballg_vars(new VarList("Ball"));
     geo_vars->addChild(ballg_vars);
