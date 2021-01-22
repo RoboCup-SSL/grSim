@@ -88,6 +88,12 @@ ConfigWidget::ConfigWidget()
   END_ENUM(geo_vars,YellowTeam)
   ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
   END_ENUM(geo_vars,BlueTeam)
+  VarListPtr camera_vars(new VarList("Cameras"));
+  geo_vars->addChild(camera_vars);
+  ADD_VALUE(camera_vars,Double,Camera_Height,4,"Height of all cameras")
+  ADD_VALUE(camera_vars,Int,Camera_Focal_Length,390,"Focal length")
+  ADD_VALUE(camera_vars,Double,Camera_Scaling_Limit,0.9,"Camera scaling limit")
+
 
     VarListPtr ballg_vars(new VarList("Ball"));
     geo_vars->addChild(ballg_vars);
@@ -110,6 +116,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(ballp_vars,Double,BallBounceVel,0.1,"Ball-ground bounce min velocity")
         ADD_VALUE(ballp_vars,Double,BallLinearDamp,0.004,"Ball linear damping")
         ADD_VALUE(ballp_vars,Double,BallAngularDamp,0.004,"Ball angular damping")
+        ADD_VALUE(ballp_vars,Bool,BallProjectAirborne,true,"Project airborne balls")
   VarListPtr comm_vars(new VarList("Communication"));
   world.push_back(comm_vars);
     ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"

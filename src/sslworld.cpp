@@ -729,6 +729,8 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
     dReal dev_y = cfg->noiseDeviation_y();
     dReal dev_a = cfg->noiseDeviation_angle();
 
+    const float CAMERA_HEIGHT = cfg->Camera_Height();
+
     // send the geometry for every camera consecutively to provide the camera setup for all of them
     if (((sendGeomCount++) / 4) % (cfg->sendGeometryEvery() / 4) == 0)
     {
@@ -760,8 +762,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
         addFieldLinesArcs(field);
 
         // camera calibration
-        const float CAMERA_HEIGHT = 4;
-        const unsigned FOCAL_LENGTH = 390;
+        const unsigned FOCAL_LENGTH = cfg->Camera_Focal_Length();
 
         SSL_GeometryCameraCalibration* camera = geom->add_calib();
         camera->set_camera_id(cam_id);
@@ -788,10 +789,30 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
     if ((cfg->vanishing()==false) || (rand0_1() > cfg->ball_vanishing()))
     {
         if (visibleInCam(cam_id, x, y)) {
+            const float BALL_RADIUS = cfg->BallRadius() * 1000.f;
+            const float SCALING_LIMIT = cfg->Camera_Scaling_Limit();
             SSL_DetectionBall* vball = packet->mutable_detection()->add_balls();
-            vball->set_x(randn_notrig(x*1000.0f,dev_x));
-            vball->set_y(randn_notrig(y*1000.0f,dev_y));
-            vball->set_z(z*1000.0f);
+
+            float output_x = randn_notrig(x*1000.0f,dev_x);
+            float output_y = randn_notrig(y*1000.0f,dev_x);
+            float output_z = z*1000.0f;
+
+            const bool project_airborne = cfg->BallProjectAirborne();
+            if (project_airborne) {
+                output_z = qBound(0.f, output_z - BALL_RADIUS, CONVUNIT(CAMERA_HEIGHT) * SCALING_LIMIT);
+                auto camera_pos = cameraPosition(cam_id);
+                const float camera_x = CONVUNIT(camera_pos.first);
+                const float camera_y = CONVUNIT(camera_pos.second);
+                const float camera_z = CONVUNIT(CAMERA_HEIGHT);
+                output_x = (output_x - camera_x) * (camera_z / (camera_z - output_z)) + camera_x;
+                output_y = (output_y - camera_y) * (camera_z / (camera_z - output_z)) + camera_y;
+            }
+
+            vball->set_x(output_x);
+            vball->set_y(output_y);
+            if (!project_airborne) {
+                vball->set_z(output_z);
+            }
             vball->set_pixel_x(x*1000.0f);
             vball->set_pixel_y(y*1000.0f);
             vball->set_confidence(0.9 + rand0_1()*0.1);
