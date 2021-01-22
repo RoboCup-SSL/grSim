@@ -14,13 +14,13 @@ grSim-[![Build Status](https://travis-ci.org/RoboCup-SSL/grSim.svg?branch=master
 System Requirements
 -----------------------
 
-grSim will likely run on a modern dual core PC with a decent graphics card. Typical configuration is:
+grSim will likely run on a modern dual-core PC with a decent graphics card. A typical configuration is:
 
 - Dual Core CPU (2.0 Ghz+)
 - 1GB of RAM
 - 256MB nVidia or ATI graphics card
 
-Note that it may run on lower end equipment though good performance is not guaranteed.
+Note that it may run on lower-end equipment though good performance is not guaranteed.
 
 
 Software Requirements
@@ -42,7 +42,7 @@ Please consult the [install instructions](INSTALL.md) for more details.
 Usage
 -----
 
-Receiving data from grSim is similar to receiving data from [SSL-Vision](https://github.com/RoboCup-SSL/ssl-vision) using [Google Protobuf](https://github.com/google/protobuf) library.
+Receiving data from the grSim is similar to receiving data from the [SSL-Vision](https://github.com/RoboCup-SSL/ssl-vision) using [Google Protobuf](https://github.com/google/protobuf) library.
 Sending data to the simulator is also possible using Google Protobuf. Sample clients are included in [clients](./clients) folder. There are two clients available, *qt-based* and *Java-based*. The native client is compiled during the grSim compilation. To compile the Java client, please consult the corresponding `README` file.
 
 Qt [example project](https://github.com/robocin/ssl-client) to receive and send data to the simulator.
