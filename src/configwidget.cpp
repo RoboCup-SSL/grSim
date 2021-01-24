@@ -18,6 +18,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "configwidget.h"
 
+#include <memory>
+
 #define ADD_ENUM(type,name,Defaultvalue,namestring) \
     v_##name = std::shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
 #define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
@@ -30,11 +32,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
     v_##name->addItem(str);
 
 
-ConfigWidget::ConfigWidget()
-{      
+ConfigWidget::ConfigWidget() {
   tmodel=new VarTreeModel();
   this->setModel(tmodel);  
-  geo_vars = VarListPtr(new VarList("Geometry"));
+  geo_vars = std::make_shared<VarList>("Geometry");
   world.push_back(geo_vars);  
   robot_settings = new QSettings;
 
@@ -91,7 +92,7 @@ ConfigWidget::ConfigWidget()
   VarListPtr camera_vars(new VarList("Cameras"));
   geo_vars->addChild(camera_vars);
   ADD_VALUE(camera_vars,Double,Camera_Height,4,"Height of all cameras")
-  ADD_VALUE(camera_vars,Int,Camera_Focal_Length,390,"Focal length")
+  ADD_VALUE(camera_vars,Double,Camera_Focal_Length,390,"Focal length")
   ADD_VALUE(camera_vars,Double,Camera_Scaling_Limit,0.9,"Camera scaling limit")
 
 
@@ -147,8 +148,8 @@ ConfigWidget::ConfigWidget()
     std::string yellowteam = v_YellowTeam->getString();
     geo_vars->removeChild(v_YellowTeam);
 
-    ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
-    ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
+    ADD_ENUM(StringEnum,BlueTeam,blueteam,"Blue Team");
+    ADD_ENUM(StringEnum,YellowTeam,yellowteam,"Yellow Team");
 
     auto config_path = "/../config/";
 #ifdef HAVE_LINUX
@@ -162,8 +163,7 @@ ConfigWidget::ConfigWidget()
     dir.setSorting(QDir::Size | QDir::Reversed);
     QFileInfoList list = dir.entryInfoList();
 
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo fileInfo = list.at(i);
+    for (const auto& fileInfo : list) {
         QStringList s = fileInfo.fileName().split(".");
         QString str;
         if (s.count() > 0) str = s[0];
@@ -191,8 +191,9 @@ ConfigWidget::ConfigWidget()
   loadRobotsSettings();
 }
 
-ConfigWidget::~ConfigWidget() {  
-   VarXML::write(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
+ConfigWidget::~ConfigWidget() {
+    delete robot_settings;
+    VarXML::write(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 }
 
 

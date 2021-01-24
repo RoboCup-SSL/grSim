@@ -131,12 +131,12 @@ protected:
 public:
   VarListPtr geo_vars;
   ConfigWidget();
-  virtual ~ConfigWidget();
+  ~ConfigWidget() override;
 
   QSettings* robot_settings;
-  RobotSettings robotSettings;
-  RobotSettings blueSettings;
-  RobotSettings yellowSettings;
+  RobotSettings robotSettings{};
+  RobotSettings blueSettings{};
+  RobotSettings yellowSettings{};
 
   /*    Geometry/Game Vartypes   */
   DEF_ENUM(std::string, Division)
@@ -157,7 +157,7 @@ public:
   DEF_FIELD_VALUE(double,Double,Goal_Width)
   DEF_FIELD_VALUE(double,Double,Goal_Height)
   DEF_VALUE(double,Double,Camera_Height)
-  DEF_VALUE(int,Int,Camera_Focal_Length)
+  DEF_VALUE(double,Double,Camera_Focal_Length)
   DEF_VALUE(double,Double,Camera_Scaling_Limit)
 
   DEF_ENUM(std::string,YellowTeam)
