@@ -119,6 +119,8 @@ $ sudo make install
 grSim will be — by default — installed on the `/usr/local` directory.
 
 
+if you face any problem regarding of updating the grsim version, you can try removing the `grsim.xml`.
+
 ## Notes on the performance
 
 When running grSim, check the FPS in the status bar. If it is running at **60 FPS** or higher, everything is ok. Otherwise check the graphics card's driver installation and OpenGL settings.
