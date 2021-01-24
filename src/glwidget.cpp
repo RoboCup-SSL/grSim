@@ -35,10 +35,10 @@ GLWidget::GLWidget(QWidget *parent, ConfigWidget* _cfg)
     first_time = true;
     cfg = _cfg;
 
-    forms[FORMATION_OUTSIDE] = new RobotsFomation(FORMATION_OUTSIDE, cfg);
-    forms[FORMATION_INSIDE_1] = new RobotsFomation(FORMATION_INSIDE_1, cfg);
-    forms[FORMATION_INSIDE_2] = new RobotsFomation(FORMATION_INSIDE_2, cfg);
-    forms[FORMATION_OUTSIDE_FIELD] = new RobotsFomation(FORMATION_OUTSIDE_FIELD, cfg);
+    forms[FORMATION_OUTSIDE] = new RobotsFormation(FORMATION_OUTSIDE, cfg);
+    forms[FORMATION_INSIDE_1] = new RobotsFormation(FORMATION_INSIDE_1, cfg);
+    forms[FORMATION_INSIDE_2] = new RobotsFormation(FORMATION_INSIDE_2, cfg);
+    forms[FORMATION_OUTSIDE_FIELD] = new RobotsFormation(FORMATION_OUTSIDE_FIELD, cfg);
 
     ssl = new SSLWorld(this,cfg,forms[FORMATION_INSIDE_1],forms[FORMATION_INSIDE_1]);
     Current_robot = 0;

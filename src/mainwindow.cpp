@@ -261,8 +261,8 @@ MainWindow::MainWindow(QWidget *parent)
     robotwidget->id = 0;
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
+
 }
 
 void MainWindow::showHideSimulator(bool v)
