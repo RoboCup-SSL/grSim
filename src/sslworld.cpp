@@ -298,8 +298,6 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         }
     }
     sendGeomCount = 0;
-    timer = new QTime();
-    timer->start();
     in_buffer = new char [65536];
 
     // initialize robot state
@@ -427,6 +425,7 @@ void SSLWorld::step(dReal dt)
         p->step(dt/ballCollisionTry);
     }
 
+    sim_time += last_dt;
 
     int best_k=-1;
     dReal best_dist = 1e8;
@@ -722,9 +721,8 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
     ball->getBodyPosition(x,y,z);    
     packet->mutable_detection()->set_camera_id(cam_id);
     packet->mutable_detection()->set_frame_number(framenum);    
-    dReal t_elapsed = timer->elapsed()/1000.0;
-    packet->mutable_detection()->set_t_capture(t_elapsed);
-    packet->mutable_detection()->set_t_sent(t_elapsed);
+    packet->mutable_detection()->set_t_capture(sim_time);
+    packet->mutable_detection()->set_t_sent(sim_time);
     dReal dev_x = cfg->noiseDeviation_x();
     dReal dev_y = cfg->noiseDeviation_y();
     dReal dev_a = cfg->noiseDeviation_angle();
@@ -950,7 +948,7 @@ SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
 
 void SSLWorld::sendVisionBuffer()
 {
-    int t = timer->elapsed();
+    int t = (int)(sim_time*1000);
     sendQueue.push_back(new SendingPacket(generatePacket(0),t));
     sendQueue.push_back(new SendingPacket(generatePacket(1),t));
     sendQueue.push_back(new SendingPacket(generatePacket(2),t));

@@ -63,6 +63,7 @@ private:
     QGLWidget* m_parent;
     int framenum;
     dReal last_dt;
+    dReal sim_time = 0;
     QList<SendingPacket*> sendQueue;
     char packet[200];
     char *in_buffer;
@@ -103,7 +104,6 @@ public:
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
     bool updatedCursor;
     Robot* robots[MAX_ROBOT_COUNT*2];
-    QTime *timer;
     int sendGeomCount;
 public slots:
     void recvActions();
