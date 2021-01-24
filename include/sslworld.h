@@ -43,12 +43,9 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "messages_robocup_ssl_robot_status.pb.h"
 
 #define WALL_COUNT 10
-#define FORMATION_OUTSIDE 0
-#define FORMATION_INSIDE_1 1
-#define FORMATION_INSIDE_2 2
-#define FORMATION_OUTSIDE_FIELD 3
 
-class RobotsFomation;
+
+class RobotsFormation;
 class SendingPacket {
     public:
     SendingPacket(SSL_WrapperPacket* _packet,int _t);
@@ -61,32 +58,31 @@ class SSLWorld : public QObject
     Q_OBJECT
 private:
     QGLWidget* m_parent;
-    int framenum;
+    int frame_num;
     dReal last_dt;
     dReal sim_time = 0;
     QList<SendingPacket*> sendQueue;
-    char packet[200];
+    char packet[200]{};
     char *in_buffer;
-    bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT];
-    KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT];    
+    bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
+    KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
 public:    
     dReal customDT;
     bool isGLEnabled;
-    SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2);
-    virtual ~SSLWorld();
+    SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1, RobotsFormation *form2);
+    ~SSLWorld() override;
     void glinit();
     void step(dReal dt=-1);
     SSL_WrapperPacket* generatePacket(int cam_id=0);
     void addFieldLinesArcs(SSL_GeometryFieldSize *field);
-    Vector2f* allocVector(float x, float y);
-    void addFieldLine(SSL_GeometryFieldSize *field, const std::string &name, float p1_x, float p1_y, float p2_x, float p2_y, float thickness);
-    void addFieldArc(SSL_GeometryFieldSize *field, const string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness);
+    static void addFieldLine(SSL_GeometryFieldSize *field, const std::string &name, float p1_x, float p1_y, float p2_x, float p2_y, float thickness);
+    static void addFieldArc(SSL_GeometryFieldSize *field, const string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness);
     void sendVisionBuffer();
-    bool visibleInCam(int id, double x, double y);
+    static bool visibleInCam(int id, double x, double y);
     QPair<float, float> cameraPosition(int id);
     int  robotIndex(int robot,int team);
-    void addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, KickStatus kickStatus);
-    void sendRobotStatus(Robots_Status& robotsPacket, QHostAddress sender, int team);
+    static void addRobotStatus(Robots_Status& robotsPacket, int robotID, bool infrared, KickStatus kickStatus);
+    void sendRobotStatus(Robots_Status& robotsPacket, const QHostAddress& sender, int team);
 
     ConfigWidget* cfg;
     CGraphics* g;
@@ -94,16 +90,16 @@ public:
     PBall* ball;
     PGround* ground;
     PRay* ray;
-    PFixedBox* walls[WALL_COUNT];
-    int selected;
+    PFixedBox* walls[WALL_COUNT]{};
+    int selected{};
     bool show3DCursor;
-    dReal cursor_x,cursor_y,cursor_z;
-    dReal cursor_radius;
-    RoboCupSSLServer *visionServer;
-    QUdpSocket *commandSocket;
-    QUdpSocket *blueStatusSocket,*yellowStatusSocket;
+    dReal cursor_x{},cursor_y{},cursor_z{};
+    dReal cursor_radius{};
+    RoboCupSSLServer *visionServer{};
+    QUdpSocket *commandSocket{};
+    QUdpSocket *blueStatusSocket{},*yellowStatusSocket{};
     bool updatedCursor;
-    Robot* robots[MAX_ROBOT_COUNT*2];
+    Robot* robots[MAX_ROBOT_COUNT*2]{};
     int sendGeomCount;
 public slots:
     void recvActions();
@@ -111,12 +107,20 @@ signals:
     void fpsChanged(int newFPS);
 };
 
-class RobotsFomation {
+
+enum E_FORMATION {
+    FORMATION_OUTSIDE = 0,
+    FORMATION_INSIDE_1 = 1,
+    FORMATION_INSIDE_2 = 2,
+    FORMATION_OUTSIDE_FIELD = 3
+};
+
+class RobotsFormation {
     public:
-        dReal x[MAX_ROBOT_COUNT];
-        dReal y[MAX_ROBOT_COUNT];
-        RobotsFomation(int type, ConfigWidget* _cfg);
-        void setAll(dReal *xx,dReal *yy);
+        dReal x[MAX_ROBOT_COUNT]{};
+        dReal y[MAX_ROBOT_COUNT]{};
+        RobotsFormation(E_FORMATION type, ConfigWidget* _cfg);
+        void setAll(const dReal *xx,const dReal *yy);
         void loadFromFile(const QString& filename);
         void resetRobots(Robot** r,int team);
     private:
