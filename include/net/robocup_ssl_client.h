@@ -23,10 +23,9 @@
 #define ROBOCUP_SSL_CLIENT_H
 #include <string>
 #include <QMutex>
-#include "messages_robocup_ssl_detection.pb.h"
-#include "messages_robocup_ssl_geometry.pb.h"
-#include "messages_robocup_ssl_wrapper.pb.h"
-#include "messages_robocup_ssl_refbox_log.pb.h"
+#include "ssl_vision_detection.pb.h"
+#include "ssl_vision_geometry.pb.h"
+#include "ssl_vision_wrapper.pb.h"
 using namespace std;
 
 class QUdpSocket;

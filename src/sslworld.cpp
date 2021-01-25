@@ -28,10 +28,9 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
 #include "grSim_Replacement.pb.h"
-#include "messages_robocup_ssl_detection.pb.h"
-#include "messages_robocup_ssl_geometry.pb.h"
-#include "messages_robocup_ssl_refbox_log.pb.h"
-#include "messages_robocup_ssl_wrapper.pb.h"
+#include "ssl_vision_detection.pb.h"
+#include "ssl_vision_geometry.pb.h"
+#include "ssl_vision_wrapper.pb.h"
 
 
 #define ROBOT_GRAY 0.4
@@ -849,7 +848,7 @@ void SSLWorld::addFieldLine(SSL_GeometryFieldSize *field, const std::string &nam
 }
 
 void SSLWorld::addFieldArc(SSL_GeometryFieldSize *field, const std::string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness) {
-    SSL_FieldCicularArc *arc = field->add_field_arcs();
+    SSL_FieldCircularArc *arc = field->add_field_arcs();
 	arc->set_name(name.c_str());
 	arc->mutable_center()->set_x(c_x);
 	arc->mutable_center()->set_y(c_y);

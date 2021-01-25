@@ -40,7 +40,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "config.h"
 
-#include "messages_robocup_ssl_robot_status.pb.h"
+#include "grSim_Robotstatus.pb.h"
 
 #define WALL_COUNT 10
 

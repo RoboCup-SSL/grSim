@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+import "ssl_gc_common.proto";
+import "ssl_simulation_error.proto";
+
+// Custom robot feedback for specific simulators
+message RobotFeedbackCustom {
+    // Place holder for future custom robot feedback
+    // This could be the ball location, as seen by the robot
+    // oneof feedback {}
+}
+
+// Feedback from a robot
+message RobotFeedback {
+    // Id of the robot
+    required RobotId id = 1;
+    // Has the dribbler contact to the ball right now
+    optional bool dribbler_ball_contact = 2;
+    // Custom robot feedback for specfic simulators
+    optional RobotFeedbackCustom custom = 3;
+}
+
+// Response to RobotControl from the simulator to the connected client
+message RobotControlResponse {
+    // List of errors, like using unsupported features
+    repeated SimulatorError errors = 1;
+    // Feedback of the robots
+    repeated RobotFeedback feedback = 2;
+}

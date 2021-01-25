@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+// Capabilities of the simulator implementation
+enum SimulatorCapability {
+    // Unknown or not set (for compatibility)
+    SIMULATOR_CAPABILITY_UNKNOWN = 1;
+    // Moving robots with wheel velocity
+    SIMULATOR_CAPABILITY_MOVE_WHEEL_VELOCITY = 2;
+    // Moving robots with local velocity
+    SIMULATOR_CAPABILITY_MOVE_LOCAL_VELOCITY = 3;
+    // Moving robots with global velocity
+    SIMULATOR_CAPABILITY_MOVE_GLOBAL_VELOCITY = 4;
+}
+
+// Errors in the simulator
+message SimulatorError {
+    // Unique code of the error for automatic handling on client side
+    optional string code = 1;
+    // Unsupported capability for automatic handling on client side
+    optional SimulatorCapability unsupported_capability = 2;
+    // Human readable description of the error
+    optional string message = 3;
+}

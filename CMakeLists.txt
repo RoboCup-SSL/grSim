@@ -100,14 +100,20 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 list(APPEND libs ${PROTOBUF_LIBRARIES})
 
 protobuf_generate_cpp(PROTO_CPP PROTO_H
-    src/proto/messages_robocup_ssl_detection.proto
-    src/proto/messages_robocup_ssl_geometry.proto
-    src/proto/messages_robocup_ssl_wrapper.proto
-    src/proto/messages_robocup_ssl_refbox_log.proto
-    src/proto/messages_robocup_ssl_robot_status.proto
-    src/proto/grSim_Replacement.proto
     src/proto/grSim_Commands.proto
     src/proto/grSim_Packet.proto
+    src/proto/grSim_Replacement.proto
+    src/proto/grSim_Robotstatus.proto
+    src/proto/ssl_gc_common.proto
+    src/proto/ssl_simulation_config.proto
+    src/proto/ssl_simulation_control.proto
+    src/proto/ssl_simulation_error.proto
+    src/proto/ssl_simulation_robot_control.proto
+    src/proto/ssl_simulation_robot_feedback.proto
+    src/proto/ssl_simulation_synchronous.proto
+    src/proto/ssl_vision_detection.proto
+    src/proto/ssl_vision_geometry.proto
+    src/proto/ssl_vision_wrapper.proto
 )
 
 qt5_add_resources(RESOURCES

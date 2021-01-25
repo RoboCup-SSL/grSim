@@ -1,5 +1,4 @@
 syntax = "proto2";
-
 // A 2D float vector.
 message Vector2f {
   required float x = 1;
@@ -19,11 +18,13 @@ message SSL_FieldLineSegment {
   required Vector2f p2 = 3;
   // Thickness of the line segment.
   required float thickness = 4;
+  // The type of this shape
+  optional SSL_FieldShapeType type = 5;
 }
 
 // Represents a field marking as a circular arc segment represented by center point, a
 // start angle, an end angle, and an arc thickness.
-message SSL_FieldCicularArc {
+message SSL_FieldCircularArc {
   // Name of this field marking.
   required string name = 1;
   // Center point of the circular arc.
@@ -36,6 +37,8 @@ message SSL_FieldCicularArc {
   required float a2 = 5;
   // Thickness of the arc.
   required float thickness = 6;
+  // The type of this shape
+  optional SSL_FieldShapeType type = 7;
 }
 
 message SSL_GeometryFieldSize {
@@ -45,7 +48,9 @@ message SSL_GeometryFieldSize {
   required int32 goal_depth = 4;
   required int32 boundary_width = 5;
   repeated SSL_FieldLineSegment field_lines = 6;
-  repeated SSL_FieldCicularArc field_arcs = 7;
+  repeated SSL_FieldCircularArc field_arcs = 7;
+  optional int32 penalty_area_depth = 8;
+  optional int32 penalty_area_width = 9;
 }
 
 message SSL_GeometryCameraCalibration {
@@ -64,9 +69,58 @@ message SSL_GeometryCameraCalibration {
   optional float derived_camera_world_tx = 13;
   optional float derived_camera_world_ty = 14;
   optional float derived_camera_world_tz = 15;
+  optional uint32 pixel_image_width = 16;
+  optional uint32 pixel_image_height = 17;
+}
+
+// Two-Phase model for straight-kicked balls.
+// There are two phases with different accelerations during the ball kicks:
+// 1. Sliding
+// 2. Rolling
+message SSL_BallModelStraightTwoPhase {
+  // Ball sliding acceleration [m/s^2] (should be negative)
+  required double acc_slide = 1;
+  // Ball rolling acceleration [m/s^2] (should be negative)
+  required double acc_roll = 2;
+  // Fraction of the initial velocity where the ball starts to roll
+  required double k_switch = 3;
+}
+
+// Fixed-Loss model for chipped balls.
+// Uses fixed damping factors for xy and z direction per hop.
+message SSL_BallModelChipFixedLoss {
+  // Chip kick velocity damping factor in XY direction for the first hop
+  required double chip_damping_xy_first_hop = 1;
+  // Chip kick velocity damping factor in XY direction for all following hops
+  required double chip_damping_xy_other_hops = 2;
+  // Chip kick velocity damping factor in Z direction for all hops
+  required double chip_damping_z = 3;
+}
+
+message SSL_GeometryBallModels {
+  optional SSL_BallModelStraightTwoPhase straight_two_phase = 1;
+  optional SSL_BallModelChipFixedLoss chip_fixed_loss_plus_rolling = 2;
 }
 
 message SSL_GeometryData {
   required SSL_GeometryFieldSize field = 1;
   repeated SSL_GeometryCameraCalibration calib = 2;
+  optional SSL_GeometryBallModels ball_models = 3;
+}
+
+enum SSL_FieldShapeType {
+  Undefined = 0;
+  CenterCircle = 1;
+  TopTouchLine = 2;
+  BottomTouchLine = 3;
+  LeftGoalLine = 4;
+  RightGoalLine = 5;
+  HalfwayLine = 6;
+  CenterLine = 7;
+  LeftPenaltyStretch = 8;
+  RightPenaltyStretch = 9;
+  LeftFieldLeftPenaltyStretch = 10;
+  LeftFieldRightPenaltyStretch = 11;
+  RightFieldLeftPenaltyStretch = 12;
+  RightFieldRightPenaltyStretch = 13;
 }
