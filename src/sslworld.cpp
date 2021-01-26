@@ -31,6 +31,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "ssl_vision_detection.pb.h"
 #include "ssl_vision_geometry.pb.h"
 #include "ssl_vision_wrapper.pb.h"
+#include "ssl_simulation_config.pb.h"
+#include "ssl_simulation_control.pb.h"
+#include "ssl_simulation_robot_control.pb.h"
+#include "ssl_simulation_robot_feedback.pb.h"
 
 
 #define ROBOT_GRAY 0.4
@@ -295,7 +299,6 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
         }
     }
     sendGeomCount = 0;
-    in_buffer = new char [65536];
 
     // initialize robot state
     for (int team = 0; team < 2; ++team)
@@ -518,13 +521,11 @@ void SSLWorld::sendRobotStatus(Robots_Status& robotsPacket, const QHostAddress& 
 }
 
 void SSLWorld::recvActions() {
-    QHostAddress sender;
-    quint16 port;
     grSim_Packet grSimPacket;
     while (commandSocket->hasPendingDatagrams()) {
-        int size = commandSocket->readDatagram(in_buffer, 65536, &sender, &port);
-        if (size > 0) {
-            grSimPacket.ParseFromArray(in_buffer, size);
+        QNetworkDatagram datagram = commandSocket->receiveDatagram();
+        if (datagram.isValid()) {
+            grSimPacket.ParseFromArray(datagram.data().data(), datagram.data().size());
 
             if (grSimPacket.has_commands()) {
                 int team = 0;
@@ -628,8 +629,41 @@ void SSLWorld::recvActions() {
                     lastKickState[team][i] = kicking;
                 }
             }
-            if (updateRobotStatus) sendRobotStatus(robotsPacket, sender, team);
+            if (updateRobotStatus) sendRobotStatus(robotsPacket, datagram.senderAddress(), team);
         }
+    }
+}
+
+void SSLWorld::simControlSocketReady() {
+    SimulatorCommand simulatorCommand;
+    while (simControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = simControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        simulatorCommand.ParseFromArray(datagram.data().data(), datagram.data().size());
+    }
+}
+
+void SSLWorld::blueControlSocketReady() {
+    RobotControl robotControl;
+    while (blueControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = blueControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        robotControl.ParseFromArray(datagram.data().data(), datagram.data().size());
+    }
+}
+
+void SSLWorld::yellowControlSocketReady() {
+    RobotControl robotControl;
+    while (yellowControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = yellowControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        robotControl.ParseFromArray(datagram.data().data(), datagram.data().size());
     }
 }
 

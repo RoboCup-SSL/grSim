@@ -62,8 +62,6 @@ private:
     dReal last_dt;
     dReal sim_time = 0;
     QList<SendingPacket*> sendQueue;
-    char packet[200]{};
-    char *in_buffer;
     bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
     KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
 public:    
@@ -98,11 +96,17 @@ public:
     RoboCupSSLServer *visionServer{};
     QUdpSocket *commandSocket{};
     QUdpSocket *blueStatusSocket{},*yellowStatusSocket{};
+    QUdpSocket *simControlSocket;
+    QUdpSocket *blueControlSocket;
+    QUdpSocket *yellowControlSocket;
     bool updatedCursor;
     Robot* robots[MAX_ROBOT_COUNT*2]{};
     int sendGeomCount;
 public slots:
     void recvActions();
+    void simControlSocketReady();
+    void blueControlSocketReady();
+    void yellowControlSocketReady();
 signals:
     void fpsChanged(int newFPS);
 };

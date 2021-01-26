@@ -63,7 +63,13 @@ public slots:
     void reconnectYellowStatusSocket();
     void reconnectBlueStatusSocket();
     void reconnectVisionSocket();
+    void reconnectSimControlSocket();
+    void reconnectBlueControlSocket();
+    void reconnectYellowControlSocket();
     void recvActions();
+    void simControlSocketReady();
+    void blueControlSocketReady();
+    void yellowControlSocketReady();
     void setIsGlEnabled(bool value);
 
     int robotIndex(int robot,int team);
@@ -87,6 +93,9 @@ private:
     RoboCupSSLServer *visionServer;
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
+    QUdpSocket *simControlSocket;
+    QUdpSocket *blueControlSocket;
+    QUdpSocket *yellowControlSocket;
 };
 
 #endif // MAINWINDOW_H
