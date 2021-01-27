@@ -1,17 +1,19 @@
 syntax = "proto2";
+option go_package = "github.com/RoboCup-SSL/ssl-simulation-protocol/pkg/sim";
 
 import "ssl_gc_common.proto";
 import "ssl_vision_geometry.proto";
+import "google/protobuf/any.proto";
 
 // Movement limits for a robot
 message RobotLimits {
     // Max absolute speed-up acceleration [m/s^2]
     optional float acc_speedup_absolute_max = 1;
-    // Max angular speed-up acceleration [m/s^2]
+    // Max angular speed-up acceleration [rad/s^2]
     optional float acc_speedup_angular_max = 2;
     // Max absolute brake acceleration [m/s^2]
     optional float acc_brake_absolute_max = 3;
-    // Max angular brake acceleration [m/s^2]
+    // Max angular brake acceleration [rad/s^2]
     optional float acc_brake_angular_max = 4;
     // Max absolute velocity [m/s]
     optional float vel_absolute_max = 5;
@@ -31,23 +33,6 @@ message RobotWheelAngles {
     required float back_left = 3;
     // Angle front left [rad]
     required float front_left = 4;
-}
-
-// Custom robot specs for ER-Force simulator
-message RobotSpecErForce {
-    // The distance [m] from the robot center to the ball, when the ball is as close as possible to the robot.
-    // The ball may be a little bit inside the roboter when looking from top, due to the dimensions of the dribbler.
-    optional float shoot_radius = 1;
-    // The height of the dribbling bar from the ground [m]
-    optional float dribbler_height = 2;
-}
-
-// Custom robot specs that a specific to implementations
-message RobotSpecsCustom {
-    oneof spec {
-        // Robot specs for ER-Force simulator
-        RobotSpecErForce erforce = 1;
-    }
 }
 
 // Specs of a robot
@@ -70,62 +55,13 @@ message RobotSpecs {
     optional RobotLimits limits = 10;
     // Wheel angle configuration
     optional RobotWheelAngles wheel_angles = 13;
-    // Additional custom robot specs for specific implementations
-    optional RobotSpecsCustom custom_specs = 14;
-}
-
-// Realism configuration for ER-Force simulator
-message RealismConfigErForce {
-    // Standard deviation of the gaussian noise applied to the ball position [m]
-    optional float stddev_ball_p = 1;
-    // Standard deviation of the gaussian noise applied to the robot position [m]
-    optional float stddev_robot_p = 2;
-    // Standard deviation of the gaussian noise applied to the robot angle [rad]
-    optional float stddev_robot_phi = 3;
-    // Standard deviation of the gaussian noise applied to reported ball area [pixel]
-    optional float stddev_ball_area = 4;
-    // Whether or not to simulate the ball being invisible when the view from the camera
-    // to it is blocked by a robot.
-    // It also simulates the slight perceived motion of the ball when it is partially
-    // overshadowed by a robot as the visible center of the ball shifts
-    optional bool enable_invisible_ball = 5;
-    // The occlusion treshold at which the ball will no longer be visible [0-1]
-    // A value of 0 would make the ball always visible
-    optional float ball_visibility_threshold = 6;
-    // The overlap of the visible range of the different cameras [m]
-    optional float camera_overlap = 7;
-    // With this probability, additional erroneous ball detections are added
-    // at the edge of a robots dribbler (to emulate the red break beam lights
-    // sometimes being visible from the camera). [detections/s/robot]
-    optional float dribbler_ball_detections = 8;
-    // How much the reported camera positions should deviate from the actual
-    // camera positions used for ball projection etc. [m]
-    optional float camera_position_error = 9;
-    // The percentage of robot control commands that are "lost in transit" [0-1]
-    optional float robot_command_loss = 10;
-    // The percentage of robot reply messages that are "lost in transit" [0-1]
-    optional float robot_response_loss = 11;
-    // The percentage of times the ball is erroneously not "seen" by the camera [0-1]
-    optional float missing_ball_detections = 12;
-    // Sending out the vision data is delayed by this time after capturing the positions [ns]
-    optional int64 vision_delay = 13;
-    // The difference between the reported t_capture and t_sent of the vision frame [ns]
-    optional int64 vision_processing_time = 14;
-    // If false, 'glue' the ball during dribbling
-    optional bool simulate_dribbling = 15;
-}
-
-// Custom realism configs for specific simulators
-message RealismConfigCustom {
-    oneof config {
-        // Realism configuration for ER-Force simulator
-        RealismConfigErForce erforce = 1;
-    }
+    // Custom robot spec for specific simulators (the protobuf files are managed by the simulators)
+    optional google.protobuf.Any custom = 14;
 }
 
 message RealismConfig {
-    // Custom config for specific simulators
-    optional RealismConfigCustom custom = 1;
+    // Custom config for specific simulators (the protobuf files are managed by the simulators)
+    optional google.protobuf.Any custom = 1;
 }
 
 // Change the simulator configuration

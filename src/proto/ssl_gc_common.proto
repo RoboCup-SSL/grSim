@@ -1,4 +1,5 @@
 syntax = "proto2";
+option go_package = "github.com/RoboCup-SSL/ssl-simulation-protocol/pkg/sim";
 
 // Team is either blue or yellow
 enum Team {
