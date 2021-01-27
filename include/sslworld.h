@@ -41,6 +41,10 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "config.h"
 
 #include "grSim_Robotstatus.pb.h"
+#include "ssl_simulation_config.pb.h"
+#include "ssl_simulation_control.pb.h"
+#include "ssl_simulation_robot_control.pb.h"
+#include "ssl_simulation_robot_feedback.pb.h"
 
 #define WALL_COUNT 10
 
@@ -64,6 +68,8 @@ private:
     QList<SendingPacket*> sendQueue;
     bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
     KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
+    void processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse);
+    void processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team);
 public:    
     dReal customDT;
     bool isGLEnabled;

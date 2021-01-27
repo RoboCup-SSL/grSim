@@ -31,10 +31,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "ssl_vision_detection.pb.h"
 #include "ssl_vision_geometry.pb.h"
 #include "ssl_vision_wrapper.pb.h"
-#include "ssl_simulation_config.pb.h"
-#include "ssl_simulation_control.pb.h"
-#include "ssl_simulation_robot_control.pb.h"
-#include "ssl_simulation_robot_feedback.pb.h"
 
 
 #define ROBOT_GRAY 0.4
@@ -642,6 +638,13 @@ void SSLWorld::simControlSocketReady() {
             continue;
         }
         simulatorCommand.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        SimulatorResponse response;
+        processSimControl(simulatorCommand, response);
+        
+        QByteArray buffer(response.ByteSizeLong(), 0);
+        response.SerializeToArray(buffer.data(), buffer.size());
+        simControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
     }
 }
 
@@ -653,6 +656,13 @@ void SSLWorld::blueControlSocketReady() {
             continue;
         }
         robotControl.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        RobotControlResponse robotControlResponse;
+        processRobotControl(robotControl, robotControlResponse, BLUE);
+
+        QByteArray buffer(robotControlResponse.ByteSizeLong(), 0);
+        robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
+        blueControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
     }
 }
 
@@ -664,7 +674,23 @@ void SSLWorld::yellowControlSocketReady() {
             continue;
         }
         robotControl.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        RobotControlResponse robotControlResponse;
+        processRobotControl(robotControl, robotControlResponse, YELLOW);
+        
+        QByteArray buffer(robotControlResponse.ByteSizeLong(), 0);
+        robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
+        yellowControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
     }
+}
+
+
+void SSLWorld::processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse) {
+    
+}
+
+void SSLWorld::processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team) {
+    std::cout << robotControl.DebugString() << std::endl;
 }
 
 dReal normalizeAngle(dReal a) {
