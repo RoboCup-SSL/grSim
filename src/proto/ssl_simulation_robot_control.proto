@@ -9,8 +9,8 @@ message RobotCommand {
     optional RobotMoveCommand move_command = 2;
     // Absolute (3 dimensional) kick speed [m/s]
     optional float kick_speed = 3;
-    // Kick angle [degree] (defaults to 45 degrees)
-    optional float kick_angle = 4 [default = 45];
+    // Kick angle [degree] (defaults to 0 degrees for a straight kick)
+    optional float kick_angle = 4 [default = 0];
     // Dribbler speed in rounds per minute [rpm]
     optional float dribbler_speed = 5;
 }
@@ -52,11 +52,11 @@ message MoveLocalVelocity {
 // Move robot with global velocity
 message MoveGlobalVelocity {
     // Velocity on x-axis of the field [m/s]
-    required float vel_x = 1;
+    required float x = 1;
     // Velocity on y-axis of the field [m/s]
-    required float vel_y = 2;
+    required float y = 2;
     // Angular velocity counter-clockwise [rad/s]
-    required float vel_angular = 3;
+    required float angular = 3;
 }
 
 // Command from the connected client to the simulator

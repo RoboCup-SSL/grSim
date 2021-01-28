@@ -686,11 +686,123 @@ void SSLWorld::yellowControlSocketReady() {
 
 
 void SSLWorld::processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse) {
+    if(simulatorCommand.has_control()) {
+        if(simulatorCommand.control().has_teleport_ball()) {
+            auto teleBall = simulatorCommand.control().teleport_ball();
+            dReal x = 0, y = 0, z = 0;
+            ball->getBodyPosition(x, y, z);
+            const auto vel_vec = dBodyGetLinearVel(ball->body);
+            auto vx = vel_vec[0];
+            auto vy = vel_vec[1];
+            auto vz = vel_vec[2];
+
+            if (teleBall.has_x()) x   = teleBall.x();
+            if (teleBall.has_y()) y   = teleBall.y();
+            if (teleBall.has_z()) z   = teleBall.z();
+            if (teleBall.has_vx()) vx = teleBall.vx();
+            if (teleBall.has_vy()) vy = teleBall.vy();
+            if (teleBall.has_vz()) vz = teleBall.vz();
+
+            ball->setBodyPosition(x,y,(cfg->BallRadius() + 0.005) + z);
+            dBodySetLinearVel(ball->body,vx,vy,vz);
+            dBodySetAngularVel(ball->body,0,0,0);
+            
+            if(teleBall.has_teleport_safely()) {
+                simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_TELEPORT_SAFELY");
+            }
+            if(teleBall.has_roll()) {
+                simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_ROLL_BALL");
+            }
+        }
+        
+        for(const auto &teleBot : simulatorCommand.control().teleport_robot()) {
+            int id = robotIndex(teleBot.id().id(), teleBot.id().team() == YELLOW ? 1 : 0);
+            if (id < 0) {
+                continue;
+            }
+            auto robot = robots[id];
+
+            dReal x, y, vx = 0, vy = 0, vAngular = 0;
+            robot->getXY(x, y);
+            dReal orientation = robot->getDir() * M_PI / 180.0;
+            
+            if (teleBot.has_x()) x = teleBot.x();
+            if (teleBot.has_y()) y = teleBot.y();
+            if (teleBot.has_orientation()) orientation = teleBot.orientation();
+            if (teleBot.has_v_x()) vx = teleBot.v_x();
+            if (teleBot.has_v_y()) vy = teleBot.v_y();
+            if (teleBot.has_v_angular()) vAngular = teleBot.v_angular();
+
+            robot->resetRobot();
+            robot->setXY(x, y);
+            robot->setDir(orientation * 180.0 / M_PI);
+
+            dReal vxLocal = (vx * cos(-orientation)) - (vy * sin(-orientation));
+            dReal vyLocal = (vy * cos(-orientation)) + (vx * sin(-orientation));
+            robot->setSpeed(vxLocal, vyLocal, vAngular);
+            
+            if (teleBot.has_present()) {
+                robot->on = teleBot.present();
+                if(!teleBot.present()) {
+                    // Move it out of the field
+                    robot->setXY(1e6, 1e6);
+                }
+            }
+        }
+    }
     
+    if(simulatorCommand.has_config()) {
+        simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_CONFIG");
+    }
 }
 
 void SSLWorld::processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team) {
-    std::cout << robotControl.DebugString() << std::endl;
+    for (const auto &robotCommand : robotControl.robot_commands()) {
+        int id = robotIndex(robotCommand.id(), team == YELLOW ? 1 : 0);
+        if (id < 0) {
+            continue;
+        }
+        auto robot = robots[id];
+
+        if (robotCommand.has_kick_speed() && robotCommand.kick_speed() > 0) {
+            double kickSpeed = robotCommand.kick_speed();
+            double kickAngle = robotCommand.kick_angle() * M_PI / 180.0;
+            double length = cos(kickAngle) * kickSpeed;
+            double z = sin(kickAngle) * kickSpeed;
+            robot->kicker->kick(length, z);
+        }
+
+        if (robotCommand.has_dribbler_speed()) {
+            robot->kicker->setRoller(robotCommand.dribbler_speed() > 0 ? 1 : 0);
+        }
+
+        if (robotCommand.has_move_command()) {
+            if (robotCommand.move_command().has_wheel_velocity()) {
+                auto wheelVel = robotCommand.move_command().wheel_velocity();
+                robot->setSpeed(0, wheelVel.front_right());
+                robot->setSpeed(1, wheelVel.back_right());
+                robot->setSpeed(2, wheelVel.back_left());
+                robot->setSpeed(3, wheelVel.front_left());
+            } else if (robotCommand.move_command().has_local_velocity()) {
+                auto vel = robotCommand.move_command().local_velocity();
+                robot->setSpeed(vel.forward(), vel.left(), vel.angular());
+            } else if(robotCommand.move_command().has_global_velocity()) {
+                auto vel = robotCommand.move_command().global_velocity();
+                dReal orientation = -robot->getDir() * M_PI / 180.0;
+                dReal vx = (vel.x() * cos(orientation)) - (vel.y() * sin(orientation));
+                dReal vy = (vel.y() * cos(orientation)) + (vel.x() * sin(orientation));
+                robot->setSpeed(vx, vy, vel.angular());
+            }  else {
+                SimulatorError *pError = robotControlResponse.add_errors();
+                pError->set_code("GRSIM_UNSUPPORTED_MOVE_COMMAND");
+                pError->set_message("Unsupported move command");
+            }
+        }
+        
+        auto feedback = robotControlResponse.add_feedback();
+        feedback->set_id(robotCommand.id());
+        feedback->set_dribbler_ball_contact(robot->kicker->isTouchingBall());
+    }
 }
 
 dReal normalizeAngle(dReal a) {
