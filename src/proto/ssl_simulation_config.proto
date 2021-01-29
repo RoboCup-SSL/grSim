@@ -3,7 +3,8 @@ option go_package = "github.com/RoboCup-SSL/ssl-simulation-protocol/pkg/sim";
 
 import "ssl_gc_common.proto";
 import "ssl_vision_geometry.proto";
-import "google/protobuf/any.proto";
+// `any` not supported by older protobuf versions that are currently used in travis build
+//import "google/protobuf/any.proto"; 
 
 // Movement limits for a robot
 message RobotLimits {
@@ -56,12 +57,12 @@ message RobotSpecs {
     // Wheel angle configuration
     optional RobotWheelAngles wheel_angles = 13;
     // Custom robot spec for specific simulators (the protobuf files are managed by the simulators)
-    optional google.protobuf.Any custom = 14;
+//    optional google.protobuf.Any custom = 14;
 }
 
 message RealismConfig {
     // Custom config for specific simulators (the protobuf files are managed by the simulators)
-    optional google.protobuf.Any custom = 1;
+//    optional google.protobuf.Any custom = 1;
 }
 
 // Change the simulator configuration

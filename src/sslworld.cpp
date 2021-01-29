@@ -642,7 +642,7 @@ void SSLWorld::simControlSocketReady() {
         SimulatorResponse response;
         processSimControl(simulatorCommand, response);
         
-        QByteArray buffer(response.ByteSizeLong(), 0);
+        QByteArray buffer(response.ByteSize(), 0);
         response.SerializeToArray(buffer.data(), buffer.size());
         simControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
     }
@@ -660,7 +660,7 @@ void SSLWorld::blueControlSocketReady() {
         RobotControlResponse robotControlResponse;
         processRobotControl(robotControl, robotControlResponse, BLUE);
 
-        QByteArray buffer(robotControlResponse.ByteSizeLong(), 0);
+        QByteArray buffer(robotControlResponse.ByteSize(), 0);
         robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
         blueControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
     }
@@ -678,7 +678,7 @@ void SSLWorld::yellowControlSocketReady() {
         RobotControlResponse robotControlResponse;
         processRobotControl(robotControl, robotControlResponse, YELLOW);
         
-        QByteArray buffer(robotControlResponse.ByteSizeLong(), 0);
+        QByteArray buffer(robotControlResponse.ByteSize(), 0);
         robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
         yellowControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
     }
