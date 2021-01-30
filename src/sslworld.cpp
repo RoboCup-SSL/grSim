@@ -672,8 +672,8 @@ QPair<float, float> SSLWorld::cameraPosition(int id) {
         {-0.25, -0.25},
         {-0.25, 0.25}
     };
-    return {camera_quadrants[id].first * cfg->Field_Length(),
-            camera_quadrants[id].second * cfg->Field_Width()};
+    return {camera_quadrants[id].first * (float)cfg->Field_Length(),
+            camera_quadrants[id].second * (float)cfg->Field_Width()};
 }
 
 #define CONVUNIT(x) ((int)(1000*(x)))
