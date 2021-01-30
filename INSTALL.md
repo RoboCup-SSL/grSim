@@ -126,7 +126,7 @@ The executable will be located on the `bin` directory.
 
 #### Windows
 
-Run CMake to generate a solution in visual studio.
+Run CMake to generate a solution in visual studio (note: modify the command below to reflect your vcpkg installation folder).
 
 ```bash
 $ cmake -DCMAKE_TOOLCHAIN_FILE=D:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake ..
