@@ -777,31 +777,36 @@ void SSLWorld::processRobotControl(const RobotControl &robotControl, RobotContro
         }
 
         if (robotCommand.has_move_command()) {
-            if (robotCommand.move_command().has_wheel_velocity()) {
-                auto wheelVel = robotCommand.move_command().wheel_velocity();
-                robot->setSpeed(0, wheelVel.front_right());
-                robot->setSpeed(1, wheelVel.back_right());
-                robot->setSpeed(2, wheelVel.back_left());
-                robot->setSpeed(3, wheelVel.front_left());
-            } else if (robotCommand.move_command().has_local_velocity()) {
-                auto vel = robotCommand.move_command().local_velocity();
-                robot->setSpeed(vel.forward(), vel.left(), vel.angular());
-            } else if(robotCommand.move_command().has_global_velocity()) {
-                auto vel = robotCommand.move_command().global_velocity();
-                dReal orientation = -robot->getDir() * M_PI / 180.0;
-                dReal vx = (vel.x() * cos(orientation)) - (vel.y() * sin(orientation));
-                dReal vy = (vel.y() * cos(orientation)) + (vel.x() * sin(orientation));
-                robot->setSpeed(vx, vy, vel.angular());
-            }  else {
-                SimulatorError *pError = robotControlResponse.add_errors();
-                pError->set_code("GRSIM_UNSUPPORTED_MOVE_COMMAND");
-                pError->set_message("Unsupported move command");
-            }
+            processMoveCommand(robotControlResponse, robotCommand.move_command(), robot);
         }
         
         auto feedback = robotControlResponse.add_feedback();
         feedback->set_id(robotCommand.id());
         feedback->set_dribbler_ball_contact(robot->kicker->isTouchingBall());
+    }
+}
+
+void SSLWorld::processMoveCommand(RobotControlResponse &robotControlResponse, const RobotMoveCommand &moveCommand,
+                                  Robot *robot) {
+    if (moveCommand.has_wheel_velocity()) {
+        auto &wheelVel = moveCommand.wheel_velocity();
+        robot->setSpeed(0, wheelVel.front_right());
+        robot->setSpeed(1, wheelVel.back_right());
+        robot->setSpeed(2, wheelVel.back_left());
+        robot->setSpeed(3, wheelVel.front_left());
+    } else if (moveCommand.has_local_velocity()) {
+        auto &vel = moveCommand.local_velocity();
+        robot->setSpeed(vel.forward(), vel.left(), vel.angular());
+    } else if(moveCommand.has_global_velocity()) {
+        auto &vel = moveCommand.global_velocity();
+        dReal orientation = -robot->getDir() * M_PI / 180.0;
+        dReal vx = (vel.x() * cos(orientation)) - (vel.y() * sin(orientation));
+        dReal vy = (vel.y() * cos(orientation)) + (vel.x() * sin(orientation));
+        robot->setSpeed(vx, vy, vel.angular());
+    }  else {
+        SimulatorError *pError = robotControlResponse.add_errors();
+        pError->set_code("GRSIM_UNSUPPORTED_MOVE_COMMAND");
+        pError->set_message("Unsupported move command");
     }
 }
 
