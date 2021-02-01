@@ -397,19 +397,20 @@ void SSLWorld::step(dReal dt) {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
         dReal ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
         ballspeed = sqrt(ballspeed);
-        dReal ballfx=0,ballfy=0,ballfz=0;
-        dReal balltx=0,ballty=0,balltz=0;
         if (ballspeed > 0.01) {
             dReal fk = cfg->BallFriction()*cfg->BallMass()*cfg->Gravity();
-            ballfx = -fk*ballvel[0] / ballspeed;
-            ballfy = -fk*ballvel[1] / ballspeed;
-            ballfz = -fk*ballvel[2] / ballspeed;
-            balltx = -ballfy*cfg->BallRadius();
-            ballty = ballfx*cfg->BallRadius();
-            balltz = 0;
+            dReal ballfx = -fk*ballvel[0] / ballspeed;
+            dReal ballfy = -fk*ballvel[1] / ballspeed;
+            dReal ballfz = -fk*ballvel[2] / ballspeed;
+            dReal balltx = -ballfy*cfg->BallRadius();
+            dReal ballty = ballfx*cfg->BallRadius();
+            dReal balltz = 0;
             dBodyAddTorque(ball->body,balltx,ballty,balltz);
+            dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
+        } else {
+            dBodySetAngularVel(ball->body, 0, 0, 0);
+            dBodySetLinearVel(ball->body, 0, 0, 0);
         }
-        dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
         if (dt == 0) dt = last_dt;
         else last_dt = dt;
 
