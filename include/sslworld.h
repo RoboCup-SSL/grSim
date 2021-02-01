@@ -72,6 +72,8 @@ private:
     void processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team);
     static void processMoveCommand(RobotControlResponse &robotControlResponse, const RobotMoveCommand &robotCommand,
                             Robot *robot) ;
+    void processTeleportBall(SimulatorResponse &simulatorResponse, const TeleportBall &teleBall) const;
+    static void processTeleportRobot(const TeleportRobot &teleBot, Robot *robot);
 public:    
     dReal customDT;
     bool isGLEnabled;
