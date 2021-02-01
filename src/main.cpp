@@ -19,10 +19,16 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "mainwindow.h"
 #include "winmain.h"
 
+void signalHandler( int signum ) {
+    exit(signum);
+}
+
 int main(int argc, char *argv[])
 {
     std::locale::global( std::locale( "" ) );
     
+    signal(SIGINT, signalHandler);
+
     char** argend = argc + argv;
 
     QCoreApplication::setOrganizationName("Parsian");
