@@ -4,22 +4,16 @@ language: cpp
 jobs:
   include:
     - os: linux
-      dist: trusty
-      compiler: clang
-    - os: linux
-      dist: trusty   
-      compiler: gcc
-    - os: linux
       dist: bionic
       compiler: clang
     - os: linux
       dist: bionic
       compiler: gcc
     - os: linux
-      dist: xenial
+      dist: focal
       compiler: clang
     - os: linux
-      dist: xenial
+      dist: focal
       compiler: gcc
     - os: osx
       osx_image: xcode11.3
