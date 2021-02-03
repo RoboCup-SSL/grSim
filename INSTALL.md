@@ -23,13 +23,23 @@ GrSim depends on:
 
 
 
-## Installing from package manager
-### Arch Linux
+## Run from pre-build packages
+### Installing from Arch Linux package manager
 
 A package of grSim is avaliable on the [Arch User Repository](https://aur.archlinux.org/packages/grsim-git/), you can install it with your preferred AUR manager. Using `yay` it can be done with:
 ```bash
-$ sudo yay -S grsim-git
+yay -S grsim-git
 ```
+
+### Using docker image
+You can get latest grSim from [Docker Hub](https://hub.docker.com/r/robocupssl/grsim) with:
+```shell
+docker pull robocupssl/grSim:latest
+```
+
+The container can be run in two flavors:
+1. Headless: `docker run grsim`
+1. With VNC: `docker run -p 5900:5900 -eVNC_PASSWORD=vnc -eVNC_GEOMETRY=1920x1080 grsim vnc`
 
 ## Building and installing from the source code
 
