@@ -386,9 +386,6 @@ void SSLWorld::glinit() {
 }
 
 void SSLWorld::step(dReal dt) {
-    if (!isGLEnabled) g->disableGraphics();
-    else g->enableGraphics();
-
     if (customDT > 0) dt = customDT;
     const auto ratio = m_parent->devicePixelRatio();
     g->initScene(m_parent->width()*ratio,m_parent->height()*ratio,0,0.7,1);

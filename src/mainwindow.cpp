@@ -257,7 +257,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     robotwidget->teamCombo->setCurrentIndex(0);
     robotwidget->robotCombo->setCurrentIndex(0);
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+    auto robotPicture = glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img;
+    if(robotPicture != nullptr) {
+        robotwidget->setPicture(robotPicture);
+    }
     robotwidget->id = 0;
 }
 
@@ -337,8 +340,13 @@ QString dRealToStr(dReal a)
 
 void MainWindow::update()
 {
-    if (glwidget->ssl->g->isGraphicsEnabled()) glwidget->updateGL();
-    else glwidget->step();
+    if (glwidget->ssl->isGLEnabled) {
+        glwidget->ssl->g->enableGraphics();
+        glwidget->updateGL();
+    } else {
+        glwidget->ssl->g->disableGraphics();
+        glwidget->step();
+    }
 
     int R = robotIndex(glwidget->Current_robot,glwidget->Current_team);
 

@@ -19,20 +19,31 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "mainwindow.h"
 #include "winmain.h"
 
+void signalHandler( int signum ) {
+    exit(signum);
+}
+
 int main(int argc, char *argv[])
 {
     std::locale::global( std::locale( "" ) );
     
-    char** argend = argc + argv;
+    signal(SIGINT, signalHandler);
 
     QCoreApplication::setOrganizationName("Parsian");
     QCoreApplication::setOrganizationDomain("parsian-robotics.com");
     QCoreApplication::setApplicationName("grSim");
     QApplication a(argc, argv);
-    MainWindow w;
 
-    if (std::find(argv, argend, std::string("--headless")) != argend
-        || std::find(argv, argend, std::string("-H")) != argend) {
+    QCommandLineParser parser;
+    parser.setApplicationDescription("RoboCup Small Size League Simulator");
+    parser.addHelpOption();
+    QCommandLineOption headlessOption(QStringList() << "H" << "headless", 
+                                      QCoreApplication::translate("main", "Run without a UI"));
+    parser.addOption(headlessOption);
+    parser.process(a);
+
+    MainWindow w;
+    if (parser.isSet(headlessOption)) {
         // enable headless mode
         w.hide();
         w.setIsGlEnabled(false);
