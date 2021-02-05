@@ -31,6 +31,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QApplication>
 #include <QDir>
 #include <QClipboard>
+#include <QShortcut>
 
 #include <QStatusBar>
 #include <QMessageBox>
@@ -120,6 +121,11 @@ MainWindow::MainWindow(QWidget *parent)
     fileMenu->addAction(takeSnapshotAct);
     fileMenu->addAction(takeSnapshotToClipboardAct);
     fileMenu->addAction(exit);
+
+    QObject::connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q), this),
+                     &QShortcut::activated,
+                     this,
+                     &MainWindow::close);
 
     QMenu *viewMenu = new QMenu("&View");
     menuBar()->addMenu(viewMenu);

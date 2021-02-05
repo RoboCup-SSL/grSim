@@ -46,6 +46,7 @@ public:
     void getBodyRotation(dMatrix3 r,bool local=false);
     void setVisibility(bool v);
     void setColor(dReal r,dReal g,dReal b);
+    void setColor(const QColor& color);
     void getColor(dReal& r,dReal& g,dReal& b);
     bool getVisibility();
     virtual void setMass(dReal mass);

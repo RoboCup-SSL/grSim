@@ -53,6 +53,13 @@ void PObject::setColor(dReal r,dReal g,dReal b)
     m_blue = b;
 }
 
+void PObject::setColor(const QColor &color)
+{
+    m_red = color.redF()*4;
+    m_green = color.greenF()*4;
+    m_blue = color.blueF()*4;
+}
+
 void PObject::getColor(dReal& r,dReal& g,dReal& b)
 {
     r = m_red;
