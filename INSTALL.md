@@ -2,7 +2,7 @@
 
 ## Overview
 
-We developed grSim on Ubuntu OS. (Ubuntu 14.04+ tested and is recommended). It is  important that the graphics card driver is installed properly (the official Ubuntu packages for nVidia and AMD(ATI) graphics cards are available). grSim will compile and run in both 32 and 64 bits Linux and Mac OS.
+We developed grSim on Ubuntu OS. (Ubuntu 14.04+ tested and is recommended). It is  important that the graphics card driver is installed properly (the official Ubuntu packages for nVidia and AMD(ATI) graphics cards are available). grSim will compile and run in both 32 and 64 bits Linux and Mac OS, and in 64 bit Windows. 
 
 GrSim is written in C++, in order to compile it, you will need a working toolchain and a c++ compiler.
 
@@ -87,6 +87,20 @@ brew update
 brew doctor
 ```
 
+#### Windows (64 bits)
+
+For Windows, you will need to have installed:
+
+- [CMake](https://cmake.org/) (tested with version 3.17.2 ). Download and install cmake for windows.
+- [Visual Studio](https://visualstudio.microsoft.com/) (tested with version 16.7.0). During installation make sure to include workload `Desktop development with C++` and `C++ MFC for latest v142 build tools (x86 x64)`
+- [vcpkg](https://github.com/microsoft/vcpkg) package manager. Follow installation instructions on their github website.
+
+To install the dependencies, open a terminal in vcpkg installation folder and run the following command (it will take very long to run):
+
+```bash
+$ ./vcpkg install qt5:x64-windows ode:x64-windows protobuf:x64-windows
+```
+
 ### Building
 
 First clone grSim into your preferred location.
@@ -104,6 +118,8 @@ $ mkdir build
 $ cd build
 ```
 
+#### Linux and Mac OS X
+
 Run CMake to generate the makefile (note: if you proceed with the installation, grSim will be installed into directory chosen, by default `/usr/local`):
 
 ```bash
@@ -118,7 +134,18 @@ $ make
 
 The executable will be located on the `bin` directory.
 
-### Installing
+#### Windows
+
+Run CMake to generate a solution in visual studio (note: modify the command below to reflect your vcpkg installation folder).
+
+```bash
+$ cmake -DCMAKE_TOOLCHAIN_FILE=${PATH_TO_VCPKG}\\scripts\\buildsystems\\vcpkg.cmake ..
+```
+
+Then, open the solution file (`grSim.sln`) in Visual Studio, and build project grSim. Make sure to set the project to compile in `Release` version instead of `Debug` version.
+The executable will be located on the `bin` directory.
+
+### Installing (Linux and Mac OS X)
 
 At least, if you want to install grSim on your system, run the follow:
 

@@ -21,9 +21,9 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <memory>
 
 #define ADD_ENUM(type,name,Defaultvalue,namestring) \
-    v_##name = std::shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
+    v_##name = std::shared_ptr<VarTypes::Var##type>(new VarTypes::Var##type(namestring,Defaultvalue));
 #define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
-    v_##name = std::shared_ptr<Var##type>(new Var##type(namestring,defaultvalue)); \
+    v_##name = std::shared_ptr<VarTypes::Var##type>(new VarTypes::Var##type(namestring,defaultvalue)); \
     parent->addChild(v_##name);
 
 #define END_ENUM(parents, name) \

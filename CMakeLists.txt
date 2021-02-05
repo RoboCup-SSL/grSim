@@ -69,8 +69,13 @@ find_package(Qt5 COMPONENTS Core Widgets OpenGL Network REQUIRED)
 list(APPEND libs Qt5::Core Qt5::Widgets Qt5::OpenGL Qt5::Network)
 
 # ODE
-find_package(ODE REQUIRED)
-list(APPEND libs ode::ode)
+if(WIN32)
+  find_package(ODE CONFIG REQUIRED)
+  list(APPEND libs ODE::ODE)
+else()
+  find_package(ODE REQUIRED)
+  list(APPEND libs ode::ode)
+endif()
 
 # VarTypes
 find_package(VarTypes)
@@ -78,11 +83,17 @@ find_package(VarTypes)
 if(NOT VARTYPES_FOUND)
   include(ExternalProject)
   set(VARTYPES_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/vartypes_install")
+  
+  set(VARTYPES_CMAKE_ARGS "-DVARTYPES_BUILD_STATIC=ON;-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>")
+  if(NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
+    set(VARTYPES_CMAKE_ARGS "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE};${VARTYPES_CMAKE_ARGS}")
+  endif()
+
   ExternalProject_Add(vartypes_external
     GIT_REPOSITORY    https://github.com/jpfeltracco/vartypes
     GIT_TAG           origin/jpfeltracco/build_static
     INSTALL_DIR       "${VARTYPES_INSTALL_DIR}"
-    CMAKE_ARGS        "-DVARTYPES_BUILD_STATIC=ON;-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>"
+    CMAKE_ARGS        "${VARTYPES_CMAKE_ARGS}"
   )
   add_dependencies(${app} vartypes_external)
 
