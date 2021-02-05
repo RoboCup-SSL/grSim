@@ -74,12 +74,12 @@ MainWindow::MainWindow(QWidget *parent)
     glwidget->resize(512,512);    
 
     visionServer = nullptr;
-    commandSocket = nullptr;
+    commandSocket = new QUdpSocket(this);
     blueStatusSocket = nullptr;
     yellowStatusSocket = nullptr;
-    simControlSocket = nullptr;
-    blueControlSocket = nullptr;
-    yellowControlSocket = nullptr;
+    simControlSocket = new QUdpSocket(this);
+    blueControlSocket = new QUdpSocket(this);
+    yellowControlSocket = new QUdpSocket(this);
     reconnectVisionSocket();
     reconnectCommandSocket();
     reconnectBlueStatusSocket();
@@ -88,6 +88,11 @@ MainWindow::MainWindow(QWidget *parent)
     reconnectBlueControlSocket();
     reconnectYellowControlSocket();
 
+    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
+    QObject::connect(simControlSocket,SIGNAL(readyRead()),this,SLOT(simControlSocketReady()));
+    QObject::connect(blueControlSocket,SIGNAL(readyRead()),this,SLOT(blueControlSocketReady()));
+    QObject::connect(yellowControlSocket,SIGNAL(readyRead()),this,SLOT(yellowControlSocketReady()));
+    
     glwidget->ssl->visionServer = visionServer;
     glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
@@ -430,12 +435,8 @@ void MainWindow::restartSimulator()
     glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[FORMATION_INSIDE_1],glwidget->forms[FORMATION_INSIDE_1]);
     glwidget->ssl->glinit();
     glwidget->ssl->visionServer = visionServer;
-    glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
     glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
-    glwidget->ssl->simControlSocket = simControlSocket;
-    glwidget->ssl->blueControlSocket = blueControlSocket;
-    glwidget->ssl->yellowControlSocket = yellowControlSocket;
 }
 
 void MainWindow::ballMenuTriggered(QAction* act)
@@ -524,27 +525,16 @@ void MainWindow::reconnectYellowStatusSocket()
 
 void MainWindow::reconnectCommandSocket()
 {
-    if (commandSocket != nullptr)
-    {
-        QObject::disconnect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
-        delete commandSocket;
-    }
-    commandSocket = new QUdpSocket(this);
+    commandSocket->disconnectFromHost();
     if (commandSocket->bind(QHostAddress::Any,configwidget->CommandListenPort()))
         logStatus(QString("Command listen port bound on: %1").arg(configwidget->CommandListenPort()),QColor("green"));
     else
         logStatus(QString("Command listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
-    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
 }
 
 void MainWindow::reconnectSimControlSocket()
 {
-    if (simControlSocket != nullptr)
-    {
-        QObject::disconnect(simControlSocket,SIGNAL(readyRead()),this,SLOT(simControlSocketReady()));
-        delete simControlSocket;
-    }
-    simControlSocket = new QUdpSocket(this);
+    simControlSocket->disconnectFromHost();
     if (simControlSocket->bind(QHostAddress::Any,configwidget->SimControlListenPort()))
         logStatus(QString("Sim control listen port bound on: %1").arg(configwidget->SimControlListenPort()),QColor("green"));
     else
@@ -554,32 +544,20 @@ void MainWindow::reconnectSimControlSocket()
 
 void MainWindow::reconnectBlueControlSocket()
 {
-    if (blueControlSocket != nullptr)
-    {
-        QObject::disconnect(blueControlSocket,SIGNAL(readyRead()),this,SLOT(blueControlSocketReady()));
-        delete blueControlSocket;
-    }
-    blueControlSocket = new QUdpSocket(this);
+    blueControlSocket->disconnectFromHost();
     if (blueControlSocket->bind(QHostAddress::Any,configwidget->BlueControlListenPort()))
         logStatus(QString("Blue control listen port bound on: %1").arg(configwidget->BlueControlListenPort()),QColor("green"));
     else
         logStatus(QString("Blue control listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
-    QObject::connect(blueControlSocket,SIGNAL(readyRead()),this,SLOT(blueControlSocketReady()));
 }
 
 void MainWindow::reconnectYellowControlSocket()
 {
-    if (yellowControlSocket != nullptr)
-    {
-        QObject::disconnect(yellowControlSocket,SIGNAL(readyRead()),this,SLOT(yellowControlSocketReady()));
-        delete yellowControlSocket;
-    }
-    yellowControlSocket = new QUdpSocket(this);
+    yellowControlSocket->disconnectFromHost();
     if (yellowControlSocket->bind(QHostAddress::Any,configwidget->YellowControlListenPort()))
         logStatus(QString("Yellow control listen port bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("green"));
     else
         logStatus(QString("Yellow control listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
-    QObject::connect(yellowControlSocket,SIGNAL(readyRead()),this,SLOT(yellowControlSocketReady()));
 }
 
 void MainWindow::reconnectVisionSocket()
