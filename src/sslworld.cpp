@@ -37,8 +37,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #define ROBOT_GRAY .8
 #define WHEEL_COUNT 4
 
-const QColor ROBOT_BLUE_CHASSIS_COLOR {QColor(10, 10, 10)};
-const QColor ROBOT_YELLOW_CHASSIS_COLOR {QColor(150, 150, 150)};
+QColor ROBOT_BLUE_CHASSIS_COLOR {QColor("#0000ff")};
+QColor ROBOT_YELLOW_CHASSIS_COLOR {QColor("#ffff00")};
 
 SSLWorld* _w;
 dReal randn_notrig(dReal mu=0.0, dReal sigma=1.0);
@@ -152,6 +152,9 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
     ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Depth(),cfg->Field_Penalty_Width(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),0);
     ray = new PRay(50);
     
+    ROBOT_BLUE_CHASSIS_COLOR = QColor(QString::fromStdString(_cfg->v_ColorRobotBlue->getString()));
+    ROBOT_YELLOW_CHASSIS_COLOR = QColor(QString::fromStdString(_cfg->v_ColorRobotYellow->getString()));
+
     // Bounding walls
     
     const double thick = cfg->Wall_Thickness();

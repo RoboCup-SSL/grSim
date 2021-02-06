@@ -249,6 +249,9 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_YellowTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_BlueTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
 
+    QObject::connect(configwidget->v_ColorRobotBlue.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_ColorRobotYellow.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+
     //network
     QObject::connect(configwidget->v_VisionMulticastAddr.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectVisionSocket()));
     QObject::connect(configwidget->v_VisionMulticastPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectVisionSocket()));
