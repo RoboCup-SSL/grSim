@@ -171,6 +171,12 @@ public:
   DEF_VALUE(double,Double,BallLinearDamp)
   DEF_VALUE(double,Double,BallAngularDamp)
   DEF_VALUE(bool,Bool,BallProjectAirborne)
+  DEF_VALUE(double,Double,BallModelTwoPhaseAccSlide)
+  DEF_VALUE(double,Double,BallModelTwoPhaseAccRoll)
+  DEF_VALUE(double,Double,BallModelTwoPhaseKSwitch)
+  DEF_VALUE(double,Double,BallModelChipFixedLossDampingXyFirstHop)
+  DEF_VALUE(double,Double,BallModelChipFixedLossDampingXyOtherHops)
+  DEF_VALUE(double,Double,BallModelChipFixedLossDampingZ)
 
   DEF_VALUE(bool,Bool,SyncWithGL)
   DEF_VALUE(double,Double,DesiredFPS)
