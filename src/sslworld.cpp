@@ -28,10 +28,9 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
 #include "grSim_Replacement.pb.h"
-#include "messages_robocup_ssl_detection.pb.h"
-#include "messages_robocup_ssl_geometry.pb.h"
-#include "messages_robocup_ssl_refbox_log.pb.h"
-#include "messages_robocup_ssl_wrapper.pb.h"
+#include "ssl_vision_detection.pb.h"
+#include "ssl_vision_geometry.pb.h"
+#include "ssl_vision_wrapper.pb.h"
 
 
 #define ROBOT_GRAY 0.4
@@ -296,7 +295,6 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
         }
     }
     sendGeomCount = 0;
-    in_buffer = new char [65536];
 
     // initialize robot state
     for (int team = 0; team < 2; ++team)
@@ -517,13 +515,11 @@ void SSLWorld::sendRobotStatus(Robots_Status& robotsPacket, const QHostAddress& 
 }
 
 void SSLWorld::recvActions() {
-    QHostAddress sender;
-    quint16 port;
     grSim_Packet grSimPacket;
     while (commandSocket->hasPendingDatagrams()) {
-        int size = commandSocket->readDatagram(in_buffer, 65536, &sender, &port);
-        if (size > 0) {
-            grSimPacket.ParseFromArray(in_buffer, size);
+        QNetworkDatagram datagram = commandSocket->receiveDatagram();
+        if (datagram.isValid()) {
+            grSimPacket.ParseFromArray(datagram.data().data(), datagram.data().size());
 
             if (grSimPacket.has_commands()) {
                 int team = 0;
@@ -627,8 +623,196 @@ void SSLWorld::recvActions() {
                     lastKickState[team][i] = kicking;
                 }
             }
-            if (updateRobotStatus) sendRobotStatus(robotsPacket, sender, team);
+            if (updateRobotStatus) sendRobotStatus(robotsPacket, datagram.senderAddress(), team);
         }
+    }
+}
+
+void SSLWorld::simControlSocketReady() {
+    SimulatorCommand simulatorCommand;
+    while (simControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = simControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        simulatorCommand.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        SimulatorResponse response;
+        processSimControl(simulatorCommand, response);
+        
+        QByteArray buffer(response.ByteSize(), 0);
+        response.SerializeToArray(buffer.data(), buffer.size());
+        simControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
+    }
+}
+
+void SSLWorld::blueControlSocketReady() {
+    RobotControl robotControl;
+    while (blueControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = blueControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        robotControl.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        RobotControlResponse robotControlResponse;
+        processRobotControl(robotControl, robotControlResponse, BLUE);
+
+        QByteArray buffer(robotControlResponse.ByteSize(), 0);
+        robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
+        blueControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
+    }
+}
+
+void SSLWorld::yellowControlSocketReady() {
+    RobotControl robotControl;
+    while (yellowControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = yellowControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        robotControl.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        RobotControlResponse robotControlResponse;
+        processRobotControl(robotControl, robotControlResponse, YELLOW);
+        
+        QByteArray buffer(robotControlResponse.ByteSize(), 0);
+        robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
+        yellowControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
+    }
+}
+
+
+void SSLWorld::processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse) {
+    if(simulatorCommand.has_control()) {
+        if(simulatorCommand.control().has_teleport_ball()) {
+            auto teleBall = simulatorCommand.control().teleport_ball();
+            processTeleportBall(simulatorResponse, teleBall);
+        }
+        
+        for(const auto &teleBot : simulatorCommand.control().teleport_robot()) {
+            int id = robotIndex(teleBot.id().id(), teleBot.id().team() == YELLOW ? 1 : 0);
+            if (id < 0) {
+                continue;
+            }
+            auto robot = robots[id];
+
+            processTeleportRobot(teleBot, robot);
+        }
+    }
+    
+    if(simulatorCommand.has_config()) {
+        simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_CONFIG");
+    }
+}
+
+void SSLWorld::processTeleportRobot(const TeleportRobot &teleBot, Robot *robot) {
+    dReal x, y, vx = 0, vy = 0, vAngular = 0;
+    robot->getXY(x, y);
+    dReal orientation = robot->getDir() * M_PI / 180.0;
+
+    if (teleBot.has_x()) x = teleBot.x();
+    if (teleBot.has_y()) y = teleBot.y();
+    if (teleBot.has_orientation()) orientation = teleBot.orientation();
+    if (teleBot.has_v_x()) vx = teleBot.v_x();
+    if (teleBot.has_v_y()) vy = teleBot.v_y();
+    if (teleBot.has_v_angular()) vAngular = teleBot.v_angular();
+
+    robot->resetRobot();
+    robot->setXY(x, y);
+    robot->setDir(orientation * 180.0 / M_PI);
+
+    dReal vxLocal = (vx * cos(-orientation)) - (vy * sin(-orientation));
+    dReal vyLocal = (vy * cos(-orientation)) + (vx * sin(-orientation));
+    robot->setSpeed(vxLocal, vyLocal, vAngular);
+
+    if (teleBot.has_present()) {
+        robot->on = teleBot.present();
+        if(!teleBot.present()) {
+            // Move it out of the field
+            robot->setXY(1e6, 1e6);
+        }
+    }
+}
+
+void SSLWorld::processTeleportBall(SimulatorResponse &simulatorResponse, const TeleportBall &teleBall) const {
+    dReal x = 0, y = 0, z = 0;
+    ball->getBodyPosition(x, y, z);
+    const auto vel_vec = dBodyGetLinearVel(ball->body);
+    auto vx = vel_vec[0];
+    auto vy = vel_vec[1];
+    auto vz = vel_vec[2];
+
+    if (teleBall.has_x()) x   = teleBall.x();
+    if (teleBall.has_y()) y   = teleBall.y();
+    if (teleBall.has_z()) z   = teleBall.z();
+    if (teleBall.has_vx()) vx = teleBall.vx();
+    if (teleBall.has_vy()) vy = teleBall.vy();
+    if (teleBall.has_vz()) vz = teleBall.vz();
+
+    ball->setBodyPosition(x, y, (cfg->BallRadius() + 0.005) + z);
+    dBodySetLinearVel(ball->body, vx, vy, vz);
+    dBodySetAngularVel(ball->body, 0, 0, 0);
+
+    if(teleBall.has_teleport_safely()) {
+        simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_TELEPORT_SAFELY");
+    }
+    if(teleBall.has_roll()) {
+        simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_ROLL_BALL");
+    }
+}
+
+void SSLWorld::processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team) {
+    for (const auto &robotCommand : robotControl.robot_commands()) {
+        int id = robotIndex(robotCommand.id(), team == YELLOW ? 1 : 0);
+        if (id < 0) {
+            continue;
+        }
+        auto robot = robots[id];
+
+        if (robotCommand.has_kick_speed() && robotCommand.kick_speed() > 0) {
+            double kickSpeed = robotCommand.kick_speed();
+            double kickAngle = robotCommand.kick_angle() * M_PI / 180.0;
+            double length = cos(kickAngle) * kickSpeed;
+            double z = sin(kickAngle) * kickSpeed;
+            robot->kicker->kick(length, z);
+        }
+
+        if (robotCommand.has_dribbler_speed()) {
+            robot->kicker->setRoller(robotCommand.dribbler_speed() > 0 ? 1 : 0);
+        }
+
+        if (robotCommand.has_move_command()) {
+            processMoveCommand(robotControlResponse, robotCommand.move_command(), robot);
+        }
+        
+        auto feedback = robotControlResponse.add_feedback();
+        feedback->set_id(robotCommand.id());
+        feedback->set_dribbler_ball_contact(robot->kicker->isTouchingBall());
+    }
+}
+
+void SSLWorld::processMoveCommand(RobotControlResponse &robotControlResponse, const RobotMoveCommand &moveCommand,
+                                  Robot *robot) {
+    if (moveCommand.has_wheel_velocity()) {
+        auto &wheelVel = moveCommand.wheel_velocity();
+        robot->setSpeed(0, wheelVel.front_right());
+        robot->setSpeed(1, wheelVel.back_right());
+        robot->setSpeed(2, wheelVel.back_left());
+        robot->setSpeed(3, wheelVel.front_left());
+    } else if (moveCommand.has_local_velocity()) {
+        auto &vel = moveCommand.local_velocity();
+        robot->setSpeed(vel.forward(), vel.left(), vel.angular());
+    } else if(moveCommand.has_global_velocity()) {
+        auto &vel = moveCommand.global_velocity();
+        dReal orientation = -robot->getDir() * M_PI / 180.0;
+        dReal vx = (vel.x() * cos(orientation)) - (vel.y() * sin(orientation));
+        dReal vy = (vel.y() * cos(orientation)) + (vel.x() * sin(orientation));
+        robot->setSpeed(vx, vy, vel.angular());
+    }  else {
+        SimulatorError *pError = robotControlResponse.add_errors();
+        pError->set_code("GRSIM_UNSUPPORTED_MOVE_COMMAND");
+        pError->set_message("Unsupported move command");
     }
 }
 
@@ -847,7 +1031,7 @@ void SSLWorld::addFieldLine(SSL_GeometryFieldSize *field, const std::string &nam
 }
 
 void SSLWorld::addFieldArc(SSL_GeometryFieldSize *field, const std::string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness) {
-    SSL_FieldCicularArc *arc = field->add_field_arcs();
+    SSL_FieldCircularArc *arc = field->add_field_arcs();
 	arc->set_name(name.c_str());
 	arc->mutable_center()->set_x(c_x);
 	arc->mutable_center()->set_y(c_y);

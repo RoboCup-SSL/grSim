@@ -125,6 +125,9 @@ ConfigWidget::ConfigWidget() {
     ADD_VALUE(comm_vars,Int,CommandListenPort,20011,"Command listen port")
     ADD_VALUE(comm_vars,Int,BlueStatusSendPort,30011,"Blue Team status send port")
     ADD_VALUE(comm_vars,Int,YellowStatusSendPort,30012,"Yellow Team status send port")
+    ADD_VALUE(comm_vars,Int,SimControlListenPort,10300,"Simulation control port")
+    ADD_VALUE(comm_vars,Int,BlueControlListenPort,10301,"Blue team control port")
+    ADD_VALUE(comm_vars,Int,YellowControlListenPort,10302,"Yellow team control port")
     ADD_VALUE(comm_vars,Int,sendDelay,0,"Sending delay (milliseconds)")
     ADD_VALUE(comm_vars,Int,sendGeometryEvery,120,"Send geometry every X frames")
     VarListPtr gauss_vars(new VarList("Gaussian noise"));

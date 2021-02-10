@@ -40,7 +40,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "config.h"
 
-#include "messages_robocup_ssl_robot_status.pb.h"
+#include "grSim_Robotstatus.pb.h"
+#include "ssl_simulation_config.pb.h"
+#include "ssl_simulation_control.pb.h"
+#include "ssl_simulation_robot_control.pb.h"
+#include "ssl_simulation_robot_feedback.pb.h"
 
 #define WALL_COUNT 10
 
@@ -62,10 +66,14 @@ private:
     dReal last_dt;
     dReal sim_time = 0;
     QList<SendingPacket*> sendQueue;
-    char packet[200]{};
-    char *in_buffer;
     bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
     KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
+    void processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse);
+    void processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team);
+    static void processMoveCommand(RobotControlResponse &robotControlResponse, const RobotMoveCommand &robotCommand,
+                            Robot *robot) ;
+    void processTeleportBall(SimulatorResponse &simulatorResponse, const TeleportBall &teleBall) const;
+    static void processTeleportRobot(const TeleportRobot &teleBot, Robot *robot);
 public:    
     dReal customDT;
     bool isGLEnabled;
@@ -98,11 +106,17 @@ public:
     RoboCupSSLServer *visionServer{};
     QUdpSocket *commandSocket{};
     QUdpSocket *blueStatusSocket{},*yellowStatusSocket{};
+    QUdpSocket *simControlSocket;
+    QUdpSocket *blueControlSocket;
+    QUdpSocket *yellowControlSocket;
     bool updatedCursor;
     Robot* robots[MAX_ROBOT_COUNT*2]{};
     int sendGeomCount;
 public slots:
     void recvActions();
+    void simControlSocketReady();
+    void blueControlSocketReady();
+    void yellowControlSocketReady();
 signals:
     void fpsChanged(int newFPS);
 };

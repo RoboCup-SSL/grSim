@@ -73,21 +73,33 @@ MainWindow::MainWindow(QWidget *parent)
     glwidget->setWindowTitle(tr("Simulator"));
     glwidget->resize(512,512);    
 
-    visionServer = NULL;
-    commandSocket = NULL;
-    blueStatusSocket = NULL;
-    yellowStatusSocket = NULL;
+    visionServer = nullptr;
+    commandSocket = new QUdpSocket(this);
+    blueStatusSocket = nullptr;
+    yellowStatusSocket = nullptr;
+    simControlSocket = new QUdpSocket(this);
+    blueControlSocket = new QUdpSocket(this);
+    yellowControlSocket = new QUdpSocket(this);
     reconnectVisionSocket();
     reconnectCommandSocket();
     reconnectBlueStatusSocket();
     reconnectYellowStatusSocket();
+    reconnectSimControlSocket();
+    reconnectBlueControlSocket();
+    reconnectYellowControlSocket();
 
+    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
+    QObject::connect(simControlSocket,SIGNAL(readyRead()),this,SLOT(simControlSocketReady()));
+    QObject::connect(blueControlSocket,SIGNAL(readyRead()),this,SLOT(blueControlSocketReady()));
+    QObject::connect(yellowControlSocket,SIGNAL(readyRead()),this,SLOT(yellowControlSocketReady()));
+    
     glwidget->ssl->visionServer = visionServer;
     glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
     glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
-
-
+    glwidget->ssl->simControlSocket = simControlSocket;
+    glwidget->ssl->blueControlSocket = blueControlSocket;
+    glwidget->ssl->yellowControlSocket = yellowControlSocket;
 
     robotwidget = new RobotWidget(this, configwidget);
     robotwidget->setObjectName("RobotWidget");
@@ -249,6 +261,9 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_CommandListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectCommandSocket()));
     QObject::connect(configwidget->v_BlueStatusSendPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectBlueStatusSocket()));
     QObject::connect(configwidget->v_YellowStatusSendPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectYellowStatusSocket()));
+    QObject::connect(configwidget->v_SimControlListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectSimControlSocket()));
+    QObject::connect(configwidget->v_BlueControlListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectBlueControlSocket()));
+    QObject::connect(configwidget->v_YellowControlListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectYellowControlSocket()));
     timer->start();
 
 
@@ -365,8 +380,7 @@ void MainWindow::update()
         lvv[2]=vv[2];
     }
     
-    QString ss;
-    fpslabel->setText(QString("Frame rate: %1 fps").arg(ss.sprintf("%06.2f",glwidget->getFPS())));        
+    fpslabel->setText(QString("Frame rate: %1 fps").arg(QString::asprintf("%06.2f",glwidget->getFPS())));        
     if (glwidget->ssl->selected!=-1)
     {
         selectinglabel->setVisible(true);
@@ -429,11 +443,8 @@ void MainWindow::restartSimulator()
     glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[FORMATION_INSIDE_1],glwidget->forms[FORMATION_INSIDE_1]);
     glwidget->ssl->glinit();
     glwidget->ssl->visionServer = visionServer;
-    glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
     glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
-
-
 }
 
 void MainWindow::ballMenuTriggered(QAction* act)
@@ -510,42 +521,56 @@ void MainWindow::showAbout()
 
 void MainWindow::reconnectBlueStatusSocket()
 {
-    if (blueStatusSocket!=NULL)
-    {
-        delete blueStatusSocket;
-    }
+    delete blueStatusSocket;
     blueStatusSocket = new QUdpSocket(this);
-    // if (blueStatusSocket->bind(QHostAddress::Any,configwidget->BlueStatusSendPort()))
-    //     logStatus(QString("Status send port binded for Blue Team on: %1").arg(configwidget->BlueStatusSendPort()),QColor("green"));
 }
 
 void MainWindow::reconnectYellowStatusSocket()
 {
-    if (yellowStatusSocket!=NULL)
-    {
-        delete yellowStatusSocket;
-    }
+    delete yellowStatusSocket;
     yellowStatusSocket = new QUdpSocket(this);
-    // if (yellowStatusSocket->bind(QHostAddress::Any,configwidget->YellowStatusSendPort()))
-    //     logStatus(QString("Status send port binded for Yellow Team on: %1").arg(configwidget->YellowStatusSendPort()),QColor("green"));
 }
 
 void MainWindow::reconnectCommandSocket()
 {
-    if (commandSocket!=NULL)
-    {
-        QObject::disconnect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
-        delete commandSocket;
-    }
-    commandSocket = new QUdpSocket(this);
+    commandSocket->disconnectFromHost();
     if (commandSocket->bind(QHostAddress::Any,configwidget->CommandListenPort()))
-        logStatus(QString("Command listen port binded on: %1").arg(configwidget->CommandListenPort()),QColor("green"));
-    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
+        logStatus(QString("Command listen port bound on: %1").arg(configwidget->CommandListenPort()),QColor("green"));
+    else
+        logStatus(QString("Command listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
+}
+
+void MainWindow::reconnectSimControlSocket()
+{
+    simControlSocket->disconnectFromHost();
+    if (simControlSocket->bind(QHostAddress::Any,configwidget->SimControlListenPort()))
+        logStatus(QString("Sim control listen port bound on: %1").arg(configwidget->SimControlListenPort()),QColor("green"));
+    else
+        logStatus(QString("Sim control listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
+    QObject::connect(simControlSocket,SIGNAL(readyRead()),this,SLOT(simControlSocketReady()));
+}
+
+void MainWindow::reconnectBlueControlSocket()
+{
+    blueControlSocket->disconnectFromHost();
+    if (blueControlSocket->bind(QHostAddress::Any,configwidget->BlueControlListenPort()))
+        logStatus(QString("Blue control listen port bound on: %1").arg(configwidget->BlueControlListenPort()),QColor("green"));
+    else
+        logStatus(QString("Blue control listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
+}
+
+void MainWindow::reconnectYellowControlSocket()
+{
+    yellowControlSocket->disconnectFromHost();
+    if (yellowControlSocket->bind(QHostAddress::Any,configwidget->YellowControlListenPort()))
+        logStatus(QString("Yellow control listen port bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("green"));
+    else
+        logStatus(QString("Yellow control listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
 }
 
 void MainWindow::reconnectVisionSocket()
 {
-    if (visionServer == NULL) {
+    if (visionServer == nullptr) {
         visionServer = new RoboCupSSLServer(this);
     }
     visionServer->change_address(configwidget->VisionMulticastAddr());
@@ -556,6 +581,21 @@ void MainWindow::reconnectVisionSocket()
 void MainWindow::recvActions()
 {
     glwidget->ssl->recvActions();
+}
+
+void MainWindow::simControlSocketReady()
+{
+    glwidget->ssl->simControlSocketReady();
+}
+
+void MainWindow::blueControlSocketReady()
+{
+    glwidget->ssl->blueControlSocketReady();
+}
+
+void MainWindow::yellowControlSocketReady()
+{
+    glwidget->ssl->yellowControlSocketReady();
 }
 
 void MainWindow::setIsGlEnabled(bool value)
