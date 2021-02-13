@@ -71,6 +71,7 @@ bool CGraphics::isGraphicsEnabled()
 }
 
 void CGraphics::setSphereQuality(int q) {sphere_quality = q;}
+
 int CGraphics::loadTexture(QImage* img)
 {
     if (graphicDisabled) return -1;

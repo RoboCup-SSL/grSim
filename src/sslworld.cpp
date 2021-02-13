@@ -33,8 +33,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "ssl_vision_wrapper.pb.h"
 
 
-#define ROBOT_GRAY 0.4
+#define ROBOT_GRAY .8
 #define WHEEL_COUNT 4
+
+QColor ROBOT_BLUE_CHASSIS_COLOR {QColor("#0000ff")};
+QColor ROBOT_YELLOW_CHASSIS_COLOR {QColor("#ffff00")};
 
 SSLWorld* _w;
 dReal randn_notrig(dReal mu=0.0, dReal sigma=1.0);
@@ -148,6 +151,9 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
     ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Depth(),cfg->Field_Penalty_Width(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),0);
     ray = new PRay(50);
     
+    ROBOT_BLUE_CHASSIS_COLOR = QColor(QString::fromStdString(_cfg->v_ColorRobotBlue->getString()));
+    ROBOT_YELLOW_CHASSIS_COLOR = QColor(QString::fromStdString(_cfg->v_ColorRobotYellow->getString()));
+
     // Bounding walls
     
     const double thick = cfg->Wall_Thickness();
@@ -317,8 +323,24 @@ SSLWorld::~SSLWorld() {
     delete p;
 }
 
-QImage* createBlob(char yb,int i,QImage** res) {
+QImage* createBlob(char yb,int i,QImage** res, const QColor& color = QColor(63, 63, 63)){
     *res = new QImage(QString(":/%1%2").arg(yb).arg(i)+QString(".png"));
+
+    const QColor robot_color = QColor(63, 63, 63);
+
+    if(robot_color == color)
+        return *res;
+
+    // Change the main color of the texture
+    for(int i=0; i<(*res)->width(); ++i)
+    {
+        for(int j=0; j<(*res)->height(); ++j)
+        {
+            if((*res)->pixelColor(i, j) == robot_color)
+                (*res)->setPixelColor(i, j, color);
+        }
+    }
+
     return *res;
 }
 
@@ -357,10 +379,10 @@ void SSLWorld::glinit() {
 
     // Loading Robot textures for each robot
     for (int i = 0; i < cfg->Robots_Count(); i++)
-        g->loadTexture(createBlob('b', i, &robots[i]->img));
+        g->loadTexture(createBlob('b', i, &robots[i]->img, ROBOT_BLUE_CHASSIS_COLOR));
 
     for (int i = 0; i < cfg->Robots_Count(); i++)
-        g->loadTexture(createBlob('y', i, &robots[cfg->Robots_Count() + i]->img));
+        g->loadTexture(createBlob('y', i, &robots[cfg->Robots_Count() + i]->img, ROBOT_YELLOW_CHASSIS_COLOR));
 
     // Creating number textures
     for (int i=0; i<cfg->Robots_Count();i++)
@@ -440,9 +462,28 @@ void SSLWorld::step(dReal dt) {
                 best_k = k;
             }
         }
-        robots[k]->chassis->setColor(ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY);
+
+        // Yellow robots are on the last half of count
+        if(k >= cfg->Robots_Count())
+            robots[k]->chassis->setColor(ROBOT_YELLOW_CHASSIS_COLOR);
+        else
+            robots[k]->chassis->setColor(ROBOT_BLUE_CHASSIS_COLOR);
     }
-    if (best_k>=0) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
+    if(best_k>=0)
+    {
+        if(best_k >= cfg->Robots_Count())
+            robots[best_k]->chassis->setColor(
+                        QColor::fromRgbF(ROBOT_YELLOW_CHASSIS_COLOR.redF()*2,
+                                         ROBOT_YELLOW_CHASSIS_COLOR.greenF()*1.5,
+                                         ROBOT_YELLOW_CHASSIS_COLOR.blueF()*1.5)
+                        );
+        else
+            robots[best_k]->chassis->setColor(
+                        QColor::fromRgbF(ROBOT_BLUE_CHASSIS_COLOR.redF()*2,
+                                         ROBOT_BLUE_CHASSIS_COLOR.greenF()*1.5,
+                                         ROBOT_BLUE_CHASSIS_COLOR.blueF()*1.5)
+                        );
+    }
     selected = best_k;
     ball->tag = -1;
     for (int k=0;k<cfg->Robots_Count() * 2;k++)

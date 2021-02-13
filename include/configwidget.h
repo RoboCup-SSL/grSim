@@ -197,7 +197,11 @@ public:
   DEF_VALUE(double,Double,yellow_team_vanishing)
   DEF_VALUE(std::string, String, plotter_addr)
   DEF_VALUE(int, Int, plotter_port)
-  DEF_VALUE(bool, Bool, plotter)  
+  DEF_VALUE(bool, Bool, plotter)
+
+  DEF_VALUE(std::string, String, ColorRobotBlue)
+  DEF_VALUE(std::string, String, ColorRobotYellow)
+
   void loadRobotSettings(QString team);
 public slots:  
   void loadRobotsSettings();

@@ -31,6 +31,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QApplication>
 #include <QDir>
 #include <QClipboard>
+#include <QShortcut>
 
 #include <QStatusBar>
 #include <QMessageBox>
@@ -132,6 +133,11 @@ MainWindow::MainWindow(QWidget *parent)
     fileMenu->addAction(takeSnapshotAct);
     fileMenu->addAction(takeSnapshotToClipboardAct);
     fileMenu->addAction(exit);
+
+    QObject::connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q), this),
+                     &QShortcut::activated,
+                     this,
+                     &MainWindow::close);
 
     QMenu *viewMenu = new QMenu("&View");
     menuBar()->addMenu(viewMenu);
@@ -254,6 +260,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(configwidget->v_YellowTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_BlueTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+
+    QObject::connect(configwidget->v_ColorRobotBlue.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_ColorRobotYellow.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
 
     //network
     QObject::connect(configwidget->v_VisionMulticastAddr.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectVisionSocket()));

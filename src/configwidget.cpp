@@ -148,7 +148,10 @@ ConfigWidget::ConfigWidget() {
     std::string blueteam = v_BlueTeam->getString();
     geo_vars->removeChild(v_BlueTeam);
 
-    std::string yellowteam = v_YellowTeam->getString();
+    ADD_VALUE(comm_vars, String, ColorRobotBlue, "#0000ff", "Color Robot Blue ")
+    ADD_VALUE(comm_vars, String, ColorRobotYellow, "#ffff00", "Color Robot Yellow")
+
+            std::string yellowteam = v_YellowTeam->getString();
     geo_vars->removeChild(v_YellowTeam);
 
     ADD_ENUM(StringEnum,BlueTeam,blueteam,"Blue Team");
