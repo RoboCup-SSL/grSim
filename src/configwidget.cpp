@@ -118,6 +118,14 @@ ConfigWidget::ConfigWidget() {
         ADD_VALUE(ballp_vars,Double,BallLinearDamp,0.004,"Ball linear damping")
         ADD_VALUE(ballp_vars,Double,BallAngularDamp,0.004,"Ball angular damping")
         ADD_VALUE(ballp_vars,Bool,BallProjectAirborne,true,"Project airborne balls")
+  VarListPtr ball_model_vars(new VarList("Models"));
+  ballp_vars->addChild(ball_model_vars);
+    ADD_VALUE(ball_model_vars,Double,BallModelTwoPhaseAccSlide,-14.0,"Straight-two-phase sliding acceleration")
+    ADD_VALUE(ball_model_vars,Double,BallModelTwoPhaseAccRoll,-0.7,"Straight-two-phase rolling acceleration")
+    ADD_VALUE(ball_model_vars,Double,BallModelTwoPhaseKSwitch,0.7,"Straight-two-phase switch factor k")
+    ADD_VALUE(ball_model_vars,Double,BallModelChipFixedLossDampingXyFirstHop,0.6,"Chip-fixed-loss damping in xy-direction for first hop")
+    ADD_VALUE(ball_model_vars,Double,BallModelChipFixedLossDampingXyOtherHops,0.96,"Chip-fixed-loss damping in xy-direction for other hops")
+    ADD_VALUE(ball_model_vars,Double,BallModelChipFixedLossDampingZ,0.42,"Chip-fixed-loss damping in z-direction")
   VarListPtr comm_vars(new VarList("Communication"));
   world.push_back(comm_vars);
     ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"

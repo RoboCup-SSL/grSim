@@ -920,6 +920,16 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id) {
         SSL_GeometryData* geom = pPacket->mutable_geometry();
         SSL_GeometryFieldSize* field = geom->mutable_field();
 
+        auto models = geom->mutable_models();
+        auto straight_two_phase = models->mutable_straight_two_phase();
+        straight_two_phase->set_acc_slide(cfg->BallModelTwoPhaseAccSlide());
+        straight_two_phase->set_acc_roll(cfg->BallModelTwoPhaseAccRoll());
+        straight_two_phase->set_k_switch(cfg->BallModelTwoPhaseKSwitch());
+        auto chip_fixed_loss = models->mutable_chip_fixed_loss();
+        chip_fixed_loss->set_damping_xy_first_hop(cfg->BallModelChipFixedLossDampingXyFirstHop());
+        chip_fixed_loss->set_damping_xy_other_hops(cfg->BallModelChipFixedLossDampingXyOtherHops());
+        chip_fixed_loss->set_damping_z(cfg->BallModelChipFixedLossDampingZ());
+
         // Field general info
         field->set_field_length(CONVUNIT(cfg->Field_Length()));
         field->set_field_width(CONVUNIT(cfg->Field_Width()));
