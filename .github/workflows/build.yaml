@@ -1,0 +1,27 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  build-linux:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-18.04, ubuntu-20.04 ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install dependencies"
+        run: sudo apt-get install build-essential cmake pkg-config qt5-default libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
+      - name: "Build"
+        run: mkdir build && cd build && cmake .. && make
+  
+  build-macos:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install dependencies"
+        run: brew tap robotology/formulae && brew install qt5 protobuf robotology/formulae/ode
+      - name: "Build"
+        run: mkdir build && cd build && cmake .. && make
