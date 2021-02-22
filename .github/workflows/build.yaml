@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - windows-github-actions
   pull_request:
 jobs:
   build-linux:
@@ -25,3 +26,29 @@ jobs:
         run: brew tap robotology/formulae && brew install qt5 protobuf robotology/formulae/ode
       - name: "Build"
         run: mkdir build && cd build && cmake .. && make
+        
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: make build directory
+      run: mkdir '${{ github.workspace }}/build/'
+
+    - name: Install dependencies # saves / restores cache to avoid rebuilding dependencies
+      uses: lukka/run-vcpkg@v6
+      with:
+        setupOnly: false
+        vcpkgGitCommitId: 99dc49dae7e170c3be63dd097230007f3bb73c4f
+        vcpkgDirectory: c:/vcpkg  # folder must reside in c:\ otherwise qt wont install due to long path errors
+        vcpkgTriplet: x64-windows
+        vcpkgArguments: qt5 ode protobuf
+    
+    - name: Run CMake and build
+      working-directory: ${{ github.workspace }}/build/
+      run: |
+        cmake -DCMAKE_TOOLCHAIN_FILE=c:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        & "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE/devenv.com" /Rebuild "Release|x64" grSim.sln
+        
+
+        
