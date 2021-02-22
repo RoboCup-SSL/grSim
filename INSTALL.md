@@ -136,13 +136,13 @@ The executable will be located on the `bin` directory.
 
 #### Windows
 
-Run CMake to generate a solution in visual studio (note: modify the command below to reflect your vcpkg installation folder).
+Run CMake to generate a solution in visual studio and the build the solution (note: modify the command below to reflect your vcpkg installation folder).
 
 ```bash
 $ cmake -DCMAKE_TOOLCHAIN_FILE=${PATH_TO_VCPKG}\\scripts\\buildsystems\\vcpkg.cmake ..
+$ cmake --build . --config Release
 ```
 
-Then, open the solution file (`grSim.sln`) in Visual Studio, and build project grSim. Make sure to set the project to compile in `Release` version instead of `Debug` version.
 The executable will be located on the `bin` directory.
 
 ### Installing (Linux and Mac OS X)

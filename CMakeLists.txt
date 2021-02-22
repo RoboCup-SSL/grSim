@@ -110,6 +110,7 @@ find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 list(APPEND libs ${PROTOBUF_LIBRARIES})
 
+set (Protobuf_IMPORT_DIRS ${Protobuf_INCLUDE_DIR})
 protobuf_generate_cpp(PROTO_CPP PROTO_H
     src/proto/grSim_Commands.proto
     src/proto/grSim_Packet.proto

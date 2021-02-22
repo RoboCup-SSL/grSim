@@ -18,6 +18,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QtWidgets/QApplication>
 #include "mainwindow.h"
 #include "winmain.h"
+#include <signal.h>
 
 void signalHandler( int signum ) {
     exit(signum);
