@@ -48,7 +48,7 @@ jobs:
       working-directory: ${{ github.workspace }}/build/
       run: |
         cmake -DCMAKE_TOOLCHAIN_FILE=c:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-        & "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE/devenv.com" /Rebuild "Release|x64" grSim.sln
+        cmake --build . --config Release
         
 
         
