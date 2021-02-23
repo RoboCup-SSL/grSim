@@ -46,6 +46,9 @@ ConfigWidget::ConfigWidget() {
   ADD_TO_ENUM(Division, "Division B");
   END_ENUM(game_vars, Division);
   ADD_VALUE(game_vars,Int, Robots_Count, 11, "Robots Count")
+  ADD_VALUE(game_vars, String, ColorRobotBlue, "#0000ff", "Color Robot Blue")
+  ADD_VALUE(game_vars, String, ColorRobotYellow, "#ffff00", "Color Robot Yellow")
+
   VarListPtr fields_vars(new VarList("Field"));
   VarListPtr div_a_vars(new VarList("Division A"));
   VarListPtr div_b_vars(new VarList("Division B"));
@@ -150,14 +153,12 @@ ConfigWidget::ConfigWidget() {
         ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
         ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
+
     world=VarXML::read(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 
 
     std::string blueteam = v_BlueTeam->getString();
     geo_vars->removeChild(v_BlueTeam);
-
-    ADD_VALUE(comm_vars, String, ColorRobotBlue, "#0000ff", "Color Robot Blue ")
-    ADD_VALUE(comm_vars, String, ColorRobotYellow, "#ffff00", "Color Robot Yellow")
 
             std::string yellowteam = v_YellowTeam->getString();
     geo_vars->removeChild(v_YellowTeam);
