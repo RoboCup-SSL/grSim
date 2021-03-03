@@ -116,29 +116,32 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s, int robots_count)
 bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s, int /*robots_count*/)
 {
     auto body = dGeomGetBody(o1);
-    const dReal *pos_ball = dBodyGetPosition(body);
+    const dReal *posBall = dBodyGetPosition(body);
     body = dGeomGetBody(o2);
-    const dReal *pos_robot = dBodyGetPosition(body);
-    const dReal *dir_robot = dBodyGetRotation(body);
+    const dReal *posRobot = dBodyGetPosition(body);
+    const dReal *dirRobot = dBodyGetRotation(body);
 
     // Get robot angle
     dVector3 v={1,0,0};
     dVector3 axis;
-    dMultiply0(axis,dir_robot,v,4,3,1);
+    dMultiply0(axis,dirRobot,v,4,3,1);
     dReal dot = axis[0];
     dReal length = sqrt(axis[0]*axis[0] + axis[1]*axis[1]);
     dReal absAng = (dReal)(acos((dReal)(dot/length)));
-    dReal angle_robot =  (axis[1] > 0) ? absAng : -absAng;
+    dReal angleRobot =  (axis[1] > 0) ? absAng : -absAng;
 
     // Get angle between robot and ball
-    dReal angle_robot_ball = atan((pos_ball[1] - pos_robot[1])/(pos_ball[0]-pos_robot[0]));
-    angle_robot_ball = (pos_ball[0] > pos_robot[0]) ? angle_robot_ball : M_PI - angle_robot_ball;
+    dReal angleRobotBall = atan((posBall[1] - posRobot[1])/(posBall[0]-posRobot[0]));
+    angleRobotBall = (posBall[0] > posRobot[0]) ? angleRobotBall : M_PI - angleRobotBall;
 
-    dReal angle_kicker = 0.625;
+    // This value is given by the acos(distance_center_kicker/robot_radius)
+    dReal angleKicker = 0.625;
 
-    dReal angle_diff = abs(angle_robot_ball - angle_robot);
+    dReal angleDiff = abs(angleRobotBall - angleRobot);
 
-    return (angle_diff < angle_kicker) ? false : true;
+    // If kicker is facing the ball, the collision with the chassis should not
+    // be considered
+    return (angleDiff < angleKicker) ? false : true;
 }
 
 SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1, RobotsFormation *form2) : QObject(parent) {
