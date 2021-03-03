@@ -155,6 +155,16 @@ PSurface* PWorld::createSurface(PObject* o1,PObject* o2)
     return s;
 }
 
+PSurface* PWorld::createSurfaceBallChassis(PObject* o1,PObject* o2)
+{
+    PSurface *s = new PSurface();
+    s->id1 = o1->geom;
+    s->id2 = o2->geom;
+    surfaces.append(s);
+    sur_matrix[o2->id][o1->id] = surfaces.count() - 1;
+    return s;
+}
+
 PSurface* PWorld::findSurface(PObject* o1,PObject* o2)
 {
     for (int i=0;i<surfaces.count();i++)

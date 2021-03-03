@@ -40,6 +40,7 @@ public:
     void addObject(PObject* o);
     void initAllObjects();
     PSurface* createSurface(PObject* o1,PObject* o2);
+    PSurface* createSurfaceBallChassis(PObject* o1,PObject* o2);
     PSurface* findSurface(PObject* o1,PObject* o2);
     void step(dReal dt=-1);
     void glinit();

@@ -115,21 +115,30 @@ bool rayCallback(dGeomID o1,dGeomID o2,PSurface* s, int robots_count)
 
 bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s, int /*robots_count*/)
 {
-    if (_w->ball->tag!=-1) //spinner adjusting
-    {
-        dReal x,y,z;
-        _w->robots[_w->ball->tag]->chassis->getBodyDirection(x,y,z);
-        s->fdir1[0] = x;
-        s->fdir1[1] = y;
-        s->fdir1[2] = 0;
-        s->fdir1[3] = 0;
-        s->usefdir1 = true;
-        s->surface.mode = dContactMu2 | dContactFDir1 | dContactSoftCFM;
-        s->surface.mu = _w->cfg->BallFriction();
-        s->surface.mu2 = 0.5;
-        s->surface.soft_cfm = 0.002;
-    }
-    return true;
+    auto body = dGeomGetBody(o1);
+    const dReal *pos_ball = dBodyGetPosition(body);
+    body = dGeomGetBody(o2);
+    const dReal *pos_robot = dBodyGetPosition(body);
+    const dReal *dir_robot = dBodyGetRotation(body);
+
+    // Get robot angle
+    dVector3 v={1,0,0};
+    dVector3 axis;
+    dMultiply0(axis,dir_robot,v,4,3,1);
+    dReal dot = axis[0];
+    dReal length = sqrt(axis[0]*axis[0] + axis[1]*axis[1]);
+    dReal absAng = (dReal)(acos((dReal)(dot/length)));
+    dReal angle_robot =  (axis[1] > 0) ? absAng : -absAng;
+
+    // Get angle between robot and ball
+    dReal angle_robot_ball = atan((pos_ball[1] - pos_robot[1])/(pos_ball[0]-pos_robot[0]));
+    angle_robot_ball = (pos_ball[0] > pos_robot[0]) ? angle_robot_ball : M_PI - angle_robot_ball;
+
+    dReal angle_kicker = 0.625;
+
+    dReal angle_diff = abs(angle_robot_ball - angle_robot);
+
+    return (angle_diff < angle_kicker) ? false : true;
 }
 
 SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1, RobotsFormation *form2) : QObject(parent) {
@@ -267,7 +276,7 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
     PSurface wheelswithground;
     PSurface* ball_ground = p->createSurface(ball,ground);
     ball_ground->surface = ballwithwall.surface;
-    ball_ground->callback = ballCallBack;
+    // ball_ground->callback = ballCallBack;
 
     PSurface ballwithkicker;
     ballwithkicker.surface.mode = dContactApprox1;
@@ -280,8 +289,12 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
     {
         p->createSurface(robots[k]->chassis,ground);
         for (auto & wall : walls) p->createSurface(robots[k]->chassis,wall);
-        p->createSurface(robots[k]->dummy,ball);
-        //p->createSurface(robots[k]->chassis,ball);
+
+        // Create surface between ball and chassis
+        PSurface* ballChassis = p->createSurfaceBallChassis(robots[k]->chassis, ball);
+        ballChassis->callback=ballCallBack;
+
+
         p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
         for (auto & wheel : robots[k]->wheels)
         {
