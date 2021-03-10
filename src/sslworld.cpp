@@ -613,7 +613,7 @@ void SSLWorld::recvActions() {
             if (grSimPacket.has_replacement()) {
                 for (int i=0; i < grSimPacket.replacement().robots_size(); i++) {
                     int team = 0;
-                    if (grSimPacket.commands().has_isteamyellow() && grSimPacket.commands().isteamyellow()) team = 1;
+                    if (grSimPacket.replacement().robots(i).has_yellowteam() && grSimPacket.replacement().robots(i).yellowteam()) team = 1;
 
                     if (!grSimPacket.replacement().robots(i).has_id()) continue;
                     int k = grSimPacket.replacement().robots(i).id();
