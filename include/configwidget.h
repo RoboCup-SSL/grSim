@@ -118,6 +118,14 @@ public:
     double WheelTangentFriction;
     double WheelPerpendicularFriction;
     double Wheel_Motor_FMax;
+    double MaxLinearKickSpeed;
+    double MaxChipKickSpeed;
+    double AccSpeedupAbsoluteMax;
+    double AccSpeedupAngularMax;
+    double AccBrakeAbsoluteMax;
+    double AccBrakeAngularMax;
+    double VelAbsoluteMax;
+    double VelAngularMax;
 };
 
 

@@ -741,9 +741,69 @@ void SSLWorld::processSimControl(const SimulatorCommand &simulatorCommand, Simul
             processTeleportRobot(teleBot, robot);
         }
     }
-    
-    if(simulatorCommand.has_config()) {
-        simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_CONFIG");
+
+    if (simulatorCommand.has_config()) {
+        if (simulatorCommand.config().has_geometry()
+            || simulatorCommand.config().has_realism_config()
+            || simulatorCommand.config().has_vision_port()) {
+            simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_CONFIG");
+        }
+        for (const auto &robotSpec : simulatorCommand.config().robot_specs()) {
+            processRobotSpec(robotSpec);
+        }
+        restartRequired = true;
+    }
+}
+
+void SSLWorld::processRobotSpec(const RobotSpecs &robotSpec) const {
+    auto settings = robotSpec.id().team() == YELLOW ? &cfg->yellowSettings : &cfg->blueSettings;
+    if (robotSpec.has_radius()) {
+        settings->RobotRadius = robotSpec.radius();
+    }
+    if (robotSpec.has_height()) {
+        settings->RobotHeight = robotSpec.height();
+    }
+    if (robotSpec.has_mass()) {
+        settings->BodyMass = robotSpec.mass();
+    }
+    if (robotSpec.has_max_linear_kick_speed()) {
+        settings->MaxLinearKickSpeed = robotSpec.max_linear_kick_speed();
+    }
+    if (robotSpec.has_max_chip_kick_speed()) {
+        settings->MaxChipKickSpeed = robotSpec.max_chip_kick_speed();
+    }
+    if (robotSpec.has_center_to_dribbler()) {
+        settings->RobotCenterFromKicker = robotSpec.center_to_dribbler();
+    }
+    if (robotSpec.has_limits()) {
+        processRobotLimits(robotSpec, settings);
+    }
+    if (robotSpec.has_wheel_angles()) {
+        settings->Wheel1Angle = robotSpec.wheel_angles().front_right();
+        settings->Wheel2Angle = robotSpec.wheel_angles().back_right();
+        settings->Wheel3Angle = robotSpec.wheel_angles().back_left();
+        settings->Wheel4Angle = robotSpec.wheel_angles().front_left();
+    }
+}
+
+void SSLWorld::processRobotLimits(const RobotSpecs &robotSpec, RobotSettings *settings) {
+    if (robotSpec.limits().has_acc_speedup_absolute_max()) {
+        settings->AccSpeedupAbsoluteMax = robotSpec.limits().acc_speedup_absolute_max();
+    }
+    if (robotSpec.limits().has_acc_speedup_angular_max()) {
+        settings->AccSpeedupAngularMax = robotSpec.limits().acc_speedup_angular_max();
+    }
+    if (robotSpec.limits().has_acc_brake_absolute_max()) {
+        settings->AccBrakeAbsoluteMax = robotSpec.limits().acc_brake_absolute_max();
+    }
+    if (robotSpec.limits().has_acc_brake_angular_max()) {
+        settings->AccBrakeAngularMax = robotSpec.limits().acc_brake_angular_max();
+    }
+    if (robotSpec.limits().has_vel_absolute_max()) {
+        settings->VelAbsoluteMax = robotSpec.limits().vel_absolute_max();
+    }
+    if (robotSpec.limits().has_vel_angular_max()) {
+        settings->VelAngularMax = robotSpec.limits().vel_angular_max();
     }
 }
 
@@ -810,9 +870,14 @@ void SSLWorld::processRobotControl(const RobotControl &robotControl, RobotContro
             continue;
         }
         auto robot = robots[id];
+        auto robotCfg = team == YELLOW ? cfg->yellowSettings : cfg->blueSettings;
 
         if (robotCommand.has_kick_speed() && robotCommand.kick_speed() > 0) {
             double kickSpeed = robotCommand.kick_speed();
+            double limit = robotCommand.kick_angle() > 0 ? robotCfg.MaxChipKickSpeed : robotCfg.MaxLinearKickSpeed; 
+            if (kickSpeed > limit) {
+                kickSpeed = limit;
+            }
             double kickAngle = robotCommand.kick_angle() * M_PI / 180.0;
             double length = cos(kickAngle) * kickSpeed;
             double z = sin(kickAngle) * kickSpeed;

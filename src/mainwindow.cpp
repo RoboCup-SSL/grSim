@@ -452,8 +452,12 @@ void MainWindow::restartSimulator()
     glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[FORMATION_INSIDE_1],glwidget->forms[FORMATION_INSIDE_1]);
     glwidget->ssl->glinit();
     glwidget->ssl->visionServer = visionServer;
+    glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
     glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
+    glwidget->ssl->simControlSocket = simControlSocket;
+    glwidget->ssl->blueControlSocket = blueControlSocket;
+    glwidget->ssl->yellowControlSocket = yellowControlSocket;
 }
 
 void MainWindow::ballMenuTriggered(QAction* act)
@@ -595,6 +599,9 @@ void MainWindow::recvActions()
 void MainWindow::simControlSocketReady()
 {
     glwidget->ssl->simControlSocketReady();
+    if (glwidget->ssl->restartRequired) {
+        restartSimulator();
+    }
 }
 
 void MainWindow::blueControlSocketReady()

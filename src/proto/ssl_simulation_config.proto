@@ -49,8 +49,8 @@ message RobotSpecs {
     optional float max_linear_kick_speed = 7;
     // Max chip kick speed [m/s] (unset = unlimited)
     optional float max_chip_kick_speed = 8;
-    // Width of the dribbler [m] (implicitly defines the distance from robot center to dribbler and opening angle)
-    optional float dribbler_width = 9;
+    // Distance from robot center to dribbler [m] (implicitly defines the opening angle and dribbler width)
+    optional float center_to_dribbler = 9;
     // Movement limits
     optional RobotLimits limits = 10;
     // Wheel angle configuration
