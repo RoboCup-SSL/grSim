@@ -267,4 +267,13 @@ void ConfigWidget::loadRobotSettings(QString team)
     robotSettings.WheelTangentFriction = robot_settings->value("Physics/WheelTangentFriction", 0.8f).toDouble();
     robotSettings.WheelPerpendicularFriction = robot_settings->value("Physics/WheelPerpendicularFriction", 0.05f).toDouble();
     robotSettings.Wheel_Motor_FMax = robot_settings->value("Physics/WheelMotorMaximumApplyingTorque", 0.2f).toDouble();
+    
+    robotSettings.MaxLinearKickSpeed = robot_settings->value("Physics/MaxLinearKickSpeed", 10).toDouble();
+    robotSettings.MaxChipKickSpeed = robot_settings->value("Physics/MaxChipKickSpeed", 10).toDouble();
+    robotSettings.AccSpeedupAbsoluteMax = robot_settings->value("Physics/AccSpeedupAbsoluteMax", 4).toDouble();
+    robotSettings.AccSpeedupAngularMax = robot_settings->value("Physics/AccSpeedupAngularMax", 50).toDouble();
+    robotSettings.AccBrakeAbsoluteMax = robot_settings->value("Physics/AccBrakeAbsoluteMax", 4).toDouble();
+    robotSettings.AccBrakeAngularMax = robot_settings->value("Physics/AccBrakeAngularMax", 50).toDouble();
+    robotSettings.VelAbsoluteMax = robot_settings->value("Physics/VelAbsoluteMax", 5).toDouble();
+    robotSettings.VelAngularMax = robot_settings->value("Physics/VelAngularMax", 20).toDouble();
 }

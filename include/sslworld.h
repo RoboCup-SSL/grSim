@@ -70,6 +70,8 @@ private:
     KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
     void processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse);
     void processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team);
+    void processRobotSpec(const RobotSpecs &robotSpec) const;
+    static void processRobotLimits(const RobotSpecs &robotSpec, RobotSettings *settings);
     static void processMoveCommand(RobotControlResponse &robotControlResponse, const RobotMoveCommand &robotCommand,
                             Robot *robot) ;
     void processTeleportBall(SimulatorResponse &simulatorResponse, const TeleportBall &teleBall) const;
@@ -112,6 +114,7 @@ public:
     bool updatedCursor;
     Robot* robots[MAX_ROBOT_COUNT*2]{};
     int sendGeomCount;
+    bool restartRequired;
 public slots:
     void recvActions();
     void simControlSocketReady();

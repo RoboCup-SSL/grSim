@@ -40,6 +40,13 @@ class Robot {
     int m_rob_id;
     bool firsttime;
     bool last_state{};
+
+    dReal AccSpeedupAbsoluteMax;
+    dReal AccSpeedupAngularMax;
+    dReal AccBrakeAbsoluteMax;
+    dReal AccBrakeAngularMax;
+    dReal VelAbsoluteMax;
+    dReal VelAngularMax;
 public:    
     ConfigWidget* cfg;
     dSpaceID space;
