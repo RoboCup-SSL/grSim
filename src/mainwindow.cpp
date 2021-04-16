@@ -600,6 +600,7 @@ void MainWindow::simControlSocketReady()
 {
     glwidget->ssl->simControlSocketReady();
     if (glwidget->ssl->restartRequired) {
+        glwidget->ssl->restartRequired = false;
         restartSimulator();
     }
 }
