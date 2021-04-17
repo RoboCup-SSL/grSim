@@ -448,16 +448,19 @@ void MainWindow::changeBallDamping()
 
 void MainWindow::restartSimulator()
 {        
-    delete glwidget->ssl;
-    glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[FORMATION_INSIDE_1],glwidget->forms[FORMATION_INSIDE_1]);
-    glwidget->ssl->glinit();
-    glwidget->ssl->visionServer = visionServer;
-    glwidget->ssl->commandSocket = commandSocket;
-    glwidget->ssl->blueStatusSocket = blueStatusSocket;
-    glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
-    glwidget->ssl->simControlSocket = simControlSocket;
-    glwidget->ssl->blueControlSocket = blueControlSocket;
-    glwidget->ssl->yellowControlSocket = yellowControlSocket;
+    auto newWorld = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[FORMATION_INSIDE_1],glwidget->forms[FORMATION_INSIDE_1]);
+    newWorld->glinit();
+    newWorld->visionServer = visionServer;
+    newWorld->commandSocket = commandSocket;
+    newWorld->blueStatusSocket = blueStatusSocket;
+    newWorld->yellowStatusSocket = yellowStatusSocket;
+    newWorld->simControlSocket = simControlSocket;
+    newWorld->blueControlSocket = blueControlSocket;
+    newWorld->yellowControlSocket = yellowControlSocket;
+
+    auto oldWorld = glwidget->ssl;
+    glwidget->ssl = newWorld;
+    delete oldWorld;
 }
 
 void MainWindow::ballMenuTriggered(QAction* act)
@@ -600,6 +603,7 @@ void MainWindow::simControlSocketReady()
 {
     glwidget->ssl->simControlSocketReady();
     if (glwidget->ssl->restartRequired) {
+        glwidget->ssl->restartRequired = false;
         restartSimulator();
     }
 }
