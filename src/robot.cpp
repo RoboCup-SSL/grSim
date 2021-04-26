@@ -476,8 +476,8 @@ void Robot::setSpeed(dReal vx, dReal vy, dReal vw)
             vy *= new_v / v;
         } else {
             // convert global to local
-            dReal k, angle;
-            angle = getDir(k);
+            dReal angle;
+            angle = getDir();
             angle *= _DEG2RAD;
             dReal cvx = cvv[0]*cos(angle) + cvv[1]*sin(angle);
             dReal cvy = -cvv[0]*sin(angle) + cvv[1]*cos(angle);
