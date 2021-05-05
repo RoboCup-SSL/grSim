@@ -17,19 +17,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 */
 #include <QtWidgets/QApplication>
 #include "mainwindow.h"
-#include "winmain.h"
-#include <signal.h>
-
-void signalHandler( int signum ) {
-    exit(signum);
-}
 
 int main(int argc, char *argv[])
 {
     std::locale::global( std::locale( "" ) );
     
-    signal(SIGINT, signalHandler);
-
     QCoreApplication::setOrganizationName("Parsian");
     QCoreApplication::setOrganizationDomain("parsian-robotics.com");
     QCoreApplication::setApplicationName("grSim");

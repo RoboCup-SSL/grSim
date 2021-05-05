@@ -44,6 +44,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib
 
 RUN apt-get update && apt-get install -y \
+        tini \
         qt5-default \
         libqt5opengl5 \
         libode8 \
@@ -60,4 +61,4 @@ RUN chmod 775 /docker-entry.sh
 EXPOSE 20011 30011 30012 10300 10301 10302 5900
 USER default
 WORKDIR /home/default
-ENTRYPOINT ["/docker-entry.sh"]
+ENTRYPOINT ["tini", "--", "/docker-entry.sh"]
