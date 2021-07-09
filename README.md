@@ -66,7 +66,8 @@ If you wish to cite this repo with it's modifications specifically, please cite:
 
 ```
 @misc{grsim2021,
-  author = {Mohammad Mahdi Rahimi and Valiallah Monajjemi and A. Koochakzadeh and S. S. Ghidary},
+  author = {Mohammad Mahdi Rahimi and Jan Segre and Valiallah Monajjemi and A. Koochakzadeh and Sepehr MohaimenianPour and Nicolai Ommer and  Avatar
+Kazunori Kimura and Jeremy Feltracco and Kenta Sato and Atousa Ahsani},
   title = {GRSIM},
   year = {2021},
   publisher = {GitHub},
