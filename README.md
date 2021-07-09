@@ -52,6 +52,25 @@ Qt [example project](https://github.com/robocin/ssl-client) to receive and send 
 Citing
 ------
 
-If you use grSim in your research, please cite [the following paper](http://link.springer.com/chapter/10.1007/978-3-642-32060-6_38):
+If you use this in your research, please cite the original paper:
+```
+@inproceedings{Monajjemi2011grSimR,
+  title={grSim - RoboCup Small Size Robot Soccer Simulator},
+  author={Valiallah Monajjemi and A. Koochakzadeh and S. S. Ghidary},
+  booktitle={RoboCup},
+  year={2011}
+}
+```
 
-> Monajjemi, Valiallah (Mani), Ali Koochakzadeh, and Saeed Shiry Ghidary. "grSim – RoboCup Small Size Robot Soccer Simulator." In Robot Soccer World Cup, pp. 450-460. Springer Berlin Heidelberg, 2011.
+If you wish to cite this repo with it's modifications specifically, please cite:
+
+```
+@misc{grsim2021,
+  author = {Rahimi Mohammad Mahdi and Valiallah Monajjemi and A. Koochakzadeh and S. S. Ghidary},
+  title = {GRSIM},
+  year = {2021},
+  publisher = {GitHub},
+  note = {GitHub repository},
+  howpublished = {\url{https://github.com/RoboCup-SSL/grSim/}}
+}
+```
