@@ -1,5 +1,10 @@
 name: docker-build
-on: [push]
+
+on:
+  push:
+    branches:
+      - master
+
 jobs:
   docker:
     runs-on: ubuntu-latest
