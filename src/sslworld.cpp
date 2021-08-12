@@ -311,6 +311,8 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
             lastKickState[team][i] = NO_KICK; 
         }
     }
+
+    restartRequired = false;
 }
 
 int SSLWorld::robotIndex(int robot,int team) {
