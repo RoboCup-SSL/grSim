@@ -755,6 +755,9 @@ void SSLWorld::processSimControl(const SimulatorCommand &simulatorCommand, Simul
         }
         restartRequired = true;
     }
+    else {
+        restartRequired = false;
+    }
 }
 
 void SSLWorld::processRobotSpec(const RobotSpecs &robotSpec) const {
