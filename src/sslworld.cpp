@@ -311,6 +311,8 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
             lastKickState[team][i] = NO_KICK; 
         }
     }
+
+    restartRequired = false;
 }
 
 int SSLWorld::robotIndex(int robot,int team) {
@@ -752,6 +754,9 @@ void SSLWorld::processSimControl(const SimulatorCommand &simulatorCommand, Simul
             processRobotSpec(robotSpec);
         }
         restartRequired = true;
+    }
+    else {
+        restartRequired = false;
     }
 }
 
