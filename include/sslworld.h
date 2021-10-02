@@ -111,6 +111,10 @@ public:
     QUdpSocket *simControlSocket;
     QUdpSocket *blueControlSocket;
     QUdpSocket *yellowControlSocket;
+
+    QElapsedTimer elapsedLastPackageBlue;
+    QElapsedTimer elapsedLastPackageYellow;
+
     bool updatedCursor;
     Robot* robots[MAX_ROBOT_COUNT*2]{};
     int sendGeomCount;

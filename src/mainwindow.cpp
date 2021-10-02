@@ -93,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(simControlSocket,SIGNAL(readyRead()),this,SLOT(simControlSocketReady()));
     QObject::connect(blueControlSocket,SIGNAL(readyRead()),this,SLOT(blueControlSocketReady()));
     QObject::connect(yellowControlSocket,SIGNAL(readyRead()),this,SLOT(yellowControlSocketReady()));
-    
+
     glwidget->ssl->visionServer = visionServer;
     glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
@@ -410,6 +410,42 @@ void MainWindow::update()
     noiselabel->setVisible(configwidget->noise());
     cursorlabel->setText(QString("Cursor: [X=%1;Y=%2;Z=%3]").arg(dRealToStr(glwidget->ssl->cursor_x)).arg(dRealToStr(glwidget->ssl->cursor_y)).arg(dRealToStr(glwidget->ssl->cursor_z)));
     statusWidget->update();
+
+    if(glwidget != nullptr && glwidget->ssl != nullptr)
+    {
+        // Stops blue robots from moving if no package has been received for 1 second
+        if(glwidget->ssl->elapsedLastPackageBlue.nsecsElapsed()*1e-9 > 1)
+        {
+            for(int i=0; i < glwidget->cfg->Robots_Count(); ++i)
+            {
+                const int index = glwidget->ssl->robotIndex(i, BLUE-1);
+
+                if(index == -1 ||
+                   glwidget->ssl->robots[index] == nullptr)
+                    continue;
+
+                glwidget->ssl->robots[index]->resetSpeeds();
+//                glwidget->ssl->robots[index]->kicker->setRoller(0);
+//                glwidget->ssl->robots[index]->kicker->kick(0, 0);
+            }
+        }
+        // Stops yellow robots from moving if no package has been received for 1 second
+        if(glwidget->ssl->elapsedLastPackageYellow.nsecsElapsed()*1e-9 > 1)
+        {
+            for(int i=0; i < glwidget->cfg->Robots_Count(); ++i)
+            {
+                const int index = glwidget->ssl->robotIndex(i, YELLOW-1);
+
+                if(index == -1 ||
+                   glwidget->ssl->robots[index] == nullptr)
+                    continue;
+
+                glwidget->ssl->robots[index]->resetSpeeds();
+//                glwidget->ssl->robots[index]->kicker->setRoller(0);
+//                glwidget->ssl->robots[index]->kicker->kick(0, 0);
+            }
+        }
+    }
 }
 
 void MainWindow::updateRobotLabel()

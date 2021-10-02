@@ -313,6 +313,9 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
     }
 
     restartRequired = false;
+
+    elapsedLastPackageBlue.start();
+    elapsedLastPackageYellow.start();
 }
 
 int SSLWorld::robotIndex(int robot,int team) {
@@ -705,6 +708,8 @@ void SSLWorld::blueControlSocketReady() {
         robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
         blueControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
     }
+
+    elapsedLastPackageBlue.start();
 }
 
 void SSLWorld::yellowControlSocketReady() {
@@ -723,6 +728,8 @@ void SSLWorld::yellowControlSocketReady() {
         robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
         yellowControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
     }
+
+    elapsedLastPackageYellow.start();
 }
 
 
