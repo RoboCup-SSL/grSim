@@ -420,13 +420,10 @@ void MainWindow::update()
             {
                 const int index = glwidget->ssl->robotIndex(i, BLUE-1);
 
-                if(index == -1 ||
-                   glwidget->ssl->robots[index] == nullptr)
+                if(index == -1 || glwidget->ssl->robots[index] == nullptr)
                     continue;
 
                 glwidget->ssl->robots[index]->resetSpeeds();
-//                glwidget->ssl->robots[index]->kicker->setRoller(0);
-//                glwidget->ssl->robots[index]->kicker->kick(0, 0);
             }
         }
         // Stops yellow robots from moving if no package has been received for 1 second
@@ -436,13 +433,10 @@ void MainWindow::update()
             {
                 const int index = glwidget->ssl->robotIndex(i, YELLOW-1);
 
-                if(index == -1 ||
-                   glwidget->ssl->robots[index] == nullptr)
+                if(index == -1 || glwidget->ssl->robots[index] == nullptr)
                     continue;
 
                 glwidget->ssl->robots[index]->resetSpeeds();
-//                glwidget->ssl->robots[index]->kicker->setRoller(0);
-//                glwidget->ssl->robots[index]->kicker->kick(0, 0);
             }
         }
     }
