@@ -46,7 +46,7 @@ jobs:
         uses: lukka/run-vcpkg@v6
         with:
           setupOnly: false
-          vcpkgGitCommitId: 99dc49dae7e170c3be63dd097230007f3bb73c4f
+          vcpkgGitCommitId: 94ce0dab56f4d8ba6bd631ba59ed682b02d45c46
           vcpkgDirectory: c:/vcpkg  # folder must reside in c:\ otherwise qt wont install due to long path errors
           vcpkgTriplet: x64-windows
           vcpkgArguments: qt5 ode protobuf
