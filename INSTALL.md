@@ -34,12 +34,15 @@ yay -S grsim-git
 ### Using docker image
 You can get latest grSim from [Docker Hub](https://hub.docker.com/r/robocupssl/grsim) with:
 ```shell
-docker pull robocupssl/grSim:latest
+docker pull robocupssl/grsim:latest
 ```
 
 The container can be run in two flavors:
-1. Headless: `docker run grsim`
-1. With VNC: `docker run -p 5900:5900 -eVNC_PASSWORD=vnc -eVNC_GEOMETRY=1920x1080 grsim vnc`
+1. Headless: `docker run robocupssl/grsim`
+1. With VNC: `docker run --net=host -eVNC_PASSWORD=vnc -eVNC_GEOMETRY=1920x1080 robocupssl/grsim vnc`
+    1. Then launch your VNC client app (e.g. [Remmina](https://remmina.org/)).
+    1. Connect to `localhot:5900`.
+    1. Enter a password (default:`vnc`) to login.
 
 ## Building and installing from the source code
 
