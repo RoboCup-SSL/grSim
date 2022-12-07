@@ -48,6 +48,9 @@ Sending data to the simulator is also possible using Google Protobuf. Sample cli
 
 Qt [example project](https://github.com/robocin/ssl-client) to receive and send data to the simulator.
 
+Star History
+------
+[![Star History Chart](https://api.star-history.com/svg?repos=robocup-ssl/grsim&type=Date)](https://star-history.com/#robocup-ssl/grsim&Date)
 
 Citing
 ------
