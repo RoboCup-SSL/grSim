@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS build
+FROM ubuntu:22.04 AS build
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
@@ -39,7 +39,7 @@ RUN mkdir build && \
     make install
 
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive \
     LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib
 
