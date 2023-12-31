@@ -106,12 +106,14 @@ target_include_directories(${app} PRIVATE ${VARTYPES_INCLUDE_DIRS})
 list(APPEND libs ${VARTYPES_LIBRARIES})
 
 # Protobuf
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-list(APPEND libs ${PROTOBUF_LIBRARIES})
+find_package(protobuf CONFIG REQUIRED)
+list(APPEND libs protobuf::libprotobuf)
 
-set (Protobuf_IMPORT_DIRS ${Protobuf_INCLUDE_DIR})
-protobuf_generate_cpp(PROTO_CPP PROTO_H
+if(protobuf_VERBOSE)
+    message(STATUS "Using Protocol Buffers ${protobuf_VERSION}")
+endif()
+
+set(PROTOS
     src/proto/grSim_Commands.proto
     src/proto/grSim_Packet.proto
     src/proto/grSim_Replacement.proto
@@ -189,8 +191,7 @@ set(HEADERS
 # files to be compiled
 set(srcs
     ${CONFIG_FILES}
-    ${PROTO_CPP}
-    ${PROTO_H}
+    ${PROTOS}
     ${RESOURCES}
     ${HEADERS}
     ${SOURCES}
@@ -202,6 +203,15 @@ set_source_files_properties(${CONFIG_FILES}  PROPERTIES MACOSX_PACKAGE_LOCATION 
 target_sources(${app} PRIVATE ${srcs})
 install(TARGETS ${app} DESTINATION bin)
 target_link_libraries(${app} ${libs})
+
+set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+file(MAKE_DIRECTORY ${PROTO_BINARY_DIR})
+target_include_directories(${app} PUBLIC "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
+protobuf_generate(
+        TARGET ${app}
+        IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}/src/proto"
+        PROTOC_OUT_DIR "${PROTO_BINARY_DIR}"
+)
 
 if(APPLE AND CMAKE_MACOSX_BUNDLE)
   # use CMAKE_MACOSX_BUNDLE if you want to build a mac bundle

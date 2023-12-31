@@ -80,7 +80,7 @@ brew install pkg-config
 brew tap robotology/formulae         
 brew install robotology/formulae/ode
 brew install qt
-brew install protobuf
+brew install protobuf@21
 ```
 
 If you run into build issues, you may need to run this first:
