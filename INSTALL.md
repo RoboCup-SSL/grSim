@@ -56,11 +56,11 @@ $ sudo pacman -S base-devel boost hicolor-icon-theme \
                  mesa ode protobuf qt5-base cmake git
 ```
 
-#### Debian
+#### Ubuntu / Debian
 
 For Debian, or derivative
 ```
-$ sudo apt install git build-essential cmake pkg-config qt5-default \
+sudo apt install git build-essential cmake pkg-config qtbase5-dev \
                    libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev \
                    libprotobuf-dev protobuf-compiler libode-dev libboost-dev
 ```

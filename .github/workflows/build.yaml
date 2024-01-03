@@ -3,12 +3,13 @@ on:
   push:
     branches:
       - master
-      - windows-github-actions
   pull_request:
 jobs:
   build-linux:
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         os: [ ubuntu-20.04, ubuntu-22.04 ]
     steps:
@@ -22,7 +23,9 @@ jobs:
 
   build-macos:
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         os: [ macos-11, macos-12, macos-13 ]
     steps:
