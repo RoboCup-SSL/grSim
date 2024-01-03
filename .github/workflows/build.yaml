@@ -46,7 +46,9 @@ jobs:
           vcpkgGitCommitId: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
           vcpkgDirectory: c:/vcpkg  # folder must reside in c:\ otherwise qt wont install due to long path errors
 
+
       - name: Run CMake and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         with:
+          configurePreset: "windows-default"
           buildPresetAdditionalArgs: "['--config Release']"
