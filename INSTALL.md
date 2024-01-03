@@ -34,12 +34,15 @@ yay -S grsim-git
 ### Using docker image
 You can get latest grSim from [Docker Hub](https://hub.docker.com/r/robocupssl/grsim) with:
 ```shell
-docker pull robocupssl/grSim:latest
+docker pull robocupssl/grsim:latest
 ```
 
 The container can be run in two flavors:
-1. Headless: `docker run grsim`
-1. With VNC: `docker run -p 5900:5900 -eVNC_PASSWORD=vnc -eVNC_GEOMETRY=1920x1080 grsim vnc`
+1. Headless: `docker run robocupssl/grsim`
+1. With VNC: `docker run --net=host -eVNC_PASSWORD=vnc -eVNC_GEOMETRY=1920x1080 robocupssl/grsim vnc`
+    1. Then launch your VNC client app (e.g. [Remmina](https://remmina.org/)).
+    1. Connect to `localhot:5900`.
+    1. Enter a password (default:`vnc`) to login.
 
 ## Building and installing from the source code
 
@@ -53,11 +56,11 @@ $ sudo pacman -S base-devel boost hicolor-icon-theme \
                  mesa ode protobuf qt5-base cmake git
 ```
 
-#### Debian
+#### Ubuntu / Debian
 
 For Debian, or derivative
 ```
-$ sudo apt install git build-essential cmake pkg-config qt5-default \
+sudo apt install git build-essential cmake pkg-config qtbase5-dev \
                    libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev \
                    libprotobuf-dev protobuf-compiler libode-dev libboost-dev
 ```
@@ -76,8 +79,8 @@ brew install cmake
 brew install pkg-config
 brew tap robotology/formulae         
 brew install robotology/formulae/ode
-brew install qt
-brew install protobuf
+brew install qt@5
+brew install protobuf@21
 ```
 
 If you run into build issues, you may need to run this first:
