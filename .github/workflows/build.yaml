@@ -18,7 +18,7 @@ jobs:
       - name: "Install dependencies"
         run: sudo apt-get install -y build-essential cmake pkg-config qtbase5-dev libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
       - name: "Build"
-        run: mkdir build && cd build && cmake .. && make
+        run: make
 
   build-macos:
     runs-on: ${{ matrix.os }}
@@ -30,7 +30,7 @@ jobs:
       - name: "Install dependencies"
         run: brew tap robotology/formulae && brew install qt5 protobuf robotology/formulae/ode
       - name: "Build"
-        run: mkdir build && cd build && cmake .. && make
+        run: make
         env:
           Qt5_DIR: /usr/local/opt/qt5/lib/cmake/Qt5
 
