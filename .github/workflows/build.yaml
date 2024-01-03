@@ -46,10 +46,10 @@ jobs:
         run: mkdir '${{ github.workspace }}/build/'
 
       - name: Install dependencies # saves / restores cache to avoid rebuilding dependencies
-        uses: lukka/run-vcpkg@v6
+        uses: lukka/run-vcpkg@v11
         with:
           setupOnly: false
-          vcpkgGitCommitId: 94ce0dab56f4d8ba6bd631ba59ed682b02d45c46
+          vcpkgGitCommitId: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
           vcpkgDirectory: c:/vcpkg  # folder must reside in c:\ otherwise qt wont install due to long path errors
           vcpkgTriplet: x64-windows
           vcpkgArguments: qt5 ode protobuf
