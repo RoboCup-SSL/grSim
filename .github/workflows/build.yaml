@@ -31,11 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: "Install dependencies"
-        run: brew tap robotology/formulae && brew install qt5 protobuf robotology/formulae/ode
+        run: brew tap robotology/formulae && brew install cmake pkg-config qt@5 protobuf@21 robotology/formulae/ode
       - name: "Build"
         run: make
-        env:
-          Qt5_DIR: /usr/local/opt/qt5/lib/cmake/Qt5
 
   build-windows:
     runs-on: windows-latest
