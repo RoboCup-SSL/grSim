@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "config:base",
+    "schedule:yearly"
+  ],
+  "labels": [
+    "dependencies"
+  ]
+}

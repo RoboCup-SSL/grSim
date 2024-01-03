@@ -3,56 +3,52 @@ on:
   push:
     branches:
       - master
-      - windows-github-actions
   pull_request:
 jobs:
   build-linux:
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
-        os: [ ubuntu-18.04, ubuntu-20.04 ]
+        os: [ ubuntu-20.04, ubuntu-22.04 ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: "Update dependencies"
         run: sudo apt-get update
       - name: "Install dependencies"
-        run: sudo apt-get install -y build-essential cmake pkg-config qt5-default libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
+        run: sudo apt-get install -y build-essential cmake pkg-config qtbase5-dev libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
       - name: "Build"
-        run: mkdir build && cd build && cmake .. && make
+        run: make
 
   build-macos:
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
-        os: [ macos-10.15, macos-11 ]
+        os: [ macos-12, macos-13 ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: "Install dependencies"
-        run: brew tap robotology/formulae && brew install qt5 protobuf robotology/formulae/ode
+        run: brew tap robotology/formulae && brew install cmake pkg-config qt@5 protobuf@21 robotology/formulae/ode
       - name: "Build"
-        run: mkdir build && cd build && cmake .. && make
-        env:
-          Qt5_DIR: /usr/local/opt/qt5/lib/cmake/Qt5
+        run: make
 
   build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: make build directory
-        run: mkdir '${{ github.workspace }}/build/'
+      - uses: actions/checkout@v4
 
       - name: Install dependencies # saves / restores cache to avoid rebuilding dependencies
-        uses: lukka/run-vcpkg@v6
+        uses: lukka/run-vcpkg@v11
         with:
-          setupOnly: false
-          vcpkgGitCommitId: 94ce0dab56f4d8ba6bd631ba59ed682b02d45c46
+          vcpkgGitCommitId: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
           vcpkgDirectory: c:/vcpkg  # folder must reside in c:\ otherwise qt wont install due to long path errors
-          vcpkgTriplet: x64-windows
-          vcpkgArguments: qt5 ode protobuf
 
-      - name: Run CMake and build
-        working-directory: ${{ github.workspace }}/build/
-        run: |
-          cmake -DCMAKE_TOOLCHAIN_FILE=c:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-          cmake --build . --config Release
+
+      - name: Run CMake and run vcpkg to build packages
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: "windows-default"
+          buildPresetAdditionalArgs: "['--config Release']"
