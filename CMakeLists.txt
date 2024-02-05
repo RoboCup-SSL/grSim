@@ -152,6 +152,7 @@ set(SOURCES
     src/physics/pray.cpp
     src/net/robocup_ssl_server.cpp
     src/net/robocup_ssl_client.cpp
+    src/geometry.cpp
     src/sslworld.cpp
     src/robot.cpp
     src/configwidget.cpp
@@ -175,6 +176,7 @@ set(HEADERS
     include/physics/pray.h
     include/net/robocup_ssl_server.h
     include/net/robocup_ssl_client.h
+    include/geometry.h
     include/sslworld.h
     include/robot.h
     include/configwidget.h
