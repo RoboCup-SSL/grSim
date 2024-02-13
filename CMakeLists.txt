@@ -15,6 +15,17 @@ include(${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 standard_config()
 standard_paths(${PROJECT_SOURCE_DIR} bin lib)
 
+# policy regarding how to handle generated stuff, OLD behavior would ignore generated files
+# (which includes the generated protobuf cpp files)
+if (POLICY CMP0071)
+    cmake_policy(SET CMP0071 NEW)
+endif()
+
+# policy regarding when to rebuild stuff when external projects downloaded with URL changes
+if (POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+
 set(app ${CMAKE_PROJECT_NAME})
 # create the target before the sources list is known so that we can call
 # add_dependencies(<target> external_proj)
@@ -106,9 +117,14 @@ target_include_directories(${app} PRIVATE ${VARTYPES_INCLUDE_DIRS})
 list(APPEND libs ${VARTYPES_LIBRARIES})
 
 # Protobuf
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-list(APPEND libs ${PROTOBUF_LIBRARIES})
+include(FindOrBuildProtobuf)
+
+if(TARGET protobuf_external)
+    add_dependencies(${app} protobuf_external)
+endif()
+
+include_directories(${Protobuf_INCLUDE_DIRS})
+list(APPEND libs ${Protobuf_LIBRARIES})
 
 set (Protobuf_IMPORT_DIRS ${Protobuf_INCLUDE_DIR})
 protobuf_generate_cpp(PROTO_CPP PROTO_H
