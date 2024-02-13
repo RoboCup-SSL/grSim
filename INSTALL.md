@@ -159,7 +159,11 @@ $ sudo make install
 grSim will be — by default — installed on the `/usr/local` directory.
 
 
-if you face any problem regarding of updating the grsim version, you can try removing the `grsim.xml`.
+## Troubleshooting
+
+If you face any problem regarding of updating the grsim version, you can try removing the `grsim.xml`.
+If grSim crashes almost instantly with some ODE error the issue might by your ODE version.
+Try adding -DBUILD_ODE=TRUE to build ODE from source instead of using the system dependency.
 
 ## Notes on the performance
 

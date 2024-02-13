@@ -80,7 +80,34 @@ find_package(Qt5 COMPONENTS Core Widgets OpenGL Network REQUIRED)
 list(APPEND libs Qt5::Core Qt5::Widgets Qt5::OpenGL Qt5::Network)
 
 # ODE
-if(WIN32)
+if(BUILD_ODE)
+  # build ODE, because some versions of it cause grSim to segfault somewhere
+  # could be because in some packages the double precision is turned off
+  include(ExternalProject)
+
+  set(ODE_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/ode_install")
+
+  ExternalProject_Add(ode_external
+      GIT_REPOSITORY    https://bitbucket.org/odedevs/ode.git
+      GIT_TAG           0.16.4
+      INSTALL_DIR       "${ODE_INSTALL_DIR}"
+      CMAKE_ARGS
+                        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                        -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                        -DCMAKE_C_COMPILER:PATH=${CMAKE_C_COMPILER}
+                        -DCMAKE_CXX_COMPILER:PATH=${CMAKE_CXX_COMPILER}
+                        -DCMAKE_MAKE_PROGRAM:PATH=${CMAKE_MAKE_PROGRAM}
+                        # necessary, because it does not build the static libs if this is ON
+                        -DBUILD_SHARED_LIBS=OFF
+                        # if this is OFF grSim just dies instantly and INSTALL.md says it should be ON
+                        -DODE_DOUBLE_PRECISION=ON
+                        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+  )
+  add_dependencies(${app} ode_external)
+
+  set(ODE_LIBRARY "${ODE_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ode${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  list(APPEND libs ${ODE_LIBRARY})
+elseif(WIN32)
   find_package(ODE CONFIG REQUIRED)
   list(APPEND libs ODE::ODE)
 else()
