@@ -31,9 +31,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: "Install dependencies"
-        run: brew tap robotology/formulae && brew install cmake pkg-config qt@5 protobuf@21 robotology/formulae/ode
+        run: brew tap robotology/formulae && brew install cmake pkg-config qt@5
       - name: "Build"
-        run: make
+        # for some reason qt5 is not correctly in the path and this will break whenever the location of it changes
+        # 5.15.11 is for macos-12 and 5.15.12 is for macos-13
+        run: PATH=/usr/local/Cellar/qt@5/5.15.11/lib/cmake/Qt5:/usr/local/Cellar/qt@5/5.15.12/lib/cmake/Qt5:$PATH && make BUILD_ODE=ON
 
   build-windows:
     runs-on: windows-latest
@@ -45,7 +47,8 @@ jobs:
         with:
           vcpkgGitCommitId: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
           vcpkgDirectory: c:/vcpkg  # folder must reside in c:\ otherwise qt wont install due to long path errors
-
+          # needed to actually install the vcpkg dependencies
+          runVcpkgInstall: true
 
       - name: Run CMake and run vcpkg to build packages
         uses: lukka/run-cmake@v10
