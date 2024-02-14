@@ -107,6 +107,7 @@ if(BUILD_ODE)
 
   set(ODE_LIBRARY "${ODE_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ode${CMAKE_STATIC_LIBRARY_SUFFIX}")
   list(APPEND libs ${ODE_LIBRARY})
+  target_include_directories(${app} PRIVATE "${ODE_INSTALL_DIR}/include")
 elseif(WIN32)
   find_package(ODE CONFIG REQUIRED)
   list(APPEND libs ODE::ODE)
