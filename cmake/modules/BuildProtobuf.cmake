@@ -70,6 +70,9 @@ set(Protobuf_LITE_LIBRARY_RELEASE "${install_dir}/lib/${PROTOBUF_SUBPATH}" CACHE
 set(Protobuf_PROTOC_EXECUTABLE "${install_dir}/${PROTOC_SUBPATH}" CACHE PATH "" FORCE)
 set(Protobuf_PROTOC_LIBRARY_DEBUG "${install_dir}/lib/${LIBPROTOC_SUBPATH}" CACHE PATH "" FORCE)
 set(Protobuf_PROTOC_LIBRARY_RELEASE "${install_dir}/lib/${LIBPROTOC_SUBPATH}" CACHE PATH "" FORCE)
+# this is a dependency for the protobuf_generate_cpp custom command
+# if this is not set the generate command sometimes get executed before protoc is compiled
+set(protobuf_generate_DEPENDENCIES protobuf_external CACHE TARGET "" FORCE)
 
 # override the protobuf::protoc path used by the protobuf_generate_cpp macro
 set_target_properties(protobuf::protoc PROPERTIES
