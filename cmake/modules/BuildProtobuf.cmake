@@ -74,6 +74,11 @@ set(Protobuf_PROTOC_LIBRARY_RELEASE "${install_dir}/lib/${LIBPROTOC_SUBPATH}" CA
 # if this is not set the generate command sometimes get executed before protoc is compiled
 set(protobuf_generate_DEPENDENCIES protobuf_external CACHE TARGET "" FORCE)
 
+# compatibility with cmake 3.10
+if(NOT TARGET protobuf::protoc)
+    # avoid error if target was already created for an older version
+    add_executable(protobuf::protoc IMPORTED)
+endif()
 # override the protobuf::protoc path used by the protobuf_generate_cpp macro
 set_target_properties(protobuf::protoc PROPERTIES
     IMPORTED_LOCATION "${Protobuf_PROTOC_EXECUTABLE}"
