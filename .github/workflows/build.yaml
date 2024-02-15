@@ -35,7 +35,7 @@ jobs:
       - name: "Build"
         # for some reason qt5 is not correctly in the path and this will break whenever the location of it changes
         # 5.15.11 is for macos-12 and 5.15.12 is for macos-13
-        run: PATH=/usr/local/Cellar/qt@5/5.15.11/lib/cmake/Qt5:/usr/local/Cellar/qt@5/5.15.12/lib/cmake/Qt5:$PATH && make BUILD_ODE=ON
+        run: PATH=/usr/local/Cellar/qt@5/5.15.11/lib/cmake/Qt5:/usr/local/Cellar/qt@5/5.15.12/lib/cmake/Qt5:$PATH && make
 
   build-windows:
     runs-on: windows-latest
