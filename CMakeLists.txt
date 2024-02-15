@@ -26,6 +26,8 @@ if (POLICY CMP0135)
     cmake_policy(SET CMP0135 NEW)
 endif()
 
+include(GNUInstallDirs)
+
 set(app ${CMAKE_PROJECT_NAME})
 # create the target before the sources list is known so that we can call
 # add_dependencies(<target> external_proj)
@@ -85,12 +87,9 @@ if(BUILD_ODE)
   # could be because in some packages the double precision is turned off
   include(ExternalProject)
 
-  set(ODE_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/ode_install")
-
   ExternalProject_Add(ode_external
       GIT_REPOSITORY    https://bitbucket.org/odedevs/ode.git
       GIT_TAG           0.16.4
-      INSTALL_DIR       "${ODE_INSTALL_DIR}"
       CMAKE_ARGS
                         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                         -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
@@ -102,12 +101,24 @@ if(BUILD_ODE)
                         # if this is OFF grSim just dies instantly and INSTALL.md says it should be ON
                         -DODE_DOUBLE_PRECISION=ON
                         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+    STEP_TARGETS install
   )
-  add_dependencies(${app} ode_external)
 
-  set(ODE_LIBRARY "${ODE_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ode${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  set(ODE_LIB_SUBPATH "${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ode${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+  # the byproducts are available after the install step
+  ExternalProject_Add_Step(ode_external out
+    DEPENDEES install
+    BYPRODUCTS
+        "<INSTALL_DIR>/${ODE_LIB_SUBPATH}"
+  )
+
+  ExternalProject_Get_Property(ode_external install_dir)
+  set(ODE_LIBRARY "${install_dir}/${ODE_LIB_SUBPATH}")
   list(APPEND libs ${ODE_LIBRARY})
-  target_include_directories(${app} PRIVATE "${ODE_INSTALL_DIR}/include")
+  target_include_directories(${app} PRIVATE "${install_dir}/include")
+
+  add_dependencies(${app} ode_external)
 elseif(WIN32)
   find_package(ODE CONFIG REQUIRED)
   list(APPEND libs ODE::ODE)
@@ -121,7 +132,6 @@ find_package(VarTypes)
 
 if(NOT VARTYPES_FOUND)
   include(ExternalProject)
-  set(VARTYPES_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/vartypes_install")
   
   set(VARTYPES_CMAKE_ARGS "-DVARTYPES_BUILD_STATIC=ON;-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>")
   if(NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
@@ -131,14 +141,25 @@ if(NOT VARTYPES_FOUND)
   ExternalProject_Add(vartypes_external
     GIT_REPOSITORY    https://github.com/jpfeltracco/vartypes
     GIT_TAG           origin/jpfeltracco/build_static
-    INSTALL_DIR       "${VARTYPES_INSTALL_DIR}"
     CMAKE_ARGS        "${VARTYPES_CMAKE_ARGS}"
+    STEP_TARGETS install
   )
+  set(VARTYPES_LIB_SUBPATH "${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vartypes${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+  # the byproducts are available after the install step
+  ExternalProject_Add_Step(vartypes_external out
+    DEPENDEES install
+    BYPRODUCTS
+        "<INSTALL_DIR>/${VARTYPES_LIB_SUBPATH}"
+  )
+
   add_dependencies(${app} vartypes_external)
 
-  set(VARTYPES_INCLUDE_DIRS "${VARTYPES_INSTALL_DIR}/include")
-  set(VARTYPE_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}vartypes${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(VARTYPES_LIBRARIES "${VARTYPES_INSTALL_DIR}/lib/${VARTYPE_LIB_NAME}")
+  ExternalProject_Get_Property(vartypes_external install_dir)
+  add_dependencies(${app} vartypes_external)
+
+  set(VARTYPES_INCLUDE_DIRS "${install_dir}/include")
+  set(VARTYPES_LIBRARIES "${install_dir}/${VARTYPES_LIB_SUBPATH}")
 endif()
 
 target_include_directories(${app} PRIVATE ${VARTYPES_INCLUDE_DIRS})

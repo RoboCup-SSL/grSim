@@ -19,7 +19,6 @@
 # ***************************************************************************
 
 include(ExternalProject)
-set(PROTOBUF_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/protobuf_install")
 
 set(PROTOBUF_CMAKE_ARGS )
 
@@ -29,7 +28,6 @@ ExternalProject_Add(protobuf_external
   URL               http://www.robotics-erlangen.de/downloads/libraries/protobuf-cpp-3.6.1.tar.gz
   URL_HASH          SHA256=b3732e471a9bb7950f090fd0457ebd2536a9ba0891b7f3785919c654fe2a2529
   SOURCE_SUBDIR     cmake
-  INSTALL_DIR       "${PROTOBUF_INSTALL_DIR}"
   CMAKE_ARGS
                     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                     -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
@@ -41,16 +39,18 @@ ExternalProject_Add(protobuf_external
   STEP_TARGETS install
 )
 
-ExternalProject_Add_Step(protobuf_external out
-  DEPENDEES install
-  BYPRODUCTS
-      "<INSTALL_DIR>/${PROTOBUF_SUBPATH}"
-      "<INSTALL_DIR>/${PROTOC_SUBPATH}"
-)
-
 set(PROTOBUF_SUBPATH "${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}protobuf${CMAKE_STATIC_LIBRARY_SUFFIX}")
 set(LIBPROTOC_SUBPATH "${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}protoc${CMAKE_STATIC_LIBRARY_SUFFIX}")
 set(PROTOC_SUBPATH "bin/protoc${CMAKE_EXECUTABLE_SUFFIX}")
+
+# the byproducts are available after the install step
+ExternalProject_Add_Step(protobuf_external out
+    DEPENDEES install
+    BYPRODUCTS
+        "<INSTALL_DIR>/${PROTOBUF_SUBPATH}"
+        "<INSTALL_DIR>/${LIBPROTOC_SUBPATH}"
+        "<INSTALL_DIR>/${PROTOC_SUBPATH}"
+)
 
 ExternalProject_Get_Property(protobuf_external install_dir)
 set_target_properties(protobuf_external PROPERTIES EXCLUDE_FROM_ALL true)
@@ -61,18 +61,18 @@ set(Protobuf_FOUND true CACHE BOOL "" FORCE)
 set(Protobuf_VERSION "3.6.1" CACHE STRING "" FORCE)
 set(Protobuf_INCLUDE_DIR "${install_dir}/include" CACHE PATH "" FORCE)
 set(Protobuf_INCLUDE_DIRS "${Protobuf_INCLUDE_DIR}" CACHE PATH "" FORCE)
-set(Protobuf_LIBRARY "${install_dir}/lib/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
+set(Protobuf_LIBRARY "${install_dir}/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
 set(Protobuf_LIBRARIES "${Protobuf_LIBRARY}" CACHE PATH "" FORCE)
-set(Protobuf_LIBRARY_DEBUG "${install_dir}/lib/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
-set(Protobuf_LIBRARY_RELEASE "${install_dir}/lib/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
-set(Protobuf_LITE_LIBRARY_DEBUG "${install_dir}/lib/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
-set(Protobuf_LITE_LIBRARY_RELEASE "${install_dir}/lib/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
+set(Protobuf_LIBRARY_DEBUG "${install_dir}/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
+set(Protobuf_LIBRARY_RELEASE "${install_dir}/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
+set(Protobuf_LITE_LIBRARY_DEBUG "${install_dir}/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
+set(Protobuf_LITE_LIBRARY_RELEASE "${install_dir}/${PROTOBUF_SUBPATH}" CACHE PATH "" FORCE)
 set(Protobuf_PROTOC_EXECUTABLE "${install_dir}/${PROTOC_SUBPATH}" CACHE PATH "" FORCE)
-set(Protobuf_PROTOC_LIBRARY_DEBUG "${install_dir}/lib/${LIBPROTOC_SUBPATH}" CACHE PATH "" FORCE)
-set(Protobuf_PROTOC_LIBRARY_RELEASE "${install_dir}/lib/${LIBPROTOC_SUBPATH}" CACHE PATH "" FORCE)
+set(Protobuf_PROTOC_LIBRARY_DEBUG "${install_dir}/${LIBPROTOC_SUBPATH}" CACHE PATH "" FORCE)
+set(Protobuf_PROTOC_LIBRARY_RELEASE "${install_dir}/${LIBPROTOC_SUBPATH}" CACHE PATH "" FORCE)
 # this is a dependency for the protobuf_generate_cpp custom command
 # if this is not set the generate command sometimes get executed before protoc is compiled
-set(protobuf_generate_DEPENDENCIES protobuf_external CACHE TARGET "" FORCE)
+set(protobuf_generate_DEPENDENCIES protobuf_external CACHE STRING "" FORCE)
 
 # compatibility with cmake 3.10
 if(NOT TARGET protobuf::protoc)
