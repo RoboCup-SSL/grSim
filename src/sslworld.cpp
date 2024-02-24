@@ -847,8 +847,9 @@ void SSLWorld::processTeleportRobot(const TeleportRobot &teleBot, Robot *robot) 
     if (teleBot.has_present()) {
         robot->on = teleBot.present();
         if(!teleBot.present()) {
-            // Move it out of the field
-            robot->setXY(1e6, 1e6);
+            // Move it out of the field.
+            // Set different x and y to avoid collisions of the robots.
+            robot->setXY(1e6 * teleBot.id().id(), 1e6 * teleBot.id().team());
         }
     }
 }

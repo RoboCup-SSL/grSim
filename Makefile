@@ -4,6 +4,8 @@ BUILDDIR=build
 BUILDTYPE=Release
 #BUILDTYPE=Debug
 
+BUILD_ODE=OFF
+
 .PHONY: all build mkbuilddir cmake dist package deb install clean clean-all
 
 all: build
@@ -22,7 +24,7 @@ mkbuilddir:
 	[ -d $(BUILDDIR) ] || mkdir $(BUILDDIR)
 
 cmake: CMakeLists.txt
-	cd $(BUILDDIR) && cmake -DCMAKE_BUILD_TYPE=$(BUILDTYPE) ..
+	cd $(BUILDDIR) && cmake -DCMAKE_BUILD_TYPE=$(BUILDTYPE) -DBUILD_ODE=$(BUILD_ODE) ..
 
 dist: package
 

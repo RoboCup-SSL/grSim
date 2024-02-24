@@ -31,24 +31,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: "Install dependencies"
-        run: brew tap robotology/formulae && brew install cmake pkg-config qt@5 protobuf@21 robotology/formulae/ode
+        run: brew tap robotology/formulae && brew install cmake pkg-config qt@5
       - name: "Build"
-        run: make
+        # for some reason qt5 is not correctly in the path and this will break whenever the location of it changes
+        # 5.15.11 is for macos-12 and 5.15.12 is for macos-13
+        run: PATH=/usr/local/Cellar/qt@5/5.15.11/lib/cmake/Qt5:/usr/local/Cellar/qt@5/5.15.12/lib/cmake/Qt5:$PATH && make
 
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install dependencies # saves / restores cache to avoid rebuilding dependencies
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
-          vcpkgDirectory: c:/vcpkg  # folder must reside in c:\ otherwise qt wont install due to long path errors
-
-
-      - name: Run CMake and run vcpkg to build packages
-        uses: lukka/run-cmake@v10
-        with:
-          configurePreset: "windows-default"
-          buildPresetAdditionalArgs: "['--config Release']"
+# Windows build does not work currently, see https://github.com/RoboCup-SSL/grSim/issues/183
+#  build-windows:
+#    runs-on: windows-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Install dependencies # saves / restores cache to avoid rebuilding dependencies
+#        uses: lukka/run-vcpkg@v11
+#        with:
+#          vcpkgGitCommitId: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
+#          vcpkgDirectory: c:/vcpkg  # folder must reside in c:\ otherwise qt wont install due to long path errors
+#
+#      - name: Run CMake and run vcpkg to build packages
+#        uses: lukka/run-cmake@v10
+#        with:
+#          # this preset is needed to actually install the vcpkg dependencies
+#          configurePreset: "ninja-multi-vcpkg"
+#          configPresetAdditionalArgs: "[-DVCPKG_TARGET_TRIPLET=x64-windows]"
+#          buildPreset: "ninja-multi-vcpkg"
+#          buildPresetAdditionalArgs: "['--config Release']"
+#    env:
+#      # [OPTIONAL] Define the vcpkg's triplet you want to enforce, otherwise the default one
+#      # for the hosting system will be automatically choosen (x64 is the default on all
+#      # platforms, e.g. `x64-osx`).
+#      VCPKG_DEFAULT_TRIPLET: "x64-windows"
