@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04, ubuntu-22.04 ]
+        os: [ ubuntu-20.04, ubuntu-22.04, ubuntu-24.04 ]
     steps:
       - uses: actions/checkout@v4
       - name: "Update dependencies"
@@ -27,15 +27,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-12, macos-13 ]
+        os: [ macos-13, macos-14 ]
     steps:
       - uses: actions/checkout@v4
       - name: "Install dependencies"
         run: brew tap robotology/formulae && brew install cmake pkg-config qt@5
       - name: "Build"
-        # for some reason qt5 is not correctly in the path and this will break whenever the location of it changes
-        # 5.15.11 is for macos-12 and 5.15.12 is for macos-13
-        run: PATH=/usr/local/Cellar/qt@5/5.15.11/lib/cmake/Qt5:/usr/local/Cellar/qt@5/5.15.12/lib/cmake/Qt5:$PATH && make
+        run: |
+          # For macOS 13
+          export PATH="/usr/local/opt/qt@5/bin:$PATH"
+          export LDFLAGS="-L/usr/local/opt/qt@5/lib"
+          export CPPFLAGS="-I/usr/local/opt/qt@5/include"
+          export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig"
+          
+          # For macOS 14
+          export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
+          export LDFLAGS="-L/opt/homebrew/opt/qt@5/lib"
+          export CPPFLAGS="-I/opt/homebrew/opt/qt@5/include"
+          export PKG_CONFIG_PATH="/opt/homebrew/opt/qt@5/lib/pkgconfig"
+          
+          make
 
 # Windows build does not work currently, see https://github.com/RoboCup-SSL/grSim/issues/183
 #  build-windows:
