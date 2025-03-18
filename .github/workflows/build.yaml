@@ -34,10 +34,18 @@ jobs:
         run: brew tap robotology/formulae && brew install cmake pkg-config qt@5
       - name: "Build"
         run: |
+          # For macOS 13
           export PATH="/usr/local/opt/qt@5/bin:$PATH"
           export LDFLAGS="-L/usr/local/opt/qt@5/lib"
           export CPPFLAGS="-I/usr/local/opt/qt@5/include"
           export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig"
+          
+          # For macOS 14
+          export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
+          export LDFLAGS="-L/opt/homebrew/opt/qt@5/lib"
+          export CPPFLAGS="-I/opt/homebrew/opt/qt@5/include"
+          export PKG_CONFIG_PATH="/opt/homebrew/opt/qt@5/lib/pkgconfig"
+          
           make
 
 # Windows build does not work currently, see https://github.com/RoboCup-SSL/grSim/issues/183
