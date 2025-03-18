@@ -312,6 +312,11 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
         }
     }
 
+    // initialize blind zone list
+    for (int i = 0; i < 4; i++) {
+        blindZones.append(blindZoneList());
+    }
+
     restartRequired = false;
 
     elapsedLastPackageBlue.start();
@@ -963,6 +968,53 @@ bool SSLWorld::visibleInCam(int id, double x, double y) {
     return false;
 }
 
+void SSLWorld::clearBlindZone(int cam_id) {
+    for (auto& blindZone : blindZones[cam_id]) {
+        delete blindZone;
+    }
+    blindZones[cam_id].clear();
+}
+
+void SSLWorld::addBlindZone(int cam_id, int robot_id) {
+    if (cfg->BlindZone()) {
+        dReal robot_x, robot_y;
+        robots[robot_id]->getXY(robot_x, robot_y);
+        double robot_r = robots[robot_id]->cfg->robotSettings.RobotRadius;
+        double robot_z = robots[robot_id]->cfg->robotSettings.RobotHeight;
+        if (visibleInCam(cam_id, robot_x, robot_y)) {
+            double cam_x = cameraPosition(cam_id).first;
+            double cam_y = cameraPosition(cam_id).second;
+            double cam_z = cfg->Camera_Height();
+            // the blind zone of a robot (cylinder) to a camera can be devided into three parts
+            // the bottom of the cylinder, which can be omitted
+            // the projection of the top of the cylinder, proj
+            // the quadrilateral formed by two external common tangent lines of the two circles
+            double proj_x = (robot_z * cam_x - robot_x * cam_z) / (robot_z - cam_z);
+            double proj_y = (robot_z * cam_y - robot_y * cam_z) / (robot_z - cam_z);
+            double proj_r = robot_r * cam_z / (cam_z - robot_z);
+            blindZones[cam_id].append(new CGeoCirlce(CGeoPoint(proj_x, proj_y), proj_r));
+            // first calculate the intersect of the two external tangent lines using math
+            // then try to draw tangent lines to the two circles
+            // if there are 4 tangent lines, then the quadrilateral exists
+            CGeoPoint intersect((robot_r * proj_x - proj_r * robot_x) / (robot_r - proj_r), (robot_r * proj_y - proj_r * robot_y) / (robot_r - proj_r));
+            CGeoCircleTangent robot_tangent(CGeoCirlce(CGeoPoint(robot_x, robot_y), robot_r), intersect);
+            CGeoCircleTangent proj_tangent(CGeoCirlce(CGeoPoint(proj_x, proj_y), proj_r), intersect);
+            if (robot_tangent.size() + proj_tangent.size() == 4) {
+                blindZones[cam_id].append(new CGeoQuadrilateral(robot_tangent.point1(), robot_tangent.point2(), proj_tangent.point1(), proj_tangent.point2()));
+            }
+        }
+    }
+}
+
+bool SSLWorld::inBlindZone(int cam_id, dReal x, dReal y, dReal z) {
+    for (auto& blindZone : blindZones[cam_id]) {
+        if (blindZone->HasPoint(CGeoPoint(x, y))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 QPair<float, float> SSLWorld::cameraPosition(int id) {
     Q_ASSERT(id >= 0 && id < 4);
 
@@ -980,8 +1032,6 @@ QPair<float, float> SSLWorld::cameraPosition(int id) {
 #define CONVUNIT(x) ((int)(1000*(x)))
 SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id) {
     auto* pPacket = new SSL_WrapperPacket();
-    dReal x,y,z,dir,k;
-    ball->getBodyPosition(x,y,z);    
     pPacket->mutable_detection()->set_camera_id(cam_id);
     pPacket->mutable_detection()->set_frame_number(frame_num);
     pPacket->mutable_detection()->set_t_capture(sim_time);
@@ -1043,8 +1093,38 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id) {
 
     }
     if (!cfg->noise()) { dev_x = 0;dev_y = 0;dev_a = 0;}
+    clearBlindZone(cam_id);
+    dReal x, y, z, dir, k;
+    for (int i = 0; i < cfg->Robots_Count() * 2; i++) {
+        if (!robots[i]->on) continue;
+        addBlindZone(cam_id, i);
+        bool is_blue = i < cfg->Robots_Count();
+        const double vanishing = (is_blue) ? cfg->blue_team_vanishing() : cfg->yellow_team_vanishing();
+        const int id = (is_blue) ? i : i - cfg->Robots_Count();
+
+        if (!cfg->vanishing() || (rand0_1() > vanishing)) {
+            robots[i]->getXY(x, y);
+            dir = robots[i]->getDir(k);
+
+            // reset when the robot has turned over
+            if (cfg->ResetTurnOver() && k < 0.9) robots[i]->resetRobot();
+
+            if (visibleInCam(cam_id, x, y)) {
+                SSL_DetectionRobot* rob = (is_blue) ? pPacket->mutable_detection()->add_robots_blue()
+                    : pPacket->mutable_detection()->add_robots_yellow();
+                rob->set_robot_id(id);
+                rob->set_pixel_x(x * 1000.0f);
+                rob->set_pixel_y(y * 1000.0f);
+                rob->set_confidence(1);
+                rob->set_x(randn_notrig(x * 1000.0f, dev_x));
+                rob->set_y(randn_notrig(y * 1000.0f, dev_y));
+                rob->set_orientation(normalizeAngle(randn_notrig(dir, dev_a)) * M_PI / 180.0f);
+            }
+        }
+    }
     if (!cfg->vanishing() || (rand0_1() > cfg->ball_vanishing())) {
-        if (visibleInCam(cam_id, x, y)) {
+        ball->getBodyPosition(x, y, z);
+        if (visibleInCam(cam_id, x, y) && !inBlindZone(cam_id, x, y, z)) {
             const double BALL_RADIUS = cfg->BallRadius() * 1000.f;
             const double SCALING_LIMIT = cfg->Camera_Scaling_Limit();
             SSL_DetectionBall* vball = pPacket->mutable_detection()->add_balls();
@@ -1072,33 +1152,6 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id) {
             vball->set_pixel_x(x*1000.0f);
             vball->set_pixel_y(y*1000.0f);
             vball->set_confidence(0.9 + rand0_1()*0.1);
-        }
-    }
-
-    for(int i = 0; i < cfg->Robots_Count() * 2; i++) {
-        if (!robots[i]->on) continue;
-        bool is_blue = i < cfg->Robots_Count();
-        const double vanishing = (is_blue) ? cfg->blue_team_vanishing() : cfg->yellow_team_vanishing();
-        const int id = (is_blue) ? i : i - cfg->Robots_Count();
-
-        if (!cfg->vanishing() || (rand0_1() > vanishing)) {
-            robots[i]->getXY(x,y);
-            dir = robots[i]->getDir(k);
-
-            // reset when the robot has turned over
-            if (cfg->ResetTurnOver() && k < 0.9) robots[i]->resetRobot();
-
-            if (visibleInCam(cam_id, x, y)) {
-                SSL_DetectionRobot* rob = (is_blue) ? pPacket->mutable_detection()->add_robots_blue()
-                                                    : pPacket->mutable_detection()->add_robots_yellow();
-                rob->set_robot_id(id);
-                rob->set_pixel_x(x*1000.0f);
-                rob->set_pixel_y(y*1000.0f);
-                rob->set_confidence(1);
-                rob->set_x(randn_notrig(x*1000.0f,dev_x));
-                rob->set_y(randn_notrig(y*1000.0f,dev_y));
-                rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
-            }
         }
     }
     return pPacket;
