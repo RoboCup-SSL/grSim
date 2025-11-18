@@ -507,16 +507,16 @@ void SSLWorld::simulate(dReal dt)
     {
         if(best_k >= cfg->Robots_Count())
             robots[best_k]->chassis->setColor(
-                    QColor::fromRgbF(ROBOT_YELLOW_CHASSIS_COLOR.redF()*2,
-                                     ROBOT_YELLOW_CHASSIS_COLOR.greenF()*1.5,
-                                     ROBOT_YELLOW_CHASSIS_COLOR.blueF()*1.5)
-                    );
+                        QColor::fromRgbF(ROBOT_YELLOW_CHASSIS_COLOR.redF()*2,
+                                        ROBOT_YELLOW_CHASSIS_COLOR.greenF()*1.5,
+                                        ROBOT_YELLOW_CHASSIS_COLOR.blueF()*1.5)
+                        );
         else
             robots[best_k]->chassis->setColor(
-                QColor::fromRgbF(ROBOT_BLUE_CHASSIS_COLOR.redF()*2,
-                                 ROBOT_BLUE_CHASSIS_COLOR.greenF()*1.5,
-                                 ROBOT_BLUE_CHASSIS_COLOR.blueF()*1.5)
-                );
+                        QColor::fromRgbF(ROBOT_BLUE_CHASSIS_COLOR.redF()*2,
+                                        ROBOT_BLUE_CHASSIS_COLOR.greenF()*1.5,
+                                        ROBOT_BLUE_CHASSIS_COLOR.blueF()*1.5)
+                        );
     }
     selected = best_k;
     ball->tag = -1;
