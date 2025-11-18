@@ -20,6 +20,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include <QtGlobal>
 #include <QtNetwork>
+#include <QTimer>
 
 #include <QDebug>
 
@@ -316,6 +317,14 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
 
     elapsedLastPackageBlue.start();
     elapsedLastPackageYellow.start();
+
+    elapsed.start();
+
+    simulationTimer = new QTimer(this);
+    simulationTimer->setInterval(10);
+    connect(simulationTimer, &QTimer::timeout,
+            this, &SSLWorld::stepSimulation);
+    simulationTimer->start();
 }
 
 int SSLWorld::robotIndex(int robot,int team) {
@@ -410,10 +419,30 @@ void SSLWorld::glinit() {
     p->glinit();
 }
 
-void SSLWorld::step(dReal dt) {
-    if (customDT > 0) dt = customDT;
-    const auto ratio = m_parent->devicePixelRatio();
-    g->initScene(m_parent->width()*ratio,m_parent->height()*ratio,0,0.7,1);
+void SSLWorld::stepSimulation()
+{
+    if (!elapsed.isValid()) {
+        elapsed.start();
+        return;
+    }
+
+    qint64 nsec = elapsed.nsecsElapsed();
+    elapsed.restart();
+
+    dReal dt = static_cast<dReal>(nsec) / 1e9;
+    if (dt <= 0) {
+        dt = (last_dt > 0) ? last_dt : 0.01; 
+    }
+
+    simulate(dt);
+}
+
+void SSLWorld::simulate(dReal dt)
+{
+    if (customDT > 0) {
+        dt = customDT;
+    }
+
     int ballCollisionTry = 5;
     for (int kk=0;kk < ballCollisionTry;kk++) {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
@@ -451,8 +480,8 @@ void SSLWorld::step(dReal dt) {
         ball->getBodyPosition(bx,by,bz);
         g->getViewpoint(xyz,hpr);
         best_dist  =(bx-xyz[0])*(bx-xyz[0])
-                +(by-xyz[1])*(by-xyz[1])
-                +(bz-xyz[2])*(bz-xyz[2]);
+                  +(by-xyz[1])*(by-xyz[1])
+                  +(bz-xyz[2])*(bz-xyz[2]);
     }
     for (int k=0;k<cfg->Robots_Count() * 2;k++)
     {
@@ -460,8 +489,8 @@ void SSLWorld::step(dReal dt) {
         {
             g->getViewpoint(xyz,hpr);
             dReal dist= (robots[k]->select_x-xyz[0])*(robots[k]->select_x-xyz[0])
-                    +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
-                    +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
+                       +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
+                       +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
             if (dist < best_dist) {
                 best_dist = dist;
                 best_k = k;
@@ -478,16 +507,16 @@ void SSLWorld::step(dReal dt) {
     {
         if(best_k >= cfg->Robots_Count())
             robots[best_k]->chassis->setColor(
-                        QColor::fromRgbF(ROBOT_YELLOW_CHASSIS_COLOR.redF()*2,
-                                         ROBOT_YELLOW_CHASSIS_COLOR.greenF()*1.5,
+                QColor::fromRgbF(ROBOT_YELLOW_CHASSIS_COLOR.redF()*2,
+                                 ROBOT_YELLOW_CHASSIS_COLOR.greenF()*1.5,
                                          ROBOT_YELLOW_CHASSIS_COLOR.blueF()*1.5)
-                        );
+                                        );
         else
             robots[best_k]->chassis->setColor(
-                        QColor::fromRgbF(ROBOT_BLUE_CHASSIS_COLOR.redF()*2,
-                                         ROBOT_BLUE_CHASSIS_COLOR.greenF()*1.5,
+                QColor::fromRgbF(ROBOT_BLUE_CHASSIS_COLOR.redF()*2,
+                                 ROBOT_BLUE_CHASSIS_COLOR.greenF()*1.5,
                                          ROBOT_BLUE_CHASSIS_COLOR.blueF()*1.5)
-                        );
+                                        );
     }
     selected = best_k;
     ball->tag = -1;
@@ -496,6 +525,21 @@ void SSLWorld::step(dReal dt) {
         robots[k]->step();
         robots[k]->selected = false;
     }
+
+    sendVisionBuffer();
+    frame_num++;
+}
+
+void SSLWorld::render()
+{
+    if (!g->isGraphicsEnabled())
+        return;
+
+    const auto ratio = m_parent->devicePixelRatio();
+    g->initScene(m_parent->width()  * ratio,
+                 m_parent->height() * ratio,
+                 0, 0.7, 1);
+
     p->draw();
     g->drawSkybox(4 * cfg->Robots_Count() + 6 + 1, //31 for 6 robot
                   4 * cfg->Robots_Count() + 6 + 2, //32 for 6 robot
@@ -504,24 +548,23 @@ void SSLWorld::step(dReal dt) {
                   4 * cfg->Robots_Count() + 6 + 5, //31 for 6 robot
                   4 * cfg->Robots_Count() + 6 + 6);//36 for 6 robot
 
-    dMatrix3 R;
-
-    if (g->isGraphicsEnabled())
-        if (show3DCursor)
-        {
-            dRFromAxisAndAngle(R,0,0,1,0);
-            g->setColor(1,0.9,0.2,0.5);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-            g->drawCircle(cursor_x,cursor_y,0.001,cursor_radius);
-            glDisable(GL_BLEND);
-        }
+    if (show3DCursor) {
+        dMatrix3 R;
+        dRFromAxisAndAngle(R,0,0,1,0);
+        g->setColor(1,0.9,0.2,0.5);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        g->drawCircle(cursor_x,cursor_y,0.001,cursor_radius);
+        glDisable(GL_BLEND);
+    }
 
     g->finalizeScene();
+}
 
-
-    sendVisionBuffer();
-    frame_num ++;
+void SSLWorld::step(dReal dt)
+{
+    simulate(dt);
+    render();
 }
 
 void SSLWorld::addRobotStatus(Robots_Status& robotsPacket, int robotID, bool infrared, KickStatus kickStatus) {

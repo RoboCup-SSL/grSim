@@ -24,6 +24,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QObject>
 #include <QUdpSocket>
 #include <QList>
+#include <QTimer>
+#include <QElapsedTimer>
 
 
 #include "graphics.h"
@@ -76,6 +78,8 @@ private:
                             Robot *robot) ;
     void processTeleportBall(SimulatorResponse &simulatorResponse, const TeleportBall &teleBall) const;
     static void processTeleportRobot(const TeleportRobot &teleBot, Robot *robot);
+    QTimer* simulationTimer {nullptr};
+    QElapsedTimer elapsed;
 public:    
     dReal customDT;
     bool isGLEnabled;
@@ -83,6 +87,8 @@ public:
     ~SSLWorld() override;
     void glinit();
     void step(dReal dt=-1);
+    void simulate(dReal dt=-1);
+    void render();
     SSL_WrapperPacket* generatePacket(int cam_id=0);
     void addFieldLinesArcs(SSL_GeometryFieldSize *field);
     static void addFieldLine(SSL_GeometryFieldSize *field, const std::string &name, float p1_x, float p1_y, float p2_x, float p2_y, float thickness);
@@ -124,6 +130,7 @@ public slots:
     void simControlSocketReady();
     void blueControlSocketReady();
     void yellowControlSocketReady();
+    void stepSimulation();
 signals:
     void fpsChanged(int newFPS);
 };
