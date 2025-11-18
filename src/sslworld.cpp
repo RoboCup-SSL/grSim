@@ -480,8 +480,8 @@ void SSLWorld::simulate(dReal dt)
         ball->getBodyPosition(bx,by,bz);
         g->getViewpoint(xyz,hpr);
         best_dist  =(bx-xyz[0])*(bx-xyz[0])
-                  +(by-xyz[1])*(by-xyz[1])
-                  +(bz-xyz[2])*(bz-xyz[2]);
+                +(by-xyz[1])*(by-xyz[1])
+                +(bz-xyz[2])*(bz-xyz[2]);
     }
     for (int k=0;k<cfg->Robots_Count() * 2;k++)
     {
@@ -489,8 +489,8 @@ void SSLWorld::simulate(dReal dt)
         {
             g->getViewpoint(xyz,hpr);
             dReal dist= (robots[k]->select_x-xyz[0])*(robots[k]->select_x-xyz[0])
-                       +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
-                       +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
+                    +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
+                    +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
             if (dist < best_dist) {
                 best_dist = dist;
                 best_k = k;
@@ -507,16 +507,16 @@ void SSLWorld::simulate(dReal dt)
     {
         if(best_k >= cfg->Robots_Count())
             robots[best_k]->chassis->setColor(
-                QColor::fromRgbF(ROBOT_YELLOW_CHASSIS_COLOR.redF()*2,
-                                 ROBOT_YELLOW_CHASSIS_COLOR.greenF()*1.5,
-                                         ROBOT_YELLOW_CHASSIS_COLOR.blueF()*1.5)
-                                        );
+                    QColor::fromRgbF(ROBOT_YELLOW_CHASSIS_COLOR.redF()*2,
+                                     ROBOT_YELLOW_CHASSIS_COLOR.greenF()*1.5,
+                                     ROBOT_YELLOW_CHASSIS_COLOR.blueF()*1.5)
+                    );
         else
             robots[best_k]->chassis->setColor(
                 QColor::fromRgbF(ROBOT_BLUE_CHASSIS_COLOR.redF()*2,
                                  ROBOT_BLUE_CHASSIS_COLOR.greenF()*1.5,
-                                         ROBOT_BLUE_CHASSIS_COLOR.blueF()*1.5)
-                                        );
+                                 ROBOT_BLUE_CHASSIS_COLOR.blueF()*1.5)
+                );
     }
     selected = best_k;
     ball->tag = -1;
