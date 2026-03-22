@@ -234,7 +234,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_DivA_Field_Penalty_Width.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Field_Penalty_Depth.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Field_Penalty_Point.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_DivA_Field_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DivA_Field_Margin_Touch_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DivA_Field_Margin_Goal_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Field_Referee_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Wall_Thickness.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Goal_Thickness.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
@@ -250,7 +251,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_DivB_Field_Penalty_Width.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Field_Penalty_Depth.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Field_Penalty_Point.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_DivB_Field_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DivB_Field_Margin_Touch_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DivB_Field_Margin_Goal_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Field_Referee_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Wall_Thickness.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Goal_Thickness.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));

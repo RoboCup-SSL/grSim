@@ -144,7 +144,7 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
     last_dt = -1;    
     g = new CGraphics(parent);
     g->setSphereQuality(1);
-    g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,90,-45,0);
+    g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin_Touch_Line()*2.0f)/2.0f,3,90,-45,0);
     p = new PWorld(0.05,9.81f,g,cfg->Robots_Count());
     ball = new PBall (0,0,0.5,cfg->BallRadius(),cfg->BallMass(), 1,0.7,0);
 
@@ -157,15 +157,22 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
     // Bounding walls
     
     const double thick = cfg->Wall_Thickness();
-    const double increment = cfg->Field_Margin() + cfg->Field_Referee_Margin() + thick / 2;
-    const double pos_x = cfg->Field_Length() / 2.0 + increment;
-    const double pos_y = cfg->Field_Width() / 2.0 + increment;
+    const double increment_x = cfg->Field_Margin_Goal_Line() + cfg->Field_Referee_Margin() + thick / 2;
+    const double increment_y = cfg->Field_Margin_Touch_Line() + cfg->Field_Referee_Margin() + thick / 2;
+    const double pos_x = cfg->Field_Length() / 2.0 + increment_x;
+    const double pos_y = cfg->Field_Width() / 2.0 + increment_y;
     const double pos_z = 0.0;
     const double siz_x = 2.0 * pos_x;
     const double siz_y = 2.0 * pos_y;
     const double siz_z = 0.4;
     const double tone = 1.0;
     
+    // Bounding walls placement
+    //   |-----[0]----
+    //   |           |
+    //  [3]         [2]
+    //   |           |
+    //   -----[1]----|
     walls[0] = new PFixedBox(thick/2, pos_y, pos_z,
                              siz_x, thick, siz_z,
                              tone, tone, tone);
@@ -182,17 +189,24 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
                              thick, siz_y, siz_z,
                              tone, tone, tone);
     
-    // Goal walls
+    // Goal walls, side walls extend to the outside wall
     
     const double gthick = cfg->Goal_Thickness();
     const double gpos_x = (cfg->Field_Length() + gthick) / 2.0 + cfg->Goal_Depth();
     const double gpos_y = (cfg->Goal_Width() + gthick) / 2.0;
     const double gpos_z = cfg->Goal_Height() / 2.0;
-    const double gsiz_x = cfg->Goal_Depth() + gthick;
+    const double gsiz_x = cfg->Field_Margin_Goal_Line();
     const double gsiz_y = cfg->Goal_Width();
     const double gsiz_z = cfg->Goal_Height();
-    const double gpos2_x = (cfg->Field_Length() + gsiz_x) / 2.0;
+    const double gpos2_x = (cfg->Field_Length() + cfg->Field_Margin_Goal_Line() + cfg->Field_Line_Width()) / 2.0;
 
+    // Yellow side
+    // (margin) │
+    // ─[6]┬────│
+    //     │    │
+    //    [4]   │ outside of wall
+    //     │    │
+    // ─[5]┴────|
     walls[4] = new PFixedBox(gpos_x, 0.0, gpos_z,
                              gthick, gsiz_y, gsiz_z,
                              tone, tone, tone);
@@ -205,6 +219,13 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
                              gsiz_x, gthick, gsiz_z,
                              tone, tone, tone);
 
+    // Blue side
+    //                 │(margin)
+    //                 │────┬[9]─
+    //                 │    │
+    // outside of wall │   [7]
+    //                 │    │    
+    //                 |────┴[8]─
     walls[7] = new PFixedBox(-gpos_x, 0.0, gpos_z,
                              gthick, gsiz_y, gsiz_z,
                              tone, tone, tone);
@@ -1011,7 +1032,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id) {
         // Field general info
         field->set_field_length(CONVUNIT(cfg->Field_Length()));
         field->set_field_width(CONVUNIT(cfg->Field_Width()));
-        field->set_boundary_width(CONVUNIT(cfg->Field_Margin()));
+        field->set_boundary_width(CONVUNIT(cfg->Field_Margin_Touch_Line()));
         field->set_goal_width(CONVUNIT(cfg->Goal_Width()));
         field->set_goal_depth(CONVUNIT(cfg->Goal_Depth()));
 
@@ -1204,7 +1225,7 @@ void RobotsFormation::setAll(const dReal* xx, const dReal *yy)
 RobotsFormation::RobotsFormation(E_FORMATION type, ConfigWidget* _cfg) : cfg(_cfg) {
     switch (type) {
         case FORMATION_OUTSIDE: {
-            double yv = -(_cfg->Field_Width() / 2 + _cfg->Field_Margin() / 2);
+            double yv = -(_cfg->Field_Width() / 2 + _cfg->Field_Margin_Touch_Line() / 2);
             dReal teamPosX[MAX_ROBOT_COUNT] = {0.40, 0.80, 1.20, 1.60, 2.00, 2.40,
                                                2.80, 3.20, 3.60, 4.00, 4.40, 4.80,
                                                0.40, 0.80, 1.20, 1.60};
@@ -1233,7 +1254,7 @@ RobotsFormation::RobotsFormation(E_FORMATION type, ConfigWidget* _cfg) : cfg(_cf
             break;
         }
         case FORMATION_OUTSIDE_FIELD: {
-            double yv = -(_cfg->Field_Width() / 2 + _cfg->Field_Margin() + _cfg->Field_Referee_Margin() + 0.5);
+            double yv = -(_cfg->Field_Width() / 2 + _cfg->Field_Margin_Touch_Line() + _cfg->Field_Referee_Margin() + 0.5);
             dReal teamPosX[MAX_ROBOT_COUNT] = { 0.40,  0.80,  1.20,  1.60,  2.00,  2.40,
                                                 2.80,  3.20,  3.60,  4.00,  4.40,  4.80,
                                                 0.40,  0.80,  1.20,  1.60};

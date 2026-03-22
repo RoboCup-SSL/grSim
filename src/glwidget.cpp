@@ -415,17 +415,17 @@ void GLWidget::changeCameraMode()
     cammode = static_cast<CameraMode>(static_cast<int>(cammode)%(static_cast<int>(CameraMode::MAX_ACTIVE_MODE_FOR_CHANGEMODE)+1));
 
     if (cammode==CameraMode::BIRDS_EYE_FROM_TOUCH_LINE)
-        ssl->g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,90,-45,0);
+        ssl->g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin_Touch_Line()*2.0f)/2.0f,3,90,-45,0);
     else if (cammode==CameraMode::CURRENT_ROBOT_VIEW)
         ssl->g->getViewpoint(xyz,hpr);
     else if (cammode==CameraMode::TOP_VIEW)
         ssl->g->setViewpoint(0,0,5,0,-90,0);
     else if (cammode==CameraMode::BIRDS_EYE_FROM_OPPOSITE_TOUCH_LINE)
-        ssl->g->setViewpoint(0, (cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,270,-45,0);
+        ssl->g->setViewpoint(0, (cfg->Field_Width()+cfg->Field_Margin_Touch_Line()*2.0f)/2.0f,3,270,-45,0);
     else if (cammode==CameraMode::BIRDS_EYE_FROM_BLUE)
-        ssl->g->setViewpoint(-(cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,0,-45,0);
+        ssl->g->setViewpoint(-(cfg->Field_Length()+cfg->Field_Margin_Goal_Line()*2.0f)/2.0f,0,3,0,-45,0);
     else if (cammode==CameraMode::BIRDS_EYE_FROM_YELLOW)
-        ssl->g->setViewpoint((cfg->Field_Length()+cfg->Field_Margin()*2.0f)/2.0f,0,3,180,-45,0);
+        ssl->g->setViewpoint((cfg->Field_Length()+cfg->Field_Margin_Goal_Line()*2.0f)/2.0f,0,3,180,-45,0);
 }
 
 void GLWidget::putBall(dReal x,dReal y)
