@@ -159,6 +159,7 @@ public:
   DEF_FIELD_VALUE(double,Double,Field_Penalty_Point)
   DEF_FIELD_VALUE(double,Double,Field_Margin_Touch_Line)
   DEF_FIELD_VALUE(double,Double,Field_Margin_Goal_Line)
+  DEF_FIELD_VALUE(double,Double,Field_Goal_Substitution_Area_Width)
   DEF_FIELD_VALUE(double,Double,Field_Referee_Margin)
   DEF_FIELD_VALUE(double,Double,Wall_Thickness)
   DEF_FIELD_VALUE(double,Double,Goal_Thickness)
