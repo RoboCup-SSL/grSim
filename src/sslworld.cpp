@@ -195,10 +195,10 @@ SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1
     const double gpos_x = (cfg->Field_Length() + gthick) / 2.0 + cfg->Goal_Depth();
     const double gpos_y = (cfg->Goal_Width() + gthick) / 2.0;
     const double gpos_z = cfg->Goal_Height() / 2.0;
-    const double gsiz_x = cfg->Field_Margin_Goal_Line();
+    const double gsiz_x = cfg->Field_Margin_Goal_Line() + cfg->Field_Referee_Margin();
     const double gsiz_y = cfg->Goal_Width();
     const double gsiz_z = cfg->Goal_Height();
-    const double gpos2_x = (cfg->Field_Length() + cfg->Field_Margin_Goal_Line() + cfg->Field_Line_Width()) / 2.0;
+    const double gpos2_x = (cfg->Field_Length() + gsiz_x) / 2.0;
 
     // Yellow side
     // (margin) │
