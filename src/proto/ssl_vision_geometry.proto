@@ -55,6 +55,8 @@ message SSL_GeometryFieldSize {
   repeated SSL_FieldCircularArc field_arcs = 7;
   optional int32 penalty_area_depth = 8;
   optional int32 penalty_area_width = 9;
+  // Width of the goal substitution area (distance from boundary walls that count as "inside the substitution area") in mm
+  optional int32 goal_substitution_area_width = 17;
 }
 
 message SSL_GeometryCameraCalibration {
