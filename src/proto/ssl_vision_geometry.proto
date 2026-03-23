@@ -49,6 +49,8 @@ message SSL_GeometryFieldSize {
   required int32 goal_width = 3;
   required int32 goal_depth = 4;
   required int32 boundary_width = 5;
+  // Boundary width at the goal lines (distance from goal line centers to boundary walls) in mm
+  optional int32 boundary_width_goal_line = 16;
   repeated SSL_FieldLineSegment field_lines = 6;
   repeated SSL_FieldCircularArc field_arcs = 7;
   optional int32 penalty_area_depth = 8;
