@@ -1033,6 +1033,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id) {
         field->set_field_length(CONVUNIT(cfg->Field_Length()));
         field->set_field_width(CONVUNIT(cfg->Field_Width()));
         field->set_boundary_width(CONVUNIT(cfg->Field_Margin_Touch_Line()));
+        field->set_boundary_width_goal_line(CONVUNIT(cfg->Field_Margin_Goal_Line()));
         field->set_goal_width(CONVUNIT(cfg->Goal_Width()));
         field->set_goal_depth(CONVUNIT(cfg->Goal_Depth()));
 
