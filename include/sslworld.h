@@ -35,6 +35,8 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "net/robocup_ssl_server.h"
 
+#include "geometry.h"
+
 #include "robot.h"
 #include "configwidget.h"
 
@@ -56,6 +58,7 @@ class SendingPacket {
     SSL_WrapperPacket* packet;
     int t;
 };
+typedef QList<CGeoShape*> blindZoneList;
 
 class SSLWorld : public QObject
 {
@@ -68,6 +71,7 @@ private:
     QList<SendingPacket*> sendQueue;
     bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
     KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
+    QList<blindZoneList> blindZones;
     void processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse);
     void processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team);
     void processRobotSpec(const RobotSpecs &robotSpec) const;
@@ -89,6 +93,9 @@ public:
     static void addFieldArc(SSL_GeometryFieldSize *field, const string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness);
     void sendVisionBuffer();
     static bool visibleInCam(int id, double x, double y);
+    void clearBlindZone(int cam_id);
+    void addBlindZone(int cam_id, int robot_index);
+    bool inBlindZone(int cam_id, dReal x, dReal y, dReal z);
     QPair<float, float> cameraPosition(int id);
     int  robotIndex(int robot,int team);
     static void addRobotStatus(Robots_Status& robotsPacket, int robotID, bool infrared, KickStatus kickStatus);
