@@ -438,19 +438,28 @@ void SSLWorld::step(dReal dt) {
     int ballCollisionTry = 5;
     for (int kk=0;kk < ballCollisionTry;kk++) {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
+        // Check if ball is on the ground before applying ground friction
+        dReal ballx, bally, ballz;
+        ball->getBodyPosition(ballx, bally, ballz);
+        bool ballOnGround = ballz <= cfg->BallRadius() * 1.2;
         dReal ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
         ballspeed = sqrt(ballspeed);
-        if (ballspeed > 0.01) {
+        if (ballOnGround && ballspeed > 0.01) {
             dReal fk = cfg->BallFriction()*cfg->BallMass()*cfg->Gravity();
-            dReal ballfx = -fk*ballvel[0] / ballspeed;
-            dReal ballfy = -fk*ballvel[1] / ballspeed;
-            dReal ballfz = -fk*ballvel[2] / ballspeed;
+            // Ground friction acts only in the XY plane
+            dReal ballxyspeed = sqrt(ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1]);
+            dReal ballfx = 0;
+            dReal ballfy = 0;
+            if (ballxyspeed > 0.01) {
+                ballfx = -fk*ballvel[0] / ballxyspeed;
+                ballfy = -fk*ballvel[1] / ballxyspeed;
+            }
             dReal balltx = -ballfy*cfg->BallRadius();
             dReal ballty = ballfx*cfg->BallRadius();
             dReal balltz = 0;
             dBodyAddTorque(ball->body,balltx,ballty,balltz);
-            dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
-        } else {
+            dBodyAddForce(ball->body,ballfx,ballfy,0);
+        } else if (ballOnGround && ballspeed <= 0.01) {
             dBodySetAngularVel(ball->body, 0, 0, 0);
             dBodySetLinearVel(ball->body, 0, 0, 0);
         }
