@@ -441,6 +441,8 @@ void SSLWorld::step(dReal dt) {
         // Check if ball is on the ground before applying ground friction
         dReal ballx, bally, ballz;
         ball->getBodyPosition(ballx, bally, ballz);
+        (void)ballx;
+        (void)bally;
         bool ballOnGround = ballz <= cfg->BallRadius() * 1.2;
         dReal ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
         ballspeed = sqrt(ballspeed);
