@@ -680,6 +680,7 @@ void SSLWorld::recvActions() {
                     if (grSimPacket.replacement().ball().has_vx()) vx = grSimPacket.replacement().ball().vx();
                     if (grSimPacket.replacement().ball().has_vy()) vy = grSimPacket.replacement().ball().vy();
 
+                    const dReal ballGroundThreshold = cfg->BallRadius() * 1.2;
                     ball->setBodyPosition(x,y,ballGroundThreshold);
                     dBodySetLinearVel(ball->body,vx,vy,0);
                     dBodySetAngularVel(ball->body,0,0,0);
