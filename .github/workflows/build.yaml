@@ -38,6 +38,7 @@ jobs:
           export LDFLAGS="-L/opt/homebrew/opt/qt@5/lib"
           export CPPFLAGS="-I/opt/homebrew/opt/qt@5/include"
           export PKG_CONFIG_PATH="/opt/homebrew/opt/qt@5/lib/pkgconfig"
+          export CMAKE_PREFIX_PATH="/opt/homebrew/opt/qt@5"
           make
 
 # Windows build does not work currently, see https://github.com/RoboCup-SSL/grSim/issues/183
