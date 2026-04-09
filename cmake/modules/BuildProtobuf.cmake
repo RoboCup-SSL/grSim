@@ -34,6 +34,7 @@ ExternalProject_Add(protobuf_external
                     -DCMAKE_C_COMPILER:PATH=${CMAKE_C_COMPILER}
                     -DCMAKE_CXX_COMPILER:PATH=${CMAKE_CXX_COMPILER}
                     -DCMAKE_MAKE_PROGRAM:PATH=${CMAKE_MAKE_PROGRAM}
+                    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
                     # the tests fail to build :-(
                     -Dprotobuf_BUILD_TESTS:BOOL=OFF
   STEP_TARGETS install
