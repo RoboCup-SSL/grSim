@@ -16,6 +16,9 @@ ExternalProject_Add(ode_external
                       -DBUILD_SHARED_LIBS=OFF
                       # if this is OFF grSim just dies instantly and INSTALL.md says it should be ON
                       -DODE_DOUBLE_PRECISION=ON
+                      # demos are not needed and fail to compile on macOS 15+ due to narrowing errors
+                      -DODE_WITH_DEMOS=OFF
+                      -DODE_WITH_TESTS=OFF
                       -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
   STEP_TARGETS install
 )
