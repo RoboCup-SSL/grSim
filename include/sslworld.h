@@ -68,6 +68,7 @@ private:
     QList<SendingPacket*> sendQueue;
     bool lastInfraredState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
     KickStatus lastKickState[TEAM_COUNT][MAX_ROBOT_COUNT]{};
+    dReal ballGroundThreshold() const;
     void processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse);
     void processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team);
     void processRobotSpec(const RobotSpecs &robotSpec) const;

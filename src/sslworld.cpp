@@ -431,11 +431,14 @@ void SSLWorld::glinit() {
     p->glinit();
 }
 
+dReal SSLWorld::ballGroundThreshold() const {
+    return cfg->BallRadius() * 1.2;
+}
+
 void SSLWorld::step(dReal dt) {
     if (customDT > 0) dt = customDT;
     const auto ratio = m_parent->devicePixelRatio();
     g->initScene(m_parent->width()*ratio,m_parent->height()*ratio,0,0.7,1);
-    const dReal ballGroundThreshold = cfg->BallRadius() * 1.2;
     int ballCollisionTry = 5;
     for (int kk=0;kk < ballCollisionTry;kk++) {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
@@ -444,7 +447,7 @@ void SSLWorld::step(dReal dt) {
         ball->getBodyPosition(ballx, bally, ballz);
         (void)ballx;
         (void)bally;
-        bool ballOnGround = ballz <= ballGroundThreshold;
+        bool ballOnGround = ballz <= ballGroundThreshold();
         dReal ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
         ballspeed = sqrt(ballspeed);
         if (ballOnGround && ballspeed > 0.01) {
@@ -680,8 +683,7 @@ void SSLWorld::recvActions() {
                     if (grSimPacket.replacement().ball().has_vx()) vx = grSimPacket.replacement().ball().vx();
                     if (grSimPacket.replacement().ball().has_vy()) vy = grSimPacket.replacement().ball().vy();
 
-                    const dReal ballGroundThreshold = cfg->BallRadius() * 1.2;
-                    ball->setBodyPosition(x,y,ballGroundThreshold);
+                    ball->setBodyPosition(x,y,ballGroundThreshold());
                     dBodySetLinearVel(ball->body,vx,vy,0);
                     dBodySetAngularVel(ball->body,0,0,0);
                 }
