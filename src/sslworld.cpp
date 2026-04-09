@@ -28,14 +28,16 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
 #include "grSim_Replacement.pb.h"
-#include "messages_robocup_ssl_detection.pb.h"
-#include "messages_robocup_ssl_geometry.pb.h"
-#include "messages_robocup_ssl_refbox_log.pb.h"
-#include "messages_robocup_ssl_wrapper.pb.h"
+#include "ssl_vision_detection.pb.h"
+#include "ssl_vision_geometry.pb.h"
+#include "ssl_vision_wrapper.pb.h"
 
 
-#define ROBOT_GRAY 0.4
+#define ROBOT_GRAY .8
 #define WHEEL_COUNT 4
+
+QColor ROBOT_BLUE_CHASSIS_COLOR {QColor("#0000ff")};
+QColor ROBOT_YELLOW_CHASSIS_COLOR {QColor("#ffff00")};
 
 SSLWorld* _w;
 dReal randn_notrig(dReal mu=0.0, dReal sigma=1.0);
@@ -130,9 +132,7 @@ bool ballCallBack(dGeomID o1,dGeomID o2,PSurface* s, int /*robots_count*/)
     return true;
 }
 
-SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,RobotsFomation *form2)
-    : QObject(parent)
-{    
+SSLWorld::SSLWorld(QGLWidget* parent, ConfigWidget* _cfg, RobotsFormation *form1, RobotsFormation *form2) : QObject(parent) {
     isGLEnabled = true;
     customDT = -1;    
     _w = this;
@@ -140,29 +140,39 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     m_parent = parent;
     show3DCursor = false;
     updatedCursor = false;
-    framenum = 0;
+    frame_num = 0;
     last_dt = -1;    
     g = new CGraphics(parent);
     g->setSphereQuality(1);
-    g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin()*2.0f)/2.0f,3,90,-45,0);
+    g->setViewpoint(0,-(cfg->Field_Width()+cfg->Field_Margin_Touch_Line()*2.0f)/2.0f,3,90,-45,0);
     p = new PWorld(0.05,9.81f,g,cfg->Robots_Count());
     ball = new PBall (0,0,0.5,cfg->BallRadius(),cfg->BallMass(), 1,0.7,0);
 
     ground = new PGround(cfg->Field_Rad(),cfg->Field_Length(),cfg->Field_Width(),cfg->Field_Penalty_Depth(),cfg->Field_Penalty_Width(),cfg->Field_Penalty_Point(),cfg->Field_Line_Width(),0);
     ray = new PRay(50);
     
+    ROBOT_BLUE_CHASSIS_COLOR = QColor(QString::fromStdString(_cfg->v_ColorRobotBlue->getString()));
+    ROBOT_YELLOW_CHASSIS_COLOR = QColor(QString::fromStdString(_cfg->v_ColorRobotYellow->getString()));
+
     // Bounding walls
     
     const double thick = cfg->Wall_Thickness();
-    const double increment = cfg->Field_Margin() + cfg->Field_Referee_Margin() + thick / 2;
-    const double pos_x = cfg->Field_Length() / 2.0 + increment;
-    const double pos_y = cfg->Field_Width() / 2.0 + increment;
+    const double increment_x = cfg->Field_Margin_Goal_Line() + cfg->Field_Referee_Margin() + thick / 2;
+    const double increment_y = cfg->Field_Margin_Touch_Line() + cfg->Field_Referee_Margin() + thick / 2;
+    const double pos_x = cfg->Field_Length() / 2.0 + increment_x;
+    const double pos_y = cfg->Field_Width() / 2.0 + increment_y;
     const double pos_z = 0.0;
     const double siz_x = 2.0 * pos_x;
     const double siz_y = 2.0 * pos_y;
     const double siz_z = 0.4;
     const double tone = 1.0;
     
+    // Bounding walls placement
+    //   |-----[0]----
+    //   |           |
+    //  [3]         [2]
+    //   |           |
+    //   -----[1]----|
     walls[0] = new PFixedBox(thick/2, pos_y, pos_z,
                              siz_x, thick, siz_z,
                              tone, tone, tone);
@@ -179,17 +189,24 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
                              thick, siz_y, siz_z,
                              tone, tone, tone);
     
-    // Goal walls
+    // Goal walls, side walls extend to the outside wall
     
     const double gthick = cfg->Goal_Thickness();
     const double gpos_x = (cfg->Field_Length() + gthick) / 2.0 + cfg->Goal_Depth();
     const double gpos_y = (cfg->Goal_Width() + gthick) / 2.0;
     const double gpos_z = cfg->Goal_Height() / 2.0;
-    const double gsiz_x = cfg->Goal_Depth() + gthick;
+    const double gsiz_x = cfg->Field_Margin_Goal_Line() + cfg->Field_Referee_Margin();
     const double gsiz_y = cfg->Goal_Width();
     const double gsiz_z = cfg->Goal_Height();
     const double gpos2_x = (cfg->Field_Length() + gsiz_x) / 2.0;
 
+    // Yellow side
+    // (margin) │
+    // ─[6]┬────│
+    //     │    │
+    //    [4]   │ outside of wall
+    //     │    │
+    // ─[5]┴────|
     walls[4] = new PFixedBox(gpos_x, 0.0, gpos_z,
                              gthick, gsiz_y, gsiz_z,
                              tone, tone, tone);
@@ -202,6 +219,13 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
                              gsiz_x, gthick, gsiz_z,
                              tone, tone, tone);
 
+    // Blue side
+    //                 │(margin)
+    //                 │────┬[9]─
+    //                 │    │
+    // outside of wall │   [7]
+    //                 │    │    
+    //                 |────┴[8]─
     walls[7] = new PFixedBox(-gpos_x, 0.0, gpos_z,
                              gthick, gsiz_y, gsiz_z,
                              tone, tone, tone);
@@ -217,8 +241,7 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     p->addObject(ground);
     p->addObject(ball);
     p->addObject(ray);
-    for (int i=0;i<10;i++)
-        p->addObject(walls[i]);
+    for (auto & wall : walls) p->addObject(wall);
     const int wheeltexid = 4 * cfg->Robots_Count() + 12 + 1 ; //37 for 6 robots
 
 
@@ -272,21 +295,19 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
     ballwithkicker.surface.mu = fric(cfg->robotSettings.Kicker_Friction);
     ballwithkicker.surface.slip1 = 5;
     
-    for (int i = 0; i < WALL_COUNT; i++)
-        p->createSurface(ball, walls[i])->surface = ballwithwall.surface;
+    for (auto & wall : walls) p->createSurface(ball, wall)->surface = ballwithwall.surface;
     
     for (int k = 0; k < 2 * cfg->Robots_Count(); k++)
     {
         p->createSurface(robots[k]->chassis,ground);
-        for (int j = 0; j < WALL_COUNT; j++)
-            p->createSurface(robots[k]->chassis,walls[j]);
+        for (auto & wall : walls) p->createSurface(robots[k]->chassis,wall);
         p->createSurface(robots[k]->dummy,ball);
         //p->createSurface(robots[k]->chassis,ball);
         p->createSurface(robots[k]->kicker->box,ball)->surface = ballwithkicker.surface;
-        for (int j = 0; j < WHEEL_COUNT; j++)
+        for (auto & wheel : robots[k]->wheels)
         {
-            p->createSurface(robots[k]->wheels[j]->cyl,ball);
-            PSurface* w_g = p->createSurface(robots[k]->wheels[j]->cyl,ground);
+            p->createSurface(wheel->cyl,ball);
+            PSurface* w_g = p->createSurface(wheel->cyl,ground);
             w_g->surface=wheelswithground.surface;
             w_g->usefdir1=true;
             w_g->callback=wheelCallBack;
@@ -301,9 +322,6 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         }
     }
     sendGeomCount = 0;
-    timer = new QTime();
-    timer->start();
-    in_buffer = new char [65536];
 
     // initialize robot state
     for (int team = 0; team < 2; ++team)
@@ -314,30 +332,47 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
             lastKickState[team][i] = NO_KICK; 
         }
     }
+
+    restartRequired = false;
+
+    elapsedLastPackageBlue.start();
+    elapsedLastPackageYellow.start();
 }
 
-int SSLWorld::robotIndex(int robot,int team)
-{
+int SSLWorld::robotIndex(int robot,int team) {
     if (robot >= cfg->Robots_Count()) return -1;
     return robot + team*cfg->Robots_Count();
 }
 
-SSLWorld::~SSLWorld()
-{
+SSLWorld::~SSLWorld() {
     delete g;
     delete p;
 }
 
-QImage* createBlob(char yb,int i,QImage** res)
-{
+QImage* createBlob(char yb,int i,QImage** res, const QColor& color = QColor(63, 63, 63)){
     *res = new QImage(QString(":/%1%2").arg(yb).arg(i)+QString(".png"));
+
+    const QColor robot_color = QColor(63, 63, 63);
+
+    if(robot_color == color)
+        return *res;
+
+    // Change the main color of the texture
+    for(int i=0; i<(*res)->width(); ++i)
+    {
+        for(int j=0; j<(*res)->height(); ++j)
+        {
+            if((*res)->pixelColor(i, j) == robot_color)
+                (*res)->setPixelColor(i, j, color);
+        }
+    }
+
     return *res;
 }
 
-QImage* createNumber(int i,int r,int g,int b,int a)
-{
-    QImage* img = new QImage(32,32,QImage::Format_ARGB32);
-    QPainter *p = new QPainter();
+QImage* createNumber(int i,int r,int g,int b,int a) {
+    auto* img = new QImage(32,32,QImage::Format_ARGB32);
+    auto* p = new QPainter();
     QBrush br;
     p->begin(img);
     QColor black(0,0,0,0);
@@ -365,16 +400,15 @@ QImage* createNumber(int i,int r,int g,int b,int a)
 }
 
 
-void SSLWorld::glinit()
-{
+void SSLWorld::glinit() {
     g->loadTexture(new QImage(":/grass.png"));
 
     // Loading Robot textures for each robot
     for (int i = 0; i < cfg->Robots_Count(); i++)
-        g->loadTexture(createBlob('b', i, &robots[i]->img));
+        g->loadTexture(createBlob('b', i, &robots[i]->img, ROBOT_BLUE_CHASSIS_COLOR));
 
     for (int i = 0; i < cfg->Robots_Count(); i++)
-        g->loadTexture(createBlob('y', i, &robots[cfg->Robots_Count() + i]->img));
+        g->loadTexture(createBlob('y', i, &robots[cfg->Robots_Count() + i]->img, ROBOT_YELLOW_CHASSIS_COLOR));
 
     // Creating number textures
     for (int i=0; i<cfg->Robots_Count();i++)
@@ -397,45 +431,37 @@ void SSLWorld::glinit()
     p->glinit();
 }
 
-void SSLWorld::step(dReal dt)
-{
-    if (!isGLEnabled) g->disableGraphics();
-    else g->enableGraphics();
-
-    if (customDT > 0)
-        dt = customDT;
+void SSLWorld::step(dReal dt) {
+    if (customDT > 0) dt = customDT;
     const auto ratio = m_parent->devicePixelRatio();
     g->initScene(m_parent->width()*ratio,m_parent->height()*ratio,0,0.7,1);
-    for (int kk=0;kk<5;kk++)
-    {
+    int ballCollisionTry = 5;
+    for (int kk=0;kk < ballCollisionTry;kk++) {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
         dReal ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
         ballspeed = sqrt(ballspeed);
-        dReal ballfx=0,ballfy=0,ballfz=0;
-        dReal balltx=0,ballty=0,balltz=0;
-        if (ballspeed<0.01)
-        {
-            ;//const dReal* ballAngVel = dBodyGetAngularVel(ball->body);
-            //TODO: what was supposed to be here?
-        }
-        else {
+        if (ballspeed > 0.01) {
             dReal fk = cfg->BallFriction()*cfg->BallMass()*cfg->Gravity();
-            ballfx = -fk*ballvel[0] / ballspeed;
-            ballfy = -fk*ballvel[1] / ballspeed;
-            ballfz = -fk*ballvel[2] / ballspeed;
-            balltx = -ballfy*cfg->BallRadius();
-            ballty = ballfx*cfg->BallRadius();
-            balltz = 0;
+            dReal ballfx = -fk*ballvel[0] / ballspeed;
+            dReal ballfy = -fk*ballvel[1] / ballspeed;
+            dReal ballfz = -fk*ballvel[2] / ballspeed;
+            dReal balltx = -ballfy*cfg->BallRadius();
+            dReal ballty = ballfx*cfg->BallRadius();
+            dReal balltz = 0;
             dBodyAddTorque(ball->body,balltx,ballty,balltz);
+            dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
+        } else {
+            dBodySetAngularVel(ball->body, 0, 0, 0);
+            dBodySetLinearVel(ball->body, 0, 0, 0);
         }
-        dBodyAddForce(ball->body,ballfx,ballfy,ballfz);
-        if (dt==0) dt=last_dt;
+        if (dt == 0) dt = last_dt;
         else last_dt = dt;
 
         selected = -1;
-        p->step(dt*0.2);
+        p->step(dt/ballCollisionTry);
     }
 
+    sim_time += last_dt;
 
     int best_k=-1;
     dReal best_dist = 1e8;
@@ -457,14 +483,33 @@ void SSLWorld::step(dReal dt)
             dReal dist= (robots[k]->select_x-xyz[0])*(robots[k]->select_x-xyz[0])
                     +(robots[k]->select_y-xyz[1])*(robots[k]->select_y-xyz[1])
                     +(robots[k]->select_z-xyz[2])*(robots[k]->select_z-xyz[2]);
-            if (dist<best_dist) {
+            if (dist < best_dist) {
                 best_dist = dist;
                 best_k = k;
             }
         }
-        robots[k]->chassis->setColor(ROBOT_GRAY,ROBOT_GRAY,ROBOT_GRAY);
+
+        // Yellow robots are on the last half of count
+        if(k >= cfg->Robots_Count())
+            robots[k]->chassis->setColor(ROBOT_YELLOW_CHASSIS_COLOR);
+        else
+            robots[k]->chassis->setColor(ROBOT_BLUE_CHASSIS_COLOR);
     }
-    if (best_k>=0) robots[best_k]->chassis->setColor(ROBOT_GRAY*2,ROBOT_GRAY*1.5,ROBOT_GRAY*1.5);
+    if(best_k>=0)
+    {
+        if(best_k >= cfg->Robots_Count())
+            robots[best_k]->chassis->setColor(
+                        QColor::fromRgbF(ROBOT_YELLOW_CHASSIS_COLOR.redF()*2,
+                                         ROBOT_YELLOW_CHASSIS_COLOR.greenF()*1.5,
+                                         ROBOT_YELLOW_CHASSIS_COLOR.blueF()*1.5)
+                        );
+        else
+            robots[best_k]->chassis->setColor(
+                        QColor::fromRgbF(ROBOT_BLUE_CHASSIS_COLOR.redF()*2,
+                                         ROBOT_BLUE_CHASSIS_COLOR.greenF()*1.5,
+                                         ROBOT_BLUE_CHASSIS_COLOR.blueF()*1.5)
+                        );
+    }
     selected = best_k;
     ball->tag = -1;
     for (int k=0;k<cfg->Robots_Count() * 2;k++)
@@ -473,7 +518,6 @@ void SSLWorld::step(dReal dt)
         robots[k]->selected = false;
     }
     p->draw();
-    //g->drawSkybox(31,32,33,34,35,36);
     g->drawSkybox(4 * cfg->Robots_Count() + 6 + 1, //31 for 6 robot
                   4 * cfg->Robots_Count() + 6 + 2, //32 for 6 robot
                   4 * cfg->Robots_Count() + 6 + 3, //33 for 6 robot
@@ -493,171 +537,136 @@ void SSLWorld::step(dReal dt)
             g->drawCircle(cursor_x,cursor_y,0.001,cursor_radius);
             glDisable(GL_BLEND);
         }
-    //for (int k=0;k<10;k++) robots[k]->drawLabel();
 
     g->finalizeScene();
 
 
     sendVisionBuffer();
-    framenum ++;
+    frame_num ++;
 }
 
-void SSLWorld::addRobotStatus(Robots_Status& robotsPacket, int robotID, int team, bool infrared, KickStatus kickStatus)
-{
+void SSLWorld::addRobotStatus(Robots_Status& robotsPacket, int robotID, bool infrared, KickStatus kickStatus) {
     Robot_Status* robot_status = robotsPacket.add_robots_status();
     robot_status->set_robot_id(robotID);
-
-    if (infrared)
-        robot_status->set_infrared(1);
-    else
-        robot_status->set_infrared(0);
+    robot_status->set_infrared(infrared);
 
     switch(kickStatus){
         case NO_KICK:
-            robot_status->set_flat_kick(0);
-            robot_status->set_chip_kick(0);
+            robot_status->set_flat_kick(false);
+            robot_status->set_chip_kick(false);
             break;
         case FLAT_KICK:
-            robot_status->set_flat_kick(1);
-            robot_status->set_chip_kick(0);
+            robot_status->set_flat_kick(true);
+            robot_status->set_chip_kick(false);
             break;
         case CHIP_KICK:
-            robot_status->set_flat_kick(0);
-            robot_status->set_chip_kick(1);
+            robot_status->set_flat_kick(false);
+            robot_status->set_chip_kick(true);
             break;
         default:
-            robot_status->set_flat_kick(0);
-            robot_status->set_chip_kick(0);
+            robot_status->set_flat_kick(false);
+            robot_status->set_chip_kick(false);
             break;
     }
 }
 
-void SSLWorld::sendRobotStatus(Robots_Status& robotsPacket, QHostAddress sender, int team)
-{
+void SSLWorld::sendRobotStatus(Robots_Status& robotsPacket, const QHostAddress& sender, int team) {
     int size = robotsPacket.ByteSize();
     QByteArray buffer(size, 0);
     robotsPacket.SerializeToArray(buffer.data(), buffer.size());
-    if (team == 0)
-    {
+    if (team == 0) {
         blueStatusSocket->writeDatagram(buffer.data(), buffer.size(), sender, cfg->BlueStatusSendPort());
-    }
-    else{
+    } else {
         yellowStatusSocket->writeDatagram(buffer.data(), buffer.size(), sender, cfg->YellowStatusSendPort());
     }
 }
 
-void SSLWorld::recvActions()
-{
-    QHostAddress sender;
-    quint16 port;
-    grSim_Packet packet;
-    while (commandSocket->hasPendingDatagrams())
-    {
-        int size = commandSocket->readDatagram(in_buffer, 65536, &sender, &port);
-        if (size > 0)
-        {
-            packet.ParseFromArray(in_buffer, size);
-            int team=0;
-            if (packet.has_commands())
-            {
-                if (packet.commands().has_isteamyellow())
-                {
-                    if (packet.commands().isteamyellow()) team=1;
-                }
-                for (int i=0;i<packet.commands().robot_commands_size();i++)
-                {
-                    if (!packet.commands().robot_commands(i).has_id()) continue;
-                    int k = packet.commands().robot_commands(i).id();
+void SSLWorld::recvActions() {
+    grSim_Packet grSimPacket;
+    while (commandSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = commandSocket->receiveDatagram();
+        if (datagram.isValid()) {
+            grSimPacket.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+            if (grSimPacket.has_commands()) {
+                int team = 0;
+                if (grSimPacket.commands().has_isteamyellow() && grSimPacket.commands().isteamyellow()) team = 1;
+
+                for (int i=0; i < grSimPacket.commands().robot_commands_size(); i++) {
+                    if (!grSimPacket.commands().robot_commands(i).has_id()) continue;
+                    int k = grSimPacket.commands().robot_commands(i).id();
                     int id = robotIndex(k, team);
                     if ((id < 0) || (id >= cfg->Robots_Count()*2)) continue;
                     bool wheels = false;
-                    if (packet.commands().robot_commands(i).has_wheelsspeed())
-                    {
-                        if (packet.commands().robot_commands(i).wheelsspeed()==true)
-                        {
-                            if (packet.commands().robot_commands(i).has_wheel1()) robots[id]->setSpeed(0, packet.commands().robot_commands(i).wheel1());
-                            if (packet.commands().robot_commands(i).has_wheel2()) robots[id]->setSpeed(1, packet.commands().robot_commands(i).wheel2());
-                            if (packet.commands().robot_commands(i).has_wheel3()) robots[id]->setSpeed(2, packet.commands().robot_commands(i).wheel3());
-                            if (packet.commands().robot_commands(i).has_wheel4()) robots[id]->setSpeed(3, packet.commands().robot_commands(i).wheel4());
+                    if (grSimPacket.commands().robot_commands(i).has_wheelsspeed() && grSimPacket.commands().robot_commands(i).wheelsspeed()) {
+                            if (grSimPacket.commands().robot_commands(i).has_wheel1()) robots[id]->setSpeed(0, grSimPacket.commands().robot_commands(i).wheel1());
+                            if (grSimPacket.commands().robot_commands(i).has_wheel2()) robots[id]->setSpeed(1, grSimPacket.commands().robot_commands(i).wheel2());
+                            if (grSimPacket.commands().robot_commands(i).has_wheel3()) robots[id]->setSpeed(2, grSimPacket.commands().robot_commands(i).wheel3());
+                            if (grSimPacket.commands().robot_commands(i).has_wheel4()) robots[id]->setSpeed(3, grSimPacket.commands().robot_commands(i).wheel4());
                             wheels = true;
-                        }
                     }
-                    if (!wheels)
-                    {
-                        dReal vx = 0;if (packet.commands().robot_commands(i).has_veltangent()) vx = packet.commands().robot_commands(i).veltangent();
-                        dReal vy = 0;if (packet.commands().robot_commands(i).has_velnormal())  vy = packet.commands().robot_commands(i).velnormal();
-                        dReal vw = 0;if (packet.commands().robot_commands(i).has_velangular()) vw = packet.commands().robot_commands(i).velangular();
+
+                    if (!wheels) {
+                        dReal vx = 0;if (grSimPacket.commands().robot_commands(i).has_veltangent()) vx = grSimPacket.commands().robot_commands(i).veltangent();
+                        dReal vy = 0;if (grSimPacket.commands().robot_commands(i).has_velnormal()) vy = grSimPacket.commands().robot_commands(i).velnormal();
+                        dReal vw = 0;if (grSimPacket.commands().robot_commands(i).has_velangular()) vw = grSimPacket.commands().robot_commands(i).velangular();
                         robots[id]->setSpeed(vx, vy, vw);
                     }
+
                     dReal kickx = 0 , kickz = 0;
                     bool kick = false;
-                    if (packet.commands().robot_commands(i).has_kickspeedx())
-                    {
+                    if (grSimPacket.commands().robot_commands(i).has_kickspeedx()) {
                         kick = true;
-                        kickx = packet.commands().robot_commands(i).kickspeedx();
+                        kickx = grSimPacket.commands().robot_commands(i).kickspeedx();
                     }
-                    if (packet.commands().robot_commands(i).has_kickspeedz())
-                    {
+
+                    if (grSimPacket.commands().robot_commands(i).has_kickspeedz()) {
                         kick = true;
-                        kickz = packet.commands().robot_commands(i).kickspeedz();
+                        kickz = grSimPacket.commands().robot_commands(i).kickspeedz();
                     }
-                    if (kick && ((kickx>0.0001) || (kickz>0.0001)))
+
+                    if (kick && ((kickx>0.0001) || (kickz>0.0001))) {
                         robots[id]->kicker->kick(kickx,kickz);
+                    }
+
                     int rolling = 0;
-                    if (packet.commands().robot_commands(i).has_spinner())
-                    {
-                        if (packet.commands().robot_commands(i).spinner()) rolling = 1;
+                    if (grSimPacket.commands().robot_commands(i).has_spinner() && grSimPacket.commands().robot_commands(i).spinner()) {
+                        rolling = 1;
                     }
                     robots[id]->kicker->setRoller(rolling);
-
-                    char status = 0;
-                    status = k;
-                    if (robots[id]->kicker->isTouchingBall()) status = status | 8;
-                    if (robots[id]->on) status = status | 240;
-                    if (team == 0)
-                        blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
-                    else
-                        yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
-
                 }
             }
-            if (packet.has_replacement())
-            {
-                for (int i=0;i<packet.replacement().robots_size();i++)
-                {
+            if (grSimPacket.has_replacement()) {
+                for (int i=0; i < grSimPacket.replacement().robots_size(); i++) {
                     int team = 0;
-                    if (packet.replacement().robots(i).has_yellowteam())
-                    {
-                        if (packet.replacement().robots(i).yellowteam())
-                            team = 1;
-                    }
-                    if (!packet.replacement().robots(i).has_id()) continue;
-                    int k = packet.replacement().robots(i).id();
+                    if (grSimPacket.replacement().robots(i).has_yellowteam() && grSimPacket.replacement().robots(i).yellowteam()) team = 1;
+
+                    if (!grSimPacket.replacement().robots(i).has_id()) continue;
+                    int k = grSimPacket.replacement().robots(i).id();
                     dReal x = 0, y = 0, dir = 0;
-                    bool turnon = true;
-                    if (packet.replacement().robots(i).has_x()) x = packet.replacement().robots(i).x();
-                    if (packet.replacement().robots(i).has_y()) y = packet.replacement().robots(i).y();
-                    if (packet.replacement().robots(i).has_dir()) dir = packet.replacement().robots(i).dir();
-                    if (packet.replacement().robots(i).has_turnon()) turnon = packet.replacement().robots(i).turnon();
+                    bool turn_on = true;
+                    if (grSimPacket.replacement().robots(i).has_x()) x = grSimPacket.replacement().robots(i).x();
+                    if (grSimPacket.replacement().robots(i).has_y()) y = grSimPacket.replacement().robots(i).y();
+                    if (grSimPacket.replacement().robots(i).has_dir()) dir = grSimPacket.replacement().robots(i).dir();
+                    if (grSimPacket.replacement().robots(i).has_turnon()) turn_on = grSimPacket.replacement().robots(i).turnon();
                     int id = robotIndex(k, team);
                     if ((id < 0) || (id >= cfg->Robots_Count()*2)) continue;
                     robots[id]->setXY(x,y);
                     robots[id]->resetRobot();
                     robots[id]->setDir(dir);
-                    robots[id]->on = turnon;
+                    robots[id]->on = turn_on;
                 }
-                if (packet.replacement().has_ball())
-                {
+                if (grSimPacket.replacement().has_ball()) {
                     dReal x = 0, y = 0, z = 0, vx = 0, vy = 0;
                     ball->getBodyPosition(x, y, z);
                     const auto vel_vec = dBodyGetLinearVel(ball->body);
                     vx = vel_vec[0];
                     vy = vel_vec[1];
 
-                    if (packet.replacement().ball().has_x())  x  = packet.replacement().ball().x();
-                    if (packet.replacement().ball().has_y())  y  = packet.replacement().ball().y();
-                    if (packet.replacement().ball().has_vx()) vx = packet.replacement().ball().vx();
-                    if (packet.replacement().ball().has_vy()) vy = packet.replacement().ball().vy();
+                    if (grSimPacket.replacement().ball().has_x()) x   = grSimPacket.replacement().ball().x();
+                    if (grSimPacket.replacement().ball().has_y()) y   = grSimPacket.replacement().ball().y();
+                    if (grSimPacket.replacement().ball().has_vx()) vx = grSimPacket.replacement().ball().vx();
+                    if (grSimPacket.replacement().ball().has_vy()) vy = grSimPacket.replacement().ball().vy();
 
                     ball->setBodyPosition(x,y,cfg->BallRadius()*1.2);
                     dBodySetLinearVel(ball->body,vx,vy,0);
@@ -667,130 +676,445 @@ void SSLWorld::recvActions()
         }
 
         // send robot status
-        for (int team = 0; team < 2; ++team)
-        {
+        for (int team = 0; team < 2; team++) {
             Robots_Status robotsPacket;
             bool updateRobotStatus = false;
-            for (int i = 0; i < this->cfg->Robots_Count(); ++i)
-            {
+            for (int i = 0; i < cfg->Robots_Count(); i++) {
                 int id = robotIndex(i, team);
                 bool isInfrared = robots[id]->kicker->isTouchingBall();
                 KickStatus kicking = robots[id]->kicker->isKicking();
-                if (isInfrared != lastInfraredState[team][i] || kicking != lastKickState[team][i])
-                {
+                if (isInfrared != lastInfraredState[team][i] || kicking != lastKickState[team][i]) {
                     updateRobotStatus = true;
-                    addRobotStatus(robotsPacket, i, team, isInfrared, kicking);
+                    addRobotStatus(robotsPacket, i, isInfrared, kicking);
                     lastInfraredState[team][i] = isInfrared;
                     lastKickState[team][i] = kicking;
                 }
             }
-            if (updateRobotStatus)
-                sendRobotStatus(robotsPacket, sender, team);
+            if (updateRobotStatus) sendRobotStatus(robotsPacket, datagram.senderAddress(), team);
         }
     }
 }
 
-dReal normalizeAngle(dReal a)
-{
+void SSLWorld::simControlSocketReady() {
+    SimulatorCommand simulatorCommand;
+    while (simControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = simControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        simulatorCommand.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        SimulatorResponse response;
+        processSimControl(simulatorCommand, response);
+        
+        QByteArray buffer(response.ByteSize(), 0);
+        response.SerializeToArray(buffer.data(), buffer.size());
+        simControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
+    }
+}
+
+void SSLWorld::blueControlSocketReady() {
+    RobotControl robotControl;
+    while (blueControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = blueControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        robotControl.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        RobotControlResponse robotControlResponse;
+        processRobotControl(robotControl, robotControlResponse, BLUE);
+
+        QByteArray buffer(robotControlResponse.ByteSize(), 0);
+        robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
+        blueControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
+    }
+
+    elapsedLastPackageBlue.start();
+}
+
+void SSLWorld::yellowControlSocketReady() {
+    RobotControl robotControl;
+    while (yellowControlSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = yellowControlSocket->receiveDatagram();
+        if (!datagram.isValid()) {
+            continue;
+        }
+        robotControl.ParseFromArray(datagram.data().data(), datagram.data().size());
+
+        RobotControlResponse robotControlResponse;
+        processRobotControl(robotControl, robotControlResponse, YELLOW);
+        
+        QByteArray buffer(robotControlResponse.ByteSize(), 0);
+        robotControlResponse.SerializeToArray(buffer.data(), buffer.size());
+        yellowControlSocket->writeDatagram(buffer.data(), buffer.size(), datagram.senderAddress(), datagram.senderPort());
+    }
+
+    elapsedLastPackageYellow.start();
+}
+
+
+void SSLWorld::processSimControl(const SimulatorCommand &simulatorCommand, SimulatorResponse &simulatorResponse) {
+    if(simulatorCommand.has_control()) {
+        if(simulatorCommand.control().has_teleport_ball()) {
+            auto teleBall = simulatorCommand.control().teleport_ball();
+            processTeleportBall(simulatorResponse, teleBall);
+        }
+        
+        for(const auto &teleBot : simulatorCommand.control().teleport_robot()) {
+            int id = robotIndex(teleBot.id().id(), teleBot.id().team() == YELLOW ? 1 : 0);
+            if (id < 0) {
+                continue;
+            }
+            auto robot = robots[id];
+
+            processTeleportRobot(teleBot, robot);
+        }
+    }
+
+    if (simulatorCommand.has_config()) {
+        if (simulatorCommand.config().has_geometry()
+            || simulatorCommand.config().has_realism_config()
+            || simulatorCommand.config().has_vision_port()) {
+            simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_CONFIG");
+        }
+        for (const auto &robotSpec : simulatorCommand.config().robot_specs()) {
+            processRobotSpec(robotSpec);
+        }
+        restartRequired = true;
+    }
+    else {
+        restartRequired = false;
+    }
+}
+
+void SSLWorld::processRobotSpec(const RobotSpecs &robotSpec) const {
+    auto settings = robotSpec.id().team() == YELLOW ? &cfg->yellowSettings : &cfg->blueSettings;
+    if (robotSpec.has_radius()) {
+        settings->RobotRadius = robotSpec.radius();
+    }
+    if (robotSpec.has_height()) {
+        settings->RobotHeight = robotSpec.height();
+    }
+    if (robotSpec.has_mass()) {
+        settings->BodyMass = robotSpec.mass();
+    }
+    if (robotSpec.has_max_linear_kick_speed()) {
+        settings->MaxLinearKickSpeed = robotSpec.max_linear_kick_speed();
+    }
+    if (robotSpec.has_max_chip_kick_speed()) {
+        settings->MaxChipKickSpeed = robotSpec.max_chip_kick_speed();
+    }
+    if (robotSpec.has_center_to_dribbler()) {
+        settings->RobotCenterFromKicker = robotSpec.center_to_dribbler();
+    }
+    if (robotSpec.has_limits()) {
+        processRobotLimits(robotSpec, settings);
+    }
+    if (robotSpec.has_wheel_angles()) {
+        settings->Wheel1Angle = robotSpec.wheel_angles().front_right();
+        settings->Wheel2Angle = robotSpec.wheel_angles().back_right();
+        settings->Wheel3Angle = robotSpec.wheel_angles().back_left();
+        settings->Wheel4Angle = robotSpec.wheel_angles().front_left();
+    }
+}
+
+void SSLWorld::processRobotLimits(const RobotSpecs &robotSpec, RobotSettings *settings) {
+    if (robotSpec.limits().has_acc_speedup_absolute_max()) {
+        settings->AccSpeedupAbsoluteMax = robotSpec.limits().acc_speedup_absolute_max();
+    }
+    if (robotSpec.limits().has_acc_speedup_angular_max()) {
+        settings->AccSpeedupAngularMax = robotSpec.limits().acc_speedup_angular_max();
+    }
+    if (robotSpec.limits().has_acc_brake_absolute_max()) {
+        settings->AccBrakeAbsoluteMax = robotSpec.limits().acc_brake_absolute_max();
+    }
+    if (robotSpec.limits().has_acc_brake_angular_max()) {
+        settings->AccBrakeAngularMax = robotSpec.limits().acc_brake_angular_max();
+    }
+    if (robotSpec.limits().has_vel_absolute_max()) {
+        settings->VelAbsoluteMax = robotSpec.limits().vel_absolute_max();
+    }
+    if (robotSpec.limits().has_vel_angular_max()) {
+        settings->VelAngularMax = robotSpec.limits().vel_angular_max();
+    }
+}
+
+void SSLWorld::processTeleportRobot(const TeleportRobot &teleBot, Robot *robot) {
+    dReal x, y, vx = 0, vy = 0, vAngular = 0;
+    robot->getXY(x, y);
+    dReal orientation = robot->getDir() * M_PI / 180.0;
+
+    if (teleBot.has_x()) x = teleBot.x();
+    if (teleBot.has_y()) y = teleBot.y();
+    if (teleBot.has_orientation()) orientation = teleBot.orientation();
+    if (teleBot.has_v_x()) vx = teleBot.v_x();
+    if (teleBot.has_v_y()) vy = teleBot.v_y();
+    if (teleBot.has_v_angular()) vAngular = teleBot.v_angular();
+
+    robot->resetRobot();
+    robot->setXY(x, y);
+    robot->setDir(orientation * 180.0 / M_PI);
+
+    dReal vxLocal = (vx * cos(-orientation)) - (vy * sin(-orientation));
+    dReal vyLocal = (vy * cos(-orientation)) + (vx * sin(-orientation));
+    robot->setSpeed(vxLocal, vyLocal, vAngular);
+
+    if (teleBot.has_present()) {
+        robot->on = teleBot.present();
+        if(!teleBot.present()) {
+            // Move it out of the field.
+            // Set different x and y to avoid collisions of the robots.
+            robot->setXY(1e6 * teleBot.id().id(), 1e6 * teleBot.id().team());
+        }
+    }
+}
+
+void SSLWorld::processTeleportBall(SimulatorResponse &simulatorResponse, const TeleportBall &teleBall) const {
+    dReal x = 0, y = 0, z = 0;
+    ball->getBodyPosition(x, y, z);
+    const auto vel_vec = dBodyGetLinearVel(ball->body);
+    auto vx = vel_vec[0];
+    auto vy = vel_vec[1];
+    auto vz = vel_vec[2];
+
+    if (teleBall.has_x()) x   = teleBall.x();
+    if (teleBall.has_y()) y   = teleBall.y();
+    if (teleBall.has_z()) z   = teleBall.z();
+    if (teleBall.has_vx()) vx = teleBall.vx();
+    if (teleBall.has_vy()) vy = teleBall.vy();
+    if (teleBall.has_vz()) vz = teleBall.vz();
+
+    ball->setBodyPosition(x, y, (cfg->BallRadius() + 0.005) + z);
+    dBodySetLinearVel(ball->body, vx, vy, vz);
+    dBodySetAngularVel(ball->body, 0, 0, 0);
+
+    if(teleBall.has_teleport_safely()) {
+        simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_TELEPORT_SAFELY");
+    }
+    if(teleBall.has_roll()) {
+        simulatorResponse.add_errors()->set_code("GRSIM_UNSUPPORTED_ROLL_BALL");
+    }
+}
+
+void SSLWorld::processRobotControl(const RobotControl &robotControl, RobotControlResponse &robotControlResponse, Team team) {
+    for (const auto &robotCommand : robotControl.robot_commands()) {
+        int id = robotIndex(robotCommand.id(), team == YELLOW ? 1 : 0);
+        if (id < 0) {
+            continue;
+        }
+        auto robot = robots[id];
+        auto robotCfg = team == YELLOW ? cfg->yellowSettings : cfg->blueSettings;
+
+        if (robotCommand.has_kick_speed() && robotCommand.kick_speed() > 0) {
+            double kickSpeed = robotCommand.kick_speed();
+            double limit = robotCommand.kick_angle() > 0 ? robotCfg.MaxChipKickSpeed : robotCfg.MaxLinearKickSpeed; 
+            if (kickSpeed > limit) {
+                kickSpeed = limit;
+            }
+            double kickAngle = robotCommand.kick_angle() * M_PI / 180.0;
+            double length = cos(kickAngle) * kickSpeed;
+            double z = sin(kickAngle) * kickSpeed;
+            robot->kicker->kick(length, z);
+        }
+
+        if (robotCommand.has_dribbler_speed()) {
+            robot->kicker->setRoller(robotCommand.dribbler_speed() > 0 ? 1 : 0);
+        }
+
+        if (robotCommand.has_move_command()) {
+            processMoveCommand(robotControlResponse, robotCommand.move_command(), robot);
+        }
+        
+        auto feedback = robotControlResponse.add_feedback();
+        feedback->set_id(robotCommand.id());
+        feedback->set_dribbler_ball_contact(robot->kicker->isTouchingBall());
+    }
+}
+
+void SSLWorld::processMoveCommand(RobotControlResponse &robotControlResponse, const RobotMoveCommand &moveCommand,
+                                  Robot *robot) {
+    if (moveCommand.has_wheel_velocity()) {
+        auto &wheelVel = moveCommand.wheel_velocity();
+        robot->setSpeed(0, wheelVel.front_right());
+        robot->setSpeed(1, wheelVel.back_right());
+        robot->setSpeed(2, wheelVel.back_left());
+        robot->setSpeed(3, wheelVel.front_left());
+    } else if (moveCommand.has_local_velocity()) {
+        auto &vel = moveCommand.local_velocity();
+        robot->setSpeed(vel.forward(), vel.left(), vel.angular());
+    } else if(moveCommand.has_global_velocity()) {
+        auto &vel = moveCommand.global_velocity();
+        dReal orientation = -robot->getDir() * M_PI / 180.0;
+        dReal vx = (vel.x() * cos(orientation)) - (vel.y() * sin(orientation));
+        dReal vy = (vel.y() * cos(orientation)) + (vel.x() * sin(orientation));
+        robot->setSpeed(vx, vy, vel.angular());
+    }  else {
+        SimulatorError *pError = robotControlResponse.add_errors();
+        pError->set_code("GRSIM_UNSUPPORTED_MOVE_COMMAND");
+        pError->set_message("Unsupported move command");
+    }
+}
+
+dReal normalizeAngle(dReal a) {
     if (a>180) return -360+a;
     if (a<-180) return 360+a;
     return a;
 }
 
-bool SSLWorld::visibleInCam(int id, double x, double y)
-{
+bool SSLWorld::visibleInCam(int id, double x, double y) {
+    const float CAMERA_OVERLAP = 0.2f;
     id %= 4;
     if (id==0)
     {
-        if (x>-0.2 && y>-0.2) return true;
+        if (x>-CAMERA_OVERLAP && y>-CAMERA_OVERLAP) return true;
     }
     if (id==1)
     {
-        if (x>-0.2 && y<0.2) return true;
+        if (x>-CAMERA_OVERLAP && y<CAMERA_OVERLAP) return true;
     }
     if (id==2)
     {
-        if (x<0.2 && y<0.2) return true;
+        if (x<CAMERA_OVERLAP && y<CAMERA_OVERLAP) return true;
     }
     if (id==3)
     {
-        if (x<0.2 && y>-0.2) return true;
+        if (x<CAMERA_OVERLAP && y>-CAMERA_OVERLAP) return true;
     }
     return false;
 }
 
+QPair<float, float> SSLWorld::cameraPosition(int id) {
+    Q_ASSERT(id >= 0 && id < 4);
+
+    // these positions must be kept synchronized with the quadrants in visibleInCam
+    QVector<QPair<float, float>> camera_quadrants = {
+        {0.25, 0.25},
+        {0.25, -0.25},
+        {-0.25, -0.25},
+        {-0.25, 0.25}
+    };
+    return {camera_quadrants[id].first * (float)cfg->Field_Length(),
+            camera_quadrants[id].second * (float)cfg->Field_Width()};
+}
+
 #define CONVUNIT(x) ((int)(1000*(x)))
-SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
-{
-    SSL_WrapperPacket* packet = new SSL_WrapperPacket;
+SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id) {
+    auto* pPacket = new SSL_WrapperPacket();
     dReal x,y,z,dir,k;
     ball->getBodyPosition(x,y,z);    
-    packet->mutable_detection()->set_camera_id(cam_id);
-    packet->mutable_detection()->set_frame_number(framenum);    
-    dReal t_elapsed = timer->elapsed()/1000.0;
-    packet->mutable_detection()->set_t_capture(t_elapsed);
-    packet->mutable_detection()->set_t_sent(t_elapsed);
+    pPacket->mutable_detection()->set_camera_id(cam_id);
+    pPacket->mutable_detection()->set_frame_number(frame_num);
+    pPacket->mutable_detection()->set_t_capture(sim_time);
+    pPacket->mutable_detection()->set_t_sent(sim_time);
     dReal dev_x = cfg->noiseDeviation_x();
     dReal dev_y = cfg->noiseDeviation_y();
     dReal dev_a = cfg->noiseDeviation_angle();
-    if (sendGeomCount++ % cfg->sendGeometryEvery() == 0)
+
+    const double CAMERA_HEIGHT = cfg->Camera_Height();
+
+    // send the geometry for every camera consecutively to provide the camera setup for all of them
+    if (((sendGeomCount++) / 4) % (cfg->sendGeometryEvery() / 4) == 0)
     {
-        SSL_GeometryData* geom = packet->mutable_geometry();
+        SSL_GeometryData* geom = pPacket->mutable_geometry();
         SSL_GeometryFieldSize* field = geom->mutable_field();
 
+        auto models = geom->mutable_models();
+        auto straight_two_phase = models->mutable_straight_two_phase();
+        straight_two_phase->set_acc_slide(cfg->BallModelTwoPhaseAccSlide());
+        straight_two_phase->set_acc_roll(cfg->BallModelTwoPhaseAccRoll());
+        straight_two_phase->set_k_switch(cfg->BallModelTwoPhaseKSwitch());
+        auto chip_fixed_loss = models->mutable_chip_fixed_loss();
+        chip_fixed_loss->set_damping_xy_first_hop(cfg->BallModelChipFixedLossDampingXyFirstHop());
+        chip_fixed_loss->set_damping_xy_other_hops(cfg->BallModelChipFixedLossDampingXyOtherHops());
+        chip_fixed_loss->set_damping_z(cfg->BallModelChipFixedLossDampingZ());
 
-        // Old protocol
-//        field->set_line_width(CONVUNIT(cfg->Field_Line_Width()));
-//        field->set_referee_width(CONVUNIT(cfg->Field_Referee_Margin()));
-//        field->set_goal_wall_width(CONVUNIT(cfg->Goal_Thickness()));
-//        field->set_center_circle_radius(CONVUNIT(cfg->Field_Rad()));
-//        field->set_defense_radius(CONVUNIT(cfg->Field_Defense_Rad()));
-//        field->set_defense_stretch(CONVUNIT(cfg->Field_Defense_Stretch()));
-//        field->set_free_kick_from_defense_dist(CONVUNIT(cfg->Field_Free_Kick()));
-        //TODO: verify if these fields are correct:
-//        field->set_penalty_line_from_spot_dist(CONVUNIT(cfg->Field_Penalty_Line()));
-//        field->set_penalty_spot_from_field_line_dist(CONVUNIT(cfg->Field_Penalty_Point()));
-
-        // Current protocol (2015+)
         // Field general info
         field->set_field_length(CONVUNIT(cfg->Field_Length()));
         field->set_field_width(CONVUNIT(cfg->Field_Width()));
-        field->set_boundary_width(CONVUNIT(cfg->Field_Margin()));
+        field->set_boundary_width(CONVUNIT(cfg->Field_Margin_Touch_Line()));
+        field->set_boundary_width_goal_line(CONVUNIT(cfg->Field_Margin_Goal_Line()));
         field->set_goal_width(CONVUNIT(cfg->Goal_Width()));
         field->set_goal_depth(CONVUNIT(cfg->Goal_Depth()));
+        field->set_goal_substitution_area_width(CONVUNIT(cfg->Field_Goal_Substitution_Area_Width()));
 
         // Field lines and arcs
         addFieldLinesArcs(field);
 
+        // camera calibration
+        const double FOCAL_LENGTH = cfg->Camera_Focal_Length();
+
+        SSL_GeometryCameraCalibration* camera = geom->add_calib();
+        camera->set_camera_id(cam_id);
+        // dummy values
+        camera->set_distortion(0.2);
+        camera->set_focal_length((float)FOCAL_LENGTH);
+        camera->set_principal_point_x(300);
+        camera->set_principal_point_y(300);
+        camera->set_q0(0.7);
+        camera->set_q1(0.7);
+        camera->set_q2(0.7);
+        camera->set_q3(0.7);
+        camera->set_tx(0);
+        camera->set_ty(0);
+        camera->set_tz(3500);
+
+        auto camera_pos = cameraPosition(cam_id);
+        camera->set_derived_camera_world_tx(CONVUNIT(camera_pos.first));
+        camera->set_derived_camera_world_ty(CONVUNIT(camera_pos.second));
+        camera->set_derived_camera_world_tz(CONVUNIT(CAMERA_HEIGHT));
+
     }
-    if (cfg->noise()==false) {dev_x = 0;dev_y = 0;dev_a = 0;}
-    if ((cfg->vanishing()==false) || (rand0_1() > cfg->ball_vanishing()))
-    {
+    if (!cfg->noise()) { dev_x = 0;dev_y = 0;dev_a = 0;}
+    if (!cfg->vanishing() || (rand0_1() > cfg->ball_vanishing())) {
         if (visibleInCam(cam_id, x, y)) {
-            SSL_DetectionBall* vball = packet->mutable_detection()->add_balls();
-            vball->set_x(randn_notrig(x*1000.0f,dev_x));
-            vball->set_y(randn_notrig(y*1000.0f,dev_y));
-            vball->set_z(z*1000.0f);
+            const double BALL_RADIUS = cfg->BallRadius() * 1000.f;
+            const double SCALING_LIMIT = cfg->Camera_Scaling_Limit();
+            SSL_DetectionBall* vball = pPacket->mutable_detection()->add_balls();
+
+            float output_x = randn_notrig(x*1000.0f,dev_x);
+            float output_y = randn_notrig(y*1000.0f,dev_x);
+            float output_z = z*1000.0f;
+
+            const bool project_airborne = cfg->BallProjectAirborne();
+            if (project_airborne) {
+                output_z = qBound(0.0, output_z - BALL_RADIUS, CONVUNIT(CAMERA_HEIGHT) * SCALING_LIMIT);
+                auto camera_pos = cameraPosition(cam_id);
+                const float camera_x = CONVUNIT(camera_pos.first);
+                const float camera_y = CONVUNIT(camera_pos.second);
+                const float camera_z = CONVUNIT(CAMERA_HEIGHT);
+                output_x = (output_x - camera_x) * (camera_z / (camera_z - output_z)) + camera_x;
+                output_y = (output_y - camera_y) * (camera_z / (camera_z - output_z)) + camera_y;
+            }
+
+            vball->set_x(output_x);
+            vball->set_y(output_y);
+            if (!project_airborne) {
+                vball->set_z(output_z);
+            }
             vball->set_pixel_x(x*1000.0f);
             vball->set_pixel_y(y*1000.0f);
             vball->set_confidence(0.9 + rand0_1()*0.1);
         }
     }
-    for(int i = 0; i < cfg->Robots_Count(); i++){
-        if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))
-        {
-            if (!robots[i]->on) continue;
+
+    for(int i = 0; i < cfg->Robots_Count() * 2; i++) {
+        if (!robots[i]->on) continue;
+        bool is_blue = i < cfg->Robots_Count();
+        const double vanishing = (is_blue) ? cfg->blue_team_vanishing() : cfg->yellow_team_vanishing();
+        const int id = (is_blue) ? i : i - cfg->Robots_Count();
+
+        if (!cfg->vanishing() || (rand0_1() > vanishing)) {
             robots[i]->getXY(x,y);
             dir = robots[i]->getDir(k);
+
             // reset when the robot has turned over
-            if (cfg->ResetTurnOver()) {
-                if (k < 0.9) {
-                    robots[i]->resetRobot();
-                }
-            }
+            if (cfg->ResetTurnOver() && k < 0.9) robots[i]->resetRobot();
+
             if (visibleInCam(cam_id, x, y)) {
-                SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
-                rob->set_robot_id(i);
+                SSL_DetectionRobot* rob = (is_blue) ? pPacket->mutable_detection()->add_robots_blue()
+                                                    : pPacket->mutable_detection()->add_robots_yellow();
+                rob->set_robot_id(id);
                 rob->set_pixel_x(x*1000.0f);
                 rob->set_pixel_y(y*1000.0f);
                 rob->set_confidence(1);
@@ -800,50 +1124,26 @@ SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
             }
         }
     }
-    for(int i = cfg->Robots_Count(); i < cfg->Robots_Count()*2; i++){
-        if ((cfg->vanishing()==false) || (rand0_1() > cfg->yellow_team_vanishing()))
-        {
-            if (!robots[i]->on) continue;
-            robots[i]->getXY(x,y);
-            dir = robots[i]->getDir(k);
-            // reset when the robot has turned over
-            if (cfg->ResetTurnOver()) {
-                if (k < 0.9) {
-                    robots[i]->resetRobot();
-                }
-            }
-            if (visibleInCam(cam_id, x, y)) {
-                SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
-                rob->set_robot_id(i-cfg->Robots_Count());
-                rob->set_pixel_x(x*1000.0f);
-                rob->set_pixel_y(y*1000.0f);
-                rob->set_confidence(1);
-                rob->set_x(randn_notrig(x*1000.0f,dev_x));
-                rob->set_y(randn_notrig(y*1000.0f,dev_y));
-                rob->set_orientation(normalizeAngle(randn_notrig(dir,dev_a))*M_PI/180.0f);
-            }
-        }
-    }
-    return packet;
+    return pPacket;
 }
 
 void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
-    const double kFieldLength = CONVUNIT(cfg->Field_Length());
-    const double kFieldWidth = CONVUNIT(cfg->Field_Width());
-    const double kGoalWidth = CONVUNIT(cfg->Goal_Width());
-    const double kGoalDepth = CONVUNIT(cfg->Goal_Depth());
-    const double kBoundaryWidth = CONVUNIT(cfg->Field_Referee_Margin());
-    const double kCenterRadius = CONVUNIT(cfg->Field_Rad());
-    const double kLineThickness = CONVUNIT(cfg->Field_Line_Width());
-    const double kPenaltyDepth  = CONVUNIT(cfg->Field_Penalty_Depth());
-    const double kPenaltyWidth  = CONVUNIT(cfg->Field_Penalty_Width());
+    const float kFieldLength   = CONVUNIT(cfg->Field_Length());
+    const float kFieldWidth    = CONVUNIT(cfg->Field_Width());
+    const float kGoalWidth     = CONVUNIT(cfg->Goal_Width());
+    const float kGoalDepth     = CONVUNIT(cfg->Goal_Depth());
+    const float kBoundaryWidth = CONVUNIT(cfg->Field_Referee_Margin());
+    const float kCenterRadius  = CONVUNIT(cfg->Field_Rad());
+    const float kLineThickness = CONVUNIT(cfg->Field_Line_Width());
+    const float kPenaltyDepth  = CONVUNIT(cfg->Field_Penalty_Depth());
+    const float kPenaltyWidth  = CONVUNIT(cfg->Field_Penalty_Width());
 
-    const double kXMax = (kFieldLength-2*kLineThickness)/2;
-    const double kXMin = -kXMax;
-    const double kYMax = (kFieldWidth-kLineThickness)/2;
-    const double kYMin = -kYMax;
-    const double penAreaX = kXMax - kPenaltyDepth;
-    const double penAreaY = kPenaltyWidth / 2.0;
+    const float kXMax    = (kFieldLength-2*kLineThickness)/2;
+    const float kXMin    = -kXMax;
+    const float kYMax    = (kFieldWidth-kLineThickness)/2;
+    const float kYMin    = -kYMax;
+    const float penAreaX = kXMax - kPenaltyDepth;
+    const float penAreaY = kPenaltyWidth / 2.0f;
 
     // Field lines
     addFieldLine(field, "TopTouchLine", kXMin-kLineThickness/2, kYMax, kXMax+kLineThickness/2, kYMax, kLineThickness);
@@ -872,13 +1172,6 @@ void SSLWorld::addFieldLinesArcs(SSL_GeometryFieldSize *field) {
     addFieldArc(field, "CenterCircle",              0,     0,                  kCenterRadius-kLineThickness/2,  0,        2*M_PI,   kLineThickness);
 }
 
-Vector2f* SSLWorld::allocVector(float x, float y) {
-    Vector2f *vec = new Vector2f();
-    vec->set_x(x);
-    vec->set_y(y);
-    return vec;
-}
-
 void SSLWorld::addFieldLine(SSL_GeometryFieldSize *field, const std::string &name, float p1_x, float p1_y, float p2_x, float p2_y, float thickness) {
     SSL_FieldLineSegment *line = field->add_field_lines();
     line->set_name(name.c_str());
@@ -890,7 +1183,7 @@ void SSLWorld::addFieldLine(SSL_GeometryFieldSize *field, const std::string &nam
 }
 
 void SSLWorld::addFieldArc(SSL_GeometryFieldSize *field, const std::string &name, float c_x, float c_y, float radius, float a1, float a2, float thickness) {
-    SSL_FieldCicularArc *arc = field->add_field_arcs();
+    SSL_FieldCircularArc *arc = field->add_field_arcs();
 	arc->set_name(name.c_str());
 	arc->mutable_center()->set_x(c_x);
 	arc->mutable_center()->set_y(c_y);
@@ -900,92 +1193,81 @@ void SSLWorld::addFieldArc(SSL_GeometryFieldSize *field, const std::string &name
     arc->set_thickness(thickness);
 }
 
-SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
-{
+SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t) {
     packet = _packet;
     t      = _t;
 }
 
-void SSLWorld::sendVisionBuffer()
-{
-    int t = timer->elapsed();
-    sendQueue.push_back(new SendingPacket(generatePacket(0),t));    
-    sendQueue.push_back(new SendingPacket(generatePacket(1),t+1));
-    sendQueue.push_back(new SendingPacket(generatePacket(2),t+2));
-    sendQueue.push_back(new SendingPacket(generatePacket(3),t+3));
+void SSLWorld::sendVisionBuffer() {
+    int t = (int)(sim_time*1000);
+    sendQueue.push_back(new SendingPacket(generatePacket(0),t));
+    sendQueue.push_back(new SendingPacket(generatePacket(1),t));
+    sendQueue.push_back(new SendingPacket(generatePacket(2),t));
+    sendQueue.push_back(new SendingPacket(generatePacket(3),t));
     while (t - sendQueue.front()->t>=cfg->sendDelay())
     {
-        SSL_WrapperPacket *packet = sendQueue.front()->packet;
+        SSL_WrapperPacket *pPacket = sendQueue.front()->packet;
         delete sendQueue.front();
         sendQueue.pop_front();
-        visionServer->send(*packet);
-        delete packet;
+        visionServer->send(*pPacket);
+        delete pPacket;
         if (sendQueue.isEmpty()) break;
     }
 }
 
-void RobotsFomation::setAll(dReal* xx,dReal *yy)
+void RobotsFormation::setAll(const dReal* xx, const dReal *yy)
 {
-    for (int i=0;i<cfg->Robots_Count();i++)
+    for (int i=0;i<MAX_ROBOT_COUNT;i++)
     {
         x[i] = xx[i];
         y[i] = yy[i];
     }
 }
 
-RobotsFomation::RobotsFomation(int type, ConfigWidget* _cfg):
-cfg(_cfg)
-{
-    if (type==0)
-    {
-        dReal teamPosX[MAX_ROBOT_COUNT] = {2.2, 1.0, 1.0, 1.0, 0.33, 1.22,
-                                           3, 3.2, 3.4, 3.6, 3.8, 4.0};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {0.0, -0.75, 0.0, 0.75, 0.25, 0.0,
-                                           1, 1, 1, 1, 1, 1};
-        setAll(teamPosX,teamPosY);
+RobotsFormation::RobotsFormation(E_FORMATION type, ConfigWidget* _cfg) : cfg(_cfg) {
+    switch (type) {
+        case FORMATION_OUTSIDE: {
+            double yv = -(_cfg->Field_Width() / 2 + _cfg->Field_Margin_Touch_Line() / 2);
+            dReal teamPosX[MAX_ROBOT_COUNT] = {0.40, 0.80, 1.20, 1.60, 2.00, 2.40,
+                                               2.80, 3.20, 3.60, 4.00, 4.40, 4.80,
+                                               0.40, 0.80, 1.20, 1.60};
+            dReal teamPosY[MAX_ROBOT_COUNT] = {yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv};
+            setAll(teamPosX, teamPosY);
+            break;
+        }
+        case FORMATION_INSIDE_1: {
+            dReal teamPosX[MAX_ROBOT_COUNT] = { 1.50,  1.50,  1.50,  0.55,  2.50,  3.60,
+                                                3.20,  3.20,  3.20,  3.20,  3.20,  3.20,
+                                                0.40,  0.80,  1.20,  1.60};
+            dReal teamPosY[MAX_ROBOT_COUNT] = { 1.12,  0.0,  -1.12,  0.00,  0.00,  0.00,
+                                                0.75, -0.75,  1.50, -1.50,  2.25, -2.25,
+                                                -3.50, -3.50, -3.50, -3.50};
+            setAll(teamPosX,teamPosY);
+            break;
+        }
+        case FORMATION_INSIDE_2: {
+            dReal teamPosX[MAX_ROBOT_COUNT] = { 4.20,  3.40,  3.40,  0.70,  0.70,  0.70,
+                                                2.00,  2.00,  2.00,  2.00,  2.00,  2.00,
+                                                0.40,  0.80,  1.20,  1.60};
+            dReal teamPosY[MAX_ROBOT_COUNT] = { 0.00, -0.20,  0.20,  0.00,  2.25, -2.25,
+                                                0.75, -0.75,  1.50, -1.50,  2.25, -2.25,
+                                                -3.50, -3.50, -3.50, -3.50};
+            setAll(teamPosX,teamPosY);
+            break;
+        }
+        case FORMATION_OUTSIDE_FIELD: {
+            double yv = -(_cfg->Field_Width() / 2 + _cfg->Field_Margin_Touch_Line() + _cfg->Field_Referee_Margin() + 0.5);
+            dReal teamPosX[MAX_ROBOT_COUNT] = { 0.40,  0.80,  1.20,  1.60,  2.00,  2.40,
+                                                2.80,  3.20,  3.60,  4.00,  4.40,  4.80,
+                                                0.40,  0.80,  1.20,  1.60};
+            dReal teamPosY[MAX_ROBOT_COUNT] = {yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv, yv};
+            setAll(teamPosX,teamPosY);
+            break;
+        }
     }
-    if (type==1) // formation 1
-    {
-        dReal teamPosX[MAX_ROBOT_COUNT] = {1.5, 1.5, 1.5, 0.55, 2.5, 3.6,
-                                               3.2, 3.2, 3.2, 3.2, 3.2, 3.2};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {1.12, 0.0, -1.12, 0.0, 0.0, 0.0,
-                                               0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
-        setAll(teamPosX,teamPosY);
-    }
-    if (type==2) // formation 2
-    {
-        dReal teamPosX[MAX_ROBOT_COUNT] = {4.2, 3.40,  3.40, 0.7, 0.7,  0.7,
-                                               2, 2, 2, 2, 2, 2};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {0.0, -0.20, 0.20, 0.0, 2.25, -2.25,
-                                               0.75, -0.75, 1.5, -1.5, 2.25, -2.25};
-        setAll(teamPosX,teamPosY);
-    }
-    if (type==3) // outside field
-    {
-        dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
-                                           2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {-4.0, -4.0, -4.0, -4.0, -4.0, -4.0,
-                                           -4.0, -4.0, -4.0, -4.0, -4.0, -4.0};
-        setAll(teamPosX,teamPosY);
-    }
-    if (type==4)
-    {
-        dReal teamPosX[MAX_ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1, 3, 3.2, 3.4, 3.6, 3.8, 4.0};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5, 1, 1, 1, 1, 1, 1};
-        setAll(teamPosX,teamPosY);
-    }
-    if (type==-1) // outside
-    {
-        dReal teamPosX[MAX_ROBOT_COUNT] = {0.4,  0.8,  1.2,  1.6,  2.0,  2.4,
-                                           2.8, 3.2, 3.6, 4.0, 4.4, 4.8};
-        dReal teamPosY[MAX_ROBOT_COUNT] = {-3.4, -3.4, -3.4, -3.4, -3.4, -3.4,
-                                           -3.4, -3.4, -3.4, -3.4, -3.4, -3.4};
-        setAll(teamPosX,teamPosY);
-    }
-
 }
 
-void RobotsFomation::loadFromFile(const QString& filename)
+void RobotsFormation::loadFromFile(const QString& filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -1011,7 +1293,7 @@ void RobotsFomation::loadFromFile(const QString& filename)
     }
 }
 
-void RobotsFomation::resetRobots(Robot** r,int team)
+void RobotsFormation::resetRobots(Robot** r, int team)
 {
     dReal dir=-1;
     if (team==1) dir = 1;

@@ -15,6 +15,19 @@ include(${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 standard_config()
 standard_paths(${PROJECT_SOURCE_DIR} bin lib)
 
+# policy regarding how to handle generated stuff, OLD behavior would ignore generated files
+# (which includes the generated protobuf cpp files)
+if (POLICY CMP0071)
+    cmake_policy(SET CMP0071 NEW)
+endif()
+
+# policy regarding when to rebuild stuff when external projects downloaded with URL changes
+if (POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+
+include(GNUInstallDirs)
+
 set(app ${CMAKE_PROJECT_NAME})
 # create the target before the sources list is known so that we can call
 # add_dependencies(<target> external_proj)
@@ -69,61 +82,91 @@ find_package(Qt5 COMPONENTS Core Widgets OpenGL Network REQUIRED)
 list(APPEND libs Qt5::Core Qt5::Widgets Qt5::OpenGL Qt5::Network)
 
 # ODE
-find_package(ODE REQUIRED)
-include_directories(${ODE_INCLUDE_DIRS})
-list(APPEND libs ${ODE_LIBRARIES})
-#TODO: make this an option
-option(DOUBLE_PRECISION "Use double precision? If not single precision will be used." ON)
-  if(DOUBLE_PRECISION)
-    if(APPLE)
-      add_definitions(-DdIDEDOUBLE)
-    else()
-      add_definitions(-DdDOUBLE)
-    endif()
+if(BUILD_ODE)
+  include(BuildODE)
+  add_dependencies(${app} ode_external)
+else()
+  if(WIN32)
+    find_package(ODE CONFIG)
+    set(ODE_LIB_NAME ODE::ODE)
   else()
-    if(APPLE)
-      add_definitions(-DdIDESINGLE)
-    else()
-      add_definitions(-DdSINGLE)
-    endif()
+    find_package(ODE)
+    set(ODE_LIB_NAME ode::ode)
   endif()
+
+  if(ODE_FOUND)
+    list(APPEND libs ${ODE_LIB_NAME})
+  else()
+    # if ODE could not be found just build it
+    include(BuildODE)
+    add_dependencies(${app} ode_external)
+  endif()
+endif()
 
 # VarTypes
 find_package(VarTypes)
 
 if(NOT VARTYPES_FOUND)
   include(ExternalProject)
-  set(VARTYPES_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/vartypes_install")
+  
+  set(VARTYPES_CMAKE_ARGS "-DVARTYPES_BUILD_STATIC=ON;-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>")
+  if(NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
+    set(VARTYPES_CMAKE_ARGS "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE};${VARTYPES_CMAKE_ARGS}")
+  endif()
+
   ExternalProject_Add(vartypes_external
     GIT_REPOSITORY    https://github.com/jpfeltracco/vartypes
     GIT_TAG           origin/jpfeltracco/build_static
-    INSTALL_DIR       "${VARTYPES_INSTALL_DIR}"
-    CMAKE_ARGS        "-DVARTYPES_BUILD_STATIC=ON;-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>"
+    CMAKE_ARGS        "${VARTYPES_CMAKE_ARGS}"
+    STEP_TARGETS install
   )
+  set(VARTYPES_LIB_SUBPATH "${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}vartypes${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+  # the byproducts are available after the install step
+  ExternalProject_Add_Step(vartypes_external out
+    DEPENDEES install
+    BYPRODUCTS
+        "<INSTALL_DIR>/${VARTYPES_LIB_SUBPATH}"
+  )
+
   add_dependencies(${app} vartypes_external)
 
-  set(VARTYPES_INCLUDE_DIRS "${VARTYPES_INSTALL_DIR}/include")
-  set(VARTYPE_LIB_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}vartypes${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(VARTYPES_LIBRARIES "${VARTYPES_INSTALL_DIR}/lib/${VARTYPE_LIB_NAME}")
+  ExternalProject_Get_Property(vartypes_external install_dir)
+  add_dependencies(${app} vartypes_external)
+
+  set(VARTYPES_INCLUDE_DIRS "${install_dir}/include")
+  set(VARTYPES_LIBRARIES "${install_dir}/${VARTYPES_LIB_SUBPATH}")
 endif()
 
 target_include_directories(${app} PRIVATE ${VARTYPES_INCLUDE_DIRS})
 list(APPEND libs ${VARTYPES_LIBRARIES})
 
 # Protobuf
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-list(APPEND libs ${PROTOBUF_LIBRARIES})
+include(FindOrBuildProtobuf)
 
+if(TARGET protobuf_external)
+    add_dependencies(${app} protobuf_external)
+endif()
+
+include_directories(${Protobuf_INCLUDE_DIRS})
+list(APPEND libs ${Protobuf_LIBRARIES})
+
+set (Protobuf_IMPORT_DIRS ${Protobuf_INCLUDE_DIR})
 protobuf_generate_cpp(PROTO_CPP PROTO_H
-    src/proto/messages_robocup_ssl_detection.proto
-    src/proto/messages_robocup_ssl_geometry.proto
-    src/proto/messages_robocup_ssl_wrapper.proto
-    src/proto/messages_robocup_ssl_refbox_log.proto
-    src/proto/messages_robocup_ssl_robot_status.proto
-    src/proto/grSim_Replacement.proto
     src/proto/grSim_Commands.proto
     src/proto/grSim_Packet.proto
+    src/proto/grSim_Replacement.proto
+    src/proto/grSim_Robotstatus.proto
+    src/proto/ssl_gc_common.proto
+    src/proto/ssl_simulation_config.proto
+    src/proto/ssl_simulation_control.proto
+    src/proto/ssl_simulation_error.proto
+    src/proto/ssl_simulation_robot_control.proto
+    src/proto/ssl_simulation_robot_feedback.proto
+    src/proto/ssl_simulation_synchronous.proto
+    src/proto/ssl_vision_detection.proto
+    src/proto/ssl_vision_geometry.proto
+    src/proto/ssl_vision_wrapper.proto
 )
 
 qt5_add_resources(RESOURCES

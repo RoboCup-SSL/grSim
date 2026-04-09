@@ -1,0 +1,9 @@
+{
+  "name": "grsim",
+  "version-string": "0.0.1",
+  "dependencies": [
+    "qt5-base",
+    "ode",
+    "protobuf"
+  ]
+}

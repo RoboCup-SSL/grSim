@@ -34,14 +34,15 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = 0);
-    ~MainWindow();    
+    ~MainWindow() override;
 public slots:
     void update();
     void updateRobotLabel();
-    void showHideConfig(bool v);
     void showHideSimulator(bool v);
     void changeCurrentRobot();
     void changeCurrentTeam();
+
+    void changeRobotCount();
 
     void changeBallMass();   
     void changeBallGroundSurface();    
@@ -62,33 +63,39 @@ public slots:
     void reconnectYellowStatusSocket();
     void reconnectBlueStatusSocket();
     void reconnectVisionSocket();
+    void reconnectSimControlSocket();
+    void reconnectBlueControlSocket();
+    void reconnectYellowControlSocket();
     void recvActions();
+    void simControlSocketReady();
+    void blueControlSocketReady();
+    void yellowControlSocketReady();
     void setIsGlEnabled(bool value);
 
     int robotIndex(int robot,int team);
 private:
     int getInterval();    
     QTimer *timer;
-    QMdiArea* workspace;
     GLWidget *glwidget;
     ConfigWidget *configwidget;
     ConfigDockWidget *dockconfig;
     RobotWidget *robotwidget;        
+    QByteArray prevState;
 
     CStatusPrinter *printer;
     CStatusWidget *statusWidget;
 
-    QAction *showsimulator, *showconfig;
+    QAction *showsimulator, *showconfig, *showrobot;
     QAction* fullScreenAct;
     QLabel *fpslabel,*cursorlabel,*selectinglabel,*vanishlabel,*noiselabel;
     QString current_dir;
 
-    QGraphicsScene *scene;
-    GLWidgetGraphicsView *view;
-    QSize lastSize;
     RoboCupSSLServer *visionServer;
     QUdpSocket *commandSocket;
     QUdpSocket *blueStatusSocket,*yellowStatusSocket;
+    QUdpSocket *simControlSocket;
+    QUdpSocket *blueControlSocket;
+    QUdpSocket *yellowControlSocket;
 };
 
 #endif // MAINWINDOW_H

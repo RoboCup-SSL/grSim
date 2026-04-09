@@ -21,7 +21,6 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #define GL_SILENCE_DEPRECATION
 #include <QGLWidget>
-#include <QGraphicsView>
 #include <QTime>
 #include <QMenu>
 
@@ -29,19 +28,35 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include "configwidget.h"
 
 
-class GLWidgetGraphicsView;
 class GLWidget : public QGLWidget {
 
     Q_OBJECT
 public:
+    enum class CursorMode {
+        STEADY = 0,
+        PLACE_ROBOT = 1,
+        PLACE_BALL = 2,
+    };
+    enum class CameraMode {
+        BIRDS_EYE_FROM_TOUCH_LINE = 0,
+        CURRENT_ROBOT_VIEW = 1,
+        TOP_VIEW = 2,
+        BIRDS_EYE_FROM_OPPOSITE_TOUCH_LINE = 3,
+        BIRDS_EYE_FROM_BLUE = 4,
+        BIRDS_EYE_FROM_YELLOW = 5,
+        MAX_ACTIVE_MODE_FOR_CHANGEMODE=BIRDS_EYE_FROM_YELLOW,
+        // non-avaliable modes when "toggle camera mode" called
+        LOCK_TO_ROBOT = -1,
+        LOCK_TO_BALL = -2,
+    };
     GLWidget(QWidget *parent,ConfigWidget* _cfg);
     ~GLWidget();
     dReal getFPS();
     ConfigWidget* cfg;   
     SSLWorld* ssl;
-    RobotsFomation* forms[6];
+    RobotsFormation* forms[4];
     QMenu* robpopup,*ballpopup,*mainpopup;
-    QMenu *blueRobotsMenu,*yellowRobotsMenu;
+    QMenu *blueRobotsMenu,*yellowRobotsMenu,*allRobotsMenu;
     QAction* moveRobotAct;
     QAction* selectRobotAct;
     QAction* resetRobotAct;
@@ -53,19 +68,17 @@ public:
     QAction* moveRobotHereAct;
     QAction* changeCamModeAct;
     QMenu *cameraMenu;
-    int Current_robot,Current_team,cammode;
+    int Current_robot,Current_team;
     int lockedIndex;
     bool ctrl,alt,kickingball,altTrigger;
     bool chiping;
     double kickpower, chipAngle;
-    bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(dReal x,dReal y);
     void reform(int team,const QString& act);    
     void step();
 public slots:
     void moveRobot();
-    void resetRobot();
     void selectRobot();
     void unselectRobot();    
     void moveCurrentRobot();
@@ -83,7 +96,6 @@ signals:
     void clicked();
     void selectedRobot();
     void closeSignal(bool);
-    void toggleFullScreen(bool);
     void robotTurnedOnOff(int,bool);
 protected:
     void paintGL ();
@@ -97,29 +109,14 @@ protected:
     void keyReleaseEvent(QKeyEvent* event);
     void closeEvent(QCloseEvent *event);    
 private:
-    int state;
+    CursorMode state;
+    CameraMode cammode;
     int moving_robot_id,clicked_robot;
     int frames;
     bool first_time;
     QTime time,rendertimer;
     dReal m_fps;
     QPoint lastPos;
-friend class GLWidgetGraphicsView;
-};
-
-class GLWidgetGraphicsView : public QGraphicsView        
-{
-    private:
-        GLWidget *glwidget;
-    public:
-        GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget* _glwidget);
-    protected:
-        void mousePressEvent(QMouseEvent *event);
-        void mouseMoveEvent(QMouseEvent *event);
-        void mouseReleaseEvent(QMouseEvent *event);
-        void wheelEvent(QWheelEvent *event);
-        void keyPressEvent(QKeyEvent *event);
-        void closeEvent(QCloseEvent *event);
 };
 
 #endif // WIDGET_H

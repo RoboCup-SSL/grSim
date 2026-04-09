@@ -31,6 +31,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QApplication>
 #include <QDir>
 #include <QClipboard>
+#include <QShortcut>
 
 #include <QStatusBar>
 #include <QMessageBox>
@@ -59,38 +60,50 @@ MainWindow::MainWindow(QWidget *parent)
     /* Status Logger */
     printer = new CStatusPrinter();
     statusWidget = new CStatusWidget(printer);
+    statusWidget->setObjectName("CStatusWidget");
     initLogger((void*)printer);
-
-    /* Init Workspace */
-    workspace = new QMdiArea(this);
-    setCentralWidget(workspace);    
 
     /* Widgets */
 
     configwidget = new ConfigWidget();
     dockconfig = new ConfigDockWidget(this,configwidget);
+    dockconfig->setObjectName("ConfigDockWidget");
+    dockconfig->setWindowTitle("Configuration");
 
     glwidget = new GLWidget(this,configwidget);
     glwidget->setWindowTitle(tr("Simulator"));
     glwidget->resize(512,512);    
 
-    visionServer = NULL;
-    commandSocket = NULL;
-    blueStatusSocket = NULL;
-    yellowStatusSocket = NULL;
+    visionServer = nullptr;
+    commandSocket = new QUdpSocket(this);
+    blueStatusSocket = nullptr;
+    yellowStatusSocket = nullptr;
+    simControlSocket = new QUdpSocket(this);
+    blueControlSocket = new QUdpSocket(this);
+    yellowControlSocket = new QUdpSocket(this);
     reconnectVisionSocket();
     reconnectCommandSocket();
     reconnectBlueStatusSocket();
     reconnectYellowStatusSocket();
+    reconnectSimControlSocket();
+    reconnectBlueControlSocket();
+    reconnectYellowControlSocket();
+
+    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
+    QObject::connect(simControlSocket,SIGNAL(readyRead()),this,SLOT(simControlSocketReady()));
+    QObject::connect(blueControlSocket,SIGNAL(readyRead()),this,SLOT(blueControlSocketReady()));
+    QObject::connect(yellowControlSocket,SIGNAL(readyRead()),this,SLOT(yellowControlSocketReady()));
 
     glwidget->ssl->visionServer = visionServer;
     glwidget->ssl->commandSocket = commandSocket;
     glwidget->ssl->blueStatusSocket = blueStatusSocket;
     glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
-
-
+    glwidget->ssl->simControlSocket = simControlSocket;
+    glwidget->ssl->blueControlSocket = blueControlSocket;
+    glwidget->ssl->yellowControlSocket = yellowControlSocket;
 
     robotwidget = new RobotWidget(this, configwidget);
+    robotwidget->setObjectName("RobotWidget");
     /* Status Bar */
     fpslabel = new QLabel(this);
     cursorlabel = new QLabel(this);
@@ -121,15 +134,18 @@ MainWindow::MainWindow(QWidget *parent)
     fileMenu->addAction(takeSnapshotToClipboardAct);
     fileMenu->addAction(exit);
 
+    QObject::connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q), this),
+                     &QShortcut::activated,
+                     this,
+                     &MainWindow::close);
+
     QMenu *viewMenu = new QMenu("&View");
     menuBar()->addMenu(viewMenu);
     showsimulator = new QAction("&Simulator", viewMenu);
     showsimulator->setCheckable(true);
     showsimulator->setChecked(true);
     viewMenu->addAction(showsimulator);
-    showconfig = new QAction("&Configuration", viewMenu);
-    showconfig->setCheckable(true);
-    showconfig->setChecked(true);
+    showconfig = dockconfig->toggleViewAction();
     viewMenu->addAction(showconfig);
 
     QMenu *simulatorMenu = new QMenu("&Simulator");
@@ -154,6 +170,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     robotMenu->addMenu(glwidget->blueRobotsMenu);
     robotMenu->addMenu(glwidget->yellowRobotsMenu);
+    robotMenu->addMenu(glwidget->allRobotsMenu);
 
     fullScreenAct = new QAction(tr("&Full screen"),simulatorMenu);
     fullScreenAct->setShortcut(QKeySequence("F2"));
@@ -161,16 +178,15 @@ MainWindow::MainWindow(QWidget *parent)
     fullScreenAct->setChecked(false);
     simulatorMenu->addAction(fullScreenAct);
 
-    viewMenu->addAction(robotwidget->toggleViewAction());
+    showrobot = robotwidget->toggleViewAction();
+    viewMenu->addAction(showrobot);
     viewMenu->addMenu(glwidget->cameraMenu);
 
     addDockWidget(Qt::LeftDockWidgetArea,dockconfig);
     addDockWidget(Qt::BottomDockWidgetArea, statusWidget);
     addDockWidget(Qt::LeftDockWidgetArea, robotwidget);
 
-    workspace->addSubWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
-
-    glwidget->setWindowState(Qt::WindowMaximized);
+    setCentralWidget(glwidget);
 
     timer = new QTimer(this);
     timer->setInterval(getInterval());
@@ -181,9 +197,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(takeSnapshotToClipboardAct, SIGNAL(triggered(bool)), this, SLOT(takeSnapshotToClipboard()));
     QObject::connect(exit, SIGNAL(triggered(bool)), this, SLOT(close()));
     QObject::connect(showsimulator, SIGNAL(triggered(bool)), this, SLOT(showHideSimulator(bool)));
-    QObject::connect(showconfig, SIGNAL(triggered(bool)), this, SLOT(showHideConfig(bool)));
     QObject::connect(glwidget, SIGNAL(closeSignal(bool)), this, SLOT(showHideSimulator(bool)));    
-    QObject::connect(dockconfig, SIGNAL(closeSignal(bool)), this, SLOT(showHideConfig(bool)));
     QObject::connect(glwidget, SIGNAL(selectedRobot()), this, SLOT(updateRobotLabel()));
     QObject::connect(robotwidget->robotCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentRobot()));
     QObject::connect(robotwidget->teamCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentTeam()));
@@ -194,7 +208,6 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(glwidget,SIGNAL(robotTurnedOnOff(int,bool)),robotwidget,SLOT(changeRobotOnOff(int,bool)));
     QObject::connect(ballMenu,SIGNAL(triggered(QAction*)),this,SLOT(ballMenuTriggered(QAction*)));
     QObject::connect(fullScreenAct,SIGNAL(triggered(bool)),this,SLOT(toggleFullScreen(bool)));
-    QObject::connect(glwidget,SIGNAL(toggleFullScreen(bool)),this,SLOT(toggleFullScreen(bool)));
     QObject::connect(glwidget->ssl, SIGNAL(fpsChanged(int)), this, SLOT(customFPS(int)));
     QObject::connect(aboutMenu, SIGNAL(triggered()), this, SLOT(showAbout()));
     //config related signals
@@ -211,7 +224,7 @@ MainWindow::MainWindow(QWidget *parent)
     //geometry config vars
     QObject::connect(configwidget->v_DesiredFPS.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeTimer()));
     QObject::connect(configwidget->v_Division.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_Robots_Count.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_Robots_Count.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(changeRobotCount()));
 
     QObject::connect(configwidget->v_DivA_Field_Line_Width.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Field_Length.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
@@ -221,7 +234,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_DivA_Field_Penalty_Width.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Field_Penalty_Depth.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Field_Penalty_Point.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_DivA_Field_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DivA_Field_Margin_Touch_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DivA_Field_Margin_Goal_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Field_Referee_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Wall_Thickness.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivA_Goal_Thickness.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
@@ -237,7 +251,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_DivB_Field_Penalty_Width.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Field_Penalty_Depth.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Field_Penalty_Point.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
-    QObject::connect(configwidget->v_DivB_Field_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DivB_Field_Margin_Touch_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_DivB_Field_Margin_Goal_Line.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Field_Referee_Margin.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Wall_Thickness.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_DivB_Goal_Thickness.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
@@ -248,12 +263,18 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(configwidget->v_YellowTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
     QObject::connect(configwidget->v_BlueTeam.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
 
+    QObject::connect(configwidget->v_ColorRobotBlue.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+    QObject::connect(configwidget->v_ColorRobotYellow.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(restartSimulator()));
+
     //network
     QObject::connect(configwidget->v_VisionMulticastAddr.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectVisionSocket()));
     QObject::connect(configwidget->v_VisionMulticastPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectVisionSocket()));
     QObject::connect(configwidget->v_CommandListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectCommandSocket()));
     QObject::connect(configwidget->v_BlueStatusSendPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectBlueStatusSocket()));
     QObject::connect(configwidget->v_YellowStatusSendPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectYellowStatusSocket()));
+    QObject::connect(configwidget->v_SimControlListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectSimControlSocket()));
+    QObject::connect(configwidget->v_BlueControlListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectBlueControlSocket()));
+    QObject::connect(configwidget->v_YellowControlListenPort.get(), SIGNAL(wasEdited(VarPtr)), this, SLOT(reconnectYellowControlSocket()));
     timer->start();
 
 
@@ -262,19 +283,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     robotwidget->teamCombo->setCurrentIndex(0);
     robotwidget->robotCombo->setCurrentIndex(0);
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+    auto robotPicture = glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img;
+    if(robotPicture != nullptr) {
+        robotwidget->setPicture(robotPicture);
+    }
     robotwidget->id = 0;
-    scene = new QGraphicsScene(0,0,800,600);    
 }
 
-MainWindow::~MainWindow()
-{
-}
+MainWindow::~MainWindow() {
 
-void MainWindow::showHideConfig(bool v)
-{
-    if (v) {dockconfig->show();showconfig->setChecked(true);}
-    else {dockconfig->hide();showconfig->setChecked(false);}
 }
 
 void MainWindow::showHideSimulator(bool v)
@@ -285,18 +302,43 @@ void MainWindow::showHideSimulator(bool v)
 
 void MainWindow::changeCurrentRobot()
 {
-    glwidget->Current_robot=robotwidget->robotCombo->currentIndex();    
-    robotwidget->setPicture(glwidget->ssl->robots[glwidget->ssl->robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
-    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
-    robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
+    // skip when robot count is zero to avoid out-of-range access for robots[]
+    // if zero, robotCombo->currentIndex returns -1
+    if(configwidget->Robots_Count() != 0) {
+        glwidget->Current_robot=robotwidget->robotCombo->currentIndex();
+        robotwidget->setPicture(glwidget->ssl->robots[glwidget->ssl->robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+        robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+        robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
+    }
 }
 
 void MainWindow::changeCurrentTeam()
 {
     glwidget->Current_team=robotwidget->teamCombo->currentIndex();
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
-    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
-    robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
+    // skip when robot count is zero to avoid out of range access for robots[]
+    // (if zero, robotCombo->currentIndex returns -1)
+    if(configwidget->Robots_Count() != 0) {
+        robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+        robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+        robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
+    }
+}
+
+void MainWindow::changeRobotCount()
+{
+    auto newRobotCount = configwidget->Robots_Count();
+
+    if(newRobotCount < 0 || newRobotCount > MAX_ROBOT_COUNT) {
+        newRobotCount = std::min(std::max(0, newRobotCount), static_cast<int>(MAX_ROBOT_COUNT));
+        configwidget->v_Robots_Count->setInt(newRobotCount);
+    }
+
+    robotwidget->changeRobotCount(newRobotCount);
+    
+    int newCurrentRobot = std::min(newRobotCount - 1, glwidget->Current_robot);
+    robotwidget->changeCurrentRobot(newCurrentRobot);
+    restartSimulator();
+    changeCurrentRobot();
 }
 
 void MainWindow::changeGravity()
@@ -324,24 +366,32 @@ QString dRealToStr(dReal a)
 
 void MainWindow::update()
 {
-    if (glwidget->ssl->g->isGraphicsEnabled()) glwidget->updateGL();
-    else glwidget->step();
+    if (glwidget->ssl->isGLEnabled) {
+        glwidget->ssl->g->enableGraphics();
+        glwidget->updateGL();
+    } else {
+        glwidget->ssl->g->disableGraphics();
+        glwidget->step();
+    }
 
     int R = robotIndex(glwidget->Current_robot,glwidget->Current_team);
 
-    const dReal* vv = dBodyGetLinearVel(glwidget->ssl->robots[R]->chassis->body);
-    static dVector3 lvv;
-    dVector3 aa;
-    aa[0]=(vv[0]-lvv[0])/configwidget->DeltaTime();
-    aa[1]=(vv[1]-lvv[1])/configwidget->DeltaTime();
-    aa[2]=(vv[2]-lvv[2])/configwidget->DeltaTime();
-    robotwidget->vellabel->setText(QString::number(sqrt(vv[0]*vv[0]+vv[1]*vv[1]+vv[2]*vv[2]),'f',3));
-    robotwidget->acclabel->setText(QString::number(sqrt(aa[0]*aa[0]+aa[1]*aa[1]+aa[2]*aa[2]),'f',3));
-    lvv[0]=vv[0];
-    lvv[1]=vv[1];
-    lvv[2]=vv[2];
-    QString ss;
-    fpslabel->setText(QString("Frame rate: %1 fps").arg(ss.sprintf("%06.2f",glwidget->getFPS())));        
+    if(0 <= R)
+    {
+        const dReal* vv = dBodyGetLinearVel(glwidget->ssl->robots[R]->chassis->body);
+        static dVector3 lvv;
+        dVector3 aa;
+        aa[0]=(vv[0]-lvv[0])/configwidget->DeltaTime();
+        aa[1]=(vv[1]-lvv[1])/configwidget->DeltaTime();
+        aa[2]=(vv[2]-lvv[2])/configwidget->DeltaTime();
+        robotwidget->vellabel->setText(QString::number(sqrt(vv[0]*vv[0]+vv[1]*vv[1]+vv[2]*vv[2]),'f',3));
+        robotwidget->acclabel->setText(QString::number(sqrt(aa[0]*aa[0]+aa[1]*aa[1]+aa[2]*aa[2]),'f',3));
+        lvv[0]=vv[0];
+        lvv[1]=vv[1];
+        lvv[2]=vv[2];
+    }
+    
+    fpslabel->setText(QString("Frame rate: %1 fps").arg(QString::asprintf("%06.2f",glwidget->getFPS())));        
     if (glwidget->ssl->selected!=-1)
     {
         selectinglabel->setVisible(true);
@@ -362,6 +412,36 @@ void MainWindow::update()
     noiselabel->setVisible(configwidget->noise());
     cursorlabel->setText(QString("Cursor: [X=%1;Y=%2;Z=%3]").arg(dRealToStr(glwidget->ssl->cursor_x)).arg(dRealToStr(glwidget->ssl->cursor_y)).arg(dRealToStr(glwidget->ssl->cursor_z)));
     statusWidget->update();
+
+    if(glwidget != nullptr && glwidget->ssl != nullptr)
+    {
+        // Stops blue robots from moving if no package has been received for 1 second
+        if(glwidget->ssl->elapsedLastPackageBlue.nsecsElapsed()*1e-9 > 1)
+        {
+            for(int i=0; i < glwidget->cfg->Robots_Count(); ++i)
+            {
+                const int index = glwidget->ssl->robotIndex(i, BLUE-1);
+
+                if(index == -1 || glwidget->ssl->robots[index] == nullptr)
+                    continue;
+
+                glwidget->ssl->robots[index]->resetSpeeds();
+            }
+        }
+        // Stops yellow robots from moving if no package has been received for 1 second
+        if(glwidget->ssl->elapsedLastPackageYellow.nsecsElapsed()*1e-9 > 1)
+        {
+            for(int i=0; i < glwidget->cfg->Robots_Count(); ++i)
+            {
+                const int index = glwidget->ssl->robotIndex(i, YELLOW-1);
+
+                if(index == -1 || glwidget->ssl->robots[index] == nullptr)
+                    continue;
+
+                glwidget->ssl->robots[index]->resetSpeeds();
+            }
+        }
+    }
 }
 
 void MainWindow::updateRobotLabel()
@@ -400,15 +480,19 @@ void MainWindow::changeBallDamping()
 
 void MainWindow::restartSimulator()
 {        
-    delete glwidget->ssl;
-    glwidget->ssl = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[2],glwidget->forms[2]);
-    glwidget->ssl->glinit();
-    glwidget->ssl->visionServer = visionServer;
-    glwidget->ssl->commandSocket = commandSocket;
-    glwidget->ssl->blueStatusSocket = blueStatusSocket;
-    glwidget->ssl->yellowStatusSocket = yellowStatusSocket;
+    auto newWorld = new SSLWorld(glwidget,glwidget->cfg,glwidget->forms[FORMATION_INSIDE_1],glwidget->forms[FORMATION_INSIDE_1]);
+    newWorld->glinit();
+    newWorld->visionServer = visionServer;
+    newWorld->commandSocket = commandSocket;
+    newWorld->blueStatusSocket = blueStatusSocket;
+    newWorld->yellowStatusSocket = yellowStatusSocket;
+    newWorld->simControlSocket = simControlSocket;
+    newWorld->blueControlSocket = blueControlSocket;
+    newWorld->yellowControlSocket = yellowControlSocket;
 
-
+    auto oldWorld = glwidget->ssl;
+    glwidget->ssl = newWorld;
+    delete oldWorld;
 }
 
 void MainWindow::ballMenuTriggered(QAction* act)
@@ -429,27 +513,20 @@ void MainWindow::toggleFullScreen(bool a)
 {
     if (a)
     {
-        view = new GLWidgetGraphicsView(scene,glwidget);
-        lastSize = glwidget->size();        
-        view->setViewport(glwidget);
-        view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-        view->setFrameStyle(0);
-        view->showFullScreen();
-        view->setFocus();        
-        glwidget->fullScreen = true;
-        fullScreenAct->setChecked(true);
+        prevState = saveState();
+        for (auto dockwidget : findChildren<QDockWidget*>())
+        {
+            dockwidget->hide();
+        }
+        showconfig->setEnabled(false);
+        showrobot->setEnabled(false);
+        showFullScreen();
     }
     else {
-        view->close(); 
-        workspace->addSubWindow(glwidget, Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
-        glwidget->show();
-        glwidget->resize(lastSize);
-        glwidget->fullScreen = false;
-        fullScreenAct->setChecked(false);
-        glwidget->setFocusPolicy(Qt::StrongFocus);
-        glwidget->setFocus();
+        showNormal();
+        restoreState(prevState);
+        showconfig->setEnabled(true);
+        showrobot->setEnabled(true);
     }
 }
 
@@ -492,42 +569,56 @@ void MainWindow::showAbout()
 
 void MainWindow::reconnectBlueStatusSocket()
 {
-    if (blueStatusSocket!=NULL)
-    {
-        delete blueStatusSocket;
-    }
+    delete blueStatusSocket;
     blueStatusSocket = new QUdpSocket(this);
-    // if (blueStatusSocket->bind(QHostAddress::Any,configwidget->BlueStatusSendPort()))
-    //     logStatus(QString("Status send port binded for Blue Team on: %1").arg(configwidget->BlueStatusSendPort()),QColor("green"));
 }
 
 void MainWindow::reconnectYellowStatusSocket()
 {
-    if (yellowStatusSocket!=NULL)
-    {
-        delete yellowStatusSocket;
-    }
+    delete yellowStatusSocket;
     yellowStatusSocket = new QUdpSocket(this);
-    // if (yellowStatusSocket->bind(QHostAddress::Any,configwidget->YellowStatusSendPort()))
-    //     logStatus(QString("Status send port binded for Yellow Team on: %1").arg(configwidget->YellowStatusSendPort()),QColor("green"));
 }
 
 void MainWindow::reconnectCommandSocket()
 {
-    if (commandSocket!=NULL)
-    {
-        QObject::disconnect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
-        delete commandSocket;
-    }
-    commandSocket = new QUdpSocket(this);
+    commandSocket->disconnectFromHost();
     if (commandSocket->bind(QHostAddress::Any,configwidget->CommandListenPort()))
-        logStatus(QString("Command listen port binded on: %1").arg(configwidget->CommandListenPort()),QColor("green"));
-    QObject::connect(commandSocket,SIGNAL(readyRead()),this,SLOT(recvActions()));
+        logStatus(QString("Command listen port bound on: %1").arg(configwidget->CommandListenPort()),QColor("green"));
+    else
+        logStatus(QString("Command listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
+}
+
+void MainWindow::reconnectSimControlSocket()
+{
+    simControlSocket->disconnectFromHost();
+    if (simControlSocket->bind(QHostAddress::Any,configwidget->SimControlListenPort()))
+        logStatus(QString("Sim control listen port bound on: %1").arg(configwidget->SimControlListenPort()),QColor("green"));
+    else
+        logStatus(QString("Sim control listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
+    QObject::connect(simControlSocket,SIGNAL(readyRead()),this,SLOT(simControlSocketReady()));
+}
+
+void MainWindow::reconnectBlueControlSocket()
+{
+    blueControlSocket->disconnectFromHost();
+    if (blueControlSocket->bind(QHostAddress::Any,configwidget->BlueControlListenPort()))
+        logStatus(QString("Blue control listen port bound on: %1").arg(configwidget->BlueControlListenPort()),QColor("green"));
+    else
+        logStatus(QString("Blue control listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
+}
+
+void MainWindow::reconnectYellowControlSocket()
+{
+    yellowControlSocket->disconnectFromHost();
+    if (yellowControlSocket->bind(QHostAddress::Any,configwidget->YellowControlListenPort()))
+        logStatus(QString("Yellow control listen port bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("green"));
+    else
+        logStatus(QString("Yellow control listen port could not be bound on: %1").arg(configwidget->YellowControlListenPort()),QColor("red"));
 }
 
 void MainWindow::reconnectVisionSocket()
 {
-    if (visionServer == NULL) {
+    if (visionServer == nullptr) {
         visionServer = new RoboCupSSLServer(this);
     }
     visionServer->change_address(configwidget->VisionMulticastAddr());
@@ -538,6 +629,24 @@ void MainWindow::reconnectVisionSocket()
 void MainWindow::recvActions()
 {
     glwidget->ssl->recvActions();
+}
+
+void MainWindow::simControlSocketReady()
+{
+    glwidget->ssl->simControlSocketReady();
+    if (glwidget->ssl->restartRequired) {
+        restartSimulator();
+    }
+}
+
+void MainWindow::blueControlSocketReady()
+{
+    glwidget->ssl->blueControlSocketReady();
+}
+
+void MainWindow::yellowControlSocketReady()
+{
+    glwidget->ssl->yellowControlSocketReady();
 }
 
 void MainWindow::setIsGlEnabled(bool value)

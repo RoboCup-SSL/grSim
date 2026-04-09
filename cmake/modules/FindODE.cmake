@@ -1,59 +1,62 @@
-find_path(
-   ODE_INCLUDE_DIRS
-   NAMES
-   ode/ode.h
-   HINTS
-   $ENV{HOME}/include
-   /usr/local/include
-   /usr/include
-   $ENV{ProgramFiles}/ode/include
+find_package(PkgConfig QUIET)
+
+foreach(pc_lib ode-double ode)
+  pkg_check_modules(pc_ode QUIET "${pc_lib}")
+  if(pc_ode_FOUND)
+    if(pc_ode_VERSION VERSION_LESS "0.13")
+      if (pc_ode_CFLAGS MATCHES "-D(dSINGLE|dDOUBLE)")
+        set(pc_ode_precision "${CMAKE_MATCH_1}")
+      endif()
+    else()
+      pkg_get_variable(pc_ode_precision "${pc_lib}" precision)
+    endif()
+
+    break()
+  endif()
+endforeach()
+
+find_library(ODE_LIBRARIES
+  NAMES "${pc_ode_LIBRARIES}"
+  HINTS "${pc_ode_LIBRARY_DIRS}"
 )
 
-find_library(
-   ODE_LIBRARY_DEBUG
-   NAMES
-   oded debugdll/ode
-   HINTS
-   $ENV{HOME}/lib
-   /usr/local/lib
-   /usr/lib
-   $ENV{ProgramFiles}/ode/lib
+find_path(ODE_INCLUDE_DIR
+  NAMES ode/ode.h
+  HINTS "${pc_ode_INCLUDEDIR}"
 )
 
-find_library(
-   ODE_LIBRARY_RELEASE
-   NAMES
-   ode releasedll/ode
-   HINTS
-   $ENV{HOME}/lib
-   /usr/local/lib
-   /usr/lib
-   $ENV{ProgramFiles}/ode/lib
+set(ODE_VERSION "${pc_ode_VERSION}")
+set(ODE_PRECISION "${pc_ode_precision}")
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(ODE
+  REQUIRED_VARS ODE_LIBRARIES ODE_INCLUDE_DIR ODE_PRECISION
+  VERSION_VAR   ODE_VERSION
 )
 
-if(ODE_LIBRARY_DEBUG AND NOT ODE_LIBRARY_RELEASE)
-   set(ODE_LIBRARIES ${ODE_LIBRARY_DEBUG})
+mark_as_advanced(ODE_LIBRARIES ODE_INCLUDE_DIR ODE_PRECISION)
+
+if(ODE_LIBRARIES AND NOT TARGET ode::ode)
+  add_library(ode::ode UNKNOWN IMPORTED)
+  set_target_properties(ode::ode PROPERTIES
+    IMPORTED_LOCATION "${ODE_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${ODE_INCLUDE_DIR}")
+
+  if(ODE_VERSION VERSION_LESS "0.13")
+    if(ODE_PRECISION STREQUAL "dSINGLE")
+      set_target_properties(ode::ode PROPERTIES
+        INTERFACE_COMPILE_DEFINITIONS "dSINGLE")
+    elseif(ODE_PRECISION STREQUAL "dDOUBLE")
+      set_target_properties(ode::ode PROPERTIES
+        INTERFACE_COMPILE_DEFINITIONS "dDOUBLE")
+    endif()
+  else()
+    if(ODE_PRECISION STREQUAL "dSINGLE")
+      set_target_properties(ode::ode PROPERTIES
+        INTERFACE_COMPILE_DEFINITIONS "dIDESINGLE")
+    elseif(ODE_PRECISION STREQUAL "dDOUBLE")
+      set_target_properties(ode::ode PROPERTIES
+        INTERFACE_COMPILE_DEFINITIONS "dIDEDOUBLE")
+    endif()
+  endif()
 endif()
-
-if(ODE_LIBRARY_RELEASE AND NOT ODE_LIBRARY_DEBUG)
-   set(ODE_LIBRARIES ${ODE_LIBRARY_RELEASE})
-endif()
-
-if(ODE_LIBRARY_DEBUG AND ODE_LIBRARY_RELEASE)
-   set(ODE_LIBRARIES debug ${ODE_LIBRARY_DEBUG} optimized ${ODE_LIBRARY_RELEASE})
-endif()
-
-find_package_handle_standard_args(
-   ODE
-   DEFAULT_MSG
-   ODE_INCLUDE_DIRS
-   ODE_LIBRARIES
-)
-
-mark_as_advanced(
-    ODE_INCLUDE_DIRS
-    ODE_LIBRARIES
-    ODE_LIBRARY_DEBUG
-    ODE_LIBRARY_RELEASE
-)
-

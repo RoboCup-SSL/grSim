@@ -217,6 +217,13 @@ Robot::Robot(PWorld* world,PBall *ball,ConfigWidget* _cfg,dReal x,dReal y,dReal 
     cfg = _cfg;
     m_rob_id = rob_id;
 
+    AccSpeedupAbsoluteMax = cfg->robotSettings.AccSpeedupAbsoluteMax;
+    AccSpeedupAngularMax = cfg->robotSettings.AccSpeedupAngularMax;
+    AccBrakeAbsoluteMax = cfg->robotSettings.AccBrakeAbsoluteMax;
+    AccBrakeAngularMax = cfg->robotSettings.AccBrakeAngularMax;
+    VelAbsoluteMax = cfg->robotSettings.VelAbsoluteMax;
+    VelAngularMax = cfg->robotSettings.VelAngularMax;
+
     space = w->space;
 
     chassis = new PCylinder(x,y,z,cfg->robotSettings.RobotRadius,cfg->robotSettings.RobotHeight,cfg->robotSettings.BodyMass*0.99f,r,g,b,rob_id,true);
@@ -445,8 +452,51 @@ void Robot::setSpeed(int i,dReal s)
 
 void Robot::setSpeed(dReal vx, dReal vy, dReal vw)
 {
-    // Calculate Motor Speeds
     dReal _DEG2RAD = M_PI / 180.0;
+
+    dReal v = sqrt(vx * vx + vy * vy);
+    if (v > VelAbsoluteMax) {
+        vx *= VelAbsoluteMax / v;
+        vy *= VelAbsoluteMax / v;
+        v = VelAbsoluteMax;
+    }
+    if (abs(vw) > VelAngularMax) {
+        vw = copysign(VelAngularMax, vw);
+    }
+    
+    const dReal* cvv = dBodyGetLinearVel(chassis->body);
+    dReal cv = sqrt(cvv[0]*cvv[0]+cvv[1]*cvv[1]);
+    dReal a = (v - cv) / cfg->DeltaTime() / 2;
+    dReal aLimit = a > 0 ? AccSpeedupAbsoluteMax : AccBrakeAbsoluteMax;
+    if (abs(a) > aLimit) {
+        a = copysign(aLimit, a);
+        dReal new_v = cv + a * cfg->DeltaTime() * 2;
+        if (v > 0) {
+            vx *= new_v / v;
+            vy *= new_v / v;
+        } else {
+            // convert global to local
+            dReal angle;
+            angle = getDir();
+            angle *= _DEG2RAD;
+            dReal cvx = cvv[0]*cos(angle) + cvv[1]*sin(angle);
+            dReal cvy = -cvv[0]*sin(angle) + cvv[1]*cos(angle);
+
+            vx = cvx * (new_v / cv);
+            vy = cvy * (new_v / cv);
+        }
+    }
+
+    const dReal* cvvw = dBodyGetAngularVel(chassis->body);
+    dReal cvw = cvvw[2];
+    dReal aw = (vw - cvw) / cfg->DeltaTime() / 2;
+    dReal awLimit = aw > 0 ? AccSpeedupAngularMax : AccBrakeAngularMax;
+    if (abs(aw) > awLimit) {
+        aw = copysign(awLimit, aw);
+        vw = cvw + aw * cfg->DeltaTime() * 2;
+    }
+    
+    // Calculate Motor Speeds
     dReal motorAlpha[4] = {cfg->robotSettings.Wheel1Angle * _DEG2RAD, cfg->robotSettings.Wheel2Angle * _DEG2RAD, cfg->robotSettings.Wheel3Angle * _DEG2RAD, cfg->robotSettings.Wheel4Angle * _DEG2RAD};
 
     dReal dw1 =  (1.0 / cfg->robotSettings.WheelRadius) * (( (cfg->robotSettings.RobotRadius * vw) - (vx * sin(motorAlpha[0])) + (vy * cos(motorAlpha[0]))) );

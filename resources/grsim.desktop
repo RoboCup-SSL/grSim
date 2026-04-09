@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
-Version=1.0.0
+Version=2.2
 Name=grSim
-Comment=Robocup Small Size League Simulator
-Exec=grsim
+Comment=Robocup Small Size Robot Soccer Simulator
+Exec=grSim
 Icon=grsim
 Terminal=false
-Categories=Utility;Physics;Robotics
+Categories=Utility;Physics;Robotics;Application

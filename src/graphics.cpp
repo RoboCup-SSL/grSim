@@ -71,6 +71,7 @@ bool CGraphics::isGraphicsEnabled()
 }
 
 void CGraphics::setSphereQuality(int q) {sphere_quality = q;}
+
 int CGraphics::loadTexture(QImage* img)
 {
     if (graphicDisabled) return -1;
@@ -181,22 +182,22 @@ void CGraphics::wrapCameraAngles()
     }
 }
 
-void CGraphics::cameraMotion (int mode, int deltax, int deltay)
+void CGraphics::cameraMotion (CameraMotionMode mode, int deltax, int deltay)
 {
     if (graphicDisabled) return;
     dReal side = 0.01f * dReal(deltax);
-    dReal fwd = (mode==4) ? (0.01f * dReal(deltay)) : 0.0f;
+    dReal fwd = (mode==CameraMotionMode::ROTATE_VIEW_POINT) ? (0.01f * dReal(deltay)) : 0.0f;
     dReal s = (dReal) sin (view_hpr[0]*M_PI/180.0f);
     dReal c = (dReal) cos (view_hpr[0]*M_PI/180.0f);
 
-    if (mode==1) {
+    if (mode==CameraMotionMode::ROTATE_VIEW_POINT) {
         view_hpr[0] += dReal (deltax) * 0.5f;
         view_hpr[1] += dReal (deltay) * 0.5f;
     }
     else {
         view_xyz[0] += -s*side + c*fwd;
         view_xyz[1] += c*side + s*fwd;
-        if (mode==2 || mode==5) view_xyz[2] += 0.01f * dReal(deltay);
+        if (mode==CameraMotionMode::MOVE_POSITION_FREELY) view_xyz[2] += 0.01f * dReal(deltay);
     }
     wrapCameraAngles();
 }

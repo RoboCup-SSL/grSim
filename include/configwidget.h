@@ -118,6 +118,14 @@ public:
     double WheelTangentFriction;
     double WheelPerpendicularFriction;
     double Wheel_Motor_FMax;
+    double MaxLinearKickSpeed;
+    double MaxChipKickSpeed;
+    double AccSpeedupAbsoluteMax;
+    double AccSpeedupAngularMax;
+    double AccBrakeAbsoluteMax;
+    double AccBrakeAngularMax;
+    double VelAbsoluteMax;
+    double VelAngularMax;
 };
 
 
@@ -131,12 +139,12 @@ protected:
 public:
   VarListPtr geo_vars;
   ConfigWidget();
-  virtual ~ConfigWidget();
+  ~ConfigWidget() override;
 
   QSettings* robot_settings;
-  RobotSettings robotSettings;
-  RobotSettings blueSettings;
-  RobotSettings yellowSettings;
+  RobotSettings robotSettings{};
+  RobotSettings blueSettings{};
+  RobotSettings yellowSettings{};
 
   /*    Geometry/Game Vartypes   */
   DEF_ENUM(std::string, Division)
@@ -149,13 +157,18 @@ public:
   DEF_FIELD_VALUE(double,Double,Field_Penalty_Width)
   DEF_FIELD_VALUE(double,Double,Field_Penalty_Depth)
   DEF_FIELD_VALUE(double,Double,Field_Penalty_Point)
-  DEF_FIELD_VALUE(double,Double,Field_Margin)
+  DEF_FIELD_VALUE(double,Double,Field_Margin_Touch_Line)
+  DEF_FIELD_VALUE(double,Double,Field_Margin_Goal_Line)
+  DEF_FIELD_VALUE(double,Double,Field_Goal_Substitution_Area_Width)
   DEF_FIELD_VALUE(double,Double,Field_Referee_Margin)
   DEF_FIELD_VALUE(double,Double,Wall_Thickness)
   DEF_FIELD_VALUE(double,Double,Goal_Thickness)
   DEF_FIELD_VALUE(double,Double,Goal_Depth)
   DEF_FIELD_VALUE(double,Double,Goal_Width)
   DEF_FIELD_VALUE(double,Double,Goal_Height)
+  DEF_VALUE(double,Double,Camera_Height)
+  DEF_VALUE(double,Double,Camera_Focal_Length)
+  DEF_VALUE(double,Double,Camera_Scaling_Limit)
 
   DEF_ENUM(std::string,YellowTeam)
   DEF_ENUM(std::string,BlueTeam)
@@ -167,6 +180,13 @@ public:
   DEF_VALUE(double,Double,BallBounceVel)
   DEF_VALUE(double,Double,BallLinearDamp)
   DEF_VALUE(double,Double,BallAngularDamp)
+  DEF_VALUE(bool,Bool,BallProjectAirborne)
+  DEF_VALUE(double,Double,BallModelTwoPhaseAccSlide)
+  DEF_VALUE(double,Double,BallModelTwoPhaseAccRoll)
+  DEF_VALUE(double,Double,BallModelTwoPhaseKSwitch)
+  DEF_VALUE(double,Double,BallModelChipFixedLossDampingXyFirstHop)
+  DEF_VALUE(double,Double,BallModelChipFixedLossDampingXyOtherHops)
+  DEF_VALUE(double,Double,BallModelChipFixedLossDampingZ)
 
   DEF_VALUE(bool,Bool,SyncWithGL)
   DEF_VALUE(double,Double,DesiredFPS)
@@ -179,6 +199,9 @@ public:
   DEF_VALUE(int,Int,CommandListenPort)
   DEF_VALUE(int,Int,BlueStatusSendPort)
   DEF_VALUE(int,Int,YellowStatusSendPort)
+  DEF_VALUE(int,Int,SimControlListenPort)
+  DEF_VALUE(int,Int,BlueControlListenPort)
+  DEF_VALUE(int,Int,YellowControlListenPort)
   DEF_VALUE(int,Int,sendDelay)
   DEF_VALUE(bool,Bool,noise)
   DEF_VALUE(double,Double,noiseDeviation_x)
@@ -190,7 +213,11 @@ public:
   DEF_VALUE(double,Double,yellow_team_vanishing)
   DEF_VALUE(std::string, String, plotter_addr)
   DEF_VALUE(int, Int, plotter_port)
-  DEF_VALUE(bool, Bool, plotter)  
+  DEF_VALUE(bool, Bool, plotter)
+
+  DEF_VALUE(std::string, String, ColorRobotBlue)
+  DEF_VALUE(std::string, String, ColorRobotYellow)
+
   void loadRobotSettings(QString team);
 public slots:  
   void loadRobotsSettings();

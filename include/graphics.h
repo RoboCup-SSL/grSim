@@ -26,6 +26,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #include <QGLWidget>
 #include <QString>
 
+enum CameraMotionMode {
+    ROTATE_VIEW_POINT = 1,
+    MOVE_POSITION_FREELY = 2,
+    MOVE_POSITION_LR = 4,
+};
 
 class CGraphics
 {
@@ -61,7 +66,7 @@ public:
     dReal renderDepth();
     void setRenderDepth(dReal depth);
     void setViewpoint (dReal x,dReal y,dReal z,dReal h,dReal p,dReal r);
-    void cameraMotion (int mode, int deltax, int deltay);
+    void cameraMotion (CameraMotionMode mode, int deltax, int deltay);
     void lookAt(dReal x,dReal y,dReal z);
     void getCameraForward(dReal& x,dReal& y,dReal& z);
     void getCameraRight(dReal& x,dReal& y,dReal& z);
