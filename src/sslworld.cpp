@@ -443,10 +443,7 @@ void SSLWorld::step(dReal dt) {
     for (int kk=0;kk < ballCollisionTry;kk++) {
         const dReal* ballvel = dBodyGetLinearVel(ball->body);
         // Check if ball is on the ground before applying ground friction
-        dReal ballx, bally, ballz;
-        ball->getBodyPosition(ballx, bally, ballz);
-        (void)ballx;
-        (void)bally;
+        const dReal ballz = dBodyGetPosition(ball->body)[2];
         bool ballOnGround = ballz <= ballGroundThreshold();
         dReal ballspeed = ballvel[0]*ballvel[0] + ballvel[1]*ballvel[1] + ballvel[2]*ballvel[2];
         ballspeed = sqrt(ballspeed);
