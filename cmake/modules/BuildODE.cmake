@@ -11,10 +11,14 @@ ExternalProject_Add(ode_external
                       -DCMAKE_C_COMPILER:PATH=${CMAKE_C_COMPILER}
                       -DCMAKE_CXX_COMPILER:PATH=${CMAKE_CXX_COMPILER}
                       -DCMAKE_MAKE_PROGRAM:PATH=${CMAKE_MAKE_PROGRAM}
+                      -DCMAKE_POLICY_VERSION_MINIMUM=3.5
                       # necessary, because it does not build the static libs if this is ON
                       -DBUILD_SHARED_LIBS=OFF
                       # if this is OFF grSim just dies instantly and INSTALL.md says it should be ON
                       -DODE_DOUBLE_PRECISION=ON
+                      # demos are not needed and fail to compile on macOS 15+ due to narrowing errors
+                      -DODE_WITH_DEMOS=OFF
+                      -DODE_WITH_TESTS=OFF
                       -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
   STEP_TARGETS install
 )
